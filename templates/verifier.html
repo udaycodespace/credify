@@ -155,52 +155,249 @@ document.getElementById('verifyProofForm').addEventListener('submit', function(e
 });
 
 function verifyCredential() {
-    const verifyBtn = document.getElementById('verifyBtn');
-    const originalText = verifyBtn.innerHTML;
     const credentialId = document.getElementById('credentialId').value.trim();
-    
     if (!credentialId) {
         showAlert('Please enter a credential ID', 'warning');
         return;
     }
     
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resultsDiv = document.getElementById('verificationResults');
+    const contentDiv = document.getElementById('verificationContent');
+    
     // Show loading state
-    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Verifying...';
     verifyBtn.disabled = true;
+    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Verifying...';
+    
+    // Show results container and display loading message
+    resultsDiv.style.display = 'block';
+    contentDiv.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Verifying credential...</p>';
     
     fetch('/api/verify_credential', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential_id: credentialId })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         console.log('Verification response:', data);
-        displayVerificationResults(data, 'credential');
+        
+        if (data.valid && data.status === 'active') {
+            displayValidCredential(data);
+        } else {
+            displayInvalidCredential(data);
+        }
+        
+        // Scroll to results
+        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     })
     .catch(error => {
-        console.error('Full error details:', error);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-        showAlert('Error: ' + error.message + '. Please check the browser console for details.', 'danger');
+        console.error('Verification error:', error);
+        contentDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-times-circle me-2"></i>Verification Error</h5>
+                <p class="mb-0">Network error occurred. Please try again.</p>
+            </div>
+        `;
     })
     .finally(() => {
-        verifyBtn.innerHTML = originalText;
         verifyBtn.disabled = false;
+        verifyBtn.innerHTML = '<i class="fas fa-check-circle me-1"></i>Verify Credential';
     });
+}
+
+function displayValidCredential(data) {
+    const contentDiv = document.getElementById('verificationContent');
+    const cred = data.credential;
+    const subject = cred.credentialSubject;
+    const registry = data.registry_entry || {};
+    
+    contentDiv.innerHTML = `
+        <div class="alert alert-success">
+            <h4><i class="fas fa-check-circle me-2"></i>✅ Credential Verified Successfully!</h4>
+            <p class="mb-0"><strong>Status:</strong> <span class="badge bg-success">ACTIVE & VALID</span></p>
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Student Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-sm mb-0">
+                    <tr>
+                        <th width="35%">Student Name:</th>
+                        <td><strong>${subject.name}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Roll Number:</th>
+                        <td><code>${subject.studentId}</code></td>
+                    </tr>
+                    <tr>
+                        <th>Degree:</th>
+                        <td>${subject.degree}</td>
+                    </tr>
+                    <tr>
+                        <th>University:</th>
+                        <td>${subject.university}</td>
+                    </tr>
+                    <tr>
+                        <th>GPA/CGPA:</th>
+                        <td><span class="badge bg-info">${subject.gpa}</span></td>
+                    </tr>
+                    <tr>
+                        <th>Graduation Year:</th>
+                        <td>${subject.graduationYear}</td>
+                    </tr>
+                    ${subject.semester ? `
+                    <tr>
+                        <th>Semester:</th>
+                        <td>Semester ${subject.semester}</td>
+                    </tr>
+                    ` : ''}
+                    ${subject.year ? `
+                    <tr>
+                        <th>Year:</th>
+                        <td>Year ${subject.year}</td>
+                    </tr>
+                    ` : ''}
+                    ${subject.backlogCount !== undefined ? `
+                    <tr>
+                        <th>Backlog Count:</th>
+                        <td><span class="badge ${subject.backlogCount > 0 ? 'bg-warning text-dark' : 'bg-success'}">${subject.backlogCount}</span></td>
+                    </tr>
+                    ` : ''}
+                    ${subject.conduct ? `
+                    <tr>
+                        <th>Conduct:</th>
+                        <td><span class="badge bg-secondary">${subject.conduct.toUpperCase()}</span></td>
+                    </tr>
+                    ` : ''}
+                </table>
+            </div>
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Verification Details</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i><strong>Blockchain:</strong> Verified ✓</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i><strong>Digital Signature:</strong> Valid ✓</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i><strong>Hash Integrity:</strong> Confirmed ✓</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i><strong>Status:</strong> Active ✓</li>
+                    <li class="mb-2"><i class="fas fa-info-circle text-info me-2"></i><strong>Credential ID:</strong> <code>${cred.id || 'N/A'}</code></li>
+                    <li class="mb-2"><i class="fas fa-info-circle text-info me-2"></i><strong>IPFS CID:</strong> <code>${registry.ipfs_cid || 'N/A'}</code></li>
+                    <li><i class="fas fa-info-circle text-info me-2"></i><strong>Issued:</strong> ${new Date(cred.issuanceDate).toLocaleString()}</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+function displayInvalidCredential(data) {
+    const contentDiv = document.getElementById('verificationContent');
+    
+    let statusBadge, icon, title, details;
+    
+    switch(data.status) {
+        case 'revoked':
+            statusBadge = '<span class="badge bg-danger">REVOKED</span>';
+            icon = 'fa-ban';
+            title = '🚫 Credential Revoked';
+            details = `
+                <p><strong>This credential has been officially revoked.</strong></p>
+                <ul class="mb-0">
+                    <li><strong>Revocation Reason:</strong> ${data.revocation_reason || 'Not specified'}</li>
+                    <li><strong>Revoked On:</strong> ${data.details || 'Unknown'}</li>
+                    <li><strong>Action Required:</strong> This credential is no longer valid for any purpose.</li>
+                </ul>
+            `;
+            break;
+            
+        case 'superseded':
+            statusBadge = '<span class="badge bg-warning text-dark">SUPERSEDED</span>';
+            icon = 'fa-history';
+            title = '⚠️ Old Version - Superseded';
+            details = `
+                <p><strong>This is an outdated version of the credential.</strong></p>
+                <ul class="mb-0">
+                    <li>A newer version exists for this student</li>
+                    <li>This version is no longer considered current</li>
+                    <li>Please contact the student for the latest credential</li>
+                </ul>
+            `;
+            break;
+            
+        case 'tampered':
+            statusBadge = '<span class="badge bg-danger">TAMPERED</span>';
+            icon = 'fa-exclamation-triangle';
+            title = '⛔ Credential Tampered / Fake';
+            details = `
+                <p><strong>This credential has been modified or is fake!</strong></p>
+                <ul class="mb-0">
+                    <li>The credential content does not match blockchain record</li>
+                    <li>Hash verification failed</li>
+                    <li>Possible forgery attempt detected</li>
+                    <li><strong class="text-danger">DO NOT TRUST THIS CREDENTIAL</strong></li>
+                </ul>
+            `;
+            break;
+            
+        case 'not_found':
+            statusBadge = '<span class="badge bg-secondary">NOT FOUND</span>';
+            icon = 'fa-question-circle';
+            title = '❓ Credential Not Found';
+            details = `
+                <p><strong>This credential ID does not exist in our system.</strong></p>
+                <ul class="mb-0">
+                    <li>The credential ID may be incorrect</li>
+                    <li>The credential was never issued by this institution</li>
+                    <li>Possible fake credential attempt</li>
+                </ul>
+            `;
+            break;
+            
+        default:
+            statusBadge = '<span class="badge bg-danger">INVALID</span>';
+            icon = 'fa-times-circle';
+            title = '❌ Verification Failed';
+            details = `
+                <p><strong>Error:</strong> ${data.error || 'Unknown error'}</p>
+                <p class="mb-0"><strong>Details:</strong> ${data.details || 'No additional information available'}</p>
+            `;
+    }
+    
+    contentDiv.innerHTML = `
+        <div class="alert alert-danger">
+            <h4><i class="fas ${icon} me-2"></i>${title}</h4>
+            <p class="mb-2"><strong>Status:</strong> ${statusBadge}</p>
+            <hr>
+            ${details}
+        </div>
+        
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Credential ID:</strong> <code>${document.getElementById('credentialId').value}</code></p>
+                <p class="mb-0"><strong>Recommendation:</strong> ${
+                    data.status === 'superseded' ? 'Request the latest version from the student.' :
+                    data.status === 'revoked' ? 'Do not accept this credential under any circumstances.' :
+                    'Verify the credential ID and try again. If the issue persists, contact the issuing institution.'
+                }</p>
+            </div>
+        </div>
+    `;
 }
 
 function verifySelectiveDisclosureProof() {
     const verifyProofBtn = document.getElementById('verifyProofBtn');
     const originalText = verifyProofBtn.innerHTML;
     const proofData = document.getElementById('proofData').value.trim();
+    const resultsDiv = document.getElementById('verificationResults');
+    const contentDiv = document.getElementById('verificationContent');
     
     if (!proofData) {
         showAlert('Please enter a selective disclosure proof', 'warning');
@@ -210,26 +407,37 @@ function verifySelectiveDisclosureProof() {
     try {
         const proof = JSON.parse(proofData);
         
+        if (!proof.originalCredentialId) {
+            showAlert('Invalid proof format: missing originalCredentialId', 'danger');
+            return;
+        }
+        
         // Show loading state
         verifyProofBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Verifying...';
         verifyProofBtn.disabled = true;
         
-        // First verify the original credential
+        resultsDiv.style.display = 'block';
+        contentDiv.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Verifying selective disclosure proof...</p>';
+        
+        // Verify the original credential
         fetch('/api/verify_credential', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ credential_id: proof.originalCredentialId })
         })
         .then(response => response.json())
         .then(data => {
             if (data.valid) {
-                data.selective_disclosure_proof = proof;
-                displayVerificationResults(data, 'selective_disclosure');
+                displaySelectiveDisclosureResults(data, proof);
             } else {
-                displayVerificationResults(data, 'credential');
+                contentDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-times-circle me-2"></i>Proof Verification Failed</h5>
+                        <p>The original credential could not be verified: ${data.error}</p>
+                    </div>
+                `;
             }
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         })
         .catch(error => {
             console.error('Error:', error);
@@ -242,167 +450,93 @@ function verifySelectiveDisclosureProof() {
         
     } catch (error) {
         showAlert('Invalid JSON format in the proof data', 'danger');
-        verifyProofBtn.innerHTML = originalText;
-        verifyProofBtn.disabled = false;
     }
 }
 
-function displayVerificationResults(data, type) {
-    const resultsDiv = document.getElementById('verificationResults');
+function displaySelectiveDisclosureResults(data, proof) {
     const contentDiv = document.getElementById('verificationContent');
     
-    console.log('Displaying results for data:', data);
-    console.log('Type:', type);
-    // Ensure resultHtml is defined for both branches
-    let resultHtml = '';
-
-    if (data.valid) {
-        // Success - credential is valid
-        resultHtml = `
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle me-2"></i>
-                <strong>Verification Successful!</strong> This credential is authentic and valid.
-            </div>
-        `;
+    let resultHtml = `
+        <div class="alert alert-success">
+            <h5><i class="fas fa-check-circle me-2"></i>✅ Selective Disclosure Proof Verified!</h5>
+            <p class="mb-0">The proof is valid and the original credential is authentic.</p>
+        </div>
         
-        if (type === 'selective_disclosure' && data.selective_disclosure_proof) {
-            // Display selective disclosure information
-            const proof = data.selective_disclosure_proof;
-            resultHtml += `
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Disclosed Information:</h6>
-                        <table class="table table-sm">
-            `;
-            
-            for (const [field, value] of Object.entries(proof.disclosedFields)) {
-                resultHtml += `<tr><td><strong>${formatFieldName(field)}:</strong></td><td>${value}</td></tr>`;
-            }
-            
-            resultHtml += `
-                        </table>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Disclosed Information</h6>
                     </div>
-                    <div class="col-md-6">
-                        <h6>Verification Details:</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>Original Credential ID:</strong></td><td><code>${proof.originalCredentialId}</code></td></tr>
-                            <tr><td><strong>Issuer:</strong></td><td>${proof.issuer.name}</td></tr>
-                            <tr><td><strong>Issue Date:</strong></td><td>${new Date(proof.issuanceDate).toLocaleDateString()}</td></tr>
-                            <tr><td><strong>Disclosure Date:</strong></td><td>${new Date(proof.disclosureDate).toLocaleDateString()}</td></tr>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="alert alert-info mt-3">
-                    <i class="fas fa-info-circle me-2"></i>
-                    This is a selective disclosure proof. Only the fields shown above were disclosed by the student.
-                    The original credential contains additional information that was not shared.
-                </div>
-            `;
-        } else {
-            // Display full credential information
-            const cred = data.credential;
-            const subject = cred.credentialSubject;
-            
-            resultHtml += `
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Student Information:</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>Name:</strong></td><td>${subject.name}</td></tr>
-                            <tr><td><strong>Student ID:</strong></td><td>${subject.studentId}</td></tr>
-                            <tr><td><strong>Degree:</strong></td><td>${subject.degree}</td></tr>
-                            <tr><td><strong>University:</strong></td><td>${subject.university}</td></tr>
-                            <tr><td><strong>GPA:</strong></td><td>${subject.gpa}</td></tr>
-                            <tr><td><strong>Graduation Year:</strong></td><td>${subject.graduationYear}</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Verification Details:</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>Credential ID:</strong></td><td><code>${cred.id}</code></td></tr>
-                            <tr><td><strong>Issuer:</strong></td><td>${cred.issuer.name}</td></tr>
-                            <tr><td><strong>Issue Date:</strong></td><td>${new Date(cred.issuanceDate).toLocaleDateString()}</td></tr>
-                            <tr><td><strong>Blockchain Verified:</strong></td><td><span class="badge bg-success">✓</span></td></tr>
-                            <tr><td><strong>Signature Verified:</strong></td><td><span class="badge bg-success">✓</span></td></tr>
-                            <tr><td><strong>Hash Verified:</strong></td><td><span class="badge bg-success">✓</span></td></tr>
-                        </table>
-                    </div>
-                </div>
-            `;
-            
-            if (subject.courses && subject.courses.length > 0) {
-                resultHtml += `
-                    <div class="mt-3">
-                        <h6>Courses:</h6>
-                        <div class="row">
-                            ${subject.courses.map(course => `
-                                <div class="col-md-4 mb-1">
-                                    <span class="badge bg-info">${course}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-        }
-        
-    } else {
-        // Error - credential is invalid
-        resultHtml = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Verification Failed!</strong> ${data.error}
-            </div>
-            
-            <div class="mt-3">
-                <h6>Possible Reasons:</h6>
-                <ul class="mb-0">
-                    <li>The credential ID is incorrect or doesn't exist</li>
-                    <li>The credential has been tampered with</li>
-                    <li>The digital signature is invalid</li>
-                    <li>The blockchain integrity has been compromised</li>
-                    <li>The credential has been revoked</li>
-                </ul>
-            </div>
-        `;
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+    `;
+    
+    for (const [field, value] of Object.entries(proof.disclosedFields)) {
+        resultHtml += `<tr><td><strong>${formatFieldName(field)}:</strong></td><td>${value}</td></tr>`;
     }
     
-    contentDiv.innerHTML = resultHtml;
-    resultsDiv.style.display = 'block';
+    resultHtml += `
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Proof Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <tr><td><strong>Original Credential:</strong></td><td><code class="small">${proof.originalCredentialId}</code></td></tr>
+                            <tr><td><strong>Issuer:</strong></td><td>${proof.issuer.name}</td></tr>
+                            <tr><td><strong>Issued:</strong></td><td>${new Date(proof.issuanceDate).toLocaleDateString()}</td></tr>
+                            <tr><td><strong>Disclosed:</strong></td><td>${new Date(proof.disclosureDate).toLocaleDateString()}</td></tr>
+                            <tr><td><strong>Fields Shown:</strong></td><td><span class="badge bg-info">${Object.keys(proof.disclosedFields).length}</span></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mt-3 mb-0">
+            <i class="fas fa-shield-alt me-2"></i>
+            <strong>Privacy Protected:</strong> This selective disclosure shows only the fields chosen by the student. 
+            The full credential contains additional information that was not shared.
+        </div>
+    `;
     
-    // Scroll to results
-    resultsDiv.scrollIntoView({ behavior: 'smooth' });
+    contentDiv.innerHTML = resultHtml;
 }
 
 function formatFieldName(field) {
     const fieldMap = {
         'name': 'Student Name',
-        'studentId': 'Student ID',
+        'studentId': 'Student ID / Roll Number',
         'degree': 'Degree Program',
         'university': 'University',
-        'gpa': 'GPA',
-        'graduationYear': 'Graduation Year'
+        'gpa': 'GPA/CGPA',
+        'graduationYear': 'Graduation Year',
+        'semester': 'Semester',
+        'year': 'Year',
+        'backlogCount': 'Backlog Count',
+        'conduct': 'Conduct'
     };
-    return fieldMap[field] || field;
+    return fieldMap[field] || field.charAt(0).toUpperCase() + field.slice(1);
 }
 
 function showAlert(message, type) {
     const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show">
+        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999; min-width: 300px;">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
-    
-    const container = document.querySelector('.container');
-    container.insertAdjacentHTML('afterbegin', alertHtml);
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
     
     setTimeout(() => {
-        const alert = container.querySelector('.alert');
-        if (alert) {
-            alert.remove();
-        }
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
     }, 5000);
 }
 </script>

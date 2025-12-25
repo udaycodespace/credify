@@ -344,77 +344,137 @@ class CredentialManager:
     def verify_credential(self, credential_id):
         """Verify the authenticity of a credential"""
         try:
+            # Normalize credential ID (accept different formats e.g. urn:uuid:id)
             credential_id = self._normalize_credential_id(credential_id)
             
+            # Check if credential exists in registry
             if credential_id not in self.credentials_registry:
-                return {'valid': False, 'error': 'Credential not found in registry'}
+                return {
+                    'valid': False,
+                    'status': 'not_found',
+                    'error': 'Credential not found in registry',
+                    'details': 'This credential ID does not exist in our system'
+                }
             
             registry_entry = self.credentials_registry[credential_id]
             
-            status = registry_entry.get('status', 'unknown')
-            if status == 'revoked':
-                return {
-                    'valid': False, 
-                    'error': 'Credential has been revoked',
-                    'status': 'revoked',
-                    'revocation_reason': registry_entry.get('revocation_reason'),
-                    'revocation_date': registry_entry.get('revoked_at')
-                }
+            # ✅ Check credential status FIRST
+            credential_status = registry_entry.get('status', 'active')
             
-            if status == 'superseded':
+            if credential_status == 'revoked':
                 return {
                     'valid': False,
-                    'error': 'Credential has been superseded by a newer version',
-                    'status': 'superseded',
-                    'superseded_by': registry_entry.get('superseded_by'),
-                    'superseded_date': registry_entry.get('superseded_date')
+                    'status': 'revoked',
+                    'error': 'Credential has been revoked',
+                    'details': f"Revoked on: {registry_entry.get('revoked_at', 'Unknown')}",
+                    'revocation_reason': registry_entry.get('revocation_reason', 'No reason provided'),
+                    'credential': registry_entry
                 }
             
+            if credential_status == 'superseded':
+                return {
+                    'valid': False,
+                    'status': 'superseded',
+                    'error': 'Credential has been superseded by a newer version',
+                    'details': 'This is an old version. A newer credential exists for this student.',
+                    'credential': registry_entry
+                }
+            
+            # Retrieve credential from IPFS
             credential = self.ipfs_client.get_json(registry_entry['ipfs_cid'])
             if not credential:
-                return {'valid': False, 'error': 'Could not retrieve credential from IPFS'}
+                return {
+                    'valid': False,
+                    'status': 'ipfs_error',
+                    'error': 'Could not retrieve credential from IPFS',
+                    'details': 'Storage system error'
+                }
             
+            # Find corresponding blockchain block
             block = self.blockchain.find_credential_block(credential_id)
             if not block:
-                return {'valid': False, 'error': 'Credential block not found in blockchain'}
+                return {
+                    'valid': False,
+                    'status': 'blockchain_error',
+                    'error': 'Credential block not found in blockchain',
+                    'details': 'This credential is not recorded on the blockchain'
+                }
             
+            # Verify blockchain integrity
             if not self.blockchain.is_chain_valid():
-                return {'valid': False, 'error': 'Blockchain integrity compromised'}
+                return {
+                    'valid': False,
+                    'status': 'blockchain_compromised',
+                    'error': 'Blockchain integrity compromised',
+                    'details': 'The blockchain has been tampered with'
+                }
             
-            current_hash = self._generate_credential_hash(credential)
-            if current_hash != registry_entry.get('credential_hash'):
-                return {'valid': False, 'error': 'Credential has been tampered with'}
+            # 🔧 CRITICAL FIX: Verify credential hash (remove proof first!)
+            # During issuance, hash was computed BEFORE adding proof
+            # So we must remove proof before hashing during verification
+            credential_without_proof = credential.copy()
+            if 'proof' in credential_without_proof:
+                del credential_without_proof['proof']
             
+            current_hash = self._generate_credential_hash(credential_without_proof)
+            stored_hash = registry_entry.get('credential_hash')
+            
+            logging.info(f"Hash comparison - Current: {current_hash[:32]}... | Stored: {stored_hash[:32] if stored_hash else 'None'}...")
+            
+            if current_hash != stored_hash:
+                return {
+                    'valid': False,
+                    'status': 'tampered',
+                    'error': 'Credential has been tampered with',
+                    'details': 'The credential content does not match the blockchain record'
+                }
+            
+            # Verify digital signature
             signature = credential.get('proof', {}).get('signatureValue')
             if not signature:
-                return {'valid': False, 'error': 'No digital signature found'}
+                return {
+                    'valid': False,
+                    'status': 'no_signature',
+                    'error': 'No digital signature found',
+                    'details': 'This credential is missing a digital signature'
+                }
             
-            credential_without_proof = credential.copy()
-            del credential_without_proof['proof']
-            
+            # Verify signature (also without proof)
             if not self.crypto_manager.verify_signature(credential_without_proof, signature):
-                return {'valid': False, 'error': 'Digital signature verification failed'}
+                return {
+                    'valid': False,
+                    'status': 'invalid_signature',
+                    'error': 'Digital signature verification failed',
+                    'details': 'The signature does not match the credential issuer'
+                }
             
-            logging.info(f"✅ Credential verified: {credential_id} (v{registry_entry.get('version')})")
+            # ✅ ALL CHECKS PASSED - Credential is VALID and ACTIVE
+            logging.info(f"✅ Credential verified successfully: {credential_id}")
             
             return {
                 'valid': True,
-                'credential': credential,
                 'status': 'active',
-                'version': registry_entry.get('version', 1),
-                'block_number': registry_entry.get('block_number'),
-                'tx_hash': registry_entry.get('tx_hash'),
+                'credential': credential,
+                'registry_entry': registry_entry,
                 'verification_details': {
                     'blockchain_verified': True,
                     'signature_verified': True,
                     'hash_verified': True,
+                    'status_verified': True,
                     'verification_date': datetime.utcnow().isoformat() + 'Z'
                 }
             }
             
         except Exception as e:
             logging.error(f"❌ Error verifying credential: {str(e)}")
-            return {'valid': False, 'error': str(e)}
+            import traceback
+            traceback.print_exc()
+            return {
+                'valid': False,
+                'status': 'error',
+                'error': f'Verification error: {str(e)}',
+                'details': 'An unexpected error occurred during verification'
+            }
     
     def selective_disclosure(self, credential_id, selected_fields):
         """Create a selective disclosure of credential fields"""

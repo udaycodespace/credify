@@ -367,101 +367,122 @@ def api_get_credential(credential_id):
         logging.error(f"Error getting credential: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== TICKET ROUTES ====================
+# ==================== TICKET API ENDPOINTS ====================
+# ==================== TICKET ROUTES (CLEAN - NO DUPLICATES) ====================
 
-@app.route('/api/tickets', methods=['POST'])
-def create_ticket():
-    """Create a new support ticket"""
-    try:
-        data = request.json
-        student_id = data.get('student_id')
-        subject = data.get('subject')
-        description = data.get('description')
-        category = data.get('category')
-        priority = data.get('priority', 'medium')
-        
-        if not all([student_id, subject, description, category]):
-            return jsonify({'error': 'Missing required fields'}), 400
-        
-        ticket = ticket_manager.create_ticket(student_id, subject, description, category, priority)
-        
-        return jsonify({
-            'success': True,
-            'ticket': ticket
-        })
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+@app.route('/api/tickets', methods=['GET', 'POST'])
+def handle_tickets():
+    """Get all tickets or create new ticket"""
+    if request.method == 'GET':
+        try:
+            tickets = ticket_manager.get_all_tickets()
+            return jsonify({'success': True, 'tickets': tickets})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    
+    elif request.method == 'POST':
+        try:
+            data = request.json
+            student_id = data.get('student_id')
+            subject = data.get('subject')
+            description = data.get('description')
+            category = data.get('category')
+            priority = data.get('priority', 'medium')
+            
+            if not all([student_id, subject, description, category]):
+                return jsonify({'error': 'Missing required fields'}), 400
+            
+            ticket = ticket_manager.create_ticket(
+                student_id=student_id,
+                subject=subject,
+                description=description,
+                category=category,
+                priority=priority
+            )
+            
+            return jsonify({
+                'success': True,
+                'ticket': ticket,
+                'message': 'Ticket created successfully'
+            })
+            
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
-@app.route('/api/tickets/student/<student_id>', methods=['GET'])
-def get_student_tickets(student_id):
-    """Get all tickets for a student"""
-    try:
-        tickets = ticket_manager.get_tickets_by_student(student_id)
-        return jsonify({'tickets': tickets})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/tickets/all', methods=['GET'])
-def get_all_tickets():
-    """Get all tickets (admin only)"""
-    try:
-        tickets = ticket_manager.get_all_tickets()
-        return jsonify({'tickets': tickets})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/tickets/<ticket_id>', methods=['GET'])
-def get_ticket(ticket_id):
-    """Get a specific ticket"""
+def view_ticket(ticket_id):
+    """Get specific ticket details"""
     try:
         ticket = ticket_manager.get_ticket(ticket_id)
         if ticket:
-            return jsonify({'ticket': ticket})
+            return jsonify({'success': True, 'ticket': ticket})
         return jsonify({'error': 'Ticket not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/tickets/<ticket_id>/status', methods=['PUT'])
 def update_ticket_status(ticket_id):
-    """Update ticket status (admin only)"""
+    """Admin updates ticket status"""
     try:
         data = request.json
-        status = data.get('status')
+        new_status = data.get('status')
         admin_note = data.get('admin_note')
+        by_admin = data.get('by_admin', False)
         
-        if not status:
-            return jsonify({'error': 'Status is required'}), 400
+        if not new_status:
+            return jsonify({'error': 'Status required'}), 400
         
-        success = ticket_manager.update_ticket_status(ticket_id, status, admin_note)
+        success = ticket_manager.update_ticket_status(
+            ticket_id=ticket_id,
+            status=new_status,
+            admin_note=admin_note,
+            by_admin=by_admin
+        )
         
         if success:
-            return jsonify({'success': True, 'message': 'Ticket updated'})
-        return jsonify({'error': 'Ticket not found'}), 404
+            return jsonify({'success': True, 'message': 'Ticket status updated'})
+        return jsonify({'error': 'Failed to update ticket'}), 500
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/tickets/<ticket_id>/respond', methods=['POST'])
-def respond_to_ticket(ticket_id):
-    """Add a response to a ticket"""
+
+@app.route('/api/tickets/<ticket_id>/response', methods=['POST'])
+def add_ticket_response(ticket_id):
+    """Add response/note to ticket"""
     try:
         data = request.json
         responder = data.get('responder')
         message = data.get('message')
         
         if not all([responder, message]):
-            return jsonify({'error': 'Missing required fields'}), 400
+            return jsonify({'error': 'Responder and message required'}), 400
         
-        success = ticket_manager.add_ticket_response(ticket_id, responder, message)
+        success = ticket_manager.add_ticket_response(
+            ticket_id=ticket_id,
+            responder=responder,
+            message=message
+        )
         
         if success:
             return jsonify({'success': True, 'message': 'Response added'})
-        return jsonify({'error': 'Ticket not found'}), 404
+        return jsonify({'error': 'Failed to add response'}), 500
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-# ==================== ENHANCED TICKET ROUTES ====================
+
+
+@app.route('/api/tickets/student/<student_id>', methods=['GET'])
+def get_student_tickets(student_id):
+    """Get all tickets for a specific student"""
+    try:
+        tickets = ticket_manager.get_tickets_by_student(student_id)
+        return jsonify({'success': True, 'tickets': tickets})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/tickets/<ticket_id>/student_action', methods=['POST'])
 def student_ticket_action(ticket_id):
@@ -483,6 +504,35 @@ def student_ticket_action(ticket_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# ==================== MESSAGING ROUTES ====================
+
+@app.route('/api/messages', methods=['POST'])
+def send_message():
+    """Send a direct message"""
+    try:
+        data = request.json
+        sender_id = data.get('sender_id')
+        sender_type = data.get('sender_type')
+        recipient_id = data.get('recipient_id')
+        recipient_type = data.get('recipient_type')
+        subject = data.get('subject')
+        message = data.get('message')
+        
+        if not all([sender_id, sender_type, recipient_id, recipient_type, subject, message]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        msg = ticket_manager.send_message(sender_id, sender_type, recipient_id, recipient_type, subject, message)
+        
+        return jsonify({
+            'success': True,
+            'message': msg
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/messages/broadcast', methods=['POST'])
 def broadcast_message():
@@ -506,6 +556,7 @@ def broadcast_message():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/messages/student/<student_id>', methods=['GET'])
 def get_student_messages(student_id):
     """Get all messages for a student (direct + broadcast)"""
@@ -515,6 +566,7 @@ def get_student_messages(student_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/messages/all', methods=['GET'])
 def get_all_messages_admin():
     """Get all messages (admin view)"""
@@ -523,6 +575,7 @@ def get_all_messages_admin():
         return jsonify({'messages': messages})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/messages/<message_id>/revoke', methods=['PUT'])
 def revoke_message(message_id):
@@ -537,8 +590,9 @@ def revoke_message(message_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/messages/<message_id>/read', methods=['PUT'])
-def mark_student_message_read(message_id):
+def mark_message_read(message_id):
     """Student marks message as read"""
     try:
         data = request.json
@@ -555,74 +609,7 @@ def mark_student_message_read(message_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-# ==================== MESSAGING ROUTES ====================
 
-@app.route('/api/messages', methods=['POST'])
-def send_message():
-    """Send a message"""
-    try:
-        data = request.json
-        sender_id = data.get('sender_id')
-        sender_type = data.get('sender_type')
-        recipient_id = data.get('recipient_id')
-        recipient_type = data.get('recipient_type')
-        subject = data.get('subject')
-        message = data.get('message')
-        
-        if not all([sender_id, sender_type, recipient_id, recipient_type, subject, message]):
-            return jsonify({'error': 'Missing required fields'}), 400
-        
-        msg = ticket_manager.send_message(sender_id, sender_type, recipient_id, recipient_type, subject, message)
-        
-        return jsonify({
-            'success': True,
-            'message': msg
-        })
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/messages/user/<user_id>/<user_type>', methods=['GET'])
-def get_user_messages(user_id, user_type):
-    """Get all messages for a user"""
-    try:
-        messages = ticket_manager.get_messages_for_user(user_id, user_type)
-        return jsonify({'messages': messages})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/messages/<message_id>/read', methods=['PUT'])
-def mark_message_read(message_id):
-    """Mark a message as read"""
-    try:
-        success = ticket_manager.mark_message_read(message_id)
-        if success:
-            return jsonify({'success': True})
-        return jsonify({'error': 'Message not found'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/messages/<message_id>/reply', methods=['POST'])
-def reply_to_message(message_id):
-    """Reply to a message"""
-    try:
-        data = request.json
-        sender_id = data.get('sender_id')
-        sender_type = data.get('sender_type')
-        reply_text = data.get('reply')
-        
-        if not all([sender_id, sender_type, reply_text]):
-            return jsonify({'error': 'Missing required fields'}), 400
-        
-        success = ticket_manager.reply_to_message(message_id, sender_id, sender_type, reply_text)
-        
-        if success:
-            return jsonify({'success': True, 'message': 'Reply sent'})
-        return jsonify({'error': 'Message not found'}), 404
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

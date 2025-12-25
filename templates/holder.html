@@ -182,7 +182,7 @@
                 </div>
             </div>
 
-            <!-- Messages Section -->
+            <!-- Messages Section - UPDATED WITH DARK TEXT -->
             <div id="messagesSection" class="content-section" style="display:none;">
                 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h2><i class="fas fa-envelope text-info me-2"></i>Messages from Admin</h2>
@@ -191,14 +191,14 @@
                     </button>
                 </div>
 
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Note:</strong> Messages are read-only. To communicate with admin, please raise a support ticket.
+                <div class="alert alert-dark border-dark">
+                    <i class="fas fa-info-circle me-2 text-dark"></i>
+                    <strong class="text-dark">Note:</strong> <span class="text-dark">Messages are read-only. To communicate with admin, please raise a support ticket.</span>
                 </div>
 
                 <!-- Messages List -->
                 <div id="messagesList">
-                    <p class="text-muted">Loading messages...</p>
+                    <p class="text-dark fw-bold">Loading messages...</p>
                 </div>
             </div>
 
@@ -356,6 +356,7 @@
     border-left: 3px solid #17a2b8;
     margin-bottom: 15px;
     transition: all 0.3s;
+    background-color: #ffffff;
 }
 
 .message-card:hover {
@@ -363,8 +364,51 @@
 }
 
 .message-card.unread {
-    background-color: #e7f9ff;
+    background-color: #fff8dc;
+    border-left: 4px solid #ffc107;
+}
+
+/* DARK TEXT FOR MESSAGES */
+.message-card h5,
+.message-card h6,
+.message-card p,
+.message-card .badge,
+.message-card small {
+    color: #000000 !important;
     font-weight: 600;
+}
+
+.message-card .text-muted {
+    color: #1a1a1a !important;
+    font-weight: 500;
+}
+
+/* EMOJI AND ICONS DARK */
+.message-card i {
+    color: #000000 !important;
+}
+
+/* REVOKED MESSAGE STYLING */
+.message-card.border-danger {
+    border-left-color: #dc3545 !important;
+    background-color: #ffe6e6;
+}
+
+.message-card .text-decoration-line-through {
+    text-decoration: line-through;
+    color: #666666 !important;
+}
+
+.alert-dark {
+    background-color: #f8f9fa;
+    border-color: #000000;
+    color: #000000;
+}
+
+.alert-dark strong,
+.alert-dark span,
+.alert-dark i {
+    color: #000000 !important;
 }
 </style>
 
@@ -785,7 +829,7 @@ function viewTicketDetails(ticketId) {
         });
 }
 
-// ==================== MESSAGE FUNCTIONS (READ-ONLY) ====================
+// ==================== MESSAGE FUNCTIONS (READ-ONLY) - UPDATED WITH DARK TEXT ====================
 
 function loadMessages() {
     fetch(`/api/messages/student/${currentStudentId}`)
@@ -803,7 +847,7 @@ function displayMessages(messages) {
     const container = document.getElementById('messagesList');
     
     if (messages.length === 0) {
-        container.innerHTML = '<p class="text-muted">No messages yet</p>';
+        container.innerHTML = '<p class="text-dark fw-bold">No messages yet</p>';
         return;
     }
     
@@ -818,26 +862,26 @@ function displayMessages(messages) {
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-2">
-                                <h6 class="mb-0">
+                                <h6 class="mb-0 fw-bold text-dark">
                                     ${isBroadcast ? '📢 Broadcast to All Students' : '📩 Direct Message'}
                                 </h6>
-                                ${isRevoked ? '<span class="badge bg-danger">REVOKED</span>' : ''}
-                                ${isUnread && !isRevoked ? '<span class="badge bg-primary">NEW</span>' : ''}
+                                ${isRevoked ? '<span class="badge bg-danger text-white">REVOKED</span>' : ''}
+                                ${isUnread && !isRevoked ? '<span class="badge bg-warning text-dark">NEW</span>' : ''}
                             </div>
-                            <h5 class="mb-2 ${isRevoked ? 'text-decoration-line-through text-muted' : ''}">${msg.subject}</h5>
+                            <h5 class="mb-2 fw-bold ${isRevoked ? 'text-decoration-line-through' : 'text-dark'}">${msg.subject}</h5>
                         </div>
-                        <small class="text-muted">${new Date(msg.timestamp).toLocaleString()}</small>
+                        <small class="text-dark fw-semibold">${new Date(msg.timestamp).toLocaleString()}</small>
                     </div>
-                    <p class="mb-2 ${isRevoked ? 'text-decoration-line-through text-muted' : ''}">${msg.message}</p>
+                    <p class="mb-2 fw-semibold ${isRevoked ? 'text-decoration-line-through' : 'text-dark'}">${msg.message}</p>
                     
                     ${isRevoked ? `
                         <div class="alert alert-danger mb-0 mt-2">
-                            <small><i class="fas fa-ban me-1"></i>This message was revoked on ${new Date(msg.revoked_at).toLocaleString()}</small>
+                            <small class="text-dark fw-bold"><i class="fas fa-ban me-1"></i>This message was revoked on ${new Date(msg.revoked_at).toLocaleString()}</small>
                         </div>
                     ` : ''}
                     
                     ${!isRevoked && isUnread ? `
-                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="markMessageAsRead('${msg.message_id}')">
+                        <button class="btn btn-sm btn-dark mt-2" onclick="markMessageAsRead('${msg.message_id}')">
                             <i class="fas fa-check me-1"></i>Mark as Read
                         </button>
                     ` : ''}

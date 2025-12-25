@@ -787,9 +787,10 @@ function loadAdminTickets() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const open = data.tickets.filter(t => t.status === 'open');
-                const inProgress = data.tickets.filter(t => t.status === 'in_progress');
-                const resolved = data.tickets.filter(t => t.status === 'resolved');
+                const tickets = data.tickets;
+                const open = tickets.filter(t => t.status === 'open');
+                const inProgress = tickets.filter(t => t.status === 'in_progress');
+                const resolved = tickets.filter(t => t.status === 'resolved');
                 
                 document.getElementById('openColumn').innerHTML = renderAdminTickets(open, 'open');
                 document.getElementById('inProgressColumn').innerHTML = renderAdminTickets(inProgress, 'in_progress');
@@ -797,10 +798,16 @@ function loadAdminTickets() {
                 
                 document.getElementById('ticketBadge').textContent = open.length + inProgress.length;
                 document.getElementById('pendingTicketsBadge').textContent = open.length;
+            } else {
+                console.error('Error loading tickets:', data.error);
             }
         })
-        .catch(err => console.error('Error loading tickets:', err));
+        .catch(err => {
+            console.error('Error loading tickets:', err);
+            document.getElementById('openColumn').innerHTML = '<p class="text-danger small">Error loading tickets</p>';
+        });
 }
+
 
 function renderAdminTickets(tickets, status) {
     if (tickets.length === 0) return '<p class="text-muted small">No tickets</p>';

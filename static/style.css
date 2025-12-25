@@ -476,3 +476,111 @@ footer {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     cursor: move;
 }
+.sidebar {
+    background-color: #2c3e50 !important; /* Dark blue-gray */
+}
+
+.sidebar .nav-link {
+    color: #ecf0f1 !important; /* Light text */
+}
+
+.sidebar .nav-link:hover {
+    background-color: #34495e !important;
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link.active {
+    background-color: #3498db !important;
+    color: #ffffff !important;
+}
+.sidebar {
+    background-color: #2c3e50 !important; /* Dark blue-gray */
+}
+
+.sidebar .nav-link {
+    color: #ecf0f1 !important; /* Light text */
+}
+
+.sidebar .nav-link:hover {
+    background-color: #34495e !important;
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link.active {
+    background-color: #3498db !important;
+    color: #ffffff !important;
+}
+
+/* Add these new rules below */
+.sidebar h6 {
+    color: #ffffff !important;
+}
+
+.sidebar .user-name-bold {
+    color: #ffffff !important;
+}
+
+.sidebar .stats-header-bold {
+    color: #ffffff !important;
+}
+
+.sidebar .text-muted {
+    color: #bdc3c7 !important; /* Light gray for muted text */
+}
+
+.sidebar small {
+    color: #ecf0f1 !important;
+}
+
+.sidebar .px-3 .small {
+    color: #ecf0f1 !important;
+}
+
+.sidebar {
+    background-color: #2c3e50 !important;
+}
+
+.sidebar .nav-link {
+    color: #ecf0f1 !important;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #34495e !important;
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link.active {
+    background-color: #3498db !important;
+    color: #ffffff !important;
+}
+
+/* More specific selectors for text elements */
+.sidebar small.user-name-bold {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+.sidebar small.stats-header-bold {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+.sidebar h6 {
+    color: #ffffff !important;
+}
+
+.sidebar .text-muted {
+    color: #bdc3c7 !important;
+}
+
+.sidebar small {
+    color: #ecf0f1 !important;
+}
+
+.sidebar .px-3 small {
+    color: #ffffff !important;
+}
+
+.sidebar span {
+    color: #ecf0f1 !important;
+}

@@ -1,0 +1,630 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorial - Blockchain-Based Verifiable Credentials{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <!-- Table of Contents -->
+        <div class="card sticky-top" style="top: 1rem;">
+            <div class="card-header">
+                <h6><i class="fas fa-list me-2"></i>Table of Contents</h6>
+            </div>
+            <div class="card-body p-0">
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link" href="#overview">1. System Overview</a>
+                    <a class="nav-link" href="#setup">2. System Setup</a>
+                    <a class="nav-link" href="#issuer-guide">3. Issuer Guide</a>
+                    <a class="nav-link" href="#holder-guide">4. Student Guide</a>
+                    <a class="nav-link" href="#verifier-guide">5. Verifier Guide</a>
+                    <a class="nav-link" href="#technical">6. Technical Details</a>
+                    <a class="nav-link" href="#troubleshooting">7. Troubleshooting</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <!-- Tutorial Content -->
+        <div class="tutorial-content">
+            
+            <!-- System Overview -->
+            <section id="overview" class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-info-circle text-primary me-2"></i>1. System Overview</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>What is this system?</h5>
+                        <p>
+                            This is a blockchain-based verifiable credential system specifically designed for academic transcripts. 
+                            It allows universities to issue tamper-proof digital credentials that students can share selectively 
+                            with employers while maintaining privacy and authenticity.
+                        </p>
+                        
+                        <h5>Key Features:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-certificate text-success me-2"></i>
+                                        W3C Verifiable Credentials Standard
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-signature text-success me-2"></i>
+                                        RSA-2048 Digital Signatures
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-cube text-success me-2"></i>
+                                        Blockchain-based Integrity
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-cloud text-success me-2"></i>
+                                        IPFS Distributed Storage
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-eye-slash text-success me-2"></i>
+                                        Selective Disclosure Privacy
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-shield-alt text-success me-2"></i>
+                                        Tamper-proof Verification
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Project Context:</strong> This is a B.Tech Final Year project from G. Pulla Reddy Engineering College, 
+                            Computer Science Engineering Department, demonstrating practical implementation of blockchain technology 
+                            in academic credential verification.
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- System Setup -->
+            <section id="setup" class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cog text-primary me-2"></i>2. System Setup</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Prerequisites:</h5>
+                        <ul>
+                            <li>Python 3.8 or higher</li>
+                            <li>VS Code (recommended IDE)</li>
+                            <li>Git (for version control)</li>
+                            <li>Internet connection (for IPFS)</li>
+                        </ul>
+                        
+                        <h5>Installation Steps:</h5>
+                        <div class="step-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h6>Clone the Repository</h6>
+                                    <pre class="bg-dark text-light p-2 rounded"><code>git clone &lt;repository-url&gt;
+cd blockchain-credentials</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h6>Install Python Dependencies</h6>
+                                    <pre class="bg-dark text-light p-2 rounded"><code>pip install flask cryptography requests</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h6>Set Environment Variables</h6>
+                                    <pre class="bg-dark text-light p-2 rounded"><code>export SESSION_SECRET="your-secret-key-here"</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h6>Run the Application</h6>
+                                    <pre class="bg-dark text-light p-2 rounded"><code>python main.py</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Success!</strong> Your application should now be running at <code>http://localhost:5000</code>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Issuer Guide -->
+            <section id="issuer-guide" class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-university text-primary me-2"></i>3. Issuer Guide (Academic Institution)</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Role: Academic Institution</h5>
+                        <p>As an academic institution, you can issue verifiable credentials for student transcripts.</p>
+                        
+                        <h5>Step-by-Step Process:</h5>
+                        <div class="step-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h6>Navigate to Issuer Portal</h6>
+                                    <p>Click on "Issuer" in the navigation menu or visit <code>/issuer</code></p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h6>Fill Student Information</h6>
+                                    <ul>
+                                        <li>Student Name (required)</li>
+                                        <li>Student ID (required)</li>
+                                        <li>Degree Program (required)</li>
+                                        <li>University Name (pre-filled)</li>
+                                        <li>GPA (required, 0-10 scale)</li>
+                                        <li>Graduation Year (required)</li>
+                                        <li>Courses (optional, comma-separated)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h6>Issue Credential</h6>
+                                    <p>Click "Issue Credential" button. The system will:</p>
+                                    <ul>
+                                        <li>Create a W3C-compliant verifiable credential</li>
+                                        <li>Apply cryptographic signature</li>
+                                        <li>Store on IPFS network</li>
+                                        <li>Record hash on blockchain</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h6>Share Credential ID</h6>
+                                    <p>Provide the generated Credential ID to the student for their records.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> Once issued, credentials cannot be modified. Ensure all information is accurate before issuing.
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Holder Guide -->
+            <section id="holder-guide" class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-graduate text-success me-2"></i>4. Student Guide (Credential Holder)</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Role: Student</h5>
+                        <p>As a student, you can view your credentials and create selective disclosures for sharing with employers.</p>
+                        
+                        <h5>Managing Your Credentials:</h5>
+                        <div class="step-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h6>View Your Credentials</h6>
+                                    <p>Navigate to "Student" portal to see all your issued credentials</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h6>View Full Credential</h6>
+                                    <p>Click "View" to see complete credential details including all courses and information</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h6>Create Selective Disclosure</h6>
+                                    <p>Click "Share" to create a privacy-preserving disclosure:</p>
+                                    <ul>
+                                        <li>Select which fields to share (e.g., only GPA)</li>
+                                        <li>Generate cryptographic proof</li>
+                                        <li>Copy the proof to share with employers</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5>Privacy Benefits:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-success bg-opacity-10 border-success">
+                                    <div class="card-body">
+                                        <h6 class="text-success">What You Can Share Selectively:</h6>
+                                        <ul class="mb-0">
+                                            <li>GPA only</li>
+                                            <li>Degree program only</li>
+                                            <li>Graduation year only</li>
+                                            <li>Specific courses only</li>
+                                            <li>Any combination</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-info bg-opacity-10 border-info">
+                                    <div class="card-body">
+                                        <h6 class="text-info">Privacy Protection:</h6>
+                                        <ul class="mb-0">
+                                            <li>Hide personal details</li>
+                                            <li>Share only relevant info</li>
+                                            <li>Maintain authenticity</li>
+                                            <li>Cryptographic proof</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Verifier Guide -->
+            <section id="verifier-guide" class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-shield-alt text-warning me-2"></i>5. Verifier Guide (Employer)</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Role: Employer/Verifier</h5>
+                        <p>As an employer, you can verify the authenticity of academic credentials and selective disclosure proofs.</p>
+                        
+                        <h5>Verification Methods:</h5>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>Method 1: Full Credential Verification</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ol>
+                                            <li>Get credential ID from student</li>
+                                            <li>Enter ID in verification form</li>
+                                            <li>Click "Verify Credential"</li>
+                                            <li>Review complete transcript</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>Method 2: Selective Disclosure Verification</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ol>
+                                            <li>Get selective disclosure proof from student</li>
+                                            <li>Paste JSON proof in form</li>
+                                            <li>Click "Verify Proof"</li>
+                                            <li>Review disclosed fields only</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5>Verification Checks:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Blockchain Integrity
+                                        <span class="badge bg-success rounded-pill">✓</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Digital Signature
+                                        <span class="badge bg-success rounded-pill">✓</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Hash Validation
+                                        <span class="badge bg-success rounded-pill">✓</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Tamper Detection
+                                        <span class="badge bg-success rounded-pill">✓</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Issuer Verification
+                                        <span class="badge bg-success rounded-pill">✓</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Date Validation
+                                        <span class="badge bg-success rounded-pill">✓</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Trust:</strong> Selective disclosure proofs are cryptographically verifiable and maintain the same 
+                            level of trust as full credentials while protecting student privacy.
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Technical Details -->
+            <section id="technical" class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-code text-primary me-2"></i>6. Technical Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Architecture Overview:</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-3 text-center">
+                                <div class="tech-component">
+                                    <i class="fas fa-server fa-2x text-primary mb-2"></i>
+                                    <h6>Flask Backend</h6>
+                                    <small class="text-muted">Python web framework</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="tech-component">
+                                    <i class="fas fa-cube fa-2x text-success mb-2"></i>
+                                    <h6>Simple Blockchain</h6>
+                                    <small class="text-muted">Custom implementation</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="tech-component">
+                                    <i class="fas fa-cloud fa-2x text-info mb-2"></i>
+                                    <h6>IPFS Storage</h6>
+                                    <small class="text-muted">Distributed file system</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="tech-component">
+                                    <i class="fas fa-lock fa-2x text-warning mb-2"></i>
+                                    <h6>Cryptography</h6>
+                                    <small class="text-muted">RSA signatures</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5>Technology Stack:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Backend Technologies:</h6>
+                                <ul>
+                                    <li><strong>Flask:</strong> Web framework</li>
+                                    <li><strong>Python Cryptography:</strong> Digital signatures</li>
+                                    <li><strong>Requests:</strong> HTTP client for IPFS</li>
+                                    <li><strong>JSON:</strong> Data serialization</li>
+                                    <li><strong>Hashlib:</strong> Cryptographic hashing</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Frontend Technologies:</h6>
+                                <ul>
+                                    <li><strong>HTML5:</strong> Semantic markup</li>
+                                    <li><strong>Bootstrap 5:</strong> UI framework</li>
+                                    <li><strong>JavaScript:</strong> Client-side logic</li>
+                                    <li><strong>Font Awesome:</strong> Icons</li>
+                                    <li><strong>CSS3:</strong> Custom styling</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <h5>Security Features:</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Feature</th>
+                                        <th>Implementation</th>
+                                        <th>Purpose</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Digital Signatures</td>
+                                        <td>RSA-2048 with PSS padding</td>
+                                        <td>Authenticity & Integrity</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hashing</td>
+                                        <td>SHA-256</td>
+                                        <td>Data integrity checks</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Blockchain</td>
+                                        <td>Proof of Work (simplified)</td>
+                                        <td>Immutable record keeping</td>
+                                    </tr>
+                                    <tr>
+                                        <td>IPFS Storage</td>
+                                        <td>Content-addressed storage</td>
+                                        <td>Decentralized availability</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Troubleshooting -->
+            <section id="troubleshooting" class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-wrench text-primary me-2"></i>7. Troubleshooting</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Common Issues:</h5>
+                        
+                        <div class="accordion" id="troubleshootingAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue1">
+                                        Application won't start
+                                    </button>
+                                </h2>
+                                <div id="issue1" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Solutions:</strong>
+                                        <ul>
+                                            <li>Check Python version (3.8+ required)</li>
+                                            <li>Install missing dependencies: <code>pip install flask cryptography requests</code></li>
+                                            <li>Set SESSION_SECRET environment variable</li>
+                                            <li>Check port 5000 is not in use</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue2">
+                                        IPFS connection issues
+                                    </button>
+                                </h2>
+                                <div id="issue2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Solutions:</strong>
+                                        <ul>
+                                            <li>System automatically falls back to local storage</li>
+                                            <li>Install IPFS locally for full functionality</li>
+                                            <li>Check internet connection for Infura IPFS</li>
+                                            <li>Local storage works for development/demo</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue3">
+                                        Credential verification fails
+                                    </button>
+                                </h2>
+                                <div id="issue3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Check:</strong>
+                                        <ul>
+                                            <li>Credential ID is correct and complete</li>
+                                            <li>Credential was issued successfully</li>
+                                            <li>Blockchain data files are not corrupted</li>
+                                            <li>Cryptographic keys are intact</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue4">
+                                        Selective disclosure not working
+                                    </button>
+                                </h2>
+                                <div id="issue4" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Solutions:</strong>
+                                        <ul>
+                                            <li>Ensure credential exists and is valid</li>
+                                            <li>Select at least one field for disclosure</li>
+                                            <li>Check that the generated proof is valid JSON</li>
+                                            <li>Verify the original credential first</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <i class="fas fa-question-circle me-2"></i>
+                            <strong>Need More Help?</strong> This system is designed for educational purposes. 
+                            Check the console logs for detailed error messages and debugging information.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Smooth scrolling for navigation links
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Update active nav link
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+    });
+    
+    // Update active nav link on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    // Observe all sections
+    document.querySelectorAll('section[id]').forEach(section => {
+        observer.observe(section);
+    });
+});
+</script>
+{% endblock %}

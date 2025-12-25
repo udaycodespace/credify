@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}Student Portal - Credential Holder{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="fas fa-user-graduate text-success me-2"></i>Student Portal</h2>
+        <p class="text-muted mb-0">Manage your verifiable credentials and create selective disclosures</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-id-card me-2"></i>My Credentials</h5>
+                <button class="btn btn-outline-primary btn-sm" onclick="refreshCredentials()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="credentialsList">
+                    {% if credentials %}
+                        {% for credential in credentials %}
+                        <div class="credential-item border rounded p-3 mb-3">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">{{ credential.student_name }}</h6>
+                                    <p class="text-muted small mb-1">{{ credential.degree }}</p>
+                                    <p class="text-muted small mb-1">Student ID: {{ credential.student_id }}</p>
+                                    <p class="text-muted small mb-1">GPA: {{ credential.gpa }}</p>
+                                    <small class="text-muted">
+                                        Issued: {{ credential.issue_date[:10] }}
+                                        {% if credential.status == 'active' %}
+                                            <span class="badge bg-success ms-2">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger ms-2">{{ credential.status|title }}</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="btn-group-vertical btn-group-sm">
+                                        <button class="btn btn-outline-info" onclick="viewCredential('{{ credential.credential_id }}')">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="shareCredential('{{ credential.credential_id }}')">
+                                            <i class="fas fa-share-alt me-1"></i>Share
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <h5>No Credentials Found</h5>
+                            <p>You don't have any issued credentials yet. Contact your academic institution to get your transcript credential issued.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-shield-alt me-2"></i>Privacy Features</h6>
+            </div>
+            <div class="card-body">
+                <h6 class="text-success">Selective Disclosure</h6>
+                <p class="small text-muted mb-3">
+                    Share only specific information from your credentials without revealing the entire transcript.
+                </p>
+                
+                <h6 class="text-info">Available Fields:</h6>
+                <ul class="list-unstyled small">
+                    <li><i class="fas fa-check text-success me-2"></i>Student Name</li>
+                    <li><i class="fas fa-check text-success me-2"></i>GPA Only</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Degree Program</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Graduation Year</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Specific Courses</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle me-2"></i>How to Share</h6>
+            </div>
+            <div class="card-body">
+                <ol class="small mb-0">
+                    <li>Click "Share" on any credential</li>
+                    <li>Select which fields to disclose</li>
+                    <li>Generate cryptographic proof</li>
+                    <li>Share the generated proof with verifiers</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Credential Details Modal -->
+<div class="modal fade" id="credentialModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-certificate me-2"></i>
+                    Credential Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="credentialModalContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Selective Disclosure Modal -->
+<div class="modal fade" id="selectiveDisclosureModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-share-alt me-2"></i>
+                    Selective Disclosure
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Select which fields you want to share. Only the selected information will be disclosed to the verifier.
+                </div>
+                
+                <form id="selectiveDisclosureForm">
+                    <input type="hidden" id="selectedCredentialId">
+                    <div id="fieldSelection">
+                        <!-- Fields will be populated by JavaScript -->
+                    </div>
+                </form>
+                
+                <div id="disclosureResult" class="mt-3" style="display: none;">
+                    <h6>Generated Proof:</h6>
+                    <textarea class="form-control" id="proofOutput" rows="6" readonly></textarea>
+                    <div class="mt-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="copyProof()">
+                            <i class="fas fa-copy me-1"></i>Copy Proof
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="generateProofBtn" onclick="generateProof()">
+                    <i class="fas fa-key me-1"></i>Generate Proof
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentCredential = null;
+
+function refreshCredentials() {
+    location.reload();
+}
+
+function viewCredential(credentialId) {
+    fetch(`/api/get_credential/${credentialId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentCredential = data.credential;
+                displayCredentialDetails(data.credential);
+            } else {
+                showAlert('Error loading credential: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Network error occurred while loading credential', 'danger');
+        });
+}
+
+function displayCredentialDetails(credential) {
+    const content = document.getElementById('credentialModalContent');
+    
+    let fullCredentialHtml = '';
+    if (credential.full_credential) {
+        const cred = credential.full_credential;
+        fullCredentialHtml = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Student Information:</h6>
+                    <table class="table table-sm">
+                        <tr><td><strong>Name:</strong></td><td>${cred.credentialSubject.name}</td></tr>
+                        <tr><td><strong>Student ID:</strong></td><td>${cred.credentialSubject.studentId}</td></tr>
+                        <tr><td><strong>Degree:</strong></td><td>${cred.credentialSubject.degree}</td></tr>
+                        <tr><td><strong>University:</strong></td><td>${cred.credentialSubject.university}</td></tr>
+                        <tr><td><strong>GPA:</strong></td><td>${cred.credentialSubject.gpa}</td></tr>
+                        <tr><td><strong>Graduation Year:</strong></td><td>${cred.credentialSubject.graduationYear}</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Credential Metadata:</h6>
+                    <table class="table table-sm">
+                        <tr><td><strong>Credential ID:</strong></td><td><code>${credential.credential_id}</code></td></tr>
+                        <tr><td><strong>IPFS CID:</strong></td><td><code>${credential.ipfs_cid}</code></td></tr>
+                        <tr><td><strong>Issue Date:</strong></td><td>${new Date(cred.issuanceDate).toLocaleDateString()}</td></tr>
+                        <tr><td><strong>Status:</strong></td><td><span class="badge bg-success">${credential.status}</span></td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            ${cred.credentialSubject.courses && cred.credentialSubject.courses.length > 0 ? `
+                <div class="mt-3">
+                    <h6>Courses:</h6>
+                    <div class="row">
+                        ${cred.credentialSubject.courses.map(course => `
+                            <div class="col-md-6">
+                                <span class="badge bg-info me-1">${course}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+    }
+    
+    content.innerHTML = fullCredentialHtml || '<p>Loading credential details...</p>';
+    
+    const modal = new bootstrap.Modal(document.getElementById('credentialModal'));
+    modal.show();
+}
+
+function shareCredential(credentialId) {
+    fetch(`/api/get_credential/${credentialId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.credential.full_credential) {
+                setupSelectiveDisclosure(credentialId, data.credential.full_credential);
+            } else {
+                showAlert('Error loading credential for selective disclosure', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Network error occurred: ' + error.message, 'danger');
+        });
+}
+
+function setupSelectiveDisclosure(credentialId, fullCredential) {
+    document.getElementById('selectedCredentialId').value = credentialId;
+    document.getElementById('disclosureResult').style.display = 'none';
+    
+    const subject = fullCredential.credentialSubject;
+    
+    const fieldSelection = document.getElementById('fieldSelection');
+    fieldSelection.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_name" value="name">
+                    <label class="form-check-label" for="field_name">
+                        Student Name: <strong>${subject.name}</strong>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_gpa" value="gpa">
+                    <label class="form-check-label" for="field_gpa">
+                        GPA: <strong>${subject.gpa}</strong>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_degree" value="degree">
+                    <label class="form-check-label" for="field_degree">
+                        Degree: <strong>${subject.degree}</strong>
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_studentId" value="studentId">
+                    <label class="form-check-label" for="field_studentId">
+                        Student ID: <strong>${subject.studentId}</strong>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_graduationYear" value="graduationYear">
+                    <label class="form-check-label" for="field_graduationYear">
+                        Graduation Year: <strong>${subject.graduationYear}</strong>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_university" value="university">
+                    <label class="form-check-label" for="field_university">
+                        University: <strong>${subject.university}</strong>
+                    </label>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('selectiveDisclosureModal'));
+    modal.show();
+}
+
+function generateProof() {
+    const credentialId = document.getElementById('selectedCredentialId').value;
+    const selectedFields = [];
+    
+    // Get selected fields
+    const checkboxes = document.querySelectorAll('#fieldSelection input[type="checkbox"]:checked');
+    checkboxes.forEach(checkbox => {
+        selectedFields.push(checkbox.value);
+    });
+    
+    if (selectedFields.length === 0) {
+        showAlert('Please select at least one field to disclose', 'warning');
+        return;
+    }
+    
+    const generateBtn = document.getElementById('generateProofBtn');
+    const originalText = generateBtn.innerHTML;
+    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
+    generateBtn.disabled = true;
+    
+    fetch('/api/selective_disclosure', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            credential_id: credentialId,
+            fields: selectedFields
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            document.getElementById('proofOutput').value = JSON.stringify(data.disclosure, null, 2);
+            document.getElementById('disclosureResult').style.display = 'block';
+            showAlert('Selective disclosure proof generated successfully!', 'success');
+        } else {
+            showAlert('Error generating proof: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Network error occurred: ' + error.message, 'danger');
+    })
+    .finally(() => {
+        generateBtn.innerHTML = originalText;
+        generateBtn.disabled = false;
+    });
+}
+
+function copyProof() {
+    const proofOutput = document.getElementById('proofOutput');
+    proofOutput.select();
+    document.execCommand('copy');
+    showAlert('Proof copied to clipboard!', 'success');
+}
+
+function showAlert(message, type) {
+    const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertAdjacentHTML('afterbegin', alertHtml);
+    
+    setTimeout(() => {
+        const alert = container.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

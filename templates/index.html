@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Blockchain-Based Verifiable Credentials{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5 mb-5">
+    <div class="container">
+        <h1 class="display-4 mb-4">
+            <i class="fas fa-certificate text-primary me-3"></i>
+            Blockchain-Based Verifiable Credentials
+        </h1>
+        <p class="lead mb-4">
+            A secure, decentralized system for academic transcript verification using blockchain technology, 
+            IPFS storage, and cryptographic verification with selective disclosure capabilities.
+        </p>
+        <div class="badge bg-info fs-6 mb-4">
+            B.Tech Final Year Project - G. Pulla Reddy Engineering College
+        </div>
+        <p class="lead mb-4">
+            Developed By:<br>
+            <strong>SHASHI</strong> – Frontend Design, UI Integration, IPFS Handling<br>
+            <strong>UDAY</strong> – Backend Architecture, Blockchain Logic, Cryptography, Deployment<br>
+            <strong>TEJA VARSHITH</strong> – System Analysis, Test Case Design, Validation & Documentation
+        </p>
+    </div>
+</div>
+
+<!-- FIXED: Role Selection Cards (3 columns - unchanged) -->
+<div class="row mb-5">
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 role-card">
+            <div class="card-body text-center">
+                <div class="role-icon mb-3">
+                    <i class="fas fa-university fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">Academic Institution</h5>
+                <p class="card-text">
+                    Issue digital transcript credentials with cryptographic signatures. 
+                    Store credentials securely on IPFS and record transactions on the blockchain.
+                </p>
+                {% if session.get('role') == 'issuer' %}
+                <a href="{{ url_for('issuer') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Issue Credentials
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login as Issuer
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 role-card">
+            <div class="card-body text-center">
+                <div class="role-icon mb-3">
+                    <i class="fas fa-user-graduate fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">Student (Holder)</h5>
+                <p class="card-text">
+                    View and manage your verifiable credentials. Create selective disclosures 
+                    to share only specific information like GPA without revealing full transcripts.
+                </p>
+                {% if session.get('role') == 'student' %}
+                <a href="{{ url_for('holder') }}" class="btn btn-success">
+                    <i class="fas fa-id-card me-2"></i>Manage Credentials
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-success">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login as Student
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 role-card">
+            <div class="card-body text-center">
+                <div class="role-icon mb-3">
+                    <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">Employer (Verifier)</h5>
+                <p class="card-text">
+                    Verify the authenticity of academic credentials using blockchain verification. 
+                    Check cryptographic signatures and validate credential integrity.
+                </p>
+                <a href="{{ url_for('verifier') }}" class="btn btn-warning">
+                    <i class="fas fa-check-circle me-2"></i>Verify Credentials
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FIXED: LINE-BY-LINE SECTIONS - Full width, stacked vertically -->
+<div class="container-fluid mb-5">
+    
+    <!-- 1. System Features - Full width -->
+    <div class="card mb-5">
+        <div class="card-header">
+            <h5><i class="fas fa-info-circle me-2"></i>System Features</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            W3C Verifiable Credentials Standard
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Cryptographic Digital Signatures
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            IPFS Distributed Storage
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Blockchain-based Integrity
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Selective Disclosure Privacy
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Tamper-proof Verification
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Decentralized Architecture
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Real-time Status Monitoring
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. System Status - Full width -->
+    <div class="card mb-5">
+        <div class="card-header">
+            <h5><i class="fas fa-chart-bar me-2"></i>System Status</h5>
+        </div>
+        <div class="card-body">
+            <div id="system-status">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Blockchain Blocks:</span>
+                    <span id="total-blocks" class="badge bg-info">Loading...</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total Credentials:</span>
+                    <span id="total-credentials" class="badge bg-success">Loading...</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>IPFS Status:</span>
+                    <span id="ipfs-status" class="badge bg-secondary">Loading...</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Last Update:</span>
+                    <small id="last-update" class="text-muted">Loading...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Need Help? - Full width -->
+    <div class="card mb-5">
+        <div class="card-body text-center">
+            <h6>Need Help?</h6>
+            <p class="card-text small">
+                Check out our comprehensive tutorial for step-by-step guidance.
+            </p>
+            <a href="{{ url_for('tutorial') }}" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-book me-1"></i>View Tutorial
+            </a>
+        </div>
+    </div>
+
+    <!-- 4. How It Works - Full width -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-cogs me-2"></i>How It Works</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center mb-3">
+                    <div class="process-step">
+                        <div class="step-number">1</div>
+                        <i class="fas fa-file-signature fa-2x text-primary mb-2"></i>
+                        <h6>Issue Credential</h6>
+                        <small class="text-muted">University creates and signs digital transcript</small>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="process-step">
+                        <div class="step-number">2</div>
+                        <i class="fas fa-cloud-upload-alt fa-2x text-info mb-2"></i>
+                        <h6>Store on IPFS</h6>
+                        <small class="text-muted">Credential stored on distributed IPFS network</small>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="process-step">
+                        <div class="step-number">3</div>
+                        <i class="fas fa-cube fa-2x text-success mb-2"></i>
+                        <h6>Record on Blockchain</h6>
+                        <small class="text-muted">Hash and metadata stored on blockchain</small>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="process-step">
+                        <div class="step-number">4</div>
+                        <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                        <h6>Verify & Share</h6>
+                        <small class="text-muted">Selective disclosure and cryptographic verification</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load system status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadSystemStatus();
+    
+    // Refresh status every 30 seconds
+    setInterval(loadSystemStatus, 30000);
+});
+
+function loadSystemStatus() {
+    fetch('/api/blockchain_status')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-blocks').textContent = data.total_blocks || 0;
+            document.getElementById('total-credentials').textContent = data.total_credentials || 0;
+            
+            const ipfsStatus = document.getElementById('ipfs-status');
+            if (data.ipfs_status) {
+                ipfsStatus.textContent = 'Connected';
+                ipfsStatus.className = 'badge bg-success';
+            } else {
+                ipfsStatus.textContent = 'Local Storage';
+                ipfsStatus.className = 'badge bg-warning';
+            }
+            
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        })
+        .catch(error => {
+            console.error('Error loading system status:', error);
+            document.getElementById('total-blocks').textContent = 'Error';
+            document.getElementById('total-credentials').textContent = 'Error';
+            document.getElementById('ipfs-status').textContent = 'Error';
+        });
+}
+</script>
+{% endblock %}

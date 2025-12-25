@@ -461,7 +461,101 @@ def respond_to_ticket(ticket_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+# ==================== ENHANCED TICKET ROUTES ====================
 
+@app.route('/api/tickets/<ticket_id>/student_action', methods=['POST'])
+def student_ticket_action(ticket_id):
+    """Student marks ticket as resolved or not solved"""
+    try:
+        data = request.json
+        student_id = data.get('student_id')
+        is_resolved = data.get('is_resolved', False)
+        
+        if not student_id:
+            return jsonify({'error': 'Student ID required'}), 400
+        
+        result = ticket_manager.student_mark_resolved(ticket_id, student_id, is_resolved)
+        
+        if result.get('success'):
+            return jsonify(result)
+        else:
+            return jsonify(result), 403
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/messages/broadcast', methods=['POST'])
+def broadcast_message():
+    """Admin broadcasts message to all students"""
+    try:
+        data = request.json
+        sender_id = data.get('sender_id', 'admin')
+        subject = data.get('subject')
+        message = data.get('message')
+        
+        if not all([subject, message]):
+            return jsonify({'error': 'Subject and message are required'}), 400
+        
+        msg = ticket_manager.broadcast_message(sender_id, subject, message)
+        
+        return jsonify({
+            'success': True,
+            'message': msg
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/messages/student/<student_id>', methods=['GET'])
+def get_student_messages(student_id):
+    """Get all messages for a student (direct + broadcast)"""
+    try:
+        messages = ticket_manager.get_messages_for_student(student_id)
+        return jsonify({'messages': messages})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/messages/all', methods=['GET'])
+def get_all_messages_admin():
+    """Get all messages (admin view)"""
+    try:
+        messages = ticket_manager.get_all_messages()
+        return jsonify({'messages': messages})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/messages/<message_id>/revoke', methods=['PUT'])
+def revoke_message(message_id):
+    """Revoke a message (admin only)"""
+    try:
+        data = request.json
+        admin_id = data.get('admin_id', 'admin')
+        
+        result = ticket_manager.revoke_message(message_id, admin_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/messages/<message_id>/read', methods=['PUT'])
+def mark_student_message_read(message_id):
+    """Student marks message as read"""
+    try:
+        data = request.json
+        student_id = data.get('student_id')
+        
+        if not student_id:
+            return jsonify({'error': 'Student ID required'}), 400
+        
+        success = ticket_manager.mark_message_read(message_id, student_id)
+        
+        if success:
+            return jsonify({'success': True})
+        return jsonify({'error': 'Message not found or unauthorized'}), 404
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 # ==================== MESSAGING ROUTES ====================
 
 @app.route('/api/messages', methods=['POST'])

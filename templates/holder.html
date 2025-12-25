@@ -185,10 +185,15 @@
             <!-- Messages Section -->
             <div id="messagesSection" class="content-section" style="display:none;">
                 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h2><i class="fas fa-envelope text-info me-2"></i>Messages</h2>
-                    <button class="btn btn-primary" onclick="showNewMessageModal()">
-                        <i class="fas fa-paper-plane me-1"></i>New Message
+                    <h2><i class="fas fa-envelope text-info me-2"></i>Messages from Admin</h2>
+                    <button class="btn btn-secondary" disabled>
+                        <i class="fas fa-lock me-1"></i>Read Only
                     </button>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> Messages are read-only. To communicate with admin, please raise a support ticket.
                 </div>
 
                 <!-- Messages List -->
@@ -244,36 +249,6 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" onclick="submitTicket()">
                     <i class="fas fa-paper-plane me-1"></i>Submit Ticket
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- New Message Modal -->
-<div class="modal fade" id="newMessageModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-envelope me-2"></i>New Message to Admin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="newMessageForm">
-                    <div class="mb-3">
-                        <label class="form-label">Subject *</label>
-                        <input type="text" class="form-control" id="messageSubject" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Message *</label>
-                        <textarea class="form-control" id="messageContent" rows="5" required></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="sendMessage()">
-                    <i class="fas fa-paper-plane me-1"></i>Send Message
                 </button>
             </div>
         </div>
@@ -401,8 +376,6 @@
 const currentStudentId = '{{ session.student_id }}';
 const createTicketModalEl = document.getElementById('createTicketModal');
 const createTicketModal = new bootstrap.Modal(createTicketModalEl);
-const newMessageModalEl = document.getElementById('newMessageModal');
-const newMessageModal = new bootstrap.Modal(newMessageModalEl);
 let currentCredential = null;
 
 // Show specific section
@@ -579,7 +552,6 @@ function generateProof() {
     const credentialId = document.getElementById('selectedCredentialId').value;
     const selectedFields = [];
     
-    // Get selected fields
     const checkboxes = document.querySelectorAll('#fieldSelection input[type="checkbox"]:checked');
     checkboxes.forEach(checkbox => {
         selectedFields.push(checkbox.value);
@@ -726,16 +698,61 @@ function displayTickets(tickets) {
 
 function createTicketCard(ticket) {
     const priorityColors = {low: 'success', medium: 'warning', high: 'danger'};
+    const canResolve = ticket.can_resolve || false;
+    
     return `
-        <div class="card ticket-card mb-2" onclick="viewTicketDetails('${ticket.ticket_id}')">
+        <div class="card ticket-card mb-2">
             <div class="card-body p-2">
                 <h6 class="mb-1 small">${ticket.subject}</h6>
                 <small class="text-muted">#${ticket.ticket_id}</small><br>
                 <span class="badge bg-${priorityColors[ticket.priority]} badge-sm">${ticket.priority}</span>
                 <span class="badge bg-secondary badge-sm">${ticket.category}</span>
+                
+                ${canResolve && ticket.status !== 'resolved' ? `
+                    <hr class="my-2">
+                    <div class="btn-group btn-group-sm w-100">
+                        <button class="btn btn-success" onclick="studentResolveTicket('${ticket.ticket_id}', true)">
+                            <i class="fas fa-check"></i> Resolved
+                        </button>
+                        <button class="btn btn-warning" onclick="studentResolveTicket('${ticket.ticket_id}', false)">
+                            <i class="fas fa-redo"></i> Not Solved
+                        </button>
+                    </div>
+                ` : ''}
+                
+                <button class="btn btn-sm btn-outline-info w-100 mt-2" onclick="viewTicketDetails('${ticket.ticket_id}')">
+                    <i class="fas fa-eye me-1"></i>View Details
+                </button>
             </div>
         </div>
     `;
+}
+
+function studentResolveTicket(ticketId, isResolved) {
+    const action = isResolved ? 'mark as resolved' : 'mark as not solved and re-ticket';
+    if (!confirm(`Are you sure you want to ${action}?`)) return;
+    
+    fetch(`/api/tickets/${ticketId}/student_action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            student_id: currentStudentId,
+            is_resolved: isResolved
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(isResolved ? 'Ticket marked as resolved!' : 'Ticket re-opened!', 'success');
+            loadTickets();
+        } else {
+            showAlert(data.error || 'Action failed', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error updating ticket', 'danger');
+    });
 }
 
 function viewTicketDetails(ticketId) {
@@ -751,6 +768,7 @@ function viewTicketDetails(ticketId) {
                         responsesHtml += `
                             <div class="mb-2 p-2 bg-light rounded">
                                 <small><strong>${r.responder === 'admin' ? 'Admin' : 'You'}:</strong> ${r.message}</small><br>
+                                ${r.action ? `<small class="text-info">${r.action}</small><br>` : ''}
                                 <small class="text-muted">${new Date(r.timestamp).toLocaleString()}</small>
                             </div>
                         `;
@@ -767,52 +785,10 @@ function viewTicketDetails(ticketId) {
         });
 }
 
-// ==================== MESSAGE FUNCTIONS ====================
-
-function showNewMessageModal() {
-    document.getElementById('newMessageForm').reset();
-    newMessageModal.show();
-}
-
-function sendMessage() {
-    const subject = document.getElementById('messageSubject').value;
-    const message = document.getElementById('messageContent').value;
-    
-    if (!subject || !message) {
-        showAlert('Please fill in all fields', 'warning');
-        return;
-    }
-    
-    fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            sender_id: currentStudentId,
-            sender_type: 'student',
-            recipient_id: 'admin',
-            recipient_type: 'admin',
-            subject: subject,
-            message: message
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Message sent successfully!', 'success');
-            newMessageModal.hide();
-            loadMessages();
-        } else {
-            showAlert('Error sending message: ' + data.error, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('Error sending message', 'danger');
-    });
-}
+// ==================== MESSAGE FUNCTIONS (READ-ONLY) ====================
 
 function loadMessages() {
-    fetch(`/api/messages/user/${currentStudentId}/student`)
+    fetch(`/api/messages/student/${currentStudentId}`)
         .then(response => response.json())
         .then(data => {
             displayMessages(data.messages || []);
@@ -832,68 +808,63 @@ function displayMessages(messages) {
     }
     
     container.innerHTML = messages.map(msg => {
-        const isUnread = !msg.read && msg.recipient_id === currentStudentId;
+        const isUnread = !msg.read;
+        const isRevoked = msg.revoked;
+        const isBroadcast = msg.is_broadcast;
+        
         return `
-            <div class="card message-card ${isUnread ? 'unread' : ''}">
+            <div class="card message-card ${isUnread ? 'unread' : ''} ${isRevoked ? 'border-danger' : ''} mb-3">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">
-                                ${msg.sender_type === 'admin' ? '📩 From: Admin' : '📤 To: Admin'}
-                            </h6>
-                            <h5 class="mb-2">${msg.subject}</h5>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <h6 class="mb-0">
+                                    ${isBroadcast ? '📢 Broadcast to All Students' : '📩 Direct Message'}
+                                </h6>
+                                ${isRevoked ? '<span class="badge bg-danger">REVOKED</span>' : ''}
+                                ${isUnread && !isRevoked ? '<span class="badge bg-primary">NEW</span>' : ''}
+                            </div>
+                            <h5 class="mb-2 ${isRevoked ? 'text-decoration-line-through text-muted' : ''}">${msg.subject}</h5>
                         </div>
                         <small class="text-muted">${new Date(msg.timestamp).toLocaleString()}</small>
                     </div>
-                    <p class="mb-2">${msg.message}</p>
-                    ${msg.replies && msg.replies.length > 0 ? `
-                        <hr>
-                        <h6>Replies:</h6>
-                        ${msg.replies.map(r => `
-                            <div class="ms-3 mb-2 p-2 bg-light rounded">
-                                <small><strong>${r.sender_type === 'admin' ? 'Admin' : 'You'}:</strong> ${r.message}</small><br>
-                                <small class="text-muted">${new Date(r.timestamp).toLocaleString()}</small>
-                            </div>
-                        `).join('')}
+                    <p class="mb-2 ${isRevoked ? 'text-decoration-line-through text-muted' : ''}">${msg.message}</p>
+                    
+                    ${isRevoked ? `
+                        <div class="alert alert-danger mb-0 mt-2">
+                            <small><i class="fas fa-ban me-1"></i>This message was revoked on ${new Date(msg.revoked_at).toLocaleString()}</small>
+                        </div>
                     ` : ''}
-                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="replyToMessage('${msg.message_id}')">
-                        <i class="fas fa-reply me-1"></i>Reply
-                    </button>
+                    
+                    ${!isRevoked && isUnread ? `
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="markMessageAsRead('${msg.message_id}')">
+                            <i class="fas fa-check me-1"></i>Mark as Read
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         `;
     }).join('');
     
-    const unreadCount = messages.filter(m => !m.read && m.recipient_id === currentStudentId).length;
+    const unreadCount = messages.filter(m => !m.read && !m.revoked).length;
     document.getElementById('messageBadge').textContent = unreadCount;
     document.getElementById('messageBadge').style.display = unreadCount > 0 ? 'inline' : 'none';
 }
 
-function replyToMessage(messageId) {
-    const replyText = prompt('Enter your reply:');
-    if (!replyText) return;
-    
-    fetch(`/api/messages/${messageId}/reply`, {
-        method: 'POST',
+function markMessageAsRead(messageId) {
+    fetch(`/api/messages/${messageId}/read`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            sender_id: currentStudentId,
-            sender_type: 'student',
-            reply: replyText
-        })
+        body: JSON.stringify({ student_id: currentStudentId })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showAlert('Reply sent successfully!', 'success');
             loadMessages();
-        } else {
-            showAlert('Error sending reply: ' + data.error, 'danger');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('Error sending reply', 'danger');
     });
 }
 

@@ -6,61 +6,60 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <!-- Sidebar -->
-<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-    <div class="position-sticky pt-3">
-        <div class="text-center mb-3">
-            <i class="fas fa-university fa-3x text-primary"></i>
-            <h6 class="mt-2">Issuer Portal</h6>
-            <small class="user-name-bold">{{ session.full_name }}</small>
-        </div>
-        
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="#" onclick="showSection('issue'); return false;">
-                    <i class="fas fa-plus-circle me-2"></i>Issue Credential
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="showSection('manage'); return false;">
-                    <i class="fas fa-list me-2"></i>Manage Credentials
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="showSection('search'); return false;">
-                    <i class="fas fa-search me-2"></i>Search Student
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="showSection('tickets'); return false;">
-                    <i class="fas fa-ticket-alt me-2"></i>Tickets
-                    <span class="badge bg-warning text-dark" id="ticketBadge">0</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="showSection('messages'); return false;">
-                    <i class="fas fa-envelope me-2"></i>Messages
-                </a>
-            </li>
-        </ul>
-        
-        <hr>
-        
-        <div class="px-3">
-            <small class="stats-header-bold">Quick Stats</small>
-            <div class="mt-2">
-                <div class="d-flex justify-content-between">
-                    <span class="small">Total Issued:</span>
-                    <span class="badge bg-primary" id="totalCredsBadge">0</span>
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-3">
+                    <i class="fas fa-university fa-3x text-primary"></i>
+                    <h6 class="mt-2">Issuer Portal</h6>
+                    <small class="user-name-bold">{{ session.full_name }}</small>
                 </div>
-                <div class="d-flex justify-content-between mt-1">
-                    <span class="small">Pending Tickets:</span>
-                    <span class="badge bg-warning text-dark" id="pendingTicketsBadge">0</span>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('issue'); return false;">
+                            <i class="fas fa-plus-circle me-2"></i>Issue Credential
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('manage'); return false;">
+                            <i class="fas fa-list me-2"></i>Manage Credentials
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('search'); return false;">
+                            <i class="fas fa-search me-2"></i>Search Student
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('tickets'); return false;">
+                            <i class="fas fa-ticket-alt me-2"></i>Tickets
+                            <span class="badge bg-warning text-dark" id="ticketBadge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('messages'); return false;">
+                            <i class="fas fa-envelope me-2"></i>Messages
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr>
+                
+                <div class="px-3">
+                    <small class="stats-header-bold">Quick Stats</small>
+                    <div class="mt-2">
+                        <div class="d-flex justify-content-between">
+                            <span class="small">Total Issued:</span>
+                            <span class="badge bg-primary" id="totalCredsBadge">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span class="small">Open Tickets:</span>
+                            <span class="badge bg-warning text-dark" id="pendingTicketsBadge">0</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</nav>
+        </nav>
 
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -73,7 +72,7 @@
                 </div>
             </div>
 
-            <!-- SECTION 1: Issue Credential -->
+            <!-- SECTION 1: Issue Credential (UNCHANGED) -->
             <div id="issueSection" class="content-section">
                 <div class="row">
                     <div class="col-lg-8">
@@ -214,7 +213,7 @@
                 </div>
             </div>
 
-            <!-- SECTION 2: Manage Credentials -->
+            <!-- SECTION 2: Manage Credentials (UNCHANGED) -->
             <div id="manageSection" class="content-section" style="display:none;">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -231,7 +230,7 @@
                 </div>
             </div>
 
-            <!-- SECTION 3: Search Student -->
+            <!-- SECTION 3: Search Student (UNCHANGED) -->
             <div id="searchSection" class="content-section" style="display:none;">
                 <div class="card">
                     <div class="card-header">
@@ -253,12 +252,12 @@
                 </div>
             </div>
 
-            <!-- SECTION 4: Tickets (Kanban Board) -->
+            <!-- SECTION 4: Tickets (ENHANCED KANBAN) -->
             <div id="ticketsSection" class="content-section" style="display:none;">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5><i class="fas fa-ticket-alt me-2"></i>Student Tickets</h5>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="loadTickets()">
+                        <h5><i class="fas fa-ticket-alt me-2"></i>Student Support Tickets</h5>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadAdminTickets()">
                             <i class="fas fa-sync-alt me-1"></i>Refresh
                         </button>
                     </div>
@@ -266,20 +265,20 @@
                         <div class="row" id="kanbanBoard">
                             <div class="col-md-4">
                                 <div class="card bg-light">
-                                    <div class="card-header bg-warning text-dark">
-                                        <h6 class="mb-0"><i class="fas fa-inbox me-2"></i>To Do</h6>
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0"><i class="fas fa-inbox me-2"></i>Open</h6>
                                     </div>
-                                    <div class="card-body" id="todoColumn" style="min-height: 300px;">
+                                    <div class="card-body" id="openColumn" style="min-height: 400px;">
                                         <p class="text-muted small">Loading...</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card bg-light">
-                                    <div class="card-header bg-info text-white">
+                                    <div class="card-header bg-warning text-dark">
                                         <h6 class="mb-0"><i class="fas fa-tasks me-2"></i>In Progress</h6>
                                     </div>
-                                    <div class="card-body" id="inProgressColumn" style="min-height: 300px;">
+                                    <div class="card-body" id="inProgressColumn" style="min-height: 400px;">
                                         <p class="text-muted small">Loading...</p>
                                     </div>
                                 </div>
@@ -287,9 +286,9 @@
                             <div class="col-md-4">
                                 <div class="card bg-light">
                                     <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0"><i class="fas fa-check-circle me-2"></i>Completed</h6>
+                                        <h6 class="mb-0"><i class="fas fa-check-circle me-2"></i>Resolved</h6>
                                     </div>
-                                    <div class="card-body" id="completedColumn" style="min-height: 300px;">
+                                    <div class="card-body" id="resolvedColumn" style="min-height: 400px;">
                                         <p class="text-muted small">Loading...</p>
                                     </div>
                                 </div>
@@ -299,10 +298,10 @@
                 </div>
             </div>
 
-            <!-- SECTION 5: Messages -->
+            <!-- SECTION 5: Messages (ENHANCED WITH REVOCATION) -->
             <div id="messagesSection" class="content-section" style="display:none;">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="card">
                             <div class="card-header">
                                 <h5><i class="fas fa-paper-plane me-2"></i>Send Message</h5>
@@ -313,7 +312,7 @@
                                         <label class="form-label">Recipient Type</label>
                                         <select class="form-select" id="messageType" onchange="toggleRecipientField()">
                                             <option value="individual">Individual Student</option>
-                                            <option value="broadcast">Broadcast to All</option>
+                                            <option value="broadcast">Broadcast to All Students</option>
                                         </select>
                                     </div>
                                     
@@ -323,16 +322,16 @@
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <label for="messageSubject" class="form-label">Subject</label>
+                                        <label for="messageSubject" class="form-label">Subject *</label>
                                         <input type="text" class="form-control" id="messageSubject" required>
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <label for="messageBody" class="form-label">Message</label>
+                                        <label for="messageBody" class="form-label">Message *</label>
                                         <textarea class="form-control" id="messageBody" rows="5" required></textarea>
                                     </div>
                                     
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-primary w-100">
                                         <i class="fas fa-paper-plane me-1"></i>Send Message
                                     </button>
                                 </form>
@@ -340,14 +339,17 @@
                         </div>
                     </div>
                     
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         <div class="card">
-                            <div class="card-header">
-                                <h5><i class="fas fa-history me-2"></i>Recent Messages</h5>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5><i class="fas fa-history me-2"></i>Sent Messages</h5>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="loadAdminMessages()">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body" style="max-height: 600px; overflow-y: auto;">
                                 <div id="sentMessages">
-                                    <p class="text-muted">No messages sent yet</p>
+                                    <p class="text-muted">Loading messages...</p>
                                 </div>
                             </div>
                         </div>
@@ -358,7 +360,7 @@
     </div>
 </div>
 
-<!-- Success Modal (Enhanced) -->
+<!-- Success Modal (UNCHANGED) -->
 <div class="modal fade" id="successModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -379,7 +381,7 @@
     </div>
 </div>
 
-<!-- Revoke Modal -->
+<!-- Revoke Modal (UNCHANGED) -->
 <div class="modal fade" id="revokeModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -421,16 +423,16 @@
     </div>
 </div>
 
-<!-- Ticket Details Modal -->
+<!-- Ticket Details Modal (ENHANCED) -->
 <div class="modal fade" id="ticketModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Ticket Details</h5>
+                <h5 class="modal-title"><i class="fas fa-ticket-alt me-2"></i>Ticket Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="ticketModalBody">
-                <!-- Ticket details populated by JS -->
+                <!-- Populated by JavaScript -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -443,15 +445,11 @@
 
 {% block scripts %}
 <script>
-// Section navigation
+// ==================== SECTION NAVIGATION (UNCHANGED) ====================
 function showSection(section) {
-    // Hide all sections
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-    
-    // Remove active class from all nav links
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
     
-    // Show selected section
     const sectionMap = {
         'issue': { id: 'issueSection', title: 'Issue New Credential', icon: 'fa-plus-circle' },
         'manage': { id: 'manageSection', title: 'Manage Credentials', icon: 'fa-list' },
@@ -464,15 +462,14 @@ function showSection(section) {
     document.getElementById(selected.id).style.display = 'block';
     document.getElementById('sectionTitle').innerHTML = `<i class="fas ${selected.icon} text-primary me-2"></i>${selected.title}`;
     
-    // Mark nav link as active
     event.target.classList.add('active');
     
-    // Load data for section
     if (section === 'manage') loadCredentials();
-    if (section === 'tickets') loadTickets();
+    if (section === 'tickets') loadAdminTickets();
+    if (section === 'messages') loadAdminMessages();
 }
 
-// Issue credential
+// ==================== CREDENTIAL ISSUING (UNCHANGED) ====================
 document.getElementById('issueCredentialForm').addEventListener('submit', function(e) {
     e.preventDefault();
     issueCredential();
@@ -634,7 +631,7 @@ function issueAnother() {
     clearForm();
 }
 
-// Load credentials
+// ==================== MANAGE CREDENTIALS (UNCHANGED) ====================
 function loadCredentials() {
     const container = document.getElementById('credentialsTableContainer');
     container.innerHTML = '<p class="text-muted">Loading credentials...</p>';
@@ -699,7 +696,6 @@ function loadCredentials() {
         });
 }
 
-// Revoke credential
 function showRevokeModal(credentialId) {
     document.getElementById('revokeCredentialId').value = credentialId;
     const modal = new bootstrap.Modal(document.getElementById('revokeModal'));
@@ -738,7 +734,7 @@ function confirmRevoke() {
     });
 }
 
-// Search by student ID
+// ==================== SEARCH (UNCHANGED) ====================
 function searchByStudentId() {
     const studentId = document.getElementById('searchStudentId').value.trim();
     if (!studentId) {
@@ -785,40 +781,47 @@ function searchByStudentId() {
         });
 }
 
-// Load tickets (Kanban)
-function loadTickets() {
+// ==================== TICKET MANAGEMENT (ENHANCED) ====================
+function loadAdminTickets() {
     fetch('/api/tickets')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const todo = data.tickets.filter(t => t.status === 'todo');
+                const open = data.tickets.filter(t => t.status === 'open');
                 const inProgress = data.tickets.filter(t => t.status === 'in_progress');
-                const completed = data.tickets.filter(t => t.status === 'completed');
+                const resolved = data.tickets.filter(t => t.status === 'resolved');
                 
-                document.getElementById('todoColumn').innerHTML = renderTickets(todo);
-                document.getElementById('inProgressColumn').innerHTML = renderTickets(inProgress);
-                document.getElementById('completedColumn').innerHTML = renderTickets(completed);
+                document.getElementById('openColumn').innerHTML = renderAdminTickets(open, 'open');
+                document.getElementById('inProgressColumn').innerHTML = renderAdminTickets(inProgress, 'in_progress');
+                document.getElementById('resolvedColumn').innerHTML = renderAdminTickets(resolved, 'resolved');
                 
-                document.getElementById('ticketBadge').textContent = todo.length + inProgress.length;
-                document.getElementById('pendingTicketsBadge').textContent = todo.length;
+                document.getElementById('ticketBadge').textContent = open.length + inProgress.length;
+                document.getElementById('pendingTicketsBadge').textContent = open.length;
             }
         })
         .catch(err => console.error('Error loading tickets:', err));
 }
 
-function renderTickets(tickets) {
+function renderAdminTickets(tickets, status) {
     if (tickets.length === 0) return '<p class="text-muted small">No tickets</p>';
     
     let html = '';
     tickets.forEach(t => {
-        const priorityColor = t.priority === 'urgent' ? 'danger' : t.priority === 'medium' ? 'warning' : 'secondary';
+        const priorityColor = t.priority === 'high' ? 'danger' : t.priority === 'medium' ? 'warning' : 'secondary';
         html += `
-            <div class="card mb-2 ticket-card" onclick="viewTicket(${t.id})">
+            <div class="card mb-2 admin-ticket-card" onclick="viewAdminTicket('${t.ticket_id}')">
                 <div class="card-body p-2">
-                    <h6 class="card-title mb-1">${t.ticket_number}</h6>
-                    <p class="card-text small text-muted mb-1">${t.issue_type}</p>
-                    <p class="card-text small mb-1">${t.student_name} (${t.student_roll_number})</p>
-                    <span class="badge bg-${priorityColor}">${t.priority}</span>
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <h6 class="card-title mb-0 small">${t.subject}</h6>
+                        <span class="badge bg-${priorityColor} badge-sm">${t.priority}</span>
+                    </div>
+                    <p class="card-text small text-muted mb-1">
+                        <i class="fas fa-user me-1"></i>${t.student_id}
+                    </p>
+                    <p class="card-text small text-muted mb-1">
+                        <i class="fas fa-tag me-1"></i>${t.category}
+                    </p>
+                    <small class="text-muted">#${t.ticket_id}</small>
                 </div>
             </div>
         `;
@@ -826,58 +829,127 @@ function renderTickets(tickets) {
     return html;
 }
 
-function viewTicket(ticketId) {
-    // Show ticket details modal
-    fetch(`/api/tickets`)
+function viewAdminTicket(ticketId) {
+    fetch(`/api/tickets/${ticketId}`)
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                const ticket = data.tickets.find(t => t.id === ticketId);
-                if (ticket) {
-                    document.getElementById('ticketModalBody').innerHTML = `
-                        <p><strong>Ticket:</strong> ${ticket.ticket_number}</p>
-                        <p><strong>Student:</strong> ${ticket.student_name} (${ticket.student_roll_number})</p>
-                        <p><strong>Issue Type:</strong> ${ticket.issue_type}</p>
-                        <p><strong>Description:</strong> ${ticket.description}</p>
-                        <p><strong>Priority:</strong> <span class="badge bg-warning">${ticket.priority}</span></p>
-                        <p><strong>Status:</strong> <span class="badge bg-info">${ticket.status}</span></p>
-                        <hr>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-warning" onclick="updateTicketStatus(${ticketId}, 'todo')">To Do</button>
-                            <button class="btn btn-sm btn-info" onclick="updateTicketStatus(${ticketId}, 'in_progress')">In Progress</button>
-                            <button class="btn btn-sm btn-success" onclick="updateTicketStatus(${ticketId}, 'completed')">Completed</button>
-                        </div>
-                    `;
-                    const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
-                    modal.show();
+            if (data.ticket) {
+                const ticket = data.ticket;
+                let responsesHtml = '';
+                
+                if (ticket.responses && ticket.responses.length > 0) {
+                    responsesHtml = '<hr><h6>Conversation History:</h6>';
+                    ticket.responses.forEach(r => {
+                        const badge = r.responder === 'admin' ? '<span class="badge bg-primary">Admin</span>' : '<span class="badge bg-info">Student</span>';
+                        responsesHtml += `
+                            <div class="mb-2 p-2 ${r.responder === 'admin' ? 'bg-light' : 'bg-info bg-opacity-10'} rounded">
+                                <div class="d-flex justify-content-between">
+                                    ${badge}
+                                    <small class="text-muted">${new Date(r.timestamp).toLocaleString()}</small>
+                                </div>
+                                <p class="mb-1 mt-1">${r.message}</p>
+                                ${r.action ? `<small class="text-info"><i class="fas fa-info-circle me-1"></i>${r.action}</small>` : ''}
+                            </div>
+                        `;
+                    });
                 }
+                
+                document.getElementById('ticketModalBody').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Ticket ID:</strong> #${ticket.ticket_id}</p>
+                            <p><strong>Student:</strong> ${ticket.student_id}</p>
+                            <p><strong>Category:</strong> <span class="badge bg-secondary">${ticket.category}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Priority:</strong> <span class="badge bg-warning">${ticket.priority}</span></p>
+                            <p><strong>Status:</strong> <span class="badge bg-info">${ticket.status}</span></p>
+                            <p><strong>Created:</strong> ${new Date(ticket.created_at).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Subject:</h6>
+                    <p>${ticket.subject}</p>
+                    <h6>Description:</h6>
+                    <p>${ticket.description}</p>
+                    ${responsesHtml}
+                    <hr>
+                    <h6>Admin Actions:</h6>
+                    <div class="btn-group w-100 mb-2">
+                        <button class="btn btn-info" onclick="adminMoveTicket('${ticket.ticket_id}', 'open')">
+                            <i class="fas fa-inbox me-1"></i>Open
+                        </button>
+                        <button class="btn btn-warning" onclick="adminMoveTicket('${ticket.ticket_id}', 'in_progress')">
+                            <i class="fas fa-tasks me-1"></i>In Progress
+                        </button>
+                        <button class="btn btn-success" onclick="adminMoveTicket('${ticket.ticket_id}', 'resolved')">
+                            <i class="fas fa-check me-1"></i>Resolved
+                        </button>
+                    </div>
+                    <div class="input-group mt-2">
+                        <input type="text" class="form-control" id="adminNoteInput" placeholder="Add a note...">
+                        <button class="btn btn-primary" onclick="adminAddNote('${ticket.ticket_id}')">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                `;
+                
+                const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+                modal.show();
             }
         });
 }
 
-function updateTicketStatus(ticketId, newStatus) {
+function adminMoveTicket(ticketId, newStatus) {
+    const note = document.getElementById('adminNoteInput').value || `Ticket moved to ${newStatus}`;
+    
     fetch(`/api/tickets/${ticketId}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ 
+            status: newStatus,
+            admin_note: note,
+            by_admin: true
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showAlert(`Ticket status updated to ${newStatus}`, 'success');
-            loadTickets();
+            showAlert(`Ticket moved to ${newStatus}`, 'success');
+            loadAdminTickets();
             const modal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
             if (modal) modal.hide();
         } else {
-            showAlert('Error updating ticket: ' + data.error, 'danger');
+            showAlert('Error: ' + data.error, 'danger');
         }
     });
 }
 
-// Messages
+function adminAddNote(ticketId) {
+    const note = document.getElementById('adminNoteInput').value;
+    if (!note.trim()) return;
+    
+    fetch(`/api/tickets/${ticketId}/response`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            responder: 'admin',
+            message: note
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Note added', 'success');
+            viewAdminTicket(ticketId); // Refresh
+        }
+    });
+}
+
+// ==================== MESSAGE MANAGEMENT (ENHANCED) ====================
 document.getElementById('sendMessageForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    sendMessage();
+    sendAdminMessage();
 });
 
 function toggleRecipientField() {
@@ -886,28 +958,36 @@ function toggleRecipientField() {
     recipientField.style.display = messageType === 'individual' ? 'block' : 'none';
 }
 
-function sendMessage() {
+function sendAdminMessage() {
     const messageType = document.getElementById('messageType').value;
     const subject = document.getElementById('messageSubject').value;
-    const body = document.getElementById('messageBody').value;
+    const message = document.getElementById('messageBody').value;
     
     if (messageType === 'individual') {
-        const toStudentId = document.getElementById('toStudentId').value;
+        const toStudentId = document.getElementById('toStudentId').value.trim();
         if (!toStudentId) {
             showAlert('Please enter student roll number', 'warning');
             return;
         }
         
-        fetch('/api/messages/send', {
+        fetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to_student_id: toStudentId, subject, body })
+            body: JSON.stringify({ 
+                sender_id: 'admin',
+                sender_type: 'admin',
+                recipient_id: toStudentId,
+                recipient_type: 'student',
+                subject: subject,
+                message: message
+            })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 showAlert('Message sent successfully', 'success');
                 document.getElementById('sendMessageForm').reset();
+                loadAdminMessages();
             } else {
                 showAlert('Error: ' + data.error, 'danger');
             }
@@ -916,13 +996,18 @@ function sendMessage() {
         fetch('/api/messages/broadcast', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subject, body })
+            body: JSON.stringify({ 
+                sender_id: 'admin',
+                subject: subject,
+                message: message
+            })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showAlert(data.message_text, 'success');
+                showAlert('Broadcast message sent to all students!', 'success');
                 document.getElementById('sendMessageForm').reset();
+                loadAdminMessages();
             } else {
                 showAlert('Error: ' + data.error, 'danger');
             }
@@ -930,7 +1015,83 @@ function sendMessage() {
     }
 }
 
-// Dashboard data
+function loadAdminMessages() {
+    fetch('/api/messages/all')
+        .then(response => response.json())
+        .then(data => {
+            displayAdminMessages(data.messages || []);
+        })
+        .catch(err => {
+            console.error('Error loading messages:', err);
+            document.getElementById('sentMessages').innerHTML = '<p class="text-danger">Error loading messages</p>';
+        });
+}
+
+function displayAdminMessages(messages) {
+    const container = document.getElementById('sentMessages');
+    
+    if (messages.length === 0) {
+        container.innerHTML = '<p class="text-muted">No messages sent yet</p>';
+        return;
+    }
+    
+    container.innerHTML = messages.map(msg => {
+        const isRevoked = msg.revoked;
+        const isBroadcast = msg.is_broadcast;
+        
+        return `
+            <div class="card mb-2 ${isRevoked ? 'border-danger' : ''}">
+                <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 ${isRevoked ? 'text-decoration-line-through text-muted' : ''}">
+                                ${isBroadcast ? '📢 BROADCAST' : '📩 To: ' + msg.recipient_id}
+                            </h6>
+                            <p class="mb-1 small ${isRevoked ? 'text-decoration-line-through text-muted' : ''}">
+                                <strong>${msg.subject}</strong>
+                            </p>
+                            <p class="mb-1 small text-muted ${isRevoked ? 'text-decoration-line-through' : ''}">
+                                ${msg.message.substring(0, 80)}${msg.message.length > 80 ? '...' : ''}
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            ${isRevoked ? 
+                                `<span class="badge bg-danger mb-1">REVOKED</span><br>
+                                <small class="text-muted">${new Date(msg.revoked_at).toLocaleString()}</small>` 
+                            : 
+                                `<button class="btn btn-sm btn-outline-danger" onclick="revokeMessage('${msg.message_id}')">
+                                    <i class="fas fa-ban"></i> Revoke
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                    <small class="text-muted">Sent: ${new Date(msg.timestamp).toLocaleString()}</small>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function revokeMessage(messageId) {
+    if (!confirm('Are you sure you want to revoke this message? It will appear as strikethrough for all recipients.')) return;
+    
+    fetch(`/api/messages/${messageId}/revoke`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ admin_id: 'admin' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Message revoked successfully', 'success');
+            loadAdminMessages();
+        } else {
+            showAlert('Error: ' + data.error, 'danger');
+        }
+    });
+}
+
+// ==================== DASHBOARD & UTILITIES ====================
 function loadDashboardData() {
     fetch('/api/credentials')
         .then(response => response.json())
@@ -940,12 +1101,12 @@ function loadDashboardData() {
             }
         });
     
-    loadTickets();
+    loadAdminTickets();
 }
 
 function showAlert(message, type) {
     const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999; min-width: 300px;">
+        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999; min-width: 300px; max-width: 600px;">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -962,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
 });
 </script>
-xml
+
 <style>
 .sidebar {
     position: fixed;
@@ -975,7 +1136,6 @@ xml
     overflow-y: auto;
 }
 
-/* BOLD SIDEBAR TEXT */
 .sidebar .nav-link {
     font-weight: 700;
     color: #1a1a1a;
@@ -995,24 +1155,21 @@ xml
     font-weight: 700;
 }
 
-/* Portal title */
 .sidebar h6 {
     font-weight: 700;
     color: #1a1a1a;
 }
 
-/* ULTRA BOLD: System Administrator / User name */
 .sidebar .user-name-bold {
-    font-weight: 900 !important; /* Maximum boldness */
-    color: #000000 !important; /* Pure black */
+    font-weight: 900 !important;
+    color: #000000 !important;
     font-size: 0.9rem;
     display: block;
 }
 
-/* ULTRA BOLD: "Quick Stats" header */
 .sidebar .stats-header-bold {
-    font-weight: 900 !important; /* Maximum boldness */
-    color: #000000 !important; /* Pure black */
+    font-weight: 900 !important;
+    color: #000000 !important;
     font-size: 0.875rem;
     display: block;
     margin-bottom: 0.5rem;
@@ -1020,20 +1177,20 @@ xml
     letter-spacing: 0.5px;
 }
 
-/* Bold stats labels */
 .sidebar .px-3 .small {
     font-weight: 600;
     color: #2c3e50;
 }
 
-.ticket-card {
+.admin-ticket-card {
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s;
+    border-left: 4px solid #007bff;
 }
 
-.ticket-card:hover {
+.admin-ticket-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 main {

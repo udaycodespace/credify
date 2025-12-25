@@ -51,7 +51,8 @@ class TicketManager:
             'status': 'open',
             'created_at': datetime.utcnow().isoformat() + 'Z',
             'updated_at': datetime.utcnow().isoformat() + 'Z',
-            'responses': []
+            'responses': [],
+            'can_resolve': False  # Student can only resolve when admin moves to last column
         }
         
         self.tickets[ticket_id] = ticket
@@ -71,23 +72,67 @@ class TicketManager:
         """Get a specific ticket"""
         return self.tickets.get(ticket_id)
     
-    def update_ticket_status(self, ticket_id, status, admin_note=None):
+    def update_ticket_status(self, ticket_id, status, admin_note=None, by_admin=False):
         """Update ticket status"""
         if ticket_id in self.tickets:
+            old_status = self.tickets[ticket_id]['status']
             self.tickets[ticket_id]['status'] = status
             self.tickets[ticket_id]['updated_at'] = datetime.utcnow().isoformat() + 'Z'
+            
+            # Enable student resolve option only when admin moves to 'in_progress' or 'resolved'
+            if by_admin and status in ['in_progress', 'resolved']:
+                self.tickets[ticket_id]['can_resolve'] = True
+            elif status == 'open':
+                self.tickets[ticket_id]['can_resolve'] = False
             
             if admin_note:
                 response = {
                     'timestamp': datetime.utcnow().isoformat() + 'Z',
                     'responder': 'admin',
-                    'message': admin_note
+                    'message': admin_note,
+                    'action': f'Status changed: {old_status} → {status}'
                 }
                 self.tickets[ticket_id]['responses'].append(response)
             
             self._save_tickets()
             return True
         return False
+    
+    def student_mark_resolved(self, ticket_id, student_id, is_resolved):
+        """Student marks ticket as resolved or not resolved"""
+        if ticket_id in self.tickets:
+            ticket = self.tickets[ticket_id]
+            
+            # Check if student owns the ticket
+            if ticket['student_id'] != student_id:
+                return {'success': False, 'error': 'Unauthorized'}
+            
+            # Check if student can resolve (admin must have moved it first)
+            if not ticket.get('can_resolve', False):
+                return {'success': False, 'error': 'Admin has not processed this ticket yet'}
+            
+            if is_resolved:
+                ticket['status'] = 'resolved'
+                ticket['resolved_by_student'] = True
+                action = 'Student marked as RESOLVED ✓'
+            else:
+                ticket['status'] = 'open'
+                ticket['can_resolve'] = False
+                action = 'Student marked as NOT SOLVED - Re-ticketed'
+            
+            response = {
+                'timestamp': datetime.utcnow().isoformat() + 'Z',
+                'responder': 'student',
+                'message': 'Ticket status updated by student',
+                'action': action
+            }
+            ticket['responses'].append(response)
+            ticket['updated_at'] = datetime.utcnow().isoformat() + 'Z'
+            
+            self._save_tickets()
+            return {'success': True, 'ticket': ticket}
+        
+        return {'success': False, 'error': 'Ticket not found'}
     
     def add_ticket_response(self, ticket_id, responder, message):
         """Add a response to a ticket"""
@@ -103,7 +148,7 @@ class TicketManager:
             return True
         return False
     
-    def send_message(self, sender_id, sender_type, recipient_id, recipient_type, subject, message):
+    def send_message(self, sender_id, sender_type, recipient_id, recipient_type, subject, message, is_broadcast=False):
         """Send a message"""
         message_id = str(uuid.uuid4())[:8]
         
@@ -115,9 +160,12 @@ class TicketManager:
             'recipient_type': recipient_type,
             'subject': subject,
             'message': message,
+            'is_broadcast': is_broadcast,
             'read': False,
-            'timestamp': datetime.utcnow().isoformat() + 'Z',
-            'replies': []
+            'revoked': False,
+            'revoked_at': None,
+            'revoked_by': None,
+            'timestamp': datetime.utcnow().isoformat() + 'Z'
         }
         
         self.messages[message_id] = msg
@@ -125,36 +173,69 @@ class TicketManager:
         
         return msg
     
-    def get_messages_for_user(self, user_id, user_type):
-        """Get all messages for a user (sent or received)"""
-        user_messages = []
+    def broadcast_message(self, sender_id, subject, message):
+        """Broadcast message to all students"""
+        message_id = str(uuid.uuid4())[:8]
+        
+        msg = {
+            'message_id': message_id,
+            'sender_id': sender_id,
+            'sender_type': 'admin',
+            'recipient_id': 'all_students',
+            'recipient_type': 'broadcast',
+            'subject': subject,
+            'message': message,
+            'is_broadcast': True,
+            'read': False,
+            'revoked': False,
+            'revoked_at': None,
+            'revoked_by': None,
+            'timestamp': datetime.utcnow().isoformat() + 'Z'
+        }
+        
+        self.messages[message_id] = msg
+        self._save_messages()
+        
+        return msg
+    
+    def get_messages_for_student(self, student_id):
+        """Get all messages for a specific student (direct + broadcast)"""
+        student_messages = []
         for msg in self.messages.values():
-            if (msg['sender_id'] == user_id and msg['sender_type'] == user_type) or \
-               (msg['recipient_id'] == user_id and msg['recipient_type'] == user_type):
-                user_messages.append(msg)
+            # Direct messages to this student
+            if msg['recipient_id'] == student_id and msg['recipient_type'] == 'student':
+                student_messages.append(msg)
+            # Broadcast messages
+            elif msg['is_broadcast']:
+                student_messages.append(msg)
         
         # Sort by timestamp (newest first)
-        user_messages.sort(key=lambda x: x['timestamp'], reverse=True)
-        return user_messages
+        student_messages.sort(key=lambda x: x['timestamp'], reverse=True)
+        return student_messages
     
-    def mark_message_read(self, message_id):
+    def get_all_messages(self):
+        """Get all messages (admin view)"""
+        messages = list(self.messages.values())
+        messages.sort(key=lambda x: x['timestamp'], reverse=True)
+        return messages
+    
+    def mark_message_read(self, message_id, student_id):
         """Mark a message as read"""
         if message_id in self.messages:
-            self.messages[message_id]['read'] = True
-            self._save_messages()
-            return True
+            msg = self.messages[message_id]
+            # Check if student can read this message
+            if msg['recipient_id'] == student_id or msg['is_broadcast']:
+                self.messages[message_id]['read'] = True
+                self._save_messages()
+                return True
         return False
     
-    def reply_to_message(self, message_id, sender_id, sender_type, reply_text):
-        """Reply to a message"""
+    def revoke_message(self, message_id, admin_id):
+        """Revoke a message (admin only)"""
         if message_id in self.messages:
-            reply = {
-                'timestamp': datetime.utcnow().isoformat() + 'Z',
-                'sender_id': sender_id,
-                'sender_type': sender_type,
-                'message': reply_text
-            }
-            self.messages[message_id]['replies'].append(reply)
+            self.messages[message_id]['revoked'] = True
+            self.messages[message_id]['revoked_at'] = datetime.utcnow().isoformat() + 'Z'
+            self.messages[message_id]['revoked_by'] = admin_id
             self._save_messages()
-            return True
-        return False
+            return {'success': True, 'message': 'Message revoked'}
+        return {'success': False, 'error': 'Message not found'}

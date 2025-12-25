@@ -584,3 +584,18 @@ footer {
 .sidebar span {
     color: #ecf0f1 !important;
 }
+/* Fast alert animations */
+.alert.custom-alert {
+    animation: slideDown 0.3s ease !important;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}

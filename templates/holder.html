@@ -290,9 +290,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-info">
+                <div class="alert alert-info alert-dismissible fade show">
                     <i class="fas fa-info-circle me-2"></i>
                     Select which fields you want to share. Only the selected information will be disclosed to the verifier.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 
                 <form id="selectiveDisclosureForm">
@@ -323,35 +324,153 @@
 </div>
 
 <style>
-.sidebar .nav-link {
-    font-weight: 500;
-    color: #333;
-    padding: 12px 20px;
+/* ========== RESPONSIVE SIDEBAR ========== */
+.sidebar {
+    background-color: #2c3e50 !important;
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    transition: all 0.3s ease;
 }
 
-.sidebar .nav-link.active {
-    color: #007bff;
-    background-color: #e7f3ff;
-    border-left: 3px solid #007bff;
+/* Sidebar doesn't cover footer on small screens */
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        top: 0;
+        height: auto;
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+    
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}
+
+/* Main content adjusted for sidebar */
+main {
+    padding-bottom: 100px; /* Space for footer */
+    min-height: calc(100vh - 56px - 100px); /* viewport - navbar - footer */
+}
+
+/* Sidebar text colors */
+.sidebar .nav-link {
+    color: #ecf0f1 !important;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s;
 }
 
 .sidebar .nav-link:hover {
-    color: #007bff;
-    background-color: #f8f9fa;
+    background-color: #34495e !important;
+    color: #ffffff !important;
 }
 
+.sidebar .nav-link.active {
+    background-color: #3498db !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Sidebar headings and text */
+.sidebar h6,
+#sidebar h6 {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.sidebar small,
+#sidebar small,
+.sidebar .user-name-bold,
+#sidebar .user-name-bold,
+.sidebar .stats-header-bold,
+#sidebar .stats-header-bold {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.sidebar .text-muted {
+    color: #bdc3c7 !important;
+}
+
+.sidebar .px-3 small,
+.sidebar .px-3 .small {
+    color: #ecf0f1 !important;
+}
+
+/* ========== IMPROVED ALERTS/POPUPS ========== */
+.alert {
+    position: fixed !important;
+    top: 70px !important; /* Below navbar */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050 !important; /* Below modals (1055) but above everything else */
+    min-width: 300px;
+    max-width: 600px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid !important;
+    font-weight: 600 !important;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Better alert colors for dark theme */
+.alert-success {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+    color: #155724 !important;
+}
+
+.alert-danger {
+    background-color: #f8d7da !important;
+    border-color: #dc3545 !important;
+    color: #721c24 !important;
+}
+
+.alert-warning {
+    background-color: #fff3cd !important;
+    border-color: #ffc107 !important;
+    color: #856404 !important;
+}
+
+.alert-info {
+    background-color: #d1ecf1 !important;
+    border-color: #17a2b8 !important;
+    color: #0c5460 !important;
+}
+
+/* ========== TICKET CARDS ========== */
+.admin-ticket-card,
 .ticket-card {
-    border-left: 4px solid #007bff;
-    margin-bottom: 10px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    border-left: 4px solid #007bff;
 }
 
+.admin-ticket-card:hover,
 .ticket-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+/* ========== MESSAGE CARDS ========== */
 .message-card {
     border-left: 3px solid #17a2b8;
     margin-bottom: 15px;
@@ -368,7 +487,6 @@
     border-left: 4px solid #ffc107;
 }
 
-/* DARK TEXT FOR MESSAGES */
 .message-card h5,
 .message-card h6,
 .message-card p,
@@ -383,12 +501,10 @@
     font-weight: 500;
 }
 
-/* EMOJI AND ICONS DARK */
 .message-card i {
     color: #000000 !important;
 }
 
-/* REVOKED MESSAGE STYLING */
 .message-card.border-danger {
     border-left-color: #dc3545 !important;
     background-color: #ffe6e6;
@@ -399,16 +515,42 @@
     color: #666666 !important;
 }
 
-.alert-dark {
-    background-color: #f8f9fa;
-    border-color: #000000;
-    color: #000000;
+/* ========== RESPONSIVE FIXES ========== */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 200px !important;
+    }
 }
 
-.alert-dark strong,
-.alert-dark span,
-.alert-dark i {
-    color: #000000 !important;
+@media (max-width: 768px) {
+    .alert {
+        min-width: 90%;
+        max-width: 90%;
+        font-size: 0.9rem;
+    }
+    
+    main {
+        padding-top: 20px;
+    }
+}
+
+/* ========== FOOTER FIX ========== */
+footer {
+    position: relative;
+    margin-top: auto;
+    width: 100%;
+    z-index: 50;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ========== NAVBAR FIX ========== */
+.navbar {
+    z-index: 1040 !important; /* Below alerts */
 }
 </style>
 
@@ -470,47 +612,157 @@ function displayCredentialDetails(credential) {
     let fullCredentialHtml = '';
     if (credential.full_credential) {
         const cred = credential.full_credential;
+        const subject = cred.credentialSubject;
+        
         fullCredentialHtml = `
-            <div class="row">
-                <div class="col-md-6">
-                    <h6>Student Information:</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>Name:</strong></td><td>${cred.credentialSubject.name}</td></tr>
-                        <tr><td><strong>Student ID:</strong></td><td>${cred.credentialSubject.studentId}</td></tr>
-                        <tr><td><strong>Degree:</strong></td><td>${cred.credentialSubject.degree}</td></tr>
-                        <tr><td><strong>University:</strong></td><td>${cred.credentialSubject.university}</td></tr>
-                        <tr><td><strong>GPA:</strong></td><td>${cred.credentialSubject.gpa}</td></tr>
-                        <tr><td><strong>Graduation Year:</strong></td><td>${cred.credentialSubject.graduationYear}</td></tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <h6>Credential Metadata:</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>Credential ID:</strong></td><td><code>${credential.credential_id}</code></td></tr>
-                        <tr><td><strong>IPFS CID:</strong></td><td><code>${credential.ipfs_cid}</code></td></tr>
-                        <tr><td><strong>Issue Date:</strong></td><td>${new Date(cred.issuanceDate).toLocaleDateString()}</td></tr>
-                        <tr><td><strong>Status:</strong></td><td><span class="badge bg-success">${credential.status}</span></td></tr>
-                    </table>
-                </div>
+            <div class="alert alert-info mb-3">
+                <strong><i class="fas fa-info-circle me-2"></i>Complete Metadata:</strong><br>
+                • Issuer DID: <code>did:edu:gprec</code><br>
+                • Holder DID: <code>did:edu:gprec:student:${subject.studentId}</code><br>
+                • SHA-256 Hash: ✓ Computed<br>
+                • RSA Signature: ✓ Applied<br>
+                • Transaction Reference: ✓ Recorded<br>
+                • Lifecycle State: ✓ Tracked
             </div>
+
+            <table class="table table-sm table-bordered">
+                <!-- IDENTITY -->
+                <tr class="table-primary">
+                    <td colspan="2"><strong>🆔 IDENTITY</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Credential ID</strong></td>
+                    <td><code>${credential.credential_id}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Version</strong></td>
+                    <td><span class="badge bg-primary">v${credential.version || 1}</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Issuer ID</strong></td>
+                    <td><code>did:edu:gprec</code></td>
+                </tr>
+                
+                <!-- STUDENT INFORMATION -->
+                <tr class="table-light">
+                    <td colspan="2"><strong>👤 STUDENT INFORMATION</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Name</strong></td>
+                    <td>${subject.name}</td>
+                </tr>
+                <tr>
+                    <td><strong>Roll Number</strong></td>
+                    <td><code>${subject.studentId}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Degree Program</strong></td>
+                    <td>${subject.degree}</td>
+                </tr>
+                <tr>
+                    <td><strong>University</strong></td>
+                    <td>${subject.university}</td>
+                </tr>
+                <tr>
+                    <td><strong>GPA/CGPA</strong></td>
+                    <td><strong>${subject.gpa}</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Graduation Year</strong></td>
+                    <td>${subject.graduationYear}</td>
+                </tr>
+                ${subject.semester ? `<tr><td><strong>Semester</strong></td><td>${subject.semester}</td></tr>` : ''}
+                ${subject.year ? `<tr><td><strong>Year</strong></td><td>${subject.year}</td></tr>` : ''}
+                ${subject.className ? `<tr><td><strong>Class</strong></td><td>${subject.className}</td></tr>` : ''}
+                ${subject.section ? `<tr><td><strong>Section</strong></td><td>${subject.section}</td></tr>` : ''}
+                ${subject.backlogCount !== undefined ? `<tr><td><strong>Backlog Count</strong></td><td>${subject.backlogCount}</td></tr>` : ''}
+                ${subject.conduct ? `<tr><td><strong>Conduct</strong></td><td>${subject.conduct}</td></tr>` : ''}
+                
+                <!-- CRYPTOGRAPHIC PROOFS -->
+                <tr class="table-warning">
+                    <td colspan="2"><strong>🔐 CRYPTOGRAPHIC PROOFS</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Credential Hash</strong></td>
+                    <td><code class="small">${credential.credential_hash ? credential.credential_hash.substring(0, 32) + '...' : 'N/A'}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Digital Signature</strong></td>
+                    <td><span class="badge bg-success">✓ RSA-2048 Signed</span></td>
+                </tr>
+                
+                <!-- STORAGE & BLOCKCHAIN -->
+                <tr class="table-info">
+                    <td colspan="2"><strong>💾 STORAGE & BLOCKCHAIN</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>IPFS CID</strong></td>
+                    <td><code>${credential.ipfs_cid}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Transaction Hash</strong></td>
+                    <td><code class="small">${credential.tx_hash ? credential.tx_hash.substring(0, 32) + '...' : credential.transaction_id ? credential.transaction_id.substring(0, 32) + '...' : 'N/A'}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Block Hash</strong></td>
+                    <td><code class="small">${credential.block_hash ? credential.block_hash.substring(0, 32) + '...' : 'N/A'}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Block Number</strong></td>
+                    <td><span class="badge bg-secondary">#${credential.block_number || 'N/A'}</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Network</strong></td>
+                    <td><span class="badge bg-dark">local-dev-chain</span></td>
+                </tr>
+                
+                <!-- VERSIONING & LIFECYCLE -->
+                <tr class="table-success">
+                    <td colspan="2"><strong>🔁 VERSIONING & LIFECYCLE</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Status</strong></td>
+                    <td><span class="badge bg-${credential.status === 'active' ? 'success' : credential.status === 'revoked' ? 'danger' : 'secondary'}">${credential.status.toUpperCase()}</span></td>
+                </tr>
+                ${credential.superseded_count > 0 ? `
+                <tr>
+                    <td><strong>Superseded</strong></td>
+                    <td><span class="badge bg-warning text-dark">${credential.superseded_count} previous version(s) marked as SUPERSEDED</span></td>
+                </tr>
+                ` : ''}
+                <tr>
+                    <td><strong>Schema</strong></td>
+                    <td><code>AcademicTranscriptCredential v1.0</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Issue Date</strong></td>
+                    <td>${new Date(cred.issuanceDate).toLocaleString()}</td>
+                </tr>
+            </table>
             
-            ${cred.credentialSubject.courses && cred.credentialSubject.courses.length > 0 ? `
+            ${subject.courses && subject.courses.length > 0 ? `
                 <div class="mt-3">
-                    <h6>Courses:</h6>
+                    <h6>📚 Completed Courses</h6>
                     <div class="row">
-                        ${cred.credentialSubject.courses.map(course => `
-                            <div class="col-md-6">
-                                <span class="badge bg-info me-1">${course}</span>
-                            </div>
-                        `).join('')}
+                        ${subject.courses.map(course => `<div class="col-md-6"><span class="badge bg-info me-1">${course}</span></div>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${subject.backlogs && subject.backlogs.length > 0 ? `
+                <div class="mt-3">
+                    <h6>⚠️ Backlog Courses</h6>
+                    <div class="row">
+                        ${subject.backlogs.map(course => `<div class="col-md-6"><span class="badge bg-warning me-1">${course}</span></div>`).join('')}
                     </div>
                 </div>
             ` : ''}
         `;
+    } else {
+        fullCredentialHtml = '<p class="text-muted">Loading credential details...</p>';
     }
     
-    content.innerHTML = fullCredentialHtml || '<p>Loading credential details...</p>';
-    
+    content.innerHTML = fullCredentialHtml;
     const modal = new bootstrap.Modal(document.getElementById('credentialModal'));
     modal.show();
 }
@@ -541,51 +793,234 @@ function setupSelectiveDisclosure(credentialId, fullCredential) {
     document.getElementById('disclosureResult').style.display = 'none';
     
     const subject = fullCredential.credentialSubject;
-    
     const fieldSelection = document.getElementById('fieldSelection');
+    
     fieldSelection.innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
+        <h6 class="mb-3">Select Fields to Share:</h6>
+        
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white"><strong>🆔 Identity Information</strong></div>
+            <div class="card-body">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="field_name" value="name">
-                    <label class="form-check-label" for="field_name">
-                        Student Name: <strong>${subject.name}</strong>
+                    <input class="form-check-input" type="checkbox" id="field_credentialId" value="credentialId">
+                    <label class="form-check-label" for="field_credentialId">
+                        Credential ID
                     </label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="field_gpa" value="gpa">
-                    <label class="form-check-label" for="field_gpa">
-                        GPA: <strong>${subject.gpa}</strong>
+                    <input class="form-check-input" type="checkbox" id="field_version" value="version">
+                    <label class="form-check-label" for="field_version">
+                        Version Number
                     </label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="field_degree" value="degree">
-                    <label class="form-check-label" for="field_degree">
-                        Degree: <strong>${subject.degree}</strong>
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="field_studentId" value="studentId">
-                    <label class="form-check-label" for="field_studentId">
-                        Student ID: <strong>${subject.studentId}</strong>
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="field_graduationYear" value="graduationYear">
-                    <label class="form-check-label" for="field_graduationYear">
-                        Graduation Year: <strong>${subject.graduationYear}</strong>
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="field_university" value="university">
-                    <label class="form-check-label" for="field_university">
-                        University: <strong>${subject.university}</strong>
+                    <input class="form-check-input" type="checkbox" id="field_issuerId" value="issuerId">
+                    <label class="form-check-label" for="field_issuerId">
+                        Issuer ID (DID)
                     </label>
                 </div>
             </div>
         </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-light"><strong>👤 Student Information</strong></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_name" value="name">
+                            <label class="form-check-label" for="field_name">
+                                Student Name: <strong>${subject.name}</strong>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_studentId" value="studentId">
+                            <label class="form-check-label" for="field_studentId">
+                                Roll Number: <strong>${subject.studentId}</strong>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_degree" value="degree">
+                            <label class="form-check-label" for="field_degree">
+                                Degree: <strong>${subject.degree}</strong>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_university" value="university">
+                            <label class="form-check-label" for="field_university">
+                                University: <strong>${subject.university}</strong>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_gpa" value="gpa">
+                            <label class="form-check-label" for="field_gpa">
+                                GPA: <strong>${subject.gpa}</strong>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_graduationYear" value="graduationYear">
+                            <label class="form-check-label" for="field_graduationYear">
+                                Graduation Year: <strong>${subject.graduationYear}</strong>
+                            </label>
+                        </div>
+                        ${subject.semester ? `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_semester" value="semester">
+                            <label class="form-check-label" for="field_semester">
+                                Semester: <strong>${subject.semester}</strong>
+                            </label>
+                        </div>` : ''}
+                        ${subject.year ? `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_year" value="year">
+                            <label class="form-check-label" for="field_year">
+                                Year: <strong>${subject.year}</strong>
+                            </label>
+                        </div>` : ''}
+                        ${subject.className ? `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_className" value="className">
+                            <label class="form-check-label" for="field_className">
+                                Class: <strong>${subject.className}</strong>
+                            </label>
+                        </div>` : ''}
+                        ${subject.section ? `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_section" value="section">
+                            <label class="form-check-label" for="field_section">
+                                Section: <strong>${subject.section}</strong>
+                            </label>
+                        </div>` : ''}
+                        ${subject.backlogCount !== undefined ? `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_backlogCount" value="backlogCount">
+                            <label class="form-check-label" for="field_backlogCount">
+                                Backlog Count: <strong>${subject.backlogCount}</strong>
+                            </label>
+                        </div>` : ''}
+                        ${subject.conduct ? `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_conduct" value="conduct">
+                            <label class="form-check-label" for="field_conduct">
+                                Conduct: <strong>${subject.conduct}</strong>
+                            </label>
+                        </div>` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-warning"><strong>🔐 Cryptographic Proofs</strong></div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_credentialHash" value="credentialHash">
+                    <label class="form-check-label" for="field_credentialHash">
+                        Credential Hash (SHA-256)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_digitalSignature" value="digitalSignature">
+                    <label class="form-check-label" for="field_digitalSignature">
+                        Digital Signature (RSA-2048)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white"><strong>💾 Storage & Blockchain</strong></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_ipfsCid" value="ipfsCid">
+                            <label class="form-check-label" for="field_ipfsCid">
+                                IPFS CID
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_transactionHash" value="transactionHash">
+                            <label class="form-check-label" for="field_transactionHash">
+                                Transaction Hash
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_blockHash" value="blockHash">
+                            <label class="form-check-label" for="field_blockHash">
+                                Block Hash
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_blockNumber" value="blockNumber">
+                            <label class="form-check-label" for="field_blockNumber">
+                                Block Number
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_network" value="network">
+                            <label class="form-check-label" for="field_network">
+                                Network
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white"><strong>🔁 Versioning & Lifecycle</strong></div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_status" value="status">
+                    <label class="form-check-label" for="field_status">
+                        Status (Active/Revoked/Superseded)
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_schema" value="schema">
+                    <label class="form-check-label" for="field_schema">
+                        Schema Version
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_issueDate" value="issueDate">
+                    <label class="form-check-label" for="field_issueDate">
+                        Issue Date
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        ${subject.courses && subject.courses.length > 0 ? `
+        <div class="card mb-3">
+            <div class="card-header bg-secondary text-white"><strong>📚 Courses</strong></div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_courses" value="courses">
+                    <label class="form-check-label" for="field_courses">
+                        All Completed Courses (${subject.courses.length} courses)
+                    </label>
+                </div>
+            </div>
+        </div>` : ''}
+
+        ${subject.backlogs && subject.backlogs.length > 0 ? `
+        <div class="card mb-3">
+            <div class="card-header bg-warning"><strong>⚠️ Backlog Information</strong></div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="field_backlogs" value="backlogs">
+                    <label class="form-check-label" for="field_backlogs">
+                        Backlog Courses (${subject.backlogs.length} courses)
+                    </label>
+                </div>
+            </div>
+        </div>` : ''}
     `;
     
     const modal = new bootstrap.Modal(document.getElementById('selectiveDisclosureModal'));
@@ -915,18 +1350,33 @@ function markMessageAsRead(messageId) {
 // ==================== UTILITY FUNCTIONS ====================
 
 function showAlert(message, type) {
+    // Remove any existing alerts first
+    document.querySelectorAll('.alert.custom-alert').forEach(alert => alert.remove());
+    
     const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999; min-width: 300px; max-width: 600px;">
+        <div class="alert alert-${type} alert-dismissible fade show custom-alert" style="position: fixed !important; top: 70px !important; left: 50%; transform: translateX(-50%); z-index: 9999 !important; min-width: 300px; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.3s ease, transform 0.3s ease;">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', alertHtml);
     
+    const alertElement = document.querySelector('.alert.custom-alert');
+    
+    // Start fade out after 2 seconds
     setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) alert.remove();
-    }, 5000);
+        if (alertElement) {
+            alertElement.style.opacity = '0';
+            alertElement.style.transform = 'translateX(-50%) translateY(-20px)';
+        }
+    }, 2000);
+    
+    // Remove completely after 2.5 seconds
+    setTimeout(() => {
+        if (alertElement) {
+            alertElement.remove();
+        }
+    }, 2500);
 }
 </script>
 {% endblock %}

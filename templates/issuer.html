@@ -615,9 +615,26 @@ function showSuccessModal(data) {
         </div>
     `;
     
-    const modal = new bootstrap.Modal(document.getElementById('successModal'));
-    modal.show();
+        // Add to page instead of modal
+    const container = document.getElementById('issueSection');
+    const existingSuccess = document.getElementById('inlineSuccess');
+    if (existingSuccess) existingSuccess.remove();
+    
+    const successDiv = document.createElement('div');
+    successDiv.id = 'inlineSuccess';
+    successDiv.className = 'mt-4';
+    successDiv.innerHTML = `
+        <div class="alert alert-success alert-dismissible">
+            <h5>✅ Credential Issued Successfully</h5>
+            <button class="btn-close" onclick="document.getElementById('inlineSuccess').remove()"></button>
+        </div>
+        ${credentialDetails.innerHTML}
+        <button class="btn btn-primary mt-3" onclick="issueAnother()">Issue Another</button>
+    `;
+    container.appendChild(successDiv);
+    successDiv.scrollIntoView({ behavior: 'smooth' });
 }
+
 
 function clearForm() {
     document.getElementById('issueCredentialForm').reset();
@@ -626,10 +643,11 @@ function clearForm() {
 }
 
 function issueAnother() {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('successModal'));
-    modal.hide();
+    const elem = document.getElementById('inlineSuccess');
+    if (elem) elem.remove();
     clearForm();
 }
+
 
 // ==================== MANAGE CREDENTIALS (UNCHANGED) ====================
 function loadCredentials() {
@@ -749,27 +767,48 @@ function searchByStudentId() {
         .then(response => response.json())
         .then(data => {
             if (data.success && data.credentials.length > 0) {
-                let html = `<h6>Found ${data.total_versions} version(s) for ${studentId}:</h6>`;
-                html += '<div class="table-responsive"><table class="table table-sm table-bordered">';
-                html += '<thead class="table-dark"><tr><th>Version</th><th>Status</th><th>GPA</th><th>Sem/Yr</th><th>Issued</th><th>ID</th></tr></thead><tbody>';
+                let html = `
+                    <h6>Found ${data.total_versions} version(s) for ${studentId}</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Version</th>
+                                    <th>Status</th>
+                                    <th>GPA</th>
+                                    <th>Sem/Yr</th>
+                                    <th>Issued</th>
+                                    <th>ID</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
                 
                 data.credentials.forEach(c => {
                     const statusBadge = c.status === 'active' ? '<span class="badge bg-success">ACTIVE</span>' :
                                        c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
                                        '<span class="badge bg-secondary">SUPERSEDED</span>';
-                    const semYear = c.semester ? `Sem ${c.semester}/Y${c.year || '?'}` : '-';
+                    const semYear = c.semester ? `Sem ${c.semester}/${c.year || '-'}` : '-';
                     
-                    html += `<tr>
-                        <td><span class="badge bg-primary">v${c.version}</span></td>
-                        <td>${statusBadge}</td>
-                        <td>${c.gpa ? c.gpa.toFixed(2) : '-'}</td>
-                        <td>${semYear}</td>
-                        <td>${c.issued_at ? new Date(c.issued_at).toLocaleDateString() : '-'}</td>
-                        <td><code class="small">${c.credential_id.slice(-8)}</code></td>
-                    </tr>`;
+                    html += `
+                        <tr>
+                            <td><span class="badge bg-primary">v${c.version}</span></td>
+                            <td>${statusBadge}</td>
+                            <td>${c.gpa ? c.gpa.toFixed(2) : '-'}</td>
+                            <td>${semYear}</td>
+                            <td>${c.issued_at ? new Date(c.issued_at).toLocaleDateString() : '-'}</td>
+                            <td><code class="small">${c.credential_id.slice(-8)}</code></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewFullCredentialDetails('${c.credential_id}')">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </button>
+                            </td>
+                        </tr>
+                    `;
                 });
                 
-                html += '</tbody></table></div>';
+                html += `</tbody></table></div>`;
                 resultsDiv.innerHTML = html;
             } else {
                 resultsDiv.innerHTML = '<div class="alert alert-warning">No credentials found for this student.</div>';
@@ -780,7 +819,6 @@ function searchByStudentId() {
             resultsDiv.innerHTML = '<div class="alert alert-danger">Search error occurred</div>';
         });
 }
-
 // ==================== TICKET MANAGEMENT (ENHANCED) ====================
 function loadAdminTickets() {
     fetch('/api/tickets')
@@ -1129,6 +1167,189 @@ function showAlert(message, type) {
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
 });
+function viewFullCredentialDetails(credentialId) {
+    const detailsDiv = document.getElementById('fullCredentialDetails');
+    detailsDiv.innerHTML = '<p class="text-muted">Loading credential details...</p>';
+    
+    // Show modal immediately
+    const modal = new bootstrap.Modal(document.getElementById('fullCredentialModal'));
+    modal.show();
+    
+    // Fetch full credential data
+    fetch(`/api/get_credential/${credentialId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.credential) {
+                const cred = data.credential;
+                const fullCred = cred.full_credential;
+                const subject = fullCred ? fullCred.credentialSubject : {};
+                
+                detailsDiv.innerHTML = `
+                    <div class="alert alert-info mb-3">
+                        <strong><i class="fas fa-info-circle me-2"></i>Complete Metadata Generated:</strong><br>
+                        • Issuer DID: <code>did:edu:gprec</code><br>
+                        • Holder DID: <code>did:edu:gprec:student:${cred.student_id}</code><br>
+                        • SHA-256 Hash: ✓ Computed<br>
+                        • RSA Signature: ✓ Applied<br>
+                        • Transaction Reference: ✓ Recorded<br>
+                        • Lifecycle State: ✓ Tracked<br>
+                        ${cred.superseded_count > 0 ? `• Auto-Superseded ${cred.superseded_count} old credential(s)` : ''}
+                    </div>
+
+                    <table class="table table-sm table-bordered">
+                        <!-- IDENTITY -->
+                        <tr class="table-primary">
+                            <td colspan="2"><strong>🆔 IDENTITY</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="width: 30%;"><strong>Credential ID</strong></td>
+                            <td><code>${cred.credential_id}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Version</strong></td>
+                            <td><span class="badge bg-primary">v${cred.version || 1}</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Issuer ID</strong></td>
+                            <td><code>did:edu:gprec</code></td>
+                        </tr>
+                        
+                        <!-- STUDENT INFORMATION -->
+                        <tr class="table-light">
+                            <td colspan="2"><strong>👤 STUDENT INFORMATION</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Name</strong></td>
+                            <td>${subject.name || cred.student_name || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Roll Number</strong></td>
+                            <td><code>${subject.studentId || cred.student_id || '-'}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Degree Program</strong></td>
+                            <td>${subject.degree || cred.degree || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>University</strong></td>
+                            <td>${subject.university || cred.university || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GPA/CGPA</strong></td>
+                            <td><strong>${subject.gpa || cred.gpa || '-'}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Graduation Year</strong></td>
+                            <td>${subject.graduationYear || cred.graduation_year || '-'}</td>
+                        </tr>
+                        ${subject.semester ? `<tr><td><strong>Semester</strong></td><td>${subject.semester}</td></tr>` : ''}
+                        ${subject.year ? `<tr><td><strong>Year</strong></td><td>${subject.year}</td></tr>` : ''}
+                        ${subject.className ? `<tr><td><strong>Class</strong></td><td>${subject.className}</td></tr>` : ''}
+                        ${subject.section ? `<tr><td><strong>Section</strong></td><td>${subject.section}</td></tr>` : ''}
+                        ${subject.backlogCount !== undefined ? `<tr><td><strong>Backlog Count</strong></td><td>${subject.backlogCount}</td></tr>` : ''}
+                        ${subject.conduct ? `<tr><td><strong>Conduct</strong></td><td><span class="badge bg-info">${subject.conduct}</span></td></tr>` : ''}
+                        
+                        <!-- CRYPTOGRAPHIC PROOFS -->
+                        <tr class="table-warning">
+                            <td colspan="2"><strong>🔐 CRYPTOGRAPHIC PROOFS</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Credential Hash</strong></td>
+                            <td><code class="small">${cred.credential_hash ? cred.credential_hash.substring(0, 32) + '...' : 'N/A'}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Digital Signature</strong></td>
+                            <td><span class="badge bg-success">✓ RSA-2048 Signed</span></td>
+                        </tr>
+                        
+                        <!-- STORAGE & BLOCKCHAIN -->
+                        <tr class="table-info">
+                            <td colspan="2"><strong>💾 STORAGE & BLOCKCHAIN</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>IPFS CID</strong></td>
+                            <td><code>${cred.ipfs_cid}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transaction Hash</strong></td>
+                            <td><code class="small">${cred.tx_hash ? cred.tx_hash.substring(0, 32) + '...' : cred.transaction_id ? cred.transaction_id.substring(0, 32) + '...' : 'N/A'}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Block Hash</strong></td>
+                            <td><code class="small">${cred.block_hash ? cred.block_hash.substring(0, 32) + '...' : 'N/A'}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Block Number</strong></td>
+                            <td><span class="badge bg-secondary">#${cred.block_number || 'N/A'}</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Network</strong></td>
+                            <td><span class="badge bg-dark">local-dev-chain</span></td>
+                        </tr>
+                        
+                        <!-- VERSIONING & LIFECYCLE -->
+                        <tr class="table-success">
+                            <td colspan="2"><strong>🔁 VERSIONING & LIFECYCLE</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status</strong></td>
+                            <td><span class="badge bg-${cred.status === 'active' ? 'success' : cred.status === 'revoked' ? 'danger' : 'secondary'}">${cred.status.toUpperCase()}</span></td>
+                        </tr>
+                        ${cred.superseded_count > 0 ? `
+                        <tr>
+                            <td><strong>Superseded</strong></td>
+                            <td><span class="badge bg-warning text-dark">${cred.superseded_count} previous version(s) marked as SUPERSEDED</span></td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                            <td><strong>Schema</strong></td>
+                            <td><code>AcademicTranscriptCredential v1.0</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Issue Date</strong></td>
+                            <td>${cred.issue_date ? new Date(cred.issue_date).toLocaleString() : '-'}</td>
+                        </tr>
+                        ${cred.revoked_at ? `
+                        <tr>
+                            <td><strong>Revoked At</strong></td>
+                            <td><span class="text-danger">${new Date(cred.revoked_at).toLocaleString()}</span></td>
+                        </tr>
+                        ` : ''}
+                        ${cred.revoke_reason ? `
+                        <tr>
+                            <td><strong>Revocation Reason</strong></td>
+                            <td>${cred.revoke_reason}</td>
+                        </tr>
+                        ` : ''}
+                    </table>
+                    
+                    ${subject.courses && subject.courses.length > 0 ? `
+                        <div class="mt-3">
+                            <h6>📚 Completed Courses (${subject.courses.length})</h6>
+                            <div class="row">
+                                ${subject.courses.map(course => `<div class="col-md-4 mb-2"><span class="badge bg-info">${course}</span></div>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${subject.backlogs && subject.backlogs.length > 0 ? `
+                        <div class="mt-3">
+                            <h6>⚠️ Backlog Courses (${subject.backlogs.length})</h6>
+                            <div class="row">
+                                ${subject.backlogs.map(course => `<div class="col-md-4 mb-2"><span class="badge bg-warning text-dark">${course}</span></div>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+            } else {
+                detailsDiv.innerHTML = '<div class="alert alert-danger">Failed to load credential details</div>';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading credential:', err);
+            detailsDiv.innerHTML = '<div class="alert alert-danger">Network error loading credential details</div>';
+        });
+}
 </script>
 
 <style>
@@ -1204,5 +1425,26 @@ main {
     padding-top: 20px;
 }
 </style>
+<!-- Full Credential Details Modal -->
+<div class="modal fade" id="fullCredentialModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-certificate me-2"></i>Complete Credential Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="fullCredentialDetails">
+                    <p class="text-muted">Loading...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

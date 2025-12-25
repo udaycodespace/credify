@@ -5,11 +5,9 @@ import logging
 from pathlib import Path
 import hashlib
 
-# FIXED: Import DATA_DIR from core package
 from . import DATA_DIR, PROJECT_ROOT
 
 logging.basicConfig(level=logging.INFO)
-
 
 class CredentialManager:
     """Manages verifiable credentials using blockchain and IPFS with complete versioning support"""
@@ -22,32 +20,19 @@ class CredentialManager:
         self.credentials_registry = self.load_credentials_registry()
     
     def _calculate_version_for_student(self, student_id):
-        """
-        CRITICAL FIX: Calculate version per student ID, not globally
-        
-        Args:
-            student_id: Student roll number
-            
-        Returns:
-            Next version number for THIS student (v1, v2, v3...)
-        """
+        """Calculate version per student ID, not globally"""
         existing_versions = []
         for cred_id, registry_entry in self.credentials_registry.items():
             if registry_entry.get('student_id') == student_id:
                 existing_versions.append(registry_entry.get('version', 1))
         
         if not existing_versions:
-            return 1  # First credential for this student
+            return 1
         
         return max(existing_versions) + 1
     
     def _get_latest_active_credential(self, student_id):
-        """
-        Get the latest ACTIVE credential for a student
-        
-        Returns:
-            credential_id or None
-        """
+        """Get the latest ACTIVE credential for a student"""
         active_credentials = []
         for cred_id, registry_entry in self.credentials_registry.items():
             if (registry_entry.get('student_id') == student_id and 
@@ -57,26 +42,17 @@ class CredentialManager:
         if not active_credentials:
             return None
         
-        # Return the one with highest version
         latest = max(active_credentials, key=lambda x: x.get('version', 1))
         return latest['credential_id']
     
     def _auto_revoke_previous_active(self, student_id, new_credential_id):
-        """
-        CRITICAL FIX: Auto-revoke all ACTIVE credentials before issuing new one
-        Only ONE ACTIVE credential allowed per student at any time
-        
-        Args:
-            student_id: Student whose old credentials should be superseded
-            new_credential_id: The new credential replacing them
-        """
+        """Auto-revoke all ACTIVE credentials before issuing new one"""
         superseded_count = 0
         for cred_id, registry_entry in self.credentials_registry.items():
             if (registry_entry.get('student_id') == student_id and 
                 registry_entry.get('status') == 'active' and 
                 cred_id != new_credential_id):
                 
-                # Mark as superseded
                 registry_entry['status'] = 'superseded'
                 registry_entry['superseded_by'] = new_credential_id
                 registry_entry['superseded_date'] = datetime.utcnow().isoformat()
@@ -100,34 +76,14 @@ class CredentialManager:
         return f"did:edu:gprec:student:{student_id}"
     
     def issue_credential(self, transcript_data, replaces=None):
-        """
-        Issue a new verifiable credential with COMPLETE metadata
-        
-        FIXED BEHAVIOR:
-        - Version calculated per student ID
-        - Auto-revokes previous ACTIVE credentials
-        - Includes 15+ mandatory metadata fields
-        
-        Args:
-            transcript_data: Student academic data
-            replaces: (OPTIONAL) credential_id of previous version
-        """
+        """Issue a new verifiable credential with COMPLETE metadata"""
         try:
             student_id = transcript_data['student_id']
-            
-            # CRITICAL FIX 1: Calculate version per student ID
             version = self._calculate_version_for_student(student_id)
-            
-            # Generate unique credential ID
             credential_id = str(uuid.uuid4())
-            
-            # Get previous credential ID for chain linking
             previous_credential_id = self._get_latest_active_credential(student_id)
-            
-            # Current timestamp (UTC)
             issued_at = datetime.utcnow().isoformat() + 'Z'
             
-            # Create verifiable credential structure (W3C compliant)
             credential = {
                 '@context': [
                     'https://www.w3.org/2018/credentials/v1',
@@ -163,15 +119,11 @@ class CredentialManager:
                 }
             }
             
-            # METADATA FIX 1: Generate credential hash (before signing)
             credential_hash = self._generate_credential_hash(credential)
-            
-            # METADATA FIX 2: Create digital signature
             signature = self.crypto_manager.sign_data(credential)
             if not signature:
                 return {'success': False, 'error': 'Failed to create digital signature'}
             
-            # Add proof to credential
             credential['proof'] = {
                 'type': 'RsaSignature2018',
                 'created': issued_at,
@@ -179,12 +131,10 @@ class CredentialManager:
                 'signatureValue': signature
             }
             
-            # Store full credential on IPFS
             ipfs_cid = self.ipfs_client.add_json(credential)
             if not ipfs_cid:
                 return {'success': False, 'error': 'Failed to store credential on IPFS'}
             
-            # METADATA FIX 3: Create blockchain record with COMPLETE metadata
             blockchain_data = {
                 'credential_id': credential_id,
                 'ipfs_cid': ipfs_cid,
@@ -203,61 +153,40 @@ class CredentialManager:
                 'schema_version': '1.0'
             }
             
-            # Add to blockchain
             block = self.blockchain.add_block(blockchain_data)
             block_number = block.index
             transaction_hash = block.hash
-            
-            # CRITICAL FIX 2: Auto-revoke previous ACTIVE credentials
             superseded_count = self._auto_revoke_previous_active(student_id, credential_id)
             
-            # METADATA FIX 4: Update local registry with COMPLETE 15+ fields
             self.credentials_registry[credential_id] = {
-                # Identity fields
                 'credential_id': credential_id,
                 'issuer_id': self._generate_issuer_id(),
                 'holder_id': self._generate_holder_id(student_id),
-                
-                # Cryptographic fields
                 'credential_hash': credential_hash,
                 'signature': signature,
                 'issuer_signature': signature,
                 'issuer_public_key_id': 'rsa-key-2048',
-                
-                # Storage fields
                 'ipfs_cid': ipfs_cid,
-                
-                # Blockchain fields
                 'tx_hash': transaction_hash,
                 'block_hash': block.hash,
                 'block_number': block_number,
                 'network_id': 'local-dev-chain',
-                
-                # Versioning & lifecycle fields
                 'version': version,
                 'status': 'active',
                 'previous_credential_id': previous_credential_id,
                 'replaces': previous_credential_id,
                 'superseded_by': None,
-                
-                # Timestamps
                 'issued_at': issued_at,
                 'issuance_date': issued_at,
                 'created_at': issued_at,
-                
-                # Schema fields
                 'credential_schema': 'AcademicTranscriptCredential',
                 'credential_type': 'AcademicTranscript',
                 'schema_version': '1.0',
-                
-                # Student data
                 'student_name': transcript_data['student_name'],
                 'student_id': student_id,
                 'degree': transcript_data['degree'],
                 'gpa': transcript_data['gpa'],
                 'issue_date': issued_at,
-                
-                # Extended academic fields
                 'semester': transcript_data.get('semester'),
                 'year': transcript_data.get('year'),
                 'class_name': transcript_data.get('class_name'),
@@ -265,11 +194,10 @@ class CredentialManager:
                 'backlog_count': transcript_data.get('backlog_count', 0),
                 'backlogs': transcript_data.get('backlogs', []),
                 'conduct': transcript_data.get('conduct'),
-                
-                # Revocation fields (empty for new credentials)
                 'revoked_at': None,
                 'revocation_reason': None,
-                'revocation_category': None
+                'revocation_category': None,
+                'superseded_count': superseded_count
             }
             
             self.save_credentials_registry()
@@ -297,14 +225,7 @@ class CredentialManager:
             return {'success': False, 'error': str(e)}
     
     def create_new_version(self, old_credential_id, updated_data, reason):
-        """
-        Create a new version of a credential (for corrections/updates)
-        
-        Args:
-            old_credential_id: The credential being replaced
-            updated_data: New/corrected transcript data
-            reason: Reason for reissue
-        """
+        """Create a new version of a credential (for corrections/updates)"""
         try:
             old_cred_id = self._normalize_credential_id(old_credential_id)
             
@@ -344,10 +265,8 @@ class CredentialManager:
     def verify_credential(self, credential_id):
         """Verify the authenticity of a credential"""
         try:
-            # Normalize credential ID (accept different formats e.g. urn:uuid:id)
             credential_id = self._normalize_credential_id(credential_id)
             
-            # Check if credential exists in registry
             if credential_id not in self.credentials_registry:
                 return {
                     'valid': False,
@@ -357,8 +276,6 @@ class CredentialManager:
                 }
             
             registry_entry = self.credentials_registry[credential_id]
-            
-            # ✅ Check credential status FIRST
             credential_status = registry_entry.get('status', 'active')
             
             if credential_status == 'revoked':
@@ -380,7 +297,6 @@ class CredentialManager:
                     'credential': registry_entry
                 }
             
-            # Retrieve credential from IPFS
             credential = self.ipfs_client.get_json(registry_entry['ipfs_cid'])
             if not credential:
                 return {
@@ -390,7 +306,6 @@ class CredentialManager:
                     'details': 'Storage system error'
                 }
             
-            # Find corresponding blockchain block
             block = self.blockchain.find_credential_block(credential_id)
             if not block:
                 return {
@@ -400,7 +315,6 @@ class CredentialManager:
                     'details': 'This credential is not recorded on the blockchain'
                 }
             
-            # Verify blockchain integrity
             if not self.blockchain.is_chain_valid():
                 return {
                     'valid': False,
@@ -409,17 +323,12 @@ class CredentialManager:
                     'details': 'The blockchain has been tampered with'
                 }
             
-            # 🔧 CRITICAL FIX: Verify credential hash (remove proof first!)
-            # During issuance, hash was computed BEFORE adding proof
-            # So we must remove proof before hashing during verification
             credential_without_proof = credential.copy()
             if 'proof' in credential_without_proof:
                 del credential_without_proof['proof']
             
             current_hash = self._generate_credential_hash(credential_without_proof)
             stored_hash = registry_entry.get('credential_hash')
-            
-            logging.info(f"Hash comparison - Current: {current_hash[:32]}... | Stored: {stored_hash[:32] if stored_hash else 'None'}...")
             
             if current_hash != stored_hash:
                 return {
@@ -429,7 +338,6 @@ class CredentialManager:
                     'details': 'The credential content does not match the blockchain record'
                 }
             
-            # Verify digital signature
             signature = credential.get('proof', {}).get('signatureValue')
             if not signature:
                 return {
@@ -439,7 +347,6 @@ class CredentialManager:
                     'details': 'This credential is missing a digital signature'
                 }
             
-            # Verify signature (also without proof)
             if not self.crypto_manager.verify_signature(credential_without_proof, signature):
                 return {
                     'valid': False,
@@ -448,7 +355,6 @@ class CredentialManager:
                     'details': 'The signature does not match the credential issuer'
                 }
             
-            # ✅ ALL CHECKS PASSED - Credential is VALID and ACTIVE
             logging.info(f"✅ Credential verified successfully: {credential_id}")
             
             return {
@@ -477,7 +383,10 @@ class CredentialManager:
             }
     
     def selective_disclosure(self, credential_id, selected_fields):
-        """Create a selective disclosure of credential fields"""
+        """
+        Create a selective disclosure of credential fields
+        FIXED: Now supports ALL fields including blockchain, crypto, and metadata fields
+        """
         try:
             credential_id = self._normalize_credential_id(credential_id)
             
@@ -486,17 +395,66 @@ class CredentialManager:
                 return {'success': False, 'error': verification_result['error']}
             
             credential = verification_result['credential']
+            registry_entry = verification_result['registry_entry']
             subject_data = credential['credentialSubject']
             
+            # 🔧 FIX: Create comprehensive field mapping
+            all_fields = {
+                # Identity fields
+                'credentialId': registry_entry.get('credential_id'),
+                'version': registry_entry.get('version'),
+                'issuerId': registry_entry.get('issuer_id'),
+                'holderId': registry_entry.get('holder_id'),
+                
+                # Student information fields (from credentialSubject)
+                'name': subject_data.get('name'),
+                'studentId': subject_data.get('studentId'),
+                'degree': subject_data.get('degree'),
+                'university': subject_data.get('university'),
+                'gpa': subject_data.get('gpa'),
+                'graduationYear': subject_data.get('graduationYear'),
+                'semester': subject_data.get('semester'),
+                'year': subject_data.get('year'),
+                'className': subject_data.get('className'),
+                'section': subject_data.get('section'),
+                'backlogCount': subject_data.get('backlogCount'),
+                'conduct': subject_data.get('conduct'),
+                'courses': subject_data.get('courses'),
+                'backlogs': subject_data.get('backlogs'),
+                
+                # Cryptographic fields
+                'credentialHash': registry_entry.get('credential_hash'),
+                'digitalSignature': registry_entry.get('signature'),
+                
+                # Storage & Blockchain fields
+                'ipfsCid': registry_entry.get('ipfs_cid'),
+                'transactionHash': registry_entry.get('tx_hash'),
+                'blockHash': registry_entry.get('block_hash'),
+                'blockNumber': registry_entry.get('block_number'),
+                'network': registry_entry.get('network_id'),
+                
+                # Versioning & Lifecycle fields
+                'status': registry_entry.get('status'),
+                'schema': registry_entry.get('credential_schema'),
+                'issueDate': registry_entry.get('issue_date'),
+                'previousCredentialId': registry_entry.get('previous_credential_id'),
+                'supersededBy': registry_entry.get('superseded_by')
+            }
+            
+            # Extract only selected fields
             disclosed_data = {}
             for field in selected_fields:
-                if field in subject_data:
-                    disclosed_data[field] = subject_data[field]
+                if field in all_fields:
+                    value = all_fields[field]
+                    if value is not None:  # Only include non-None values
+                        disclosed_data[field] = value
                 else:
                     return {'success': False, 'error': f'Field "{field}" not found in credential'}
             
-            proof = self.crypto_manager.create_proof_for_fields(subject_data, disclosed_data)
+            # Create cryptographic proof
+            proof = self.crypto_manager.create_proof_for_fields(all_fields, disclosed_data)
             
+            # Create disclosure document
             disclosure_doc = {
                 '@context': [
                     'https://www.w3.org/2018/credentials/v1',
@@ -508,10 +466,16 @@ class CredentialManager:
                 'proof': proof,
                 'issuer': credential['issuer'],
                 'issuanceDate': credential['issuanceDate'],
-                'disclosureDate': datetime.utcnow().isoformat() + 'Z'
+                'disclosureDate': datetime.utcnow().isoformat() + 'Z',
+                'disclosureMetadata': {
+                    'totalFieldsAvailable': len(all_fields),
+                    'fieldsDisclosed': len(disclosed_data),
+                    'privacyLevel': 'selective'
+                }
             }
             
             logging.info(f"✅ Selective disclosure created for credential: {credential_id}")
+            logging.info(f"   Disclosed {len(disclosed_data)} out of {len(all_fields)} fields")
             
             return {
                 'success': True,
@@ -521,6 +485,8 @@ class CredentialManager:
             
         except Exception as e:
             logging.error(f"❌ Error creating selective disclosure: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return {'success': False, 'error': str(e)}
     
     def get_all_credentials(self):

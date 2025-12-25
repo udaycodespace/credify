@@ -18,7 +18,8 @@ from core.blockchain import SimpleBlockchain
 from core.crypto_utils import CryptoManager
 from core.ipfs_client import IPFSClient
 from core.credential_manager import CredentialManager
-from .models import db, User, Ticket, Message, init_database  # NEW: Added Ticket, Message
+from core.ticket_manager import TicketManager
+from .models import db, User, init_database
 from .auth import login_required, role_required
 
 # Configure logging
@@ -43,13 +44,12 @@ blockchain = SimpleBlockchain()
 crypto_manager = CryptoManager()
 ipfs_client = IPFSClient()
 credential_manager = CredentialManager(blockchain, crypto_manager, ipfs_client)
-
+ticket_manager = TicketManager()
 
 @app.route('/')
 def index():
     """Main landing page with role selection"""
     return render_template('index.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -82,24 +82,20 @@ def login():
     
     return render_template('login.html')
 
-
 @app.route('/logout')
 def logout():
     session.clear()
     flash('You have been logged out successfully', 'info')
     return redirect(url_for('index'))
 
-
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
-
 
 @app.route('/issuer')
 @role_required('issuer')
 def issuer():
     return render_template('issuer.html')
-
 
 @app.route('/holder')
 @role_required('student')
@@ -109,11 +105,9 @@ def holder():
     student_credentials = [cred for cred in all_credentials if cred.get('student_id') == student_id]
     return render_template('holder.html', credentials=student_credentials)
 
-
 @app.route('/verifier')
 def verifier():
     return render_template('verifier.html')
-
 
 # ==================== CREDENTIAL API ENDPOINTS ====================
 
@@ -208,7 +202,6 @@ def api_issue_credential():
         logging.error(f"Error issuing credential: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/verify_credential', methods=['POST'])
 def api_verify_credential():
     try:
@@ -221,7 +214,6 @@ def api_verify_credential():
     except Exception as e:
         logging.error(f"Error verifying credential: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/selective_disclosure', methods=['POST'])
 def api_selective_disclosure():
@@ -239,7 +231,6 @@ def api_selective_disclosure():
         logging.error(f"Error in selective disclosure: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/blockchain_status')
 def api_blockchain_status():
     try:
@@ -254,7 +245,6 @@ def api_blockchain_status():
         logging.error(f"Error getting blockchain status: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/credentials')
 @role_required('issuer')
 def api_credentials():
@@ -265,8 +255,20 @@ def api_credentials():
         logging.error(f"Error listing credentials: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/credentials/student/<student_id>', methods=['GET'])
+def get_student_credentials(student_id):
+    """Get all credentials for a specific student"""
+    try:
+        all_credentials = credential_manager.get_all_credentials()
+        student_credentials = [
+            cred for cred in all_credentials 
+            if cred.get('credentialSubject', {}).get('studentId') == student_id
+        ]
+        return jsonify({'credentials': student_credentials})
+    except Exception as e:
+        logging.error(f"Error getting student credentials: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
-# NEW: Revoke credential endpoint (REPLACES delete)
 @app.route('/api/revoke_credential', methods=['POST'])
 @role_required('issuer')
 def api_revoke_credential():
@@ -295,8 +297,6 @@ def api_revoke_credential():
         logging.error(f"Error revoking credential: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
-# NEW: Create new version endpoint (for corrections)
 @app.route('/api/create_new_version', methods=['POST'])
 @role_required('issuer')
 def api_create_new_version():
@@ -345,8 +345,6 @@ def api_create_new_version():
         logging.error(f"Error creating new version: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
-# NEW: Get credential history by student ID
 @app.route('/api/credential_history/<student_id>')
 @role_required('issuer')
 def api_credential_history(student_id):
@@ -357,7 +355,6 @@ def api_credential_history(student_id):
     except Exception as e:
         logging.error(f"Error getting credential history: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
-
 
 @app.route('/api/get_credential/<credential_id>')
 def api_get_credential(credential_id):
@@ -370,332 +367,168 @@ def api_get_credential(credential_id):
         logging.error(f"Error getting credential: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+# ==================== TICKET ROUTES ====================
 
-# ==================== TICKET API ENDPOINTS ====================
-
-@app.route('/api/tickets/create', methods=['POST'])
-@login_required
-def api_create_ticket():
-    """Create a new ticket (student raises issue)"""
+@app.route('/api/tickets', methods=['POST'])
+def create_ticket():
+    """Create a new support ticket"""
     try:
-        user_id = session.get('user_id')
-        user = User.query.get(user_id)
+        data = request.json
+        student_id = data.get('student_id')
+        subject = data.get('subject')
+        description = data.get('description')
+        category = data.get('category')
+        priority = data.get('priority', 'medium')
         
-        if not user or user.role != 'student':
-            return jsonify({'success': False, 'error': 'Only students can create tickets'}), 403
+        if not all([student_id, subject, description, category]):
+            return jsonify({'error': 'Missing required fields'}), 400
         
-        data = request.get_json()
-        
-        required_fields = ['issue_type', 'description']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({'success': False, 'error': f'Missing required field: {field}'}), 400
-        
-        # Generate ticket number
-        last_ticket = Ticket.query.order_by(Ticket.id.desc()).first()
-        ticket_num = 1 if not last_ticket else last_ticket.id + 1
-        ticket_number = f"TKT-{ticket_num:03d}"
-        
-        # Create ticket
-        ticket = Ticket(
-            ticket_number=ticket_number,
-            student_user_id=user.id,
-            student_roll_number=user.student_id or '',
-            issue_type=data['issue_type'],
-            description=data['description'],
-            priority=data.get('priority', 'normal'),
-            status='todo',
-            credential_id=data.get('credential_id')
-        )
-        
-        db.session.add(ticket)
-        db.session.commit()
-        
-        logging.info(f"Ticket created: {ticket_number} by student {user.student_id}")
+        ticket = ticket_manager.create_ticket(student_id, subject, description, category, priority)
         
         return jsonify({
             'success': True,
-            'ticket': ticket.to_dict(),
-            'message': f'Ticket {ticket_number} created successfully'
+            'ticket': ticket
         })
         
     except Exception as e:
-        logging.error(f"Error creating ticket: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
-
-@app.route('/api/tickets', methods=['GET'])
-@role_required('issuer')
-def api_list_tickets():
-    """List all tickets (issuer view)"""
+@app.route('/api/tickets/student/<student_id>', methods=['GET'])
+def get_student_tickets(student_id):
+    """Get all tickets for a student"""
     try:
-        status_filter = request.args.get('status')
+        tickets = ticket_manager.get_tickets_by_student(student_id)
+        return jsonify({'tickets': tickets})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tickets/all', methods=['GET'])
+def get_all_tickets():
+    """Get all tickets (admin only)"""
+    try:
+        tickets = ticket_manager.get_all_tickets()
+        return jsonify({'tickets': tickets})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tickets/<ticket_id>', methods=['GET'])
+def get_ticket(ticket_id):
+    """Get a specific ticket"""
+    try:
+        ticket = ticket_manager.get_ticket(ticket_id)
+        if ticket:
+            return jsonify({'ticket': ticket})
+        return jsonify({'error': 'Ticket not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tickets/<ticket_id>/status', methods=['PUT'])
+def update_ticket_status(ticket_id):
+    """Update ticket status (admin only)"""
+    try:
+        data = request.json
+        status = data.get('status')
+        admin_note = data.get('admin_note')
         
-        query = Ticket.query
-        if status_filter:
-            query = query.filter_by(status=status_filter)
+        if not status:
+            return jsonify({'error': 'Status is required'}), 400
         
-        tickets = query.order_by(Ticket.created_at.desc()).all()
+        success = ticket_manager.update_ticket_status(ticket_id, status, admin_note)
         
-        tickets_data = []
-        for ticket in tickets:
-            ticket_dict = ticket.to_dict()
-            student = User.query.get(ticket.student_user_id)
-            ticket_dict['student_name'] = student.full_name if student else 'Unknown'
-            tickets_data.append(ticket_dict)
+        if success:
+            return jsonify({'success': True, 'message': 'Ticket updated'})
+        return jsonify({'error': 'Ticket not found'}), 404
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tickets/<ticket_id>/respond', methods=['POST'])
+def respond_to_ticket(ticket_id):
+    """Add a response to a ticket"""
+    try:
+        data = request.json
+        responder = data.get('responder')
+        message = data.get('message')
+        
+        if not all([responder, message]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        success = ticket_manager.add_ticket_response(ticket_id, responder, message)
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Response added'})
+        return jsonify({'error': 'Ticket not found'}), 404
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== MESSAGING ROUTES ====================
+
+@app.route('/api/messages', methods=['POST'])
+def send_message():
+    """Send a message"""
+    try:
+        data = request.json
+        sender_id = data.get('sender_id')
+        sender_type = data.get('sender_type')
+        recipient_id = data.get('recipient_id')
+        recipient_type = data.get('recipient_type')
+        subject = data.get('subject')
+        message = data.get('message')
+        
+        if not all([sender_id, sender_type, recipient_id, recipient_type, subject, message]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        msg = ticket_manager.send_message(sender_id, sender_type, recipient_id, recipient_type, subject, message)
         
         return jsonify({
             'success': True,
-            'tickets': tickets_data,
-            'total': len(tickets_data)
+            'message': msg
         })
         
     except Exception as e:
-        logging.error(f"Error listing tickets: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
-
-@app.route('/api/tickets/my', methods=['GET'])
-@login_required
-def api_my_tickets():
-    """Get tickets for logged-in student"""
+@app.route('/api/messages/user/<user_id>/<user_type>', methods=['GET'])
+def get_user_messages(user_id, user_type):
+    """Get all messages for a user"""
     try:
-        user_id = session.get('user_id')
-        
-        tickets = Ticket.query.filter_by(student_user_id=user_id).order_by(Ticket.created_at.desc()).all()
-        
-        tickets_data = [ticket.to_dict() for ticket in tickets]
-        
-        return jsonify({
-            'success': True,
-            'tickets': tickets_data,
-            'total': len(tickets_data)
-        })
-        
+        messages = ticket_manager.get_messages_for_user(user_id, user_type)
+        return jsonify({'messages': messages})
     except Exception as e:
-        logging.error(f"Error getting student tickets: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
-
-@app.route('/api/tickets/<int:ticket_id>/status', methods=['PUT'])
-@role_required('issuer')
-def api_update_ticket_status(ticket_id):
-    """Update ticket status (Kanban workflow)"""
+@app.route('/api/messages/<message_id>/read', methods=['PUT'])
+def mark_message_read(message_id):
+    """Mark a message as read"""
     try:
-        data = request.get_json()
-        new_status = data.get('status')
-        
-        if new_status not in ['todo', 'in_progress', 'completed']:
-            return jsonify({'success': False, 'error': 'Invalid status'}), 400
-        
-        ticket = Ticket.query.get(ticket_id)
-        if not ticket:
-            return jsonify({'success': False, 'error': 'Ticket not found'}), 404
-        
-        ticket.status = new_status
-        ticket.updated_at = datetime.utcnow()
-        
-        if new_status == 'completed':
-            ticket.completed_at = datetime.utcnow()
-        
-        db.session.commit()
-        
-        logging.info(f"Ticket {ticket.ticket_number} status updated to {new_status}")
-        
-        return jsonify({
-            'success': True,
-            'ticket': ticket.to_dict(),
-            'message': f'Ticket status updated to {new_status}'
-        })
-        
+        success = ticket_manager.mark_message_read(message_id)
+        if success:
+            return jsonify({'success': True})
+        return jsonify({'error': 'Message not found'}), 404
     except Exception as e:
-        logging.error(f"Error updating ticket status: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
-
-@app.route('/api/tickets/<int:ticket_id>/respond', methods=['POST'])
-@role_required('issuer')
-def api_respond_to_ticket(ticket_id):
-    """Admin responds to ticket"""
+@app.route('/api/messages/<message_id>/reply', methods=['POST'])
+def reply_to_message(message_id):
+    """Reply to a message"""
     try:
-        user_id = session.get('user_id')
-        data = request.get_json()
+        data = request.json
+        sender_id = data.get('sender_id')
+        sender_type = data.get('sender_type')
+        reply_text = data.get('reply')
         
-        response_text = data.get('response')
-        if not response_text:
-            return jsonify({'success': False, 'error': 'Response text is required'}), 400
+        if not all([sender_id, sender_type, reply_text]):
+            return jsonify({'error': 'Missing required fields'}), 400
         
-        ticket = Ticket.query.get(ticket_id)
-        if not ticket:
-            return jsonify({'success': False, 'error': 'Ticket not found'}), 404
+        success = ticket_manager.reply_to_message(message_id, sender_id, sender_type, reply_text)
         
-        ticket.admin_response = response_text
-        ticket.admin_user_id = user_id
-        ticket.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        
-        logging.info(f"Admin responded to ticket {ticket.ticket_number}")
-        
-        return jsonify({
-            'success': True,
-            'ticket': ticket.to_dict(),
-            'message': 'Response added successfully'
-        })
+        if success:
+            return jsonify({'success': True, 'message': 'Reply sent'})
+        return jsonify({'error': 'Message not found'}), 404
         
     except Exception as e:
-        logging.error(f"Error responding to ticket: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
-
-# ==================== MESSAGE API ENDPOINTS ====================
-
-@app.route('/api/messages/send', methods=['POST'])
-@role_required('issuer')
-def api_send_message():
-    """Send message to specific student"""
-    try:
-        from_user_id = session.get('user_id')
-        data = request.get_json()
-        
-        required_fields = ['to_student_id', 'subject', 'body']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({'success': False, 'error': f'Missing required field: {field}'}), 400
-        
-        student = User.query.filter_by(student_id=data['to_student_id'], role='student').first()
-        if not student:
-            return jsonify({'success': False, 'error': 'Student not found'}), 404
-        
-        message = Message(
-            from_user_id=from_user_id,
-            to_user_id=student.id,
-            subject=data['subject'],
-            body=data['body'],
-            is_broadcast=False,
-            ticket_id=data.get('ticket_id')
-        )
-        
-        db.session.add(message)
-        db.session.commit()
-        
-        logging.info(f"Message sent to student {data['to_student_id']}")
-        
-        return jsonify({
-            'success': True,
-            'message': message.to_dict(),
-            'message_text': 'Message sent successfully'
-        })
-        
-    except Exception as e:
-        logging.error(f"Error sending message: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/messages/broadcast', methods=['POST'])
-@role_required('issuer')
-def api_broadcast_message():
-    """Broadcast message to all students"""
-    try:
-        from_user_id = session.get('user_id')
-        data = request.get_json()
-        
-        required_fields = ['subject', 'body']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({'success': False, 'error': f'Missing required field: {field}'}), 400
-        
-        message = Message(
-            from_user_id=from_user_id,
-            to_user_id=None,
-            subject=data['subject'],
-            body=data['body'],
-            is_broadcast=True
-        )
-        
-        db.session.add(message)
-        db.session.commit()
-        
-        student_count = User.query.filter_by(role='student').count()
-        
-        logging.info(f"Broadcast message sent to {student_count} students")
-        
-        return jsonify({
-            'success': True,
-            'message': message.to_dict(),
-            'recipients': student_count,
-            'message_text': f'Broadcast sent to {student_count} students'
-        })
-        
-    except Exception as e:
-        logging.error(f"Error broadcasting message: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/messages/inbox', methods=['GET'])
-@login_required
-def api_get_inbox():
-    """Get inbox messages for logged-in user"""
-    try:
-        user_id = session.get('user_id')
-        user = User.query.get(user_id)
-        
-        if user.role == 'student':
-            messages = Message.query.filter(
-                (Message.to_user_id == user_id) | (Message.is_broadcast == True)
-            ).order_by(Message.created_at.desc()).all()
-        else:
-            messages = Message.query.filter_by(to_user_id=user_id).order_by(Message.created_at.desc()).all()
-        
-        messages_data = []
-        for msg in messages:
-            msg_dict = msg.to_dict()
-            sender = User.query.get(msg.from_user_id)
-            msg_dict['from_name'] = sender.full_name if sender else 'Unknown'
-            messages_data.append(msg_dict)
-        
-        return jsonify({
-            'success': True,
-            'messages': messages_data,
-            'total': len(messages_data),
-            'unread': sum(1 for m in messages if not m.is_read)
-        })
-        
-    except Exception as e:
-        logging.error(f"Error getting inbox: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/messages/<int:message_id>/read', methods=['PUT'])
-@login_required
-def api_mark_message_read(message_id):
-    """Mark message as read"""
-    try:
-        user_id = session.get('user_id')
-        
-        message = Message.query.get(message_id)
-        if not message:
-            return jsonify({'success': False, 'error': 'Message not found'}), 404
-        
-        if message.to_user_id != user_id and not message.is_broadcast:
-            return jsonify({'success': False, 'error': 'Unauthorized'}), 403
-        
-        message.is_read = True
-        message.read_at = datetime.utcnow()
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Message marked as read'
-        })
-        
-    except Exception as e:
-        logging.error(f"Error marking message as read: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

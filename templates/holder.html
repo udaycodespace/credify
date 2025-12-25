@@ -1,102 +1,280 @@
 {% extends "base.html" %}
 
-{% block title %}Student Portal - Credential Holder{% endblock %}
+{% block title %}Student Portal{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2><i class="fas fa-user-graduate text-success me-2"></i>Student Portal</h2>
-        <p class="text-muted mb-0">Manage your verifiable credentials and create selective disclosures</p>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5><i class="fas fa-id-card me-2"></i>My Credentials</h5>
-                <button class="btn btn-outline-primary btn-sm" onclick="refreshCredentials()">
-                    <i class="fas fa-sync-alt me-1"></i>Refresh
-                </button>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-md-block bg-light sidebar" style="position: fixed; top: 56px; bottom: 0; left: 0; padding: 0; box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);">
+            <div class="sidebar-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
+                <h6 class="px-3 mt-2 mb-3 text-muted">
+                    <i class="fas fa-user-graduate me-2"></i>Student Portal
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('credentials'); return false;">
+                            <i class="fas fa-certificate me-2"></i>My Credentials
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('tickets'); return false;">
+                            <i class="fas fa-ticket-alt me-2"></i>Support Tickets
+                            <span class="badge bg-danger ms-2" id="ticketBadge" style="display:none;">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('messages'); return false;">
+                            <i class="fas fa-envelope me-2"></i>Messages
+                            <span class="badge bg-primary ms-2" id="messageBadge" style="display:none;">0</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <div class="card-body">
-                <div id="credentialsList">
-                    {% if credentials %}
-                        {% for credential in credentials %}
-                        <div class="credential-item border rounded p-3 mb-3">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <h6 class="mb-1">{{ credential.student_name }}</h6>
-                                    <p class="text-muted small mb-1">{{ credential.degree }}</p>
-                                    <p class="text-muted small mb-1">Student ID: {{ credential.student_id }}</p>
-                                    <p class="text-muted small mb-1">GPA: {{ credential.gpa }}</p>
-                                    <small class="text-muted">
-                                        Issued: {{ credential.issue_date[:10] }}
-                                        {% if credential.status == 'active' %}
-                                            <span class="badge bg-success ms-2">Active</span>
-                                        {% else %}
-                                            <span class="badge bg-danger ms-2">{{ credential.status|title }}</span>
-                                        {% endif %}
-                                    </small>
-                                </div>
-                                <div class="col-md-4 text-end">
-                                    <div class="btn-group-vertical btn-group-sm">
-                                        <button class="btn btn-outline-info" onclick="viewCredential('{{ credential.credential_id }}')">
-                                            <i class="fas fa-eye me-1"></i>View
-                                        </button>
-                                        <button class="btn btn-outline-warning" onclick="shareCredential('{{ credential.credential_id }}')">
-                                            <i class="fas fa-share-alt me-1"></i>Share
-                                        </button>
-                                    </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main role="main" class="col-md-10 ml-sm-auto px-4" style="margin-left: 16.666667%;">
+            
+            <!-- Credentials Section -->
+            <div id="credentialsSection" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2><i class="fas fa-user-graduate text-success me-2"></i>Student Portal</h2>
+                        <p class="text-muted mb-0">Manage your verifiable credentials and create selective disclosures</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5><i class="fas fa-id-card me-2"></i>My Credentials</h5>
+                                <button class="btn btn-outline-primary btn-sm" onclick="refreshCredentials()">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="credentialsList">
+                                    {% if credentials %}
+                                        {% for credential in credentials %}
+                                        <div class="credential-item border rounded p-3 mb-3">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <h6 class="mb-1">{{ credential.student_name }}</h6>
+                                                    <p class="text-muted small mb-1">{{ credential.degree }}</p>
+                                                    <p class="text-muted small mb-1">Student ID: {{ credential.student_id }}</p>
+                                                    <p class="text-muted small mb-1">GPA: {{ credential.gpa }}</p>
+                                                    <small class="text-muted">
+                                                        Issued: {{ credential.issue_date[:10] }}
+                                                        {% if credential.status == 'active' %}
+                                                            <span class="badge bg-success ms-2">Active</span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger ms-2">{{ credential.status|title }}</span>
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <div class="btn-group-vertical btn-group-sm">
+                                                        <button class="btn btn-outline-info" onclick="viewCredential('{{ credential.credential_id }}')">
+                                                            <i class="fas fa-eye me-1"></i>View
+                                                        </button>
+                                                        <button class="btn btn-outline-warning" onclick="shareCredential('{{ credential.credential_id }}')">
+                                                            <i class="fas fa-share-alt me-1"></i>Share
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center text-muted py-5">
+                                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                                            <h5>No Credentials Found</h5>
+                                            <p>You don't have any issued credentials yet. Contact your academic institution to get your transcript credential issued.</p>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center text-muted py-5">
-                            <i class="fas fa-inbox fa-3x mb-3"></i>
-                            <h5>No Credentials Found</h5>
-                            <p>You don't have any issued credentials yet. Contact your academic institution to get your transcript credential issued.</p>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="fas fa-shield-alt me-2"></i>Privacy Features</h6>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="text-success">Selective Disclosure</h6>
+                                <p class="small text-muted mb-3">
+                                    Share only specific information from your credentials without revealing the entire transcript.
+                                </p>
+                                
+                                <h6 class="text-info">Available Fields:</h6>
+                                <ul class="list-unstyled small">
+                                    <li><i class="fas fa-check text-success me-2"></i>Student Name</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>GPA Only</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Degree Program</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Graduation Year</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Specific Courses</li>
+                                </ul>
+                            </div>
                         </div>
-                    {% endif %}
+                        
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6><i class="fas fa-info-circle me-2"></i>How to Share</h6>
+                            </div>
+                            <div class="card-body">
+                                <ol class="small mb-0">
+                                    <li>Click "Share" on any credential</li>
+                                    <li>Select which fields to disclose</li>
+                                    <li>Generate cryptographic proof</li>
+                                    <li>Share the generated proof with verifiers</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Tickets Section -->
+            <div id="ticketsSection" class="content-section" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2><i class="fas fa-ticket-alt text-warning me-2"></i>Support Tickets</h2>
+                    <button class="btn btn-success" onclick="showCreateTicketModal()">
+                        <i class="fas fa-plus me-1"></i>Raise New Ticket
+                    </button>
+                </div>
+
+                <!-- Kanban Board -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Open</h6>
+                            </div>
+                            <div class="card-body" id="openTickets" style="min-height: 300px;">
+                                <p class="text-muted">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0"><i class="fas fa-spinner me-2"></i>In Progress</h6>
+                            </div>
+                            <div class="card-body" id="inProgressTickets" style="min-height: 300px;">
+                                <p class="text-muted">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-check-circle me-2"></i>Resolved</h6>
+                            </div>
+                            <div class="card-body" id="resolvedTickets" style="min-height: 300px;">
+                                <p class="text-muted">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Section -->
+            <div id="messagesSection" class="content-section" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2><i class="fas fa-envelope text-info me-2"></i>Messages</h2>
+                    <button class="btn btn-primary" onclick="showNewMessageModal()">
+                        <i class="fas fa-paper-plane me-1"></i>New Message
+                    </button>
+                </div>
+
+                <!-- Messages List -->
+                <div id="messagesList">
+                    <p class="text-muted">Loading messages...</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- Create Ticket Modal -->
+<div class="modal fade" id="createTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-ticket-alt me-2"></i>Raise Support Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createTicketForm">
+                    <div class="mb-3">
+                        <label class="form-label">Category *</label>
+                        <select class="form-select" id="ticketCategory" required>
+                            <option value="">Select category...</option>
+                            <option value="credential_issue">Credential Issue</option>
+                            <option value="verification">Verification Problem</option>
+                            <option value="technical">Technical Support</option>
+                            <option value="account">Account Issue</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Priority *</label>
+                        <select class="form-select" id="ticketPriority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subject *</label>
+                        <input type="text" class="form-control" id="ticketSubject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-control" id="ticketDescription" rows="5" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="submitTicket()">
+                    <i class="fas fa-paper-plane me-1"></i>Submit Ticket
+                </button>
             </div>
         </div>
     </div>
-    
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h6><i class="fas fa-shield-alt me-2"></i>Privacy Features</h6>
+</div>
+
+<!-- New Message Modal -->
+<div class="modal fade" id="newMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-envelope me-2"></i>New Message to Admin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="card-body">
-                <h6 class="text-success">Selective Disclosure</h6>
-                <p class="small text-muted mb-3">
-                    Share only specific information from your credentials without revealing the entire transcript.
-                </p>
-                
-                <h6 class="text-info">Available Fields:</h6>
-                <ul class="list-unstyled small">
-                    <li><i class="fas fa-check text-success me-2"></i>Student Name</li>
-                    <li><i class="fas fa-check text-success me-2"></i>GPA Only</li>
-                    <li><i class="fas fa-check text-success me-2"></i>Degree Program</li>
-                    <li><i class="fas fa-check text-success me-2"></i>Graduation Year</li>
-                    <li><i class="fas fa-check text-success me-2"></i>Specific Courses</li>
-                </ul>
+            <div class="modal-body">
+                <form id="newMessageForm">
+                    <div class="mb-3">
+                        <label class="form-label">Subject *</label>
+                        <input type="text" class="form-control" id="messageSubject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message *</label>
+                        <textarea class="form-control" id="messageContent" rows="5" required></textarea>
+                    </div>
+                </form>
             </div>
-        </div>
-        
-        <div class="card mt-3">
-            <div class="card-header">
-                <h6><i class="fas fa-info-circle me-2"></i>How to Share</h6>
-            </div>
-            <div class="card-body">
-                <ol class="small mb-0">
-                    <li>Click "Share" on any credential</li>
-                    <li>Select which fields to disclose</li>
-                    <li>Generate cryptographic proof</li>
-                    <li>Share the generated proof with verifiers</li>
-                </ol>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane me-1"></i>Send Message
+                </button>
             </div>
         </div>
     </div>
@@ -168,11 +346,85 @@
         </div>
     </div>
 </div>
+
+<style>
+.sidebar .nav-link {
+    font-weight: 500;
+    color: #333;
+    padding: 12px 20px;
+}
+
+.sidebar .nav-link.active {
+    color: #007bff;
+    background-color: #e7f3ff;
+    border-left: 3px solid #007bff;
+}
+
+.sidebar .nav-link:hover {
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.ticket-card {
+    border-left: 4px solid #007bff;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.ticket-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.message-card {
+    border-left: 3px solid #17a2b8;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.message-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.message-card.unread {
+    background-color: #e7f9ff;
+    font-weight: 600;
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
+// Store student ID from session
+const currentStudentId = '{{ session.student_id }}';
+const createTicketModalEl = document.getElementById('createTicketModal');
+const createTicketModal = new bootstrap.Modal(createTicketModalEl);
+const newMessageModalEl = document.getElementById('newMessageModal');
+const newMessageModal = new bootstrap.Modal(newMessageModalEl);
 let currentCredential = null;
+
+// Show specific section
+function showSection(section) {
+    document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    
+    if (section === 'credentials') {
+        document.getElementById('credentialsSection').style.display = 'block';
+        document.querySelector('[onclick*="credentials"]').classList.add('active');
+    } else if (section === 'tickets') {
+        document.getElementById('ticketsSection').style.display = 'block';
+        document.querySelector('[onclick*="tickets"]').classList.add('active');
+        loadTickets();
+    } else if (section === 'messages') {
+        document.getElementById('messagesSection').style.display = 'block';
+        document.querySelector('[onclick*="messages"]').classList.add('active');
+        loadMessages();
+    }
+}
+
+// ==================== CREDENTIALS FUNCTIONS ====================
 
 function refreshCredentials() {
     location.reload();
@@ -385,22 +637,280 @@ function copyProof() {
     showAlert('Proof copied to clipboard!', 'success');
 }
 
+// ==================== TICKET FUNCTIONS ====================
+
+function showCreateTicketModal() {
+    document.getElementById('createTicketForm').reset();
+    createTicketModal.show();
+}
+
+function submitTicket() {
+    const category = document.getElementById('ticketCategory').value;
+    const priority = document.getElementById('ticketPriority').value;
+    const subject = document.getElementById('ticketSubject').value;
+    const description = document.getElementById('ticketDescription').value;
+    
+    if (!subject || !description || !category) {
+        showAlert('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            student_id: currentStudentId,
+            subject: subject,
+            description: description,
+            category: category,
+            priority: priority
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Ticket created successfully!', 'success');
+            createTicketModal.hide();
+            loadTickets();
+        } else {
+            showAlert('Error creating ticket: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error creating ticket', 'danger');
+    });
+}
+
+function loadTickets() {
+    fetch(`/api/tickets/student/${currentStudentId}`)
+        .then(response => response.json())
+        .then(data => {
+            displayTickets(data.tickets || []);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error loading tickets', 'danger');
+        });
+}
+
+function displayTickets(tickets) {
+    const openContainer = document.getElementById('openTickets');
+    const inProgressContainer = document.getElementById('inProgressTickets');
+    const resolvedContainer = document.getElementById('resolvedTickets');
+    
+    openContainer.innerHTML = '';
+    inProgressContainer.innerHTML = '';
+    resolvedContainer.innerHTML = '';
+    
+    tickets.forEach(ticket => {
+        const ticketCard = createTicketCard(ticket);
+        
+        if (ticket.status === 'open') {
+            openContainer.innerHTML += ticketCard;
+        } else if (ticket.status === 'in_progress') {
+            inProgressContainer.innerHTML += ticketCard;
+        } else if (ticket.status === 'resolved') {
+            resolvedContainer.innerHTML += ticketCard;
+        }
+    });
+    
+    if (openContainer.innerHTML === '') openContainer.innerHTML = '<p class="text-muted small">No open tickets</p>';
+    if (inProgressContainer.innerHTML === '') inProgressContainer.innerHTML = '<p class="text-muted small">No tickets in progress</p>';
+    if (resolvedContainer.innerHTML === '') resolvedContainer.innerHTML = '<p class="text-muted small">No resolved tickets</p>';
+    
+    const openCount = tickets.filter(t => t.status === 'open').length;
+    document.getElementById('ticketBadge').textContent = openCount;
+    document.getElementById('ticketBadge').style.display = openCount > 0 ? 'inline' : 'none';
+}
+
+function createTicketCard(ticket) {
+    const priorityColors = {low: 'success', medium: 'warning', high: 'danger'};
+    return `
+        <div class="card ticket-card mb-2" onclick="viewTicketDetails('${ticket.ticket_id}')">
+            <div class="card-body p-2">
+                <h6 class="mb-1 small">${ticket.subject}</h6>
+                <small class="text-muted">#${ticket.ticket_id}</small><br>
+                <span class="badge bg-${priorityColors[ticket.priority]} badge-sm">${ticket.priority}</span>
+                <span class="badge bg-secondary badge-sm">${ticket.category}</span>
+            </div>
+        </div>
+    `;
+}
+
+function viewTicketDetails(ticketId) {
+    fetch(`/api/tickets/${ticketId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.ticket) {
+                const ticket = data.ticket;
+                let responsesHtml = '';
+                if (ticket.responses && ticket.responses.length > 0) {
+                    responsesHtml = '<hr><h6>Responses:</h6>';
+                    ticket.responses.forEach(r => {
+                        responsesHtml += `
+                            <div class="mb-2 p-2 bg-light rounded">
+                                <small><strong>${r.responder === 'admin' ? 'Admin' : 'You'}:</strong> ${r.message}</small><br>
+                                <small class="text-muted">${new Date(r.timestamp).toLocaleString()}</small>
+                            </div>
+                        `;
+                    });
+                }
+                
+                showAlert(`
+                    <h6>${ticket.subject}</h6>
+                    <p>${ticket.description}</p>
+                    <small>Status: ${ticket.status} | Priority: ${ticket.priority}</small>
+                    ${responsesHtml}
+                `, 'info');
+            }
+        });
+}
+
+// ==================== MESSAGE FUNCTIONS ====================
+
+function showNewMessageModal() {
+    document.getElementById('newMessageForm').reset();
+    newMessageModal.show();
+}
+
+function sendMessage() {
+    const subject = document.getElementById('messageSubject').value;
+    const message = document.getElementById('messageContent').value;
+    
+    if (!subject || !message) {
+        showAlert('Please fill in all fields', 'warning');
+        return;
+    }
+    
+    fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            sender_id: currentStudentId,
+            sender_type: 'student',
+            recipient_id: 'admin',
+            recipient_type: 'admin',
+            subject: subject,
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Message sent successfully!', 'success');
+            newMessageModal.hide();
+            loadMessages();
+        } else {
+            showAlert('Error sending message: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error sending message', 'danger');
+    });
+}
+
+function loadMessages() {
+    fetch(`/api/messages/user/${currentStudentId}/student`)
+        .then(response => response.json())
+        .then(data => {
+            displayMessages(data.messages || []);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error loading messages', 'danger');
+        });
+}
+
+function displayMessages(messages) {
+    const container = document.getElementById('messagesList');
+    
+    if (messages.length === 0) {
+        container.innerHTML = '<p class="text-muted">No messages yet</p>';
+        return;
+    }
+    
+    container.innerHTML = messages.map(msg => {
+        const isUnread = !msg.read && msg.recipient_id === currentStudentId;
+        return `
+            <div class="card message-card ${isUnread ? 'unread' : ''}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">
+                                ${msg.sender_type === 'admin' ? '📩 From: Admin' : '📤 To: Admin'}
+                            </h6>
+                            <h5 class="mb-2">${msg.subject}</h5>
+                        </div>
+                        <small class="text-muted">${new Date(msg.timestamp).toLocaleString()}</small>
+                    </div>
+                    <p class="mb-2">${msg.message}</p>
+                    ${msg.replies && msg.replies.length > 0 ? `
+                        <hr>
+                        <h6>Replies:</h6>
+                        ${msg.replies.map(r => `
+                            <div class="ms-3 mb-2 p-2 bg-light rounded">
+                                <small><strong>${r.sender_type === 'admin' ? 'Admin' : 'You'}:</strong> ${r.message}</small><br>
+                                <small class="text-muted">${new Date(r.timestamp).toLocaleString()}</small>
+                            </div>
+                        `).join('')}
+                    ` : ''}
+                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="replyToMessage('${msg.message_id}')">
+                        <i class="fas fa-reply me-1"></i>Reply
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    const unreadCount = messages.filter(m => !m.read && m.recipient_id === currentStudentId).length;
+    document.getElementById('messageBadge').textContent = unreadCount;
+    document.getElementById('messageBadge').style.display = unreadCount > 0 ? 'inline' : 'none';
+}
+
+function replyToMessage(messageId) {
+    const replyText = prompt('Enter your reply:');
+    if (!replyText) return;
+    
+    fetch(`/api/messages/${messageId}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            sender_id: currentStudentId,
+            sender_type: 'student',
+            reply: replyText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Reply sent successfully!', 'success');
+            loadMessages();
+        } else {
+            showAlert('Error sending reply: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error sending reply', 'danger');
+    });
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
 function showAlert(message, type) {
     const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show">
+        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999; min-width: 300px; max-width: 600px;">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
-    
-    const container = document.querySelector('.container');
-    container.insertAdjacentHTML('afterbegin', alertHtml);
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
     
     setTimeout(() => {
-        const alert = container.querySelector('.alert');
-        if (alert) {
-            alert.remove();
-        }
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
     }, 5000);
 }
 </script>

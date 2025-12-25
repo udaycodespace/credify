@@ -19,6 +19,7 @@ from core.crypto_utils import CryptoManager
 from core.ipfs_client import IPFSClient
 from core.credential_manager import CredentialManager
 from core.ticket_manager import TicketManager
+from core.zkp_manager import ZKPManager  # ✅ NEW: ZKP Import
 from .models import db, User, init_database
 from .auth import login_required, role_required
 
@@ -45,6 +46,7 @@ crypto_manager = CryptoManager()
 ipfs_client = IPFSClient()
 credential_manager = CredentialManager(blockchain, crypto_manager, ipfs_client)
 ticket_manager = TicketManager()
+zkp_manager = ZKPManager(crypto_manager)  # ✅ NEW: Initialize ZKP Manager
 
 @app.route('/')
 def index():
@@ -367,7 +369,74 @@ def api_get_credential(credential_id):
         logging.error(f"Error getting credential: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== TICKET API ENDPOINTS ====================
+# ==================== ZKP API ENDPOINTS (NEW) ====================
+
+@app.route('/api/zkp/range_proof', methods=['POST'])
+@role_required('student')
+def api_generate_range_proof():
+    """Student generates range proof (e.g., GPA > 7.5)"""
+    try:
+        data = request.get_json()
+        credential_id = data.get('credential_id')
+        field_name = data.get('field')  # 'gpa', 'backlogCount'
+        actual_value = data.get('actual_value')
+        min_threshold = data.get('min_threshold')
+        max_threshold = data.get('max_threshold')
+        
+        result = zkp_manager.generate_range_proof(
+            credential_id, field_name, actual_value,
+            min_threshold, max_threshold
+        )
+        
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Error generating range proof: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/zkp/membership_proof', methods=['POST'])
+@role_required('student')
+def api_generate_membership_proof():
+    """Student proves course membership without revealing all courses"""
+    try:
+        data = request.get_json()
+        credential_id = data.get('credential_id')
+        field_name = data.get('field')  # 'courses'
+        full_set = data.get('full_set')  # All courses
+        claimed_member = data.get('claimed_member')  # Specific course
+        
+        result = zkp_manager.generate_membership_proof(
+            credential_id, field_name, full_set, claimed_member
+        )
+        
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Error generating membership proof: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/zkp/verify', methods=['POST'])
+def api_verify_zkp():
+    """Verifier verifies a ZKP"""
+    try:
+        data = request.get_json()
+        proof = data.get('proof')
+        proof_type = proof.get('type')
+        
+        if proof_type == 'RangeProof':
+            challenge_value = data.get('challenge_value')  # Optional
+            result = zkp_manager.verify_range_proof(proof, challenge_value)
+        elif proof_type == 'MembershipProof':
+            result = zkp_manager.verify_membership_proof(proof)
+        elif proof_type == 'SetMembershipProof':
+            revealed_value = data.get('revealed_value')  # Optional
+            result = zkp_manager.verify_set_membership_proof(proof, revealed_value)
+        else:
+            return jsonify({'valid': False, 'error': 'Unknown proof type'}), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Error verifying ZKP: {str(e)}")
+        return jsonify({'valid': False, 'error': str(e)}), 500
+
 # ==================== TICKET ROUTES (CLEAN - NO DUPLICATES) ====================
 
 @app.route('/api/tickets', methods=['GET', 'POST'])
@@ -409,7 +478,6 @@ def handle_tickets():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/tickets/<ticket_id>', methods=['GET'])
 def view_ticket(ticket_id):
     """Get specific ticket details"""
@@ -420,7 +488,6 @@ def view_ticket(ticket_id):
         return jsonify({'error': 'Ticket not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/tickets/<ticket_id>/status', methods=['PUT'])
 def update_ticket_status(ticket_id):
@@ -448,7 +515,6 @@ def update_ticket_status(ticket_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/tickets/<ticket_id>/response', methods=['POST'])
 def add_ticket_response(ticket_id):
     """Add response/note to ticket"""
@@ -473,7 +539,6 @@ def add_ticket_response(ticket_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/tickets/student/<student_id>', methods=['GET'])
 def get_student_tickets(student_id):
     """Get all tickets for a specific student"""
@@ -482,7 +547,6 @@ def get_student_tickets(student_id):
         return jsonify({'success': True, 'tickets': tickets})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/tickets/<ticket_id>/student_action', methods=['POST'])
 def student_ticket_action(ticket_id):
@@ -504,7 +568,6 @@ def student_ticket_action(ticket_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 # ==================== MESSAGING ROUTES ====================
 
@@ -533,7 +596,6 @@ def send_message():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/messages/broadcast', methods=['POST'])
 def broadcast_message():
     """Admin broadcasts message to all students"""
@@ -556,7 +618,6 @@ def broadcast_message():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/messages/student/<student_id>', methods=['GET'])
 def get_student_messages(student_id):
     """Get all messages for a student (direct + broadcast)"""
@@ -566,7 +627,6 @@ def get_student_messages(student_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @app.route('/api/messages/all', methods=['GET'])
 def get_all_messages_admin():
     """Get all messages (admin view)"""
@@ -575,7 +635,6 @@ def get_all_messages_admin():
         return jsonify({'messages': messages})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/messages/<message_id>/revoke', methods=['PUT'])
 def revoke_message(message_id):
@@ -589,7 +648,6 @@ def revoke_message(message_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 @app.route('/api/messages/<message_id>/read', methods=['PUT'])
 def mark_message_read(message_id):
@@ -609,7 +667,6 @@ def mark_message_read(message_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

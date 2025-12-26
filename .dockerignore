@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Documentation
+docs/
+*.md
+LICENSE
+
+# Testing
+tests/
+pytest.ini
+.coverage
+htmlcov/
+
+# Development files
+Makefile
+run_tests.sh
+scripts/
+
+# Database files (development only)
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Logs
+logs/
+*.log
+
+# UV lock file
+uv.lock
+
+# Node modules (if any)
+node_modules/
+
+# Other
+.dockerignore
+Dockerfile
+docker-compose.yml
+render.yaml

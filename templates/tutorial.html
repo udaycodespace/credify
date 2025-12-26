@@ -1,8 +1,314 @@
 {% extends "base.html" %}
 
-{% block title %}Tutorial - Blockchain-Based Verifiable Credentials{% endblock %}
+{% block title %}Tutorial - Blockchain-Based Verifiable Credentials System{% endblock %}
 
 {% block content %}
+<style>
+/* Enhanced Typography & Responsiveness */
+.tutorial-content {
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.tutorial-content h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.tutorial-content h5 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #4a9eff;
+}
+
+.tutorial-content h6 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.tutorial-content p {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+}
+
+.tutorial-content ul, .tutorial-content ol {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.tutorial-content li {
+    margin-bottom: 0.5rem;
+}
+
+.tutorial-content .card-body {
+    padding: 1.75rem;
+}
+
+/* Step Container Styling */
+.step-container {
+    margin: 1.5rem 0;
+}
+
+.step-item {
+    display: flex;
+    margin-bottom: 1.75rem;
+    padding: 1.25rem;
+    border-left: 4px solid #0d6efd;
+    background: rgba(13, 110, 253, 0.08);
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+}
+
+.step-item:hover {
+    background: rgba(13, 110, 253, 0.15);
+    transform: translateX(5px);
+}
+
+.step-number {
+    min-width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.3rem;
+    margin-right: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h6 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    color: #4a9eff;
+}
+
+/* Code Blocks */
+.tutorial-content pre {
+    font-size: 0.95rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.tutorial-content code {
+    font-size: 0.95rem;
+    padding: 0.2rem 0.4rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.25rem;
+}
+
+/* Tech Component Cards */
+.tech-component {
+    padding: 1.5rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    transition: all 0.3s;
+    height: 100%;
+    text-align: center;
+}
+
+.tech-component:hover {
+    transform: translateY(-5px);
+    border-color: #0d6efd;
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+}
+
+.tech-component i {
+    font-size: 2.5rem;
+}
+
+.tech-component h6 {
+    font-size: 1.1rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Alerts */
+.tutorial-content .alert {
+    font-size: 1.05rem;
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0.5rem;
+}
+
+.tutorial-content .alert strong {
+    font-size: 1.1rem;
+}
+
+/* Tables */
+.tutorial-content table {
+    font-size: 1rem;
+}
+
+.tutorial-content table th {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.tutorial-content table td {
+    padding: 0.9rem;
+}
+
+/* List Groups */
+.list-group-item {
+    font-size: 1.05rem;
+    padding: 0.9rem 1rem;
+}
+
+/* Accordion */
+.accordion-button {
+    font-size: 1.1rem;
+    padding: 1rem 1.25rem;
+}
+
+.accordion-body {
+    font-size: 1.05rem;
+    padding: 1.5rem;
+}
+
+/* Table of Contents */
+.nav-pills .nav-link {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.nav-pills .nav-link:hover {
+    background: rgba(13, 110, 253, 0.15);
+    transform: translateX(5px);
+    transition: all 0.3s;
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+/* Card Headers */
+.card-header {
+    padding: 1.25rem 1.5rem;
+}
+
+.card-header h6 {
+    font-size: 1.15rem;
+    margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .tutorial-content {
+        font-size: 1rem;
+    }
+    
+    .tutorial-content h3 {
+        font-size: 1.5rem;
+    }
+    
+    .tutorial-content h5 {
+        font-size: 1.25rem;
+    }
+    
+    .tutorial-content h6 {
+        font-size: 1.1rem;
+    }
+    
+    .step-number {
+        min-width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+    
+    .tech-component {
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .tutorial-content {
+        font-size: 0.95rem;
+    }
+    
+    .tutorial-content h3 {
+        font-size: 1.35rem;
+    }
+    
+    .tutorial-content h5 {
+        font-size: 1.15rem;
+    }
+    
+    .step-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .step-number {
+        margin-bottom: 1rem;
+        margin-right: 0;
+    }
+    
+    .tech-component i {
+        font-size: 2rem;
+    }
+}
+
+/* Sticky Sidebar */
+@media (min-width: 992px) {
+    .sticky-top {
+        position: sticky;
+        top: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+}
+
+/* Smooth Scroll Behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Section Spacing */
+section {
+    scroll-margin-top: 2rem;
+}
+
+/* Card Hover Effects */
+.card {
+    transition: all 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge Sizing */
+.badge {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.7rem;
+}
+
+/* List Spacing */
+.list-group-flush .list-group-item {
+    padding: 0.85rem 0.5rem;
+}
+</style>
+
 <div class="row">
     <div class="col-lg-3">
         <!-- Table of Contents -->
@@ -37,9 +343,9 @@
                     <div class="card-body">
                         <h5>What is this system?</h5>
                         <p>
-                            This is a blockchain-based verifiable credential system specifically designed for academic transcripts. 
-                            It allows universities to issue tamper-proof digital credentials that students can share selectively 
-                            with employers while maintaining privacy and authenticity.
+                            This is a <strong>production-ready blockchain-based verifiable credential system</strong> specifically 
+                            designed for academic transcripts. It allows universities to issue tamper-proof digital credentials 
+                            that students can share selectively with employers while maintaining privacy and cryptographic authenticity.
                         </p>
                         
                         <h5>Key Features:</h5>
@@ -58,6 +364,10 @@
                                         <i class="fas fa-cube text-success me-2"></i>
                                         Blockchain-based Integrity
                                     </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-code-branch text-success me-2"></i>
+                                        Credential Versioning System
+                                    </li>
                                 </ul>
                             </div>
                             <div class="col-md-6">
@@ -74,15 +384,27 @@
                                         <i class="fas fa-shield-alt text-success me-2"></i>
                                         Tamper-proof Verification
                                     </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-user-secret text-success me-2"></i>
+                                        Zero-Knowledge Proofs
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                         
                         <div class="alert alert-info mt-3">
                             <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Project Context:</strong> This is a B.Tech Final Year project from G. Pulla Reddy Engineering College, 
-                            Computer Science Engineering Department, demonstrating practical implementation of blockchain technology 
-                            in academic credential verification.
+                            <strong>Project Context:</strong> This is a B.Tech Final Year project from 
+                            <strong>G. Pulla Reddy Engineering College (Autonomous)</strong>, Computer Science Engineering Department, 
+                            demonstrating practical implementation of blockchain technology in academic credential verification.
+                        </div>
+
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-users me-2"></i>
+                            <strong>Development Team:</strong><br>
+                            <strong>SHASHI:</strong> Frontend Design, UI Integration, IPFS Handling<br>
+                            <strong>UDAY:</strong> Backend Architecture, Blockchain Logic, Cryptography, Deployment<br>
+                            <strong>TEJA VARSHITH:</strong> System Analysis, Test Case Design, Validation & Documentation
                         </div>
                     </div>
                 </div>
@@ -97,10 +419,10 @@
                     <div class="card-body">
                         <h5>Prerequisites:</h5>
                         <ul>
-                            <li>Python 3.8 or higher</li>
-                            <li>VS Code (recommended IDE)</li>
-                            <li>Git (for version control)</li>
-                            <li>Internet connection (for IPFS)</li>
+                            <li><strong>Python 3.10+</strong> (Python 3.11 recommended)</li>
+                            <li>VS Code or any code editor</li>
+                            <li>Git for version control</li>
+                            <li>Internet connection for IPFS (optional - has local fallback)</li>
                         </ul>
                         
                         <h5>Installation Steps:</h5>
@@ -109,7 +431,7 @@
                                 <div class="step-number">1</div>
                                 <div class="step-content">
                                     <h6>Clone the Repository</h6>
-                                    <pre class="bg-dark text-light p-2 rounded"><code>git clone &lt;repository-url&gt;
+                                    <pre class="bg-dark text-light p-3 rounded"><code>git clone &lt;repository-url&gt;
 cd blockchain-credentials</code></pre>
                                 </div>
                             </div>
@@ -117,24 +439,48 @@ cd blockchain-credentials</code></pre>
                             <div class="step-item">
                                 <div class="step-number">2</div>
                                 <div class="step-content">
-                                    <h6>Install Python Dependencies</h6>
-                                    <pre class="bg-dark text-light p-2 rounded"><code>pip install flask cryptography requests</code></pre>
+                                    <h6>Create Virtual Environment</h6>
+                                    <pre class="bg-dark text-light p-3 rounded"><code># Create virtual environment
+python -m venv venv
+
+# Activate (Windows PowerShell)
+venv\Scripts\Activate.ps1
+
+# Activate (Mac/Linux)
+source venv/bin/activate</code></pre>
                                 </div>
                             </div>
                             
                             <div class="step-item">
                                 <div class="step-number">3</div>
                                 <div class="step-content">
-                                    <h6>Set Environment Variables</h6>
-                                    <pre class="bg-dark text-light p-2 rounded"><code>export SESSION_SECRET="your-secret-key-here"</code></pre>
+                                    <h6>Install Dependencies</h6>
+                                    <pre class="bg-dark text-light p-3 rounded"><code>pip install -r requirements.txt</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h6>Initialize Database</h6>
+                                    <pre class="bg-dark text-light p-3 rounded"><code>python -c "from app.models import init_database; from app.app import app; init_database(app)"</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">5</div>
+                                <div class="step-content">
+                                    <h6>Create Admin User</h6>
+                                    <pre class="bg-dark text-light p-3 rounded"><code>python scripts/create_admin.py
+# Follow prompts to create your admin account</code></pre>
                                 </div>
                             </div>
                             
                             <div class="step-item">
-                                <div class="step-number">4</div>
+                                <div class="step-number">6</div>
                                 <div class="step-content">
                                     <h6>Run the Application</h6>
-                                    <pre class="bg-dark text-light p-2 rounded"><code>python main.py</code></pre>
+                                    <pre class="bg-dark text-light p-3 rounded"><code>python main.py</code></pre>
                                 </div>
                             </div>
                         </div>
@@ -142,6 +488,11 @@ cd blockchain-credentials</code></pre>
                         <div class="alert alert-success mt-3">
                             <i class="fas fa-check-circle me-2"></i>
                             <strong>Success!</strong> Your application should now be running at <code>http://localhost:5000</code>
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Daily Usage:</strong> After initial setup, simply activate the virtual environment and run <code>python main.py</code>
                         </div>
                     </div>
                 </div>
@@ -155,12 +506,20 @@ cd blockchain-credentials</code></pre>
                     </div>
                     <div class="card-body">
                         <h5>Role: Academic Institution</h5>
-                        <p>As an academic institution, you can issue verifiable credentials for student transcripts.</p>
+                        <p>As an academic institution, you can issue verifiable credentials for student transcripts with full cryptographic security.</p>
                         
                         <h5>Step-by-Step Process:</h5>
                         <div class="step-container">
                             <div class="step-item">
                                 <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h6>Login as Issuer</h6>
+                                    <p>Navigate to the login page and authenticate with your issuer credentials</p>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">2</div>
                                 <div class="step-content">
                                     <h6>Navigate to Issuer Portal</h6>
                                     <p>Click on "Issuer" in the navigation menu or visit <code>/issuer</code></p>
@@ -168,31 +527,19 @@ cd blockchain-credentials</code></pre>
                             </div>
                             
                             <div class="step-item">
-                                <div class="step-number">2</div>
+                                <div class="step-number">3</div>
                                 <div class="step-content">
                                     <h6>Fill Student Information</h6>
                                     <ul>
-                                        <li>Student Name (required)</li>
-                                        <li>Student ID (required)</li>
-                                        <li>Degree Program (required)</li>
-                                        <li>University Name (pre-filled)</li>
-                                        <li>GPA (required, 0-10 scale)</li>
-                                        <li>Graduation Year (required)</li>
-                                        <li>Courses (optional, comma-separated)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h6>Issue Credential</h6>
-                                    <p>Click "Issue Credential" button. The system will:</p>
-                                    <ul>
-                                        <li>Create a W3C-compliant verifiable credential</li>
-                                        <li>Apply cryptographic signature</li>
-                                        <li>Store on IPFS network</li>
-                                        <li>Record hash on blockchain</li>
+                                        <li><strong>Student Name</strong> (required)</li>
+                                        <li><strong>Roll Number</strong> (required)</li>
+                                        <li><strong>Degree Program</strong> (required)</li>
+                                        <li><strong>University Name</strong> (pre-filled)</li>
+                                        <li><strong>GPA/CGPA</strong> (required, 0-10 scale)</li>
+                                        <li><strong>Graduation Year</strong> (required)</li>
+                                        <li><strong>Semester & Year</strong> (optional)</li>
+                                        <li><strong>Courses</strong> (optional, comma-separated)</li>
+                                        <li><strong>Backlogs & Conduct</strong> (optional)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -200,15 +547,59 @@ cd blockchain-credentials</code></pre>
                             <div class="step-item">
                                 <div class="step-number">4</div>
                                 <div class="step-content">
-                                    <h6>Share Credential ID</h6>
-                                    <p>Provide the generated Credential ID to the student for their records.</p>
+                                    <h6>Issue Credential</h6>
+                                    <p>Click "Issue Credential" button. The system will:</p>
+                                    <ul>
+                                        <li>Create a W3C-compliant verifiable credential</li>
+                                        <li>Apply RSA-2048 cryptographic signature</li>
+                                        <li>Store full credential on IPFS network</li>
+                                        <li>Record credential hash on blockchain</li>
+                                        <li>Generate unique Credential ID</li>
+                                        <li>Auto-create student account (if new)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">5</div>
+                                <div class="step-content">
+                                    <h6>Review Credential Details</h6>
+                                    <p>After issuance, you'll receive:</p>
+                                    <ul>
+                                        <li><strong>Credential ID:</strong> Unique identifier</li>
+                                        <li><strong>IPFS CID:</strong> Content identifier for distributed storage</li>
+                                        <li><strong>Blockchain Hash:</strong> Transaction hash on blockchain</li>
+                                        <li><strong>Block Number:</strong> Position in blockchain</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">6</div>
+                                <div class="step-content">
+                                    <h6>Manage Credentials</h6>
+                                    <p>Use the "Manage Credentials" section to:</p>
+                                    <ul>
+                                        <li>View all issued credentials</li>
+                                        <li>Search by student roll number</li>
+                                        <li>Revoke credentials if needed</li>
+                                        <li>Create new versions for updates</li>
+                                        <li>View credential history</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Important:</strong> Once issued, credentials cannot be modified. Ensure all information is accurate before issuing.
+                            <strong>Important:</strong> Once issued, credentials are immutably recorded on the blockchain. 
+                            Ensure all information is accurate before issuing. For corrections, use the "Create New Version" feature.
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Student Access:</strong> Students can login using their roll number as username and password 
+                            (default: roll number). They should change their password after first login.
                         </div>
                     </div>
                 </div>
@@ -222,65 +613,105 @@ cd blockchain-credentials</code></pre>
                     </div>
                     <div class="card-body">
                         <h5>Role: Student</h5>
-                        <p>As a student, you can view your credentials and create selective disclosures for sharing with employers.</p>
+                        <p>As a student, you can view your credentials and create privacy-preserving selective disclosures for sharing with employers.</p>
                         
                         <h5>Managing Your Credentials:</h5>
                         <div class="step-container">
                             <div class="step-item">
                                 <div class="step-number">1</div>
                                 <div class="step-content">
-                                    <h6>View Your Credentials</h6>
-                                    <p>Navigate to "Student" portal to see all your issued credentials</p>
+                                    <h6>Login to Student Portal</h6>
+                                    <p>Use your roll number as username and password (change password after first login)</p>
                                 </div>
                             </div>
-                            
+
                             <div class="step-item">
                                 <div class="step-number">2</div>
                                 <div class="step-content">
-                                    <h6>View Full Credential</h6>
-                                    <p>Click "View" to see complete credential details including all courses and information</p>
+                                    <h6>View Your Credentials</h6>
+                                    <p>Navigate to "Student" portal to see all your issued credentials with details like:</p>
+                                    <ul>
+                                        <li>Credential ID</li>
+                                        <li>Degree Program</li>
+                                        <li>GPA/CGPA</li>
+                                        <li>Issue Date</li>
+                                        <li>Status (Active/Revoked/Superseded)</li>
+                                    </ul>
                                 </div>
                             </div>
                             
                             <div class="step-item">
                                 <div class="step-number">3</div>
                                 <div class="step-content">
+                                    <h6>View Full Credential Details</h6>
+                                    <p>Click "View" to see complete credential information including:</p>
+                                    <ul>
+                                        <li>All academic details</li>
+                                        <li>Courses completed</li>
+                                        <li>Blockchain verification status</li>
+                                        <li>IPFS storage details</li>
+                                        <li>Cryptographic signature</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
                                     <h6>Create Selective Disclosure</h6>
                                     <p>Click "Share" to create a privacy-preserving disclosure:</p>
                                     <ul>
                                         <li>Select which fields to share (e.g., only GPA)</li>
-                                        <li>Generate cryptographic proof</li>
-                                        <li>Copy the proof to share with employers</li>
+                                        <li>System generates cryptographic proof</li>
+                                        <li>Copy the JSON proof to share with employers</li>
+                                        <li>Hidden fields remain completely private</li>
                                     </ul>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">5</div>
+                                <div class="step-content">
+                                    <h6>Download PDF Transcript</h6>
+                                    <p>Download a printable PDF version of your credential with QR code for verification</p>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">6</div>
+                                <div class="step-content">
+                                    <h6>Raise Support Tickets</h6>
+                                    <p>If you have issues or need corrections, raise a support ticket directly from your dashboard</p>
                                 </div>
                             </div>
                         </div>
                         
                         <h5>Privacy Benefits:</h5>
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="card bg-success bg-opacity-10 border-success">
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-success bg-opacity-10 border-success h-100">
                                     <div class="card-body">
                                         <h6 class="text-success">What You Can Share Selectively:</h6>
                                         <ul class="mb-0">
-                                            <li>GPA only</li>
+                                            <li>GPA/CGPA only</li>
                                             <li>Degree program only</li>
                                             <li>Graduation year only</li>
                                             <li>Specific courses only</li>
-                                            <li>Any combination</li>
+                                            <li>Any custom combination</li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="card bg-info bg-opacity-10 border-info">
+                            <div class="col-md-6 mb-3">
+                                <div class="card bg-info bg-opacity-10 border-info h-100">
                                     <div class="card-body">
                                         <h6 class="text-info">Privacy Protection:</h6>
                                         <ul class="mb-0">
                                             <li>Hide personal details</li>
-                                            <li>Share only relevant info</li>
-                                            <li>Maintain authenticity</li>
-                                            <li>Cryptographic proof</li>
+                                            <li>Share only relevant information</li>
+                                            <li>Maintain full authenticity</li>
+                                            <li>Cryptographic proof included</li>
+                                            <li>Zero-knowledge verification</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -298,62 +729,64 @@ cd blockchain-credentials</code></pre>
                     </div>
                     <div class="card-body">
                         <h5>Role: Employer/Verifier</h5>
-                        <p>As an employer, you can verify the authenticity of academic credentials and selective disclosure proofs.</p>
+                        <p>As an employer, you can verify the authenticity of academic credentials and selective disclosure proofs with cryptographic certainty.</p>
                         
                         <h5>Verification Methods:</h5>
                         
                         <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6>Method 1: Full Credential Verification</h6>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">Method 1: Full Credential Verification</h6>
                                     </div>
                                     <div class="card-body">
                                         <ol>
                                             <li>Get credential ID from student</li>
-                                            <li>Enter ID in verification form</li>
+                                            <li>Visit verifier portal (no login required)</li>
+                                            <li>Enter credential ID in verification form</li>
                                             <li>Click "Verify Credential"</li>
-                                            <li>Review complete transcript</li>
+                                            <li>Review complete transcript with all details</li>
                                         </ol>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6>Method 2: Selective Disclosure Verification</h6>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">Method 2: Selective Disclosure Verification</h6>
                                     </div>
                                     <div class="card-body">
                                         <ol>
                                             <li>Get selective disclosure proof from student</li>
+                                            <li>Visit verifier portal</li>
                                             <li>Paste JSON proof in form</li>
                                             <li>Click "Verify Proof"</li>
-                                            <li>Review disclosed fields only</li>
+                                            <li>Review only disclosed fields</li>
                                         </ol>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <h5>Verification Checks:</h5>
+                        <h5>Verification Checks Performed:</h5>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <ul class="list-group">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         Blockchain Integrity
                                         <span class="badge bg-success rounded-pill">✓</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Digital Signature
+                                        RSA-2048 Digital Signature
                                         <span class="badge bg-success rounded-pill">✓</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Hash Validation
+                                        SHA-256 Hash Validation
                                         <span class="badge bg-success rounded-pill">✓</span>
                                     </li>
                                 </ul>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <ul class="list-group">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         Tamper Detection
@@ -364,17 +797,34 @@ cd blockchain-credentials</code></pre>
                                         <span class="badge bg-success rounded-pill">✓</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Date Validation
+                                        Revocation Status Check
                                         <span class="badge bg-success rounded-pill">✓</span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
+
+                        <h5 class="mt-4">Verification Results Include:</h5>
+                        <ul>
+                            <li><strong>Validity Status:</strong> Valid/Invalid/Revoked</li>
+                            <li><strong>Student Information:</strong> Name, degree, GPA, etc.</li>
+                            <li><strong>Issuer Details:</strong> University name and credentials</li>
+                            <li><strong>Issue Date:</strong> When credential was created</li>
+                            <li><strong>Blockchain Proof:</strong> Block number and transaction hash</li>
+                            <li><strong>IPFS Storage:</strong> Content ID and accessibility status</li>
+                            <li><strong>Cryptographic Signature:</strong> RSA verification result</li>
+                        </ul>
                         
                         <div class="alert alert-info mt-3">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>Trust:</strong> Selective disclosure proofs are cryptographically verifiable and maintain the same 
-                            level of trust as full credentials while protecting student privacy.
+                            <strong>Trust Guarantee:</strong> Selective disclosure proofs are cryptographically verifiable and maintain the same 
+                            level of trust as full credentials while protecting student privacy through zero-knowledge proofs.
+                        </div>
+
+                        <div class="alert alert-success">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            <strong>No Registration Required:</strong> The verifier portal is publicly accessible. 
+                            Anyone can verify credentials without creating an account.
                         </div>
                     </div>
                 </div>
@@ -389,63 +839,65 @@ cd blockchain-credentials</code></pre>
                     <div class="card-body">
                         <h5>Architecture Overview:</h5>
                         <div class="row mb-4">
-                            <div class="col-md-3 text-center">
+                            <div class="col-lg-3 col-md-6 mb-3">
                                 <div class="tech-component">
-                                    <i class="fas fa-server fa-2x text-primary mb-2"></i>
+                                    <i class="fas fa-server text-primary mb-2"></i>
                                     <h6>Flask Backend</h6>
-                                    <small class="text-muted">Python web framework</small>
+                                    <small class="text-muted">Python 3.11 web framework</small>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-center">
+                            <div class="col-lg-3 col-md-6 mb-3">
                                 <div class="tech-component">
-                                    <i class="fas fa-cube fa-2x text-success mb-2"></i>
-                                    <h6>Simple Blockchain</h6>
-                                    <small class="text-muted">Custom implementation</small>
+                                    <i class="fas fa-cube text-success mb-2"></i>
+                                    <h6>Blockchain Engine</h6>
+                                    <small class="text-muted">Custom proof-of-work</small>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-center">
+                            <div class="col-lg-3 col-md-6 mb-3">
                                 <div class="tech-component">
-                                    <i class="fas fa-cloud fa-2x text-info mb-2"></i>
+                                    <i class="fas fa-cloud text-info mb-2"></i>
                                     <h6>IPFS Storage</h6>
                                     <small class="text-muted">Distributed file system</small>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-center">
+                            <div class="col-lg-3 col-md-6 mb-3">
                                 <div class="tech-component">
-                                    <i class="fas fa-lock fa-2x text-warning mb-2"></i>
+                                    <i class="fas fa-lock text-warning mb-2"></i>
                                     <h6>Cryptography</h6>
-                                    <small class="text-muted">RSA signatures</small>
+                                    <small class="text-muted">RSA-2048 & SHA-256</small>
                                 </div>
                             </div>
                         </div>
                         
                         <h5>Technology Stack:</h5>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <h6>Backend Technologies:</h6>
                                 <ul>
-                                    <li><strong>Flask:</strong> Web framework</li>
-                                    <li><strong>Python Cryptography:</strong> Digital signatures</li>
+                                    <li><strong>Flask 3.0+:</strong> Web framework</li>
+                                    <li><strong>SQLAlchemy:</strong> Database ORM</li>
+                                    <li><strong>Python Cryptography:</strong> RSA-2048 digital signatures</li>
                                     <li><strong>Requests:</strong> HTTP client for IPFS</li>
+                                    <li><strong>Werkzeug:</strong> Password hashing & security</li>
                                     <li><strong>JSON:</strong> Data serialization</li>
-                                    <li><strong>Hashlib:</strong> Cryptographic hashing</li>
+                                    <li><strong>Hashlib:</strong> SHA-256 cryptographic hashing</li>
                                 </ul>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <h6>Frontend Technologies:</h6>
                                 <ul>
                                     <li><strong>HTML5:</strong> Semantic markup</li>
-                                    <li><strong>Bootstrap 5:</strong> UI framework</li>
-                                    <li><strong>JavaScript:</strong> Client-side logic</li>
-                                    <li><strong>Font Awesome:</strong> Icons</li>
-                                    <li><strong>CSS3:</strong> Custom styling</li>
+                                    <li><strong>Bootstrap 5:</strong> Dark theme UI framework</li>
+                                    <li><strong>JavaScript (ES6+):</strong> Client-side logic</li>
+                                    <li><strong>Font Awesome:</strong> Icon library</li>
+                                    <li><strong>CSS3:</strong> Custom responsive styling</li>
                                 </ul>
                             </div>
                         </div>
                         
                         <h5>Security Features:</h5>
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Feature</th>
@@ -457,25 +909,72 @@ cd blockchain-credentials</code></pre>
                                     <tr>
                                         <td>Digital Signatures</td>
                                         <td>RSA-2048 with PSS padding</td>
-                                        <td>Authenticity & Integrity</td>
+                                        <td>Authenticity & Integrity verification</td>
                                     </tr>
                                     <tr>
                                         <td>Hashing</td>
                                         <td>SHA-256</td>
-                                        <td>Data integrity checks</td>
+                                        <td>Data integrity checks & blockchain</td>
                                     </tr>
                                     <tr>
                                         <td>Blockchain</td>
-                                        <td>Proof of Work (simplified)</td>
+                                        <td>Proof-of-Work (difficulty 4)</td>
                                         <td>Immutable record keeping</td>
                                     </tr>
                                     <tr>
                                         <td>IPFS Storage</td>
-                                        <td>Content-addressed storage</td>
+                                        <td>Content-addressed storage with fallback</td>
                                         <td>Decentralized availability</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Password Security</td>
+                                        <td>Werkzeug PBKDF2 hashing</td>
+                                        <td>Secure user authentication</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Session Management</td>
+                                        <td>Flask secure sessions</td>
+                                        <td>User state management</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Credential Versioning</td>
+                                        <td>Blockchain-based lifecycle tracking</td>
+                                        <td>Update history & audit trail</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zero-Knowledge Proofs</td>
+                                        <td>Selective disclosure with crypto proof</td>
+                                        <td>Privacy-preserving verification</td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <h5>Data Flow:</h5>
+                        <div class="card bg-dark">
+                            <div class="card-body">
+                                <pre class="text-light mb-0" style="font-size: 1rem;"><code>Issue Credential
+    ↓
+Generate W3C Credential
+    ↓
+Sign with RSA-2048 Private Key
+    ↓
+Store Full Data on IPFS → Returns CID
+    ↓
+Calculate SHA-256 Hash
+    ↓
+Record on Blockchain (Mining)
+    ↓
+Store Metadata in Registry
+    ↓
+Return Credential ID to User</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-code me-2"></i>
+                            <strong>For Developers:</strong> Check <code>DESCRIPTION.md</code> and <code>TUTORIAL.md</code> 
+                            in the repository for detailed technical documentation, API references, and implementation guides.
                         </div>
                     </div>
                 </div>
@@ -488,7 +987,7 @@ cd blockchain-credentials</code></pre>
                         <h3><i class="fas fa-wrench text-primary me-2"></i>7. Troubleshooting</h3>
                     </div>
                     <div class="card-body">
-                        <h5>Common Issues:</h5>
+                        <h5>Common Issues & Solutions:</h5>
                         
                         <div class="accordion" id="troubleshootingAccordion">
                             <div class="accordion-item">
@@ -501,10 +1000,11 @@ cd blockchain-credentials</code></pre>
                                     <div class="accordion-body">
                                         <strong>Solutions:</strong>
                                         <ul>
-                                            <li>Check Python version (3.8+ required)</li>
-                                            <li>Install missing dependencies: <code>pip install flask cryptography requests</code></li>
-                                            <li>Set SESSION_SECRET environment variable</li>
-                                            <li>Check port 5000 is not in use</li>
+                                            <li>Check Python version: <code>python --version</code> (3.10+ required)</li>
+                                            <li>Install dependencies: <code>pip install -r requirements.txt</code></li>
+                                            <li>Activate virtual environment: <code>venv\Scripts\Activate.ps1</code></li>
+                                            <li>Check if port 5000 is available: <code>netstat -ano | findstr :5000</code></li>
+                                            <li>Check database initialization</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -518,12 +1018,13 @@ cd blockchain-credentials</code></pre>
                                 </h2>
                                 <div id="issue2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
-                                        <strong>Solutions:</strong>
+                                        <strong>Don't Worry!</strong>
                                         <ul>
                                             <li>System automatically falls back to local storage</li>
-                                            <li>Install IPFS locally for full functionality</li>
-                                            <li>Check internet connection for Infura IPFS</li>
-                                            <li>Local storage works for development/demo</li>
+                                            <li>All functionality works with local fallback</li>
+                                            <li>Install IPFS locally for distributed storage (optional)</li>
+                                            <li>Check internet connection if using Infura IPFS</li>
+                                            <li>Local storage is sufficient for development and demo</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -539,10 +1040,11 @@ cd blockchain-credentials</code></pre>
                                     <div class="accordion-body">
                                         <strong>Check:</strong>
                                         <ul>
-                                            <li>Credential ID is correct and complete</li>
+                                            <li>Credential ID is correct and complete (copy-paste recommended)</li>
                                             <li>Credential was issued successfully</li>
-                                            <li>Blockchain data files are not corrupted</li>
-                                            <li>Cryptographic keys are intact</li>
+                                            <li>Blockchain data files in <code>data/</code> folder are intact</li>
+                                            <li>RSA keys in <code>keys/</code> folder exist</li>
+                                            <li>Check console logs for detailed error messages</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -558,10 +1060,50 @@ cd blockchain-credentials</code></pre>
                                     <div class="accordion-body">
                                         <strong>Solutions:</strong>
                                         <ul>
-                                            <li>Ensure credential exists and is valid</li>
+                                            <li>Ensure the original credential exists and is valid</li>
                                             <li>Select at least one field for disclosure</li>
-                                            <li>Check that the generated proof is valid JSON</li>
-                                            <li>Verify the original credential first</li>
+                                            <li>Verify the generated proof is valid JSON</li>
+                                            <li>Try verifying the full credential first</li>
+                                            <li>Check browser console for JavaScript errors</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue5">
+                                        Database errors
+                                    </button>
+                                </h2>
+                                <div id="issue5" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Solutions:</strong>
+                                        <ul>
+                                            <li>Delete database: <code>rm instance/credentials.db</code></li>
+                                            <li>Reinitialize: <code>python -c "from app.models import init_database; from app.app import app; init_database(app)"</code></li>
+                                            <li>Create admin again: <code>python scripts/create_admin.py</code></li>
+                                            <li>Check file permissions on <code>instance/</code> folder</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue6">
+                                        Student can't login
+                                    </button>
+                                </h2>
+                                <div id="issue6" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                    <div class="accordion-body">
+                                        <strong>Solutions:</strong>
+                                        <ul>
+                                            <li>Students are auto-created when credential is issued</li>
+                                            <li>Default username: Roll Number</li>
+                                            <li>Default password: Roll Number (same as username)</li>
+                                            <li>Advise student to change password after first login</li>
+                                            <li>Check if credential was successfully issued for that student</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -570,8 +1112,18 @@ cd blockchain-credentials</code></pre>
                         
                         <div class="alert alert-info mt-4">
                             <i class="fas fa-question-circle me-2"></i>
-                            <strong>Need More Help?</strong> This system is designed for educational purposes. 
-                            Check the console logs for detailed error messages and debugging information.
+                            <strong>Need More Help?</strong> 
+                            <ul class="mb-0 mt-2">
+                                <li>Check console logs for detailed error messages</li>
+                                <li>Review the <code>DESCRIPTION.md</code> file for architecture details</li>
+                                <li>Contact the development team for support</li>
+                            </ul>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-tools me-2"></i>
+                            <strong>Debug Mode:</strong> For development, ensure <code>DEBUG=True</code> in config 
+                            to see detailed error messages. <strong>Disable in production!</strong>
                         </div>
                     </div>
                 </div>

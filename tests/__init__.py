@@ -1,6 +1,3 @@
 """
-Test suite for Blockchain Credential Verification System
+Test suite for Credify - Academic Credential Management System
 """
-
-__version__ = "1.0.0"
-__author__ = "Teja Varshith"

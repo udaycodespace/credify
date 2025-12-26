@@ -1,90 +1,115 @@
-.PHONY: help install dev run test clean deploy lint format
+# Makefile for Credify Project
 
-# Variables
-PYTHON := python3
-PIP := $(PYTHON) -m pip
-VENV := venv
-PORT := 5000
+.PHONY: help install run test clean docker-build docker-run deploy
 
 # Colors for output
 BLUE := \033[0;34m
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
+RED := \033[0;31m
 NC := \033[0m # No Color
 
-help: ## Show this help message
-	@echo "$(BLUE)Blockchain Credential Verification System$(NC)"
+help:  ## Show this help message
+	@echo "$(BLUE)Credify - Blockchain Credential System$(NC)"
+	@echo ""
 	@echo "$(GREEN)Available commands:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-15s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}'
 
-install: ## Install dependencies
-	@echo "$(GREEN)Installing dependencies...$(NC)"
-	$(PIP) install --upgrade pip
-	$(PIP) install -r requirements.txt
+install:  ## Install dependencies
+	@echo "$(BLUE)Installing dependencies...$(NC)"
+	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
+	@echo "$(GREEN)✅ Dependencies installed!$(NC)"
 
-dev: ## Setup development environment
-	@echo "$(GREEN)Setting up development environment...$(NC)"
-	$(PYTHON) -m venv $(VENV)
-	./$(VENV)/bin/pip install --upgrade pip
-	./$(VENV)/bin/pip install -r requirements.txt
-	@echo "$(GREEN)✅ Development environment ready!$(NC)"
-	@echo "$(YELLOW)Activate with: source $(VENV)/bin/activate$(NC)"
+install-prod:  ## Install production dependencies only
+	@echo "$(BLUE)Installing production dependencies...$(NC)"
+	pip install -r requirements.txt
+	@echo "$(GREEN)✅ Production dependencies installed!$(NC)"
 
-run: ## Run the application locally
-	@echo "$(GREEN)Starting application on port $(PORT)...$(NC)"
-	$(PYTHON) main.py
+run:  ## Run the application
+	@echo "$(BLUE)Starting application...$(NC)"
+	python main.py
 
-test: ## Run tests
-	@echo "$(GREEN)Running tests...$(NC)"
-	$(PYTHON) -m pytest tests/ -v --cov=app --cov=core
+test:  ## Run tests
+	@echo "$(BLUE)Running tests...$(NC)"
+	pytest -v --tb=short
 
-clean: ## Clean up generated files
-	@echo "$(YELLOW)Cleaning up...$(NC)"
-	find . -type d -name "__pycache__" -exec rm -rf {} +
+test-cov:  ## Run tests with coverage
+	@echo "$(BLUE)Running tests with coverage...$(NC)"
+	pytest -v --cov=app --cov=core --cov-report=html --cov-report=term
+
+lint:  ## Run linting
+	@echo "$(BLUE)Running linters...$(NC)"
+	flake8 app core --count --statistics
+	black --check app core
+	isort --check-only app core
+
+format:  ## Format code
+	@echo "$(BLUE)Formatting code...$(NC)"
+	black app core
+	isort app core
+	@echo "$(GREEN)✅ Code formatted!$(NC)"
+
+clean:  ## Clean up generated files
+	@echo "$(BLUE)Cleaning up...$(NC)"
+	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
-	rm -rf htmlcov/
+	rm -rf .pytest_cache
+	rm -rf htmlcov
 	rm -rf .coverage
-	@echo "$(GREEN)✅ Cleanup complete!$(NC)"
+	rm -rf dist
+	rm -rf build
+	@echo "$(GREEN)✅ Cleaned up!$(NC)"
 
-lint: ## Run code linting
-	@echo "$(GREEN)Running linter...$(NC)"
-	$(PYTHON) -m flake8 app/ core/ --max-line-length=120
+reset-data:  ## Reset all data files
+	@echo "$(RED)⚠️  Resetting all data...$(NC)"
+	rm -rf data/*.json
+	rm -rf instance/*.db
+	python -c "from app.models import init_database; from app.app import app; init_database(app)"
+	@echo "$(GREEN)✅ Data reset!$(NC)"
 
-format: ## Format code with black
-	@echo "$(GREEN)Formatting code...$(NC)"
-	$(PYTHON) -m black app/ core/ --line-length=120
+create-admin:  ## Create admin user
+	@echo "$(BLUE)Creating admin user...$(NC)"
+	python scripts/create_admin.py
 
-init-data: ## Initialize data files
-	@echo "$(GREEN)Initializing data files...$(NC)"
-	mkdir -p data logs
-	@echo '{"chain": [], "difficulty": 4}' > data/blockchain_data.json
-	@echo '{}' > data/credentials_registry.json
-	@echo '{}' > data/ipfs_storage.json
-	@echo '{}' > data/tickets.json
-	@echo '{}' > data/messages.json
-	@echo "$(GREEN)✅ Data files initialized!$(NC)"
+docker-build:  ## Build Docker image
+	@echo "$(BLUE)Building Docker image...$(NC)"
+	docker build -t credify:latest .
+	@echo "$(GREEN)✅ Docker image built!$(NC)"
 
-deploy-check: ## Check if ready for deployment
-	@echo "$(GREEN)Checking deployment readiness...$(NC)"
-	@echo "$(YELLOW)1. Checking requirements.txt...$(NC)"
-	@test -f requirements.txt && echo "$(GREEN)✅ requirements.txt exists$(NC)" || echo "$(YELLOW)❌ Missing requirements.txt$(NC)"
-	@echo "$(YELLOW)2. Checking main.py...$(NC)"
-	@test -f main.py && echo "$(GREEN)✅ main.py exists$(NC)" || echo "$(YELLOW)❌ Missing main.py$(NC)"
-	@echo "$(YELLOW)3. Checking app structure...$(NC)"
-	@test -d app && echo "$(GREEN)✅ app/ directory exists$(NC)" || echo "$(YELLOW)❌ Missing app/ directory$(NC)"
-	@echo "$(GREEN)✅ Deployment check complete!$(NC)"
+docker-run:  ## Run Docker container
+	@echo "$(BLUE)Running Docker container...$(NC)"
+	docker run -d -p 5000:5000 --name credify credify:latest
+	@echo "$(GREEN)✅ Container running at http://localhost:5000$(NC)"
 
-create-student: ## Create a sample student account
-	@echo "$(GREEN)Creating sample student...$(NC)"
-	$(PYTHON) create_student.py
+docker-stop:  ## Stop Docker container
+	@echo "$(BLUE)Stopping Docker container...$(NC)"
+	docker stop credify
+	docker rm credify
+	@echo "$(GREEN)✅ Container stopped!$(NC)"
 
-logs: ## View application logs
-	@echo "$(GREEN)Recent logs:$(NC)"
-	@tail -f logs/*.log 2>/dev/null || echo "$(YELLOW)No logs found$(NC)"
+docker-logs:  ## View Docker logs
+	docker logs -f credify
 
-shell: ## Start Python shell with app context
-	@echo "$(GREEN)Starting Python shell...$(NC)"
-	$(PYTHON) -i -c "from app.app import app; from core import *"
+deploy-check:  ## Check deployment readiness
+	@echo "$(BLUE)Checking deployment readiness...$(NC)"
+	@python -c "import sys; assert sys.version_info >= (3, 10), 'Python 3.10+ required'"
+	@test -f requirements.txt || (echo "$(RED)❌ requirements.txt missing$(NC)" && exit 1)
+	@test -f Dockerfile || (echo "$(RED)❌ Dockerfile missing$(NC)" && exit 1)
+	@test -f main.py || (echo "$(RED)❌ main.py missing$(NC)" && exit 1)
+	@echo "$(GREEN)✅ Deployment ready!$(NC)"
+
+init-db:  ## Initialize database
+	@echo "$(BLUE)Initializing database...$(NC)"
+	python -c "from app.models import init_database; from app.app import app; init_database(app)"
+	@echo "$(GREEN)✅ Database initialized!$(NC)"
+
+dev:  ## Run in development mode
+	@echo "$(BLUE)Starting development server...$(NC)"
+	export FLASK_ENV=development && python main.py
+
+prod:  ## Run in production mode
+	@echo "$(BLUE)Starting production server...$(NC)"
+	export FLASK_ENV=production && python main.py

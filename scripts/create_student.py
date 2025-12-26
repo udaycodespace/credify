@@ -1,72 +1,95 @@
 #!/usr/bin/env python3
-"""Script to create student users for the blockchain credential system"""
-
+"""
+Create student user for Credify system
+"""
 import sys
-import os
+import getpass
 from pathlib import Path
 
-# FIXED: Add project root to path for imports [web:26]
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# FIXED: Import with proper package structure [web:40]
-from app.models import db, User  # [web:42]
-from app.app import app         # [web:40]
+from app.models import User, db, init_database
+from app.app import app
+from werkzeug.security import generate_password_hash
 
-# FIXED: Ensure data directory exists
-try:
-    from core import DATA_DIR, PROJECT_ROOT
-except ImportError:
-    PROJECT_ROOT = project_root
-    DATA_DIR = PROJECT_ROOT / "data"
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def create_student(name, student_id):
-    """Create a student user account"""
+def create_student():
+    """Create student user"""
+    
     with app.app_context():
-        user = User.query.filter_by(student_id=student_id).first()
-        if not user:
-            user = User(
-                username=name, 
-                role='student', 
-                student_id=student_id, 
-                full_name=name,
-                email=f"{student_id}@gprec.ac.in"
-            )
-            user.set_password(student_id)
-            db.session.add(user)
-            db.session.commit()
-            print(f"✅ Created student user: {user.username} (ID: {student_id})")
-            print(f"   Login: {name}")
-            print(f"   Password: {student_id}")
+        # Initialize database
+        init_database(app)
+        
+        print("\n" + "="*60)
+        print("🎓 Credify Student User Creation")
+        print("="*60 + "\n")
+        
+        # Get student details
+        username = input("Enter roll number (username): ").strip()
+        if not username:
+            print("❌ Roll number is required!")
+            return
+        
+        # Check if user exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            print(f"\n❌ User '{username}' already exists!")
+            print(f"   Role: {existing_user.role}")
+            print(f"   Email: {existing_user.email}")
+            return
+        
+        email = input("Enter student email: ").strip()
+        if not email:
+            print("❌ Email is required!")
+            return
+        
+        # Default password is roll number
+        use_default = input(f"Use roll number as password? (Y/n): ").strip().lower()
+        if use_default in ['', 'y', 'yes']:
+            password = username
+            print(f"✅ Using default password: {username}")
         else:
-            print(f"ℹ️  Student already exists: {user.username} (ID: {student_id})")
-            print(f"   Full name: {user.full_name}")
-    return user
+            password = getpass.getpass("Enter password: ")
+            confirm_password = getpass.getpass("Confirm password: ")
+            if password != confirm_password:
+                print("❌ Passwords don't match!")
+                return
+        
+        full_name = input("Enter full name: ").strip()
+        if not full_name:
+            print("❌ Full name is required!")
+            return
+        
+        # Create student user
+        student = User(
+            username=username,
+            email=email,
+            password_hash=generate_password_hash(password),
+            role='holder',
+            full_name=full_name
+        )
+        
+        try:
+            db.session.add(student)
+            db.session.commit()
+            
+            print("\n" + "="*60)
+            print("✅ Student user created successfully!")
+            print("="*60)
+            print(f"📧 Username: {username}")
+            print(f"📧 Email: {email}")
+            print(f"👤 Full Name: {full_name}")
+            print(f"🔐 Role: holder")
+            print(f"🔑 Password: {password}")
+            print("\n⚠️  Student should change password after first login!")
+            print("="*60 + "\n")
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"\n❌ Error creating student user: {e}")
+            return
 
-def main():
-    """Main script execution"""
-    print("🚀 Blockchain Credential System - Student Creator")
-    print("=" * 50)
-    
-    # FIXED: Create default student if no args provided
-    name = "Shashi Kiran"
-    student_id = "CST47"
-    
-    if len(sys.argv) == 3:
-        name = sys.argv[1]
-        student_id = sys.argv[2]
-        print(f"Creating student: {name} (ID: {student_id})")
-    else:
-        print(f"Creating default student: {name} (ID: {student_id})")
-    
-    try:
-        create_student(name, student_id)
-        print("\n✅ Script completed successfully!")
-        print(f"📁 Database: {DATA_DIR / 'credentials.db'}")
-    except Exception as e:
-        print(f"❌ Error: {str(e)}")
-        sys.exit(1)
 
 if __name__ == '__main__':
-    main()
+    create_student()

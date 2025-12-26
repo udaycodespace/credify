@@ -1,149 +1,344 @@
 # Authentication System Guide
 
-## Overview
+**Version 2.0** | Secure role-based authentication for blockchain credential management
 
-The system now has a secure login-based authentication with three user roles:
-- **Issuer** (University/Academic Institution)
-- **Student** (Credential Holder)
-- **Verifier** (Employer)
+***
 
-## Default Test Accounts
+## 📌 Overview
 
-### 🔴 Issuer Account (University Admin)
-- **Username:** `admin`
-- **Password:** `admin123`
-- **Role:** Can issue credentials to students
+The system implements secure login-based authentication with three distinct user roles:
 
-### 🟢 Student Account
-- **Username:** `CST001`
-- **Password:** `student123`
-- **Student ID:** CST001
-- **Role:** Can view their credentials and create selective disclosures
+- **🏛️ Issuer** — Universities and Academic Institutions
+- **👨‍🎓 Student** — Credential Holders
+- **💼 Verifier** — Employers and Verification Entities
 
-### 🟡 Verifier Account (Employer/HR)
-- **Username:** `verifier1`
-- **Password:** `verifier123`
-- **Role:** Can verify credentials (no login required, but login provides additional features)
+Each role has specific permissions and access levels to ensure data privacy and system security.
 
-## How It Works
+***
 
-### 1. **Issuer Login (University)**
-- Only logged-in issuers can access the credential issuance page
-- Must login with issuer credentials
-- Can issue credentials to any student
-- Protected by authentication - prevents unauthorized credential creation
+## 🔐 Authentication Architecture
 
-### 2. **Student Login**
-- Students login with their Student ID as username
-- Can only see their own credentials (filtered by student ID)
-- Can create selective disclosures to share with employers
-- Privacy-protected - each student sees only their data
-
-### 3. **Verifier Access**
-- Verifier page is open to everyone (no login required)
-- Anyone can verify credential authenticity
-- This allows public verification of credentials
-
-## Complete Workflow
-
-### Step 1: Issue a Credential (As Issuer)
-1. Go to http://localhost:5000
-2. Click "Login" button (top right)
-3. Login with:
-   - Username: `admin`
-   - Password: `admin123`
-4. You'll be redirected to the Issuer page
-5. Fill in student details:
-   - Student Name: `John Doe`
-   - Student ID: `CST001` (must match the student account)
-   - Degree: `B.Tech Computer Science`
-   - University: `G. Pulla Reddy Engineering College`
-   - GPA: `8.5`
-   - Graduation Year: `2025`
-6. Click "Issue Credential"
-7. Credential will be created and stored
-
-### Step 2: View Credentials (As Student)
-1. Logout from issuer account
-2. Login as student:
-   - Username: `CST001`
-   - Password: `student123`
-3. You'll see only your credentials (filtered by student ID CST001)
-4. Click "View" to see full credential details
-5. Click "Share" to create selective disclosure
-
-### Step 3: Create Selective Disclosure
-1. On student portal, click "Share" button
-2. Select which fields to disclose (e.g., only GPA)
-3. Click "Generate Proof"
-4. Copy the generated JSON proof
-
-### Step 4: Verify Credential (As Verifier)
-1. No login required - directly go to http://localhost:5000/verifier
-2. Paste the credential ID or selective disclosure proof
-3. Click "Verify"
-4. See verification results
-
-## Security Features
-
-### 1. **Role-Based Access Control**
-- Issuer pages require issuer role
-- Student pages require student role
-- Verifier pages are open to all
-
-### 2. **Session Management**
-- Secure Flask sessions
-- Automatic logout on session expiry
-- Session data includes: user_id, username, role, student_id
-
-### 3. **Password Security**
-- Passwords are hashed using Werkzeug's password hashing
-- Never stored in plain text
-- Secure password verification
-
-### 4. **Data Privacy**
-- Students see only their credentials
-- Credentials filtered by student_id
-- Selective disclosure protects sensitive information
-
-## File Structure
+### Role-Based Access Control (RBAC)
 
 ```
-New Files Created:
-├── models.py              # Database models (User table)
-├── auth.py                # Authentication decorators
-├── templates/login.html   # Login page
-└── AUTHENTICATION_GUIDE.md
-
-Modified Files:
-├── app.py                 # Added login routes and authentication
-├── templates/base.html    # Added login/logout buttons
-└── templates/index.html   # Updated with login links
+┌─────────────────────────────────────────────────────────┐
+│                    Authentication Layer                 │
+├─────────────────────────────────────────────────────────┤
+│  Login → Session → Role Check → Route Access            │
+└─────────────────────────────────────────────────────────┘
+                            ▼
+        ┌───────────────────┴───────────────────┐
+        │                                       │
+    ┌───▼────┐         ┌──────────┐      ┌─────▼─────┐
+    │ ISSUER │         │ STUDENT  │      │ VERIFIER  │
+    └────────┘         └──────────┘      └───────────┘
+        │                   │                   │
+        ▼                   ▼                   ▼
+   Issue Creds         View Own Creds     Verify Any Cred
+   Revoke Creds        Share Proofs       Public Access
+   Manage System       Privacy Control    No Auth Required
 ```
 
-## Database Schema
+
+***
+
+## 👥 Test Accounts
+
+### 🏛️ Issuer Account (University Administrator)
+
+```
+Role:     Issuer
+Access:   Issue credentials, revoke credentials, system management
+Features: Full credential lifecycle control
+```
+
+
+### 👨‍🎓 Student Account (Credential Holder)
+
+```
+Role:     Student
+Access:   View own credentials, create selective disclosures
+Features: Privacy-protected personal dashboard
+```
+
+
+### 💼 Verifier Account (Employer/HR)
+
+```
+Role:     Verifier (Optional Login)
+Access:   Verify any credential (public access)
+Features: Credential authenticity validation
+```
+
+> ⚠️ **Note:** Here we used default credentials are for development only & Changed all passwords before production deployment.
+
+***
+
+## 🔄 Complete Workflow
+
+### Step 1: Issue a Credential (Issuer Role)
+
+1. **Navigate to Application**
+
+```
+http://localhost:5000
+```
+
+2. **Login as Issuer**
+    - Click "Login" button (top navigation)
+    - Enter issuer credentials
+    - System validates and creates session
+3. **Access Issuer Dashboard**
+    - Automatic redirect after successful login
+    - View issuer-specific interface
+4. **Create Credential**
+
+```
+Required Fields:
+├── Student Name: Full legal name
+├── Student ID: Must match student account
+├── Degree: Program name
+├── University: Issuing institution
+├── GPA: Academic performance (0.0 - 10.0)
+├── Graduation Year: Completion year
+└── Additional Fields: As required
+```
+
+5. **Submit \& Sign**
+    - Click "Issue Credential"
+    - System generates cryptographic signature
+    - Credential stored on IPFS
+    - Hash recorded on blockchain
+    - Confirmation displayed
+
+***
+
+### Step 2: View Credentials (Student Role)
+
+1. **Logout from Issuer**
+    - Click "Logout" (top navigation)
+    - Session cleared
+2. **Login as Student**
+    - Enter student credentials
+    - Student ID used as username
+3. **Student Dashboard**
+
+```
+Available Actions:
+├── View All Credentials (filtered by student ID)
+├── View Credential Details (full transcript)
+├── Download as PDF
+├── Check Verification Status
+└── Create Selective Disclosure
+```
+
+4. **Privacy Protection**
+    - Only sees own credentials
+    - Cannot access other students' data
+    - Complete data ownership
+
+***
+
+### Step 3: Create Selective Disclosure (Student)
+
+1. **Select Credential**
+    - Navigate to credential in dashboard
+    - Click "Share" button
+2. **Choose Fields to Disclose**
+
+```
+Selective Disclosure Options:
+├── ✅ Student Name
+├── ✅ Degree
+├── ✅ GPA (only)
+├── ✅ University
+├── ❌ Student ID (hidden)
+├── ❌ Date of Birth (hidden)
+└── ❌ Full Transcript (hidden)
+```
+
+3. **Generate Zero-Knowledge Proof**
+    - Click "Generate Proof"
+    - System creates cryptographic proof
+    - Only selected fields included
+4. **Share Proof**
+
+```json
+{
+  "credential_id": "CRED_xxxxx",
+  "disclosed_fields": {
+    "student_name": "John Doe",
+    "degree": "B.Tech Computer Science",
+    "gpa": 8.5
+  },
+  "proof": "cryptographic_proof_data",
+  "timestamp": "2024-12-26T14:51:00Z"
+}
+```
+
+    - Copy JSON proof
+    - Share with verifier via secure channel
+
+***
+
+### Step 4: Verify Credential (Verifier Role)
+
+1. **Access Verifier Page**
+
+```
+Direct URL: http://localhost:5000/verifier
+No authentication required (public access)
+```
+
+2. **Submit Verification Request**
+
+```
+Input Options:
+├── Credential ID (full verification)
+├── Selective Disclosure Proof (partial)
+└── QR Code (future feature)
+```
+
+3. **Verification Process**
+
+```
+System Checks:
+├── ✓ Blockchain hash validation
+├── ✓ IPFS data retrieval
+├── ✓ Cryptographic signature verification
+├── ✓ Revocation status check
+├── ✓ Issuer authenticity
+└── ✓ Timestamp validation
+```
+
+4. **View Results**
+
+```
+Verification Response:
+├── Status: Valid / Invalid / Revoked
+├── Issuer: University name
+├── Issue Date: Timestamp
+├── Disclosed Data: Only shared fields
+└── Verification Proof: Blockchain reference
+```
+
+
+***
+
+## 🛡️ Security Features
+
+### 1. Password Security
+
+```python
+# Implementation Details (Reference Only)
+- Algorithm: Werkzeug PBKDF2-SHA256
+- Iterations: 260,000+
+- Salt: Random per user
+- Storage: Hashed only, never plain text
+```
+
+
+### 2. Session Management
+
+```python
+Session Data Structure:
+{
+    'user_id': int,
+    'username': str,
+    'role': str,  # 'issuer', 'student', 'verifier'
+    'student_id': str,  # For students only
+    'created_at': timestamp,
+    'expires_at': timestamp
+}
+```
+
+
+### 3. Role-Based Access Control
+
+```
+Access Matrix:
+┌──────────────┬─────────┬─────────┬──────────┐
+│ Resource     │ Issuer  │ Student │ Verifier │
+├──────────────┼─────────┼─────────┼──────────┤
+│ Issue Cred   │   ✅    │   ❌    │    ❌   │
+│ View Own     │   N/A    │   ✅    │    N/A  │
+│ Revoke       │   ✅    │   ❌    │    ❌   │
+│ Verify       │   ✅    │   ✅    │    ✅   │
+│ Selective    │   ❌    │   ✅    │    ❌   │
+└──────────────┴─────────┴─────────┴──────────┘
+```
+
+
+### 4. Data Privacy
+
+- **Student Isolation:** Each student sees only their credentials
+- **Filter by ID:** Automatic filtering by `student_id`
+- **Selective Disclosure:** Students control data sharing
+- **Encrypted Storage:** Sensitive data encrypted at rest
+
+***
+
+## 📁 System Architecture
+
+### Modified/New Files
+
+```
+app/
+├── models.py              ✅ User model & database schema
+├── auth.py                ✅ Authentication decorators & middleware
+└── config.py              ✅ Security configurations
+
+templates/
+├── login.html             ✅ Login interface
+├── base.html              ✅ Updated with auth buttons
+├── issuer.html            ✅ Protected issuer dashboard
+├── holder.html            ✅ Protected student dashboard
+└── verifier.html          ✅ Public verifier interface
+
+docs/
+└── AUTHENTICATION_GUIDE.md ✅ This document
+```
+
+
+***
+
+## 🗄️ Database Schema
 
 ### Users Table
+
 ```sql
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(80) UNIQUE NOT NULL,
     password_hash VARCHAR(256) NOT NULL,
-    role VARCHAR(20) NOT NULL,           -- 'issuer', 'student', or 'verifier'
-    student_id VARCHAR(50) UNIQUE,       -- For students only
+    role VARCHAR(20) NOT NULL CHECK(role IN ('issuer', 'student', 'verifier')),
+    student_id VARCHAR(50) UNIQUE,
     full_name VARCHAR(120),
     email VARCHAR(120) UNIQUE,
-    created_at TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    metadata JSON
 );
+
+CREATE INDEX idx_username ON users(username);
+CREATE INDEX idx_student_id ON users(student_id);
+CREATE INDEX idx_role ON users(role);
 ```
 
-## Adding New Users
 
-### Option 1: Via Python Shell
+***
+
+## 👤 User Management
+
+### Creating New Users
+
+#### Method 1: Python Script (Recommended)
+
 ```python
-from app import app, db
-from models import User
+# scripts/create_user.py
+from app.app import app
+from app.models import db, User
 
 with app.app_context():
     # Create new student
@@ -152,98 +347,249 @@ with app.app_context():
         role='student',
         student_id='CST002',
         full_name='Jane Smith',
-        email='jane@gprec.ac.in'
+        email='jane@example.edu'
     )
-    student.set_password('password123')
+    student.set_password('secure_password_here')
+    
     db.session.add(student)
     db.session.commit()
+    print(f"✅ User {student.username} created successfully")
 ```
 
-### Option 2: Via SQL (Direct Database Access)
-```sql
--- First, hash the password using Python:
--- from werkzeug.security import generate_password_hash
--- print(generate_password_hash('mypassword'))
 
-INSERT INTO users (username, password_hash, role, student_id, full_name, email)
-VALUES ('CST003', 'hashed_password_here', 'student', 'CST003', 'Bob Johnson', 'bob@gprec.ac.in');
-```
-
-## Common Issues & Solutions
-
-### Issue 1: "Please login to access this page"
-**Solution:** You're trying to access a protected page. Login with appropriate credentials.
-
-### Issue 2: "Access denied. This page is only for issuers"
-**Solution:** You're logged in with wrong role. Logout and login with issuer account.
-
-### Issue 3: Student sees no credentials
-**Solution:** 
-- Make sure credentials were issued with the correct student_id
-- The student_id in the credential must match the student's student_id in the database
-
-### Issue 4: Can't issue credentials
-**Solution:** 
-- Make sure you're logged in as an issuer
-- Check that all required fields are filled
-
-## Testing Checklist
-
-- [ ] Login as issuer (admin/admin123)
-- [ ] Issue credential for student CST001
-- [ ] Logout from issuer
-- [ ] Login as student (CST001/student123)
-- [ ] View issued credential
-- [ ] Create selective disclosure (select only GPA)
-- [ ] Copy the proof
-- [ ] Logout from student
-- [ ] Go to verifier page (no login needed)
-- [ ] Verify the selective disclosure proof
-- [ ] Confirm only GPA is visible, not full transcript
-
-## Production Deployment Considerations
-
-1. **Change Default Passwords:** All default passwords must be changed
-2. **Use Strong Secret Key:** Set a strong SESSION_SECRET environment variable
-3. **Enable HTTPS:** Use SSL/TLS for production
-4. **Rate Limiting:** Add rate limiting to prevent brute force attacks
-5. **Email Verification:** Add email verification for new accounts
-6. **Password Reset:** Implement password reset functionality
-7. **Audit Logging:** Log all authentication attempts and credential issuances
-
-## Environment Variables Required
+#### Method 2: Interactive Script
 
 ```bash
-# Required for production
-SESSION_SECRET=your-super-secret-key-change-this
-DATABASE_URL=postgresql://user:password@host:port/database
-
-# Optional
-FLASK_ENV=production
+python scripts/create_admin.py
 ```
 
-## API Endpoints
+Follow the prompts to create users interactively.
 
-### Public Endpoints (No Auth Required)
-- `GET /` - Home page
-- `GET /login` - Login page
-- `POST /login` - Login submission
-- `GET /logout` - Logout
-- `GET /verifier` - Verifier page
-- `POST /api/verify_credential` - Verify credential
-- `GET /api/blockchain_status` - System status
+***
 
-### Protected Endpoints
-- `GET /issuer` - Requires issuer role
-- `POST /api/issue_credential` - Requires issuer role
-- `GET /holder` - Requires student role
-- `POST /api/selective_disclosure` - Requires student role
-- `GET /api/get_credential/<id>` - Requires authentication
+## 🔌 API Endpoints
 
-## Support
+### Public Endpoints (No Authentication)
 
-For issues or questions:
-1. Check the TROUBLESHOOTING.md file
-2. Review server logs for errors
-3. Check browser console for client-side errors
-4. Ensure all environment variables are set correctly
+| Endpoint | Method | Description |
+| :-- | :-- | :-- |
+| `/` | GET | Home page |
+| `/login` | GET | Login page |
+| `/login` | POST | Login submission |
+| `/logout` | GET | Logout \& session clear |
+| `/verifier` | GET | Public verifier interface |
+| `/api/verify_credential` | POST | Verify credential |
+| `/api/blockchain_status` | GET | System statistics |
+
+### Protected Endpoints (Authentication Required)
+
+| Endpoint | Method | Role | Description |
+| :-- | :-- | :-- | :-- |
+| `/issuer` | GET | Issuer | Issuer dashboard |
+| `/api/issue_credential` | POST | Issuer | Issue new credential |
+| `/api/revoke_credential` | POST | Issuer | Revoke credential |
+| `/holder` | GET | Student | Student dashboard |
+| `/api/selective_disclosure` | POST | Student | Create disclosure proof |
+| `/api/get_credential/<id>` | GET | Auth | Get credential details |
+
+
+***
+
+## ⚙️ Environment Configuration
+
+### Required Environment Variables
+
+```bash
+# Security (REQUIRED)
+SECRET_KEY=your-secret-key-change-in-production
+SESSION_SECRET=your-session-secret-change-in-production
+
+# Database
+DATABASE_URL=sqlite:///credentials.db  # Development
+# DATABASE_URL=postgresql://user:pass@host:port/db  # Production
+
+# Flask Configuration
+FLASK_ENV=development  # Change to 'production' for deployment
+DEBUG=False  # Set to False in production
+
+# Server
+HOST=0.0.0.0
+PORT=5000
+
+# Optional Features
+IPFS_ENABLED=False
+ENABLE_EMAIL_VERIFICATION=False
+```
+
+
+### Security Best Practices
+
+⚠️ **CRITICAL: Never expose these in version control:**
+
+- `.env` file should be in `.gitignore`
+- Use environment-specific configurations
+- Rotate secrets regularly in production
+- Use strong, randomly generated keys
+
+```bash
+# Generate secure secret key
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+
+***
+
+## 🐛 Troubleshooting
+
+### Common Issues \& Solutions
+
+#### Issue 1: "Please login to access this page"
+
+**Cause:** Trying to access protected route without authentication
+**Solution:** Login with appropriate credentials for the required role
+
+#### Issue 2: "Access denied. This page is only for [role]"
+
+**Cause:** Logged in with incorrect role
+**Solution:** Logout and login with correct role credentials
+
+#### Issue 3: Student sees no credentials
+
+**Cause:** Student ID mismatch between credential and user account
+**Solution:**
+
+- Verify student ID in user profile
+- Ensure credentials issued with correct student ID
+- Check database for data consistency
+
+
+#### Issue 4: Cannot issue credentials
+
+**Cause:** Not logged in as issuer or missing required fields
+**Solution:**
+
+- Confirm login with issuer role
+- Validate all required fields are filled
+- Check browser console for JavaScript errors
+
+
+#### Issue 5: Session expires unexpectedly
+
+**Cause:** Short session timeout or browser cookie issues
+**Solution:**
+
+- Check `SESSION_COOKIE_SECURE` settings
+- Increase `PERMANENT_SESSION_LIFETIME` in config
+- Clear browser cookies and re-login
+
+***
+
+## ✅ Testing Checklist
+
+Use this checklist to verify complete system functionality:
+
+- [ ] **Issuer Workflow**
+    - [ ] Login as issuer
+    - [ ] Access issuer dashboard
+    - [ ] Issue credential for test student
+    - [ ] View issued credentials list
+    - [ ] Logout successfully
+- [ ] **Student Workflow**
+    - [ ] Login as student
+    - [ ] View only own credentials (data isolation)
+    - [ ] Open credential details
+    - [ ] Create selective disclosure (GPA only)
+    - [ ] Copy generated proof
+    - [ ] Logout successfully
+- [ ] **Verifier Workflow**
+    - [ ] Access verifier page (no login)
+    - [ ] Paste credential ID
+    - [ ] Verify full credential
+    - [ ] Paste selective disclosure proof
+    - [ ] Verify partial credential (only disclosed fields visible)
+- [ ] **Security Testing**
+    - [ ] Attempt to access issuer page as student (should fail)
+    - [ ] Attempt to access student credentials as different student (should fail)
+    - [ ] Verify session expires after timeout
+    - [ ] Test logout clears session data
+
+***
+
+## 🚀 Production Deployment Checklist
+
+Before deploying to production:
+
+- [ ] **Change all default passwords**
+- [ ] **Set strong SECRET_KEY and SESSION_SECRET**
+- [ ] **Enable HTTPS/TLS (SSL certificates)**
+- [ ] **Configure production database (PostgreSQL recommended)**
+- [ ] **Set FLASK_ENV=production**
+- [ ] **Disable DEBUG mode**
+- [ ] **Implement rate limiting (Flask-Limiter)**
+- [ ] **Add email verification for new accounts**
+- [ ] **Set up password reset functionality**
+- [ ] **Enable audit logging for all authentication events**
+- [ ] **Configure secure session cookies**
+- [ ] **Set up monitoring and alerting**
+- [ ] **Perform security audit (OWASP guidelines)**
+- [ ] **Configure firewall rules**
+- [ ] **Set up automated backups**
+
+***
+
+## 📞 Support \& Contributions
+
+### Getting Help
+
+If you encounter issues not covered in this guide:
+
+1. **Check Documentation:**
+    - Review `/docs` folder for additional guides
+    - See `TROUBLESHOOTING.md` for common issues
+2. **Review Logs:**
+    - Check server logs in `/logs` directory
+    - Enable debug mode temporarily for detailed errors
+    - Review browser console for client-side errors
+3. **Contact Development Team:**
+    - **Backend \& Authentication:** [@udaycodespace](https://github.com/udaycodespace)
+    - **Frontend \& UI:** [@shashikiran47](https://github.com/shashikiran47)
+    - **Testing \& Documentation:** [@tejavarshith](https://github.com/tejavarshith)
+4. **Community Support:**
+    - Open an issue on GitHub repository
+    - Include error messages and logs
+    - Provide steps to reproduce the issue
+
+***
+
+## 📚 Additional Resources
+
+- **W3C Verifiable Credentials:** [https://www.w3.org/TR/vc-data-model/](https://www.w3.org/TR/vc-data-model/)
+- **Flask Security Best Practices:** [https://flask.palletsprojects.com/en/latest/security/](https://flask.palletsprojects.com/en/latest/security/)
+- **OWASP Authentication Cheat Sheet:** [https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
+
+***
+
+## 📄 Version History
+
+**v2.0** (Current)
+
+- Enhanced security features
+- Improved session management
+- Comprehensive documentation
+- Production-ready configurations
+
+**v1.0**
+
+- Initial authentication implementation
+- Basic role-based access control
+- Core login/logout functionality
+
+***
+
+<div align="center">
+
+**Built with 🔐 by the Development Team**
+
+**Security First | Privacy Preserved | Trust Verified**
+
+</div>

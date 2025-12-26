@@ -1,124 +1,170 @@
 """
-Pytest configuration and shared fixtures
+Pytest configuration and fixtures
 """
-
 import pytest
 import os
-import json
+import sys
 import tempfile
 import shutil
 from pathlib import Path
 
 # Add project root to path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.app import app
-from core.blockchain import SimpleBlockchain, Block  # NOT Blockchain! # ✅ YOUR ACTUAL CLASSES
-from core.credential_manager import CredentialManager
+from app.app import app as flask_app
+from app.models import db, User
+from core.blockchain import SimpleBlockchain
+from core.crypto_utils import CryptoManager
 from core.ipfs_client import IPFSClient
+from core.credential_manager import CredentialManager
 from core.ticket_manager import TicketManager
+from core.zkp_manager import ZKPManager
 
 
 @pytest.fixture
-def flask_app():
-    """Create Flask app for testing"""
-    app.config['TESTING'] = True
-    app.config['SECRET_KEY'] = 'test-secret-key'
-    app.config['WTF_CSRF_ENABLED'] = False
-    return app
+def app():
+    """Create and configure a test Flask application"""
+    flask_app.config.update({
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        'SECRET_KEY': 'test-secret-key',
+        'WTF_CSRF_ENABLED': False
+    })
+    
+    with flask_app.app_context():
+        db.create_all()
+        
+        # Create test admin user
+        admin = User(
+            username='test_admin',
+            role='issuer',
+            full_name='Test Admin',
+            email='admin@test.com',
+            is_active=True
+        )
+        admin.set_password('admin123')
+        db.session.add(admin)
+        
+        # Create test student user
+        student = User(
+            username='test_student',
+            role='student',
+            student_id='TEST001',
+            full_name='Test Student',
+            email='student@test.com',
+            is_active=True
+        )
+        student.set_password('student123')
+        db.session.add(student)
+        
+        # Create test verifier user
+        verifier = User(
+            username='test_verifier',
+            role='verifier',
+            full_name='Test Verifier',
+            email='verifier@test.com',
+            is_active=True
+        )
+        verifier.set_password('verifier123')
+        db.session.add(verifier)
+        
+        db.session.commit()
+    
+    yield flask_app
+    
+    with flask_app.app_context():
+        db.session.remove()
+        db.drop_all()
 
 
 @pytest.fixture
-def client(flask_app):
-    """Create test client"""
-    return flask_app.test_client()
+def client(app):
+    """A test client for the app"""
+    return app.test_client()
 
 
 @pytest.fixture
-def temp_data_dir():
-    """Create temporary data directory"""
-    temp_dir = tempfile.mkdtemp()
-    
-    # Create test data files
-    data_files = {
-        'blockchain_data.json': '{"chain": [], "difficulty": 2}',
-        'credentials_registry.json': '{}',
-        'ipfs_storage.json': '{}',
-        'tickets.json': '{}',
-        'messages.json': '{}'
-    }
-    
-    for filename, content in data_files.items():
-        filepath = os.path.join(temp_dir, filename)
-        with open(filepath, 'w') as f:
-            f.write(content)
-    
-    yield temp_dir
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
+def runner(app):
+    """A test runner for the app's Click commands"""
+    return app.test_cli_runner()
+
+
+@pytest.fixture
+def auth_client(client):
+    """A test client with admin authentication"""
+    with client.session_transaction() as sess:
+        sess['user_id'] = 1
+        sess['username'] = 'test_admin'
+        sess['role'] = 'issuer'
+    return client
+
+
+@pytest.fixture
+def student_client(client):
+    """A test client with student authentication"""
+    with client.session_transaction() as sess:
+        sess['user_id'] = 2
+        sess['username'] = 'test_student'
+        sess['role'] = 'student'
+        sess['student_id'] = 'TEST001'
+    return client
 
 
 @pytest.fixture
 def blockchain():
-    """Create fresh blockchain instance"""
-    return SimpleBlockchain(difficulty=2)  # ✅ FIXED
+    """Create a test blockchain instance"""
+    return SimpleBlockchain()
 
 
 @pytest.fixture
-def credential_manager(blockchain):
-    """Create credential manager instance"""
-    return CredentialManager(blockchain)
+def crypto_manager():
+    """Create a test crypto manager instance"""
+    return CryptoManager()
 
 
 @pytest.fixture
 def ipfs_client():
-    """Create IPFS client instance"""
+    """Create a test IPFS client instance"""
     return IPFSClient()
 
 
 @pytest.fixture
+def credential_manager(blockchain, crypto_manager, ipfs_client):
+    """Create a test credential manager instance"""
+    return CredentialManager(blockchain, crypto_manager, ipfs_client)
+
+
+@pytest.fixture
 def ticket_manager():
-    """Create ticket manager instance"""
+    """Create a test ticket manager instance"""
     return TicketManager()
+
+
+@pytest.fixture
+def zkp_manager(crypto_manager):
+    """Create a test ZKP manager instance"""
+    return ZKPManager(crypto_manager)
 
 
 @pytest.fixture
 def sample_credential_data():
     """Sample credential data for testing"""
+    from datetime import datetime
     return {
-        'student_id': 'TEST001',
         'student_name': 'John Doe',
-        'degree': 'Bachelor of Computer Science',
-        'university': 'Test University',
-        'gpa': '8.5',
-        'graduation_year': '2024',
-        'semester': '8',
-        'year': '4',
-        'class_name': 'CS-A',
+        'student_id': 'TEST123',
+        'degree': 'B.Tech Computer Science',
+        'university': 'G. Pulla Reddy Engineering College',
+        'gpa': 8.5,
+        'graduation_year': 2024,
+        'courses': ['Data Structures', 'Algorithms', 'DBMS'],
+        'issue_date': datetime.now().isoformat(),  # ✅ ADDED THIS
+        'issuer': 'G. Pulla Reddy Engineering College',
+        'semester': 8,
+        'year': 4,
+        'class_name': 'B.Tech',
         'section': 'A',
-        'backlog_count': '0',
-        'conduct': 'excellent',
-        'courses': ['Data Structures', 'Algorithms', 'Operating Systems'],
-        'backlogs': []
+        'backlog_count': 0,
+        'backlogs': [],
+        'conduct': 'good'
     }
-
-
-@pytest.fixture
-def authenticated_session(client):
-    """Create authenticated session"""
-    with client.session_transaction() as session:
-        session['user_id'] = 'admin'
-        session['role'] = 'issuer'
-    return client
-
-
-@pytest.fixture
-def student_session(client):
-    """Create student session"""
-    with client.session_transaction() as session:
-        session['user_id'] = 'TEST001'
-        session['role'] = 'student'
-        session['student_id'] = 'TEST001'
-    return client

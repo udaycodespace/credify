@@ -1,87 +1,50 @@
 """
-Test cases for Cryptographic utilities
+Tests for cryptographic utilities
 """
-
 import pytest
-from core.crypto_utils import CryptoUtils
+from core.crypto_utils import CryptoManager
 
 
-class TestCryptoUtils:
+def test_generate_keys(crypto_manager):
+    """Test RSA key generation"""
+    # ✅ FIXED: generate_keys() doesn't return tuple, just generates keys
+    crypto_manager.generate_keys()
     
-    def test_sha256_hash(self):
-        """Test SHA-256 hashing"""
-        data = "test data"
-        hash1 = CryptoUtils.sha256_hash(data)
-        hash2 = CryptoUtils.sha256_hash(data)
-        
-        assert hash1 == hash2  # Same input, same hash
-        assert len(hash1) == 64  # SHA-256 hex length
+    assert crypto_manager.private_key is not None
+    assert crypto_manager.public_key is not None
+
+
+def test_sign_and_verify(crypto_manager):
+    """Test signing and verification"""
+    data = "Test credential data"
+    signature = crypto_manager.sign_data(data)
     
-    def test_different_inputs_different_hashes(self):
-        """Test different inputs produce different hashes"""
-        hash1 = CryptoUtils.sha256_hash("data1")
-        hash2 = CryptoUtils.sha256_hash("data2")
-        
-        assert hash1 != hash2
+    assert signature is not None
+    assert crypto_manager.verify_signature(data, signature)
+
+
+def test_verify_invalid_signature(crypto_manager):
+    """Test verification with invalid signature"""
+    data = "Test data"
+    signature = crypto_manager.sign_data(data)
     
-    def test_generate_key_pair(self):
-        """Test RSA key pair generation"""
-        private_key, public_key = CryptoUtils.generate_key_pair()
-        
-        assert private_key is not None
-        assert public_key is not None
+    tampered_data = "Tampered data"
+    assert not crypto_manager.verify_signature(tampered_data, signature)
+
+
+def test_hash_data(crypto_manager):
+    """Test SHA-256 hashing"""
+    data = "Test data"
+    hash1 = crypto_manager.hash_data(data)
+    hash2 = crypto_manager.hash_data(data)
     
-    def test_sign_and_verify(self):
-        """Test digital signature creation and verification"""
-        private_key, public_key = CryptoUtils.generate_key_pair()
-        
-        data = "Test message"
-        signature = CryptoUtils.sign_data(data, private_key)
-        
-        # Verify signature
-        is_valid = CryptoUtils.verify_signature(data, signature, public_key)
-        
-        assert is_valid == True
+    assert hash1 == hash2
+    assert len(hash1) == 64
+
+
+def test_hash_different_data(crypto_manager):
+    """Test that different data produces different hashes"""
+    hash1 = crypto_manager.hash_data("Data 1")
+    hash2 = crypto_manager.hash_data("Data 2")
     
-    def test_verify_tampered_data(self):
-        """Test signature verification fails for tampered data"""
-        private_key, public_key = CryptoUtils.generate_key_pair()
-        
-        original_data = "Original message"
-        signature = CryptoUtils.sign_data(original_data, private_key)
-        
-        # Verify with tampered data
-        tampered_data = "Tampered message"
-        is_valid = CryptoUtils.verify_signature(tampered_data, signature, public_key)
-        
-        assert is_valid == False
-    
-    def test_merkle_root_calculation(self):
-        """Test Merkle tree root calculation"""
-        items = ['item1', 'item2', 'item3', 'item4']
-        root = CryptoUtils.calculate_merkle_root(items)
-        
-        assert root is not None
-        assert len(root) == 64  # SHA-256 hex length
-    
-    def test_merkle_proof_generation(self):
-        """Test Merkle proof generation"""
-        items = ['course1', 'course2', 'course3', 'course4']
-        item = 'course2'
-        
-        proof = CryptoUtils.generate_merkle_proof(items, item)
-        
-        assert proof is not None
-        assert isinstance(proof, list)
-    
-    def test_merkle_proof_verification(self):
-        """Test Merkle proof verification"""
-        items = ['course1', 'course2', 'course3', 'course4']
-        item = 'course2'
-        
-        root = CryptoUtils.calculate_merkle_root(items)
-        proof = CryptoUtils.generate_merkle_proof(items, item)
-        
-        is_valid = CryptoUtils.verify_merkle_proof(item, proof, root)
-        
-        assert is_valid == True
+    assert hash1 != hash2

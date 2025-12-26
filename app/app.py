@@ -11,6 +11,8 @@ except Exception:
 
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session
 from datetime import datetime
+from core import DATA_DIR as DATADIR
+from pathlib import Path
 import json
 
 # FIXED IMPORTS - Correct package structure
@@ -98,6 +100,133 @@ def tutorial():
 @role_required('issuer')
 def issuer():
     return render_template('issuer.html')
+@app.route('/api/system/reset', methods=['POST'])
+@role_required('issuer')
+def api_system_reset():
+    """ADMIN ONLY: Reset entire system - database, JSON files, blockchain"""
+    try:
+        from pathlib import Path
+        
+        data = request.get_json()
+        confirmation = data.get('confirmation')
+        
+        # Require explicit confirmation
+        if confirmation != 'RESET_EVERYTHING':
+            return jsonify({
+                'success': False,
+                'error': 'Invalid confirmation. Please type RESET_EVERYTHING'
+            }), 400
+        
+        # 1. Reset JSON files
+        from core import DATA_DIR
+        DATA_DIR.mkdir(exist_ok=True)
+        
+        # Reset credentials registry
+        creds_file = DATA_DIR / 'credentials_registry.json'
+        with open(creds_file, 'w') as f:
+            json.dump({}, f, indent=2)
+        logging.info("✅ Cleared credentials_registry.json")
+        
+        # Reset blockchain
+        blockchain_file = DATA_DIR / 'blockchain_data.json'
+        genesis_block = {
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": "2025-01-01T00:00:00Z",
+                    "data": "Genesis Block",
+                    "previous_hash": "0",
+                    "hash": "genesis_hash_000"
+                }
+            ]
+        }
+        with open(blockchain_file, 'w') as f:
+            json.dump(genesis_block, f, indent=2)
+        logging.info("✅ Reset blockchain to genesis")
+        
+        # Reset IPFS storage
+        ipfs_file = DATA_DIR / 'ipfs_storage.json'
+        with open(ipfs_file, 'w') as f:
+            json.dump({}, f, indent=2)
+        logging.info("✅ Cleared ipfs_storage.json")
+        
+        # Reset tickets
+        tickets_file = DATA_DIR / 'tickets.json'
+        with open(tickets_file, 'w') as f:
+            json.dump([], f, indent=2)
+        logging.info("✅ Cleared tickets.json")
+        
+        # Reset messages
+        messages_file = DATA_DIR / 'messages.json'
+        with open(messages_file, 'w') as f:
+            json.dump([], f, indent=2)
+        logging.info("✅ Cleared messages.json")
+        
+        # 2. Reset database (keep admin/verifier, delete all students)
+        deleted_count = User.query.filter_by(role='student').delete()
+        db.session.commit()
+        logging.info(f"✅ Deleted {deleted_count} student accounts")
+        
+        # 3. Reload credential manager to clear memory cache
+        credential_manager.credentials = {}
+        
+        logging.info("✅ System reset complete - All JSON files and student accounts cleared")
+        
+        return jsonify({
+            'success': True,
+            'message': 'System reset successful! All credentials, students, tickets, and messages deleted.',
+            'details': {
+                'credentials_deleted': True,
+                'blockchain_reset': True,
+                'students_deleted': deleted_count,
+                'tickets_deleted': True,
+                'messages_deleted': True,
+                'admin_preserved': True
+            }
+        })
+    
+    except Exception as e:
+        logging.error(f"Error resetting system: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/system/stats', methods=['GET'])
+@role_required('issuer')
+def api_system_stats():
+    """Get system statistics for admin dashboard"""
+    try:
+        # Safe defaults
+        stats = {
+            'credentials': {'total': 0, 'active': 0, 'revoked': 0, 'superseded': 0},
+            'users': {'students': 0, 'admins': 0, 'verifiers': 0},
+            'tickets': {'total': 0, 'open': 0, 'in_progress': 0, 'resolved': 0},
+            'messages': {'total': 0, 'broadcast': 0, 'direct': 0},
+            'blockchain': {'blocks': 1}
+        }
+        
+        # Try to get real data
+        try:
+            all_creds = credential_manager.get_all_credentials()
+            stats['credentials']['total'] = len(all_creds)
+            stats['credentials']['active'] = len([c for c in all_creds if c.get('status') == 'active'])
+            stats['credentials']['revoked'] = len([c for c in all_creds if c.get('status') == 'revoked'])
+            stats['credentials']['superseded'] = len([c for c in all_creds if c.get('status') == 'superseded'])
+        except Exception as e:
+            logging.warning(f"Could not load credentials: {e}")
+        
+        try:
+            stats['users']['students'] = User.query.filter_by(role='student').count()
+            stats['users']['admins'] = User.query.filter_by(role='issuer').count()
+            stats['users']['verifiers'] = User.query.filter_by(role='verifier').count()
+        except Exception as e:
+            logging.warning(f"Could not load users: {e}")
+        
+        return jsonify({'success': True, 'stats': stats})
+    
+    except Exception as e:
+        logging.error(f"Error getting system stats: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/holder')
 @role_required('student')

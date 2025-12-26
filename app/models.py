@@ -4,15 +4,38 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from pathlib import Path
 
+# ============================================================================
+# FIXED: Database path configuration for Render compatibility
+# ============================================================================
 
-# FIXED: Import DATA_DIR from project root for database path
-try:
-    from core import DATA_DIR, PROJECT_ROOT  # Import from sibling package
-except ImportError:
-    # Fallback for direct imports
-    PROJECT_ROOT = Path(__file__).parent.parent
-    DATA_DIR = PROJECT_ROOT / "data"
+# Use environment variable for database URL (Render provides this)
+# Fallback to /tmp on Render, local data/ directory for development
+DATABASE_URL = os.getenv('DATABASE_URL')
 
+if DATABASE_URL:
+    # Render or production environment
+    if DATABASE_URL.startswith('postgres://'):
+        # Fix for Render PostgreSQL URL
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    elif DATABASE_URL.startswith('sqlite:///'):
+        # Ensure /tmp directory for SQLite on Render
+        if not DATABASE_URL.startswith('sqlite:////tmp'):
+            DATABASE_URL = 'sqlite:////tmp/credify.db'
+else:
+    # Local development - use data/ directory
+    try:
+        from core import DATA_DIR, PROJECT_ROOT
+    except ImportError:
+        PROJECT_ROOT = Path(__file__).parent.parent
+        DATA_DIR = PROJECT_ROOT / "data"
+    
+    # Create data directory if it doesn't exist
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    DATABASE_URL = f'sqlite:///{DATA_DIR / "credentials.db"}'
+
+# ============================================================================
+# Database initialization
+# ============================================================================
 
 db = SQLAlchemy()
 
@@ -31,7 +54,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
-    # NEW: Relationships for Tickets and Messages
+    # Relationships for Tickets and Messages
     tickets = db.relationship('Ticket', backref='student', lazy=True, foreign_keys='Ticket.student_user_id')
     sent_messages = db.relationship('Message', backref='sender', lazy=True, foreign_keys='Message.from_user_id')
     received_messages = db.relationship('Message', backref='recipient', lazy=True, foreign_keys='Message.to_user_id')
@@ -142,18 +165,43 @@ class Message(db.Model):
 
 
 def init_database(app):
-    """Initialize database with app context and proper data/ path"""
-    # FIXED: Ensure DATA_DIR exists before DB creation
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    """Initialize database with app context"""
+    # Configure database URL
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # For local development, ensure data directory exists
+    if DATABASE_URL.startswith('sqlite:///') and not DATABASE_URL.startswith('sqlite:////tmp'):
+        try:
+            db_path = DATABASE_URL.replace('sqlite:///', '')
+            db_dir = Path(db_path).parent
+            db_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            print(f"⚠️  Warning: Could not create database directory: {e}")
     
     db.init_app(app)
     
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            print(f"✅ Database initialized successfully")
+        except Exception as e:
+            print(f"❌ Database initialization failed: {e}")
+            raise
         
+        # Create default users if not exists
+        create_default_users()
+
+
+def create_default_users():
+    """Create default users for testing"""
+    try:
         # Create default admin/issuer account if not exists
         admin = User.query.filter_by(username='admin').first()
         if not admin:
+            print("📝 Creating default user accounts...")
+            
+            # Admin account
             admin = User(
                 username='admin',
                 role='issuer',
@@ -163,7 +211,7 @@ def init_database(app):
             admin.set_password('admin123')
             db.session.add(admin)
             
-            # Create a sample issuer account
+            # Issuer account
             issuer = User(
                 username='issuer1',
                 role='issuer',
@@ -173,18 +221,18 @@ def init_database(app):
             issuer.set_password('issuer123')
             db.session.add(issuer)
             
-            # Create sample student account
+            # Sample student account
             student = User(
-                username='Sample Student',
+                username='21131A05E9',
                 role='student',
-                student_id='SAMPLE001',
+                student_id='21131A05E9',
                 full_name='Sample Student',
                 email='student@gprec.ac.in'
             )
-            student.set_password('SAMPLE001')
+            student.set_password('21131A05E9')
             db.session.add(student)
             
-            # Create sample verifier account
+            # Verifier account
             verifier = User(
                 username='verifier1',
                 role='verifier',
@@ -195,5 +243,11 @@ def init_database(app):
             db.session.add(verifier)
             
             db.session.commit()
-            print("✅ Default users created successfully!")
-            print(f"📁 Database file: {DATA_DIR / 'credentials.db'}")
+            print(f"✅ Default user accounts created (4 users)")
+            print(f"   ℹ️  Check README.md for login credentials")
+        else:
+            print("✅ Default users already exist")
+            
+    except Exception as e:
+        print(f"⚠️  Warning: Could not create default users: {e}")
+        db.session.rollback()

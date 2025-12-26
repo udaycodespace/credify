@@ -2,6 +2,26 @@
 
 **Version 2.0** | A decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using blockchain technology and advanced cryptography.
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
+[![Docker Image Size](https://img.shields.io/docker/image-size/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
+[![Docker Build](https://github.com/udaycodespace/credify/workflows/Docker%20Build%20and%20Push/badge.svg)](https://github.com/udaycodespace/credify/actions)
+[![CI/CD Pipeline](https://github.com/udaycodespace/credify/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/udaycodespace/credify/actions)
+
+> ⚠️ **IMPORTANT SECURITY NOTICE - EDUCATIONAL PROJECT**
+> 
+> This is an **academic demonstration project** developed for educational purposes only.
+> 
+> **🔐 Security Disclaimers:**
+> - All credentials, passwords, and user data shown are **fictitious and for demonstration only**
+> - Default passwords in code are **hashed** and used only for local development
+> - **DO NOT** use default credentials in production environments
+> - This system is designed for educational assessment and portfolio demonstration
+> 
+> **📧 For Production Deployment or Questions:**
+> - Contact: [@udaycodespace](https://github.com/udaycodespace) | [@shashikiran47](https://github.com/shashikiran47) | [@tejavarshith](https://github.com/tejavarshith)
+> - All passwords must be set via environment variables in real deployments
+> - See `.env.example` for secure configuration guidelines
+
 ***
 
 ## 📌 Overview
@@ -19,7 +39,52 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 
 ***
 
-## 🎯 Project Aims \& Objectives
+## 🚀 Quick Start
+
+### 🐳 Docker Deployment (Recommended)
+
+```bash
+# Pull from Docker Hub
+docker pull udaycodespace/credify:latest
+
+# Run the container
+docker run -d -p 5000:5000 \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -e SECRET_KEY=your_secret_key \
+  --name credify \
+  udaycodespace/credify:latest
+
+# Access the application
+open http://localhost:5000
+```
+
+**Docker Hub Repository:** [udaycodespace/credify](https://hub.docker.com/r/udaycodespace/credify)
+
+### 🔧 Local Development
+
+```bash
+# Clone repository
+git clone https://github.com/udaycodespace/credify.git
+cd credify
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set environment variables (REQUIRED for security)
+cp .env.example .env
+# Edit .env with your secure passwords
+
+# Run application
+python main.py
+```
+
+***
+
+## 🎯 Project Aims & Objectives
 
 ### Primary Goals
 
@@ -28,7 +93,6 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 - **Decentralization:** Remove single points of failure in credential storage and verification
 - **Instant Verification:** Provide real-time, cryptographically verifiable proof of authenticity
 - **Student Empowerment:** Give students complete control over their credentials
-
 
 ### Key Outcomes
 
@@ -42,14 +106,13 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 
 ## ✨ Core Features
 
-### 🔐 Security \& Cryptography
+### 🔐 Security & Cryptography
 
 - **RSA-2048 Digital Signatures** for credential authenticity
 - **SHA-256 Hashing** for data integrity verification
 - **Merkle Tree Proofs** for efficient batch verification
 - **Zero-Knowledge Proofs** for privacy-preserving verification
 - **Multi-layer Encryption** for sensitive data protection
-
 
 ### ⛓️ Blockchain Infrastructure
 
@@ -59,7 +122,6 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 - Block integrity validation
 - Real-time transaction monitoring
 
-
 ### 🗄️ Distributed Storage
 
 - IPFS integration for decentralized credential storage
@@ -67,7 +129,6 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 - Automatic fallback to local encrypted storage
 - Redundant data availability
 - Efficient large document handling
-
 
 ### 👥 Role-Based Access Control
 
@@ -86,7 +147,6 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
     - Blockchain-backed authenticity checks
     - Revocation status validation
     - Batch verification support
-
 
 ### 🎯 Advanced Capabilities
 
@@ -108,7 +168,6 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 - **Authentication:** Flask-Login with secure session management
 - **Security:** Werkzeug password hashing, CSRF protection
 
-
 ### Frontend Stack
 
 - **HTML5** with semantic markup
@@ -117,22 +176,51 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 - **AJAX** for asynchronous operations
 - **Bootstrap-inspired** custom UI components
 
-
-### Blockchain \& Cryptography
+### Blockchain & Cryptography
 
 - **Blockchain:** Custom implementation with proof-of-authority
 - **Storage:** IPFS with local fallback mechanism
 - **Cryptography:** Python Cryptography library (RSA-2048, SHA-256)
 - **Standards:** W3C Verifiable Credentials Data Model alignment
 
-
-### DevOps \& Deployment
+### DevOps & Deployment
 
 - **Containerization:** Docker with multi-stage builds
-- **CI/CD:** GitHub Actions workflow
+- **CI/CD:** GitHub Actions automated workflows
+- **Registry:** Docker Hub for image distribution
+- **Hosting:** Render cloud platform
 - **Testing:** pytest with 60% coverage
 - **Code Quality:** Black, Flake8, isort
 - **Monitoring:** Health checks and logging
+
+***
+
+## 🔄 CI/CD Pipeline
+
+Our project uses **GitHub Actions** for continuous integration and deployment:
+
+### Automated Workflows
+
+```
+git push → GitHub Actions → Tests → Build Docker → Push to Docker Hub → Deploy
+```
+
+#### 1. **CI/CD Pipeline** (`ci.yml`)
+- ✅ Runs automated tests on every push
+- ✅ Validates code quality with linting
+- ✅ Ensures application starts correctly
+- ✅ Generates coverage reports
+
+#### 2. **Docker Build & Push** (`docker-publish.yml`)
+- ✅ Builds Docker image automatically
+- ✅ Pushes to Docker Hub with version tags
+- ✅ Creates `latest`, `v2.0`, and commit-specific tags
+- ✅ Optimizes with build caching
+
+### View Pipeline Status
+
+- **GitHub Actions:** [View Workflows](https://github.com/udaycodespace/credify/actions)
+- **Docker Hub:** [View Images](https://hub.docker.com/r/udaycodespace/credify)
 
 ***
 
@@ -192,7 +280,6 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
                         └────────────────────────┘
 ```
 
-
 ### Data Flow Architecture
 
 1. **Issuance Phase:** University creates credential → Signs with private key → Stores on IPFS → Records hash on blockchain
@@ -205,121 +292,72 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 ## 📁 Project Structure
 
 ```
-blockchain-credential-system/
+credify/
 │
 ├── 📱 app/                          # Flask application core
-│   ├── __init__.py
 │   ├── app.py                       # Main Flask app & routes
 │   ├── auth.py                      # Authentication & authorization
-│   ├── config.py                    # Configuration management
 │   ├── models.py                    # SQLAlchemy database models
-│   └── user_flags.py                # Feature flags & permissions
+│   └── config.py                    # Configuration management
 │
 ├── ⚙️ core/                         # Business logic & services
-│   ├── __init__.py
 │   ├── blockchain.py                # Blockchain implementation
-│   ├── credential_manager.py        # Credential lifecycle management
+│   ├── credential_manager.py        # Credential lifecycle
 │   ├── crypto_utils.py              # Cryptographic operations
-│   ├── ipfs_client.py               # IPFS integration layer
-│   ├── ticket_manager.py            # Support system
+│   ├── ipfs_client.py               # IPFS integration
 │   └── zkp_manager.py               # Zero-knowledge proofs
 │
 ├── 🗄️ data/                         # Runtime data storage
 │   ├── blockchain_data.json         # Blockchain state
 │   ├── credentials_registry.json    # Credential metadata
-│   ├── ipfs_storage.json            # Local IPFS fallback
-│   ├── tickets.json                 # Support tickets
-│   └── messages.json                # System messages
+│   └── ipfs_storage.json            # Local IPFS fallback
 │
 ├── 🎨 static/                       # Frontend assets
-│   ├── css/
-│   │   └── style.css                # Main stylesheet
-│   └── js/
-│       └── app.js                   # Client-side logic
+│   ├── css/style.css                # Stylesheets
+│   └── js/app.js                    # Client-side logic
 │
 ├── 📄 templates/                    # Jinja2 HTML templates
-│   ├── base.html                    # Base layout
 │   ├── index.html                   # Landing page
-│   ├── login.html                   # Authentication
 │   ├── issuer.html                  # Issuer dashboard
 │   ├── holder.html                  # Student dashboard
-│   ├── verifier.html                # Verifier dashboard
-│   └── tutorial.html                # User guide
+│   └── verifier.html                # Verifier dashboard
 │
 ├── 🧪 tests/                        # Automated test suite
-│   ├── __init__.py
-│   ├── conftest.py                  # Test fixtures
-│   ├── test_auth.py                 # Authentication tests
 │   ├── test_blockchain.py           # Blockchain tests
-│   ├── test_credential_manager.py   # Credential tests
 │   ├── test_crypto_utils.py         # Cryptography tests
-│   ├── test_ipfs_client.py          # IPFS tests
-│   ├── test_ticket_manager.py       # Support tests
-│   ├── test_zkp_manager.py          # ZKP tests
-│   ├── test_api_endpoints.py        # API tests
 │   └── test_integration.py          # Integration tests
-│
-├── 📜 scripts/                      # Utility scripts
-│   ├── create_admin.py              # Admin user creation
-│   ├── create_student.py            # Student account setup
-│   ├── deploy.sh                    # Deployment script
-│   └── health_check.sh              # Health monitoring
-│
-├── 📚 docs/                         # Documentation
-│   ├── API.md                       # API documentation
-│   ├── ARCHITECTURE.md              # System design
-│   ├── DEPLOYMENT.md                # Deployment guide
-│   └── USER_GUIDE.md                # End-user documentation
 │
 ├── 🐳 DevOps Files
 │   ├── Dockerfile                   # Container definition
-│   ├── .dockerignore                # Docker build exclusions
-│   ├── docker-compose.yml           # Local development setup
-│   ├── render.yaml                  # Render deployment config
-│   └── .github/
-│       └── workflows/
-│           └── ci.yml               # CI/CD pipeline
+│   ├── docker-compose.yml           # Local development
+│   ├── render.yaml                  # Render deployment
+│   └── .github/workflows/           # CI/CD pipelines
+│       ├── ci.yml                   # Test automation
+│       └── docker-publish.yml       # Docker Hub push
 │
-├── ⚙️ Configuration Files
-│   ├── .env                         # Environment variables (not in git)
-│   ├── .env.example                 # Environment template
-│   ├── .gitignore                   # Git exclusions
-│   ├── .pre-commit-config.yaml      # Git hooks
-│   ├── requirements.txt             # Production dependencies
-│   ├── requirements-dev.txt         # Development dependencies
-│   ├── pytest.ini                   # Test configuration
-│   ├── Makefile                     # Build automation
-│   └── pyproject.toml               # Python project metadata
-│
-├── 📖 Documentation Files
-│   ├── README.md                    # This file
-│   ├── LICENSE                      # License information
-│   └── CONTRIBUTING.md              # Contribution guidelines
-│
-└── 🚀 Entry Points
-    └── main.py                      # Application entry point
+└── 📖 Documentation
+    ├── README.md                    # This file
+    ├── README.Docker.md             # Docker Hub description
+    └── docs/                        # Additional documentation
 ```
-
 
 ***
 
-## ⚙️ Installation \& Setup
+## ⚙️ Installation & Setup
 
 ### Prerequisites
 
 - **Python:** 3.10 or higher
-- **pip:** Latest version
+- **Docker:** (Recommended) Latest version
 - **Git:** For version control
-- **Docker:** (Optional) For containerized deployment
-
 
 ### Environment Setup
 
 1. **Clone the Repository**
 
 ```bash
-git clone <repository-url>
-cd blockchain-credential-system
+git clone https://github.com/udaycodespace/credify.git
+cd credify
 ```
 
 2. **Create Virtual Environment**
@@ -337,21 +375,25 @@ source venv/bin/activate
 3. **Install Dependencies**
 
 ```bash
-# Production dependencies
 pip install -r requirements.txt
-
-# Development dependencies (optional)
-pip install -r requirements-dev.txt
 ```
 
-4. **Configure Environment Variables**
+4. **⚠️ Configure Environment Variables (CRITICAL FOR SECURITY)**
 
 ```bash
 # Copy example environment file
 cp .env.example .env
 
-# Edit .env with your configuration
-# Note: Never commit .env to version control
+# Edit .env with STRONG, UNIQUE passwords
+# NEVER use default passwords in production!
+```
+
+**Required Environment Variables:**
+```env
+SECRET_KEY=generate_your_own_secret_key_here
+ADMIN_PASSWORD=strong_unique_password
+STUDENT_PASSWORD=another_strong_password
+DATABASE_URL=your_database_url
 ```
 
 5. **Initialize Database**
@@ -360,39 +402,22 @@ cp .env.example .env
 python -c "from app.models import init_database; from app.app import app; init_database(app)"
 ```
 
-6. **Create Admin User**
+### Using Docker (Recommended)
 
 ```bash
-python scripts/create_admin.py
-# Follow the prompts to set up administrator account
+# Build image
+docker build -t credify:v2.0 .
+
+# Run container with environment variables
+docker run -d -p 5000:5000 \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -e SECRET_KEY=your_secret_key \
+  --name credify \
+  credify:v2.0
+
+# Or use docker-compose
+docker-compose up -d
 ```
-
-
-### Using Makefile (Recommended)
-
-```bash
-# Install all dependencies
-make install
-
-# Run the application
-make run
-
-# Run tests
-make test
-
-# Run tests with coverage
-make test-cov
-
-# Format code
-make format
-
-# Build Docker image
-make docker-build
-
-# Run in Docker
-make docker-run
-```
-
 
 ***
 
@@ -401,16 +426,7 @@ make docker-run
 ### Development Mode
 
 ```bash
-# Method 1: Direct Python
 python main.py
-
-# Method 2: Using Makefile
-make dev
-
-# Method 3: Flask CLI
-export FLASK_APP=app.app
-export FLASK_ENV=development
-flask run
 ```
 
 The application will start at `http://localhost:5000`
@@ -418,30 +434,17 @@ The application will start at `http://localhost:5000`
 ### Production Mode
 
 ```bash
-# Using Makefile
-make prod
-
-# Or with environment variables
 export FLASK_ENV=production
 python main.py
 ```
 
-
 ### Docker Deployment
 
 ```bash
-# Build image
-docker build -t blockchain-credentials:v2.0 .
-
-# Run container
-docker run -d -p 5000:5000 \
-  --name credentials-app \
-  blockchain-credentials:v2.0
-
-# Using docker-compose
-docker-compose up -d
+# Using pre-built image from Docker Hub
+docker pull udaycodespace/credify:latest
+docker run -d -p 5000:5000 udaycodespace/credify:latest
 ```
-
 
 ***
 
@@ -458,11 +461,7 @@ pytest --cov=app --cov=core --cov-report=html
 
 # Run specific test file
 pytest tests/test_blockchain.py -v
-
-# Run tests with specific markers
-pytest -m "not slow" -v
 ```
-
 
 ### Test Coverage Status
 
@@ -473,6 +472,17 @@ pytest -m "not slow" -v
 ***
 
 ## 📖 Usage Guide
+
+### Default Demo Credentials (Local Development Only)
+
+> ⚠️ **These are demonstration credentials for local testing only!**
+> **All passwords are hashed. Change them via environment variables for any real deployment.**
+
+| Role | Username | Password (Demo) | Purpose |
+|------|----------|-----------------|---------|
+| Admin/Issuer | admin | (Set via `ADMIN_PASSWORD` env var) | Issue credentials |
+| Student | 21131A05E9 | (Set via `STUDENT_PASSWORD` env var) | View credentials |
+| Verifier | verifier1 | (Set via `VERIFIER_PASSWORD` env var) | Verify credentials |
 
 ### For Universities (Issuers)
 
@@ -509,14 +519,10 @@ pytest -m "not slow" -v
     - System validates blockchain hash
     - Check cryptographic signature
     - View revocation status
-4. **Results:**
-    - Instant verification result
-    - Credential details (if authorized)
-    - Issuer information
 
 ***
 
-## 📊 System Metrics \& Performance
+## 📊 System Metrics & Performance
 
 ### Current Statistics (v2.0)
 
@@ -526,7 +532,6 @@ pytest -m "not slow" -v
 - **Storage Efficiency:** 95% (IPFS CID deduplication)
 - **Uptime:** 99.9% target
 - **Test Success Rate:** 98.3% (57/58 tests)
-
 
 ### Performance Benchmarks
 
@@ -538,57 +543,13 @@ pytest -m "not slow" -v
 
 ***
 
-## 🔮 Roadmap \& Future Enhancements
-
-### Phase 1: Enhanced Privacy (Q1 2025)
-
-- [ ] Advanced Zero-Knowledge Proof integration
-- [ ] Range proofs for GPA verification
-- [ ] Membership proofs for degree programs
-- [ ] Attribute-based encryption
-
-
-### Phase 2: Scalability (Q2 2025)
-
-- [ ] Multi-chain support (Ethereum, Polygon)
-- [ ] Layer-2 scaling solutions
-- [ ] Batch verification optimization
-- [ ] Distributed node network
-
-
-### Phase 3: Interoperability (Q3 2025)
-
-- [ ] W3C DID (Decentralized Identifiers) integration
-- [ ] European Digital Identity Wallet compatibility
-- [ ] OpenBadges v3.0 support
-- [ ] Cross-border credential recognition
-
-
-### Phase 4: User Experience (Q4 2025)
-
-- [ ] Mobile application (iOS \& Android)
-- [ ] Digital wallet integration
-- [ ] QR code verification
-- [ ] Multi-language support
-
-
-### Phase 5: Enterprise Features (2026)
-
-- [ ] Multi-tenant architecture
-- [ ] Custom branding for institutions
-- [ ] Advanced analytics dashboard
-- [ ] API marketplace
-- [ ] SaaS deployment model
-
-***
-
 ## 🛡️ Security Considerations
 
 ### Implemented Security Measures
 
 - ✅ RSA-2048 digital signatures
 - ✅ SHA-256 cryptographic hashing
-- ✅ Secure password storage (Werkzeug)
+- ✅ Secure password storage (Werkzeug with bcrypt)
 - ✅ CSRF protection
 - ✅ Session management
 - ✅ Role-based access control
@@ -597,20 +558,20 @@ pytest -m "not slow" -v
 - ✅ XSS protection
 - ✅ Secure HTTP headers
 
-
 ### Security Best Practices
 
-⚠️ **Never commit sensitive data:**
+⚠️ **CRITICAL: Never commit sensitive data:**
 
-- Environment variables (`.env`)
-- Private keys
-- Database credentials
-- API tokens
-- User passwords
+- ❌ Environment variables (`.env`) - NEVER commit to Git
+- ❌ Private keys
+- ❌ Database credentials
+- ❌ API tokens
+- ❌ Real user passwords
 
-🔒 **Production Checklist:**
+🔒 **Production Deployment Checklist:**
 
-- [ ] Change default SECRET_KEY
+- [ ] Generate unique `SECRET_KEY` using `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+- [ ] Set strong passwords via environment variables
 - [ ] Enable HTTPS/TLS
 - [ ] Configure firewall rules
 - [ ] Set up monitoring and alerts
@@ -618,6 +579,39 @@ pytest -m "not slow" -v
 - [ ] Keep dependencies updated
 - [ ] Implement rate limiting
 - [ ] Enable audit logging
+- [ ] Use PostgreSQL in production (not SQLite)
+
+***
+
+## 🔮 Roadmap & Future Enhancements
+
+### Phase 1: Enhanced Privacy (Q1 2026)
+
+- [ ] Advanced Zero-Knowledge Proof integration
+- [ ] Range proofs for GPA verification
+- [ ] Membership proofs for degree programs
+- [ ] Attribute-based encryption
+
+### Phase 2: Scalability (Q2 2026)
+
+- [ ] Multi-chain support (Ethereum, Polygon)
+- [ ] Layer-2 scaling solutions
+- [ ] Batch verification optimization
+- [ ] Distributed node network
+
+### Phase 3: Interoperability (Q3 2026)
+
+- [ ] W3C DID (Decentralized Identifiers) integration
+- [ ] European Digital Identity Wallet compatibility
+- [ ] OpenBadges v3.0 support
+- [ ] Cross-border credential recognition
+
+### Phase 4: User Experience (Q4 2026)
+
+- [ ] Mobile application (iOS & Android)
+- [ ] Digital wallet integration
+- [ ] QR code verification
+- [ ] Multi-language support
 
 ***
 
@@ -625,10 +619,8 @@ pytest -m "not slow" -v
 
 ### Core Development Team
 
-#### Backend \& Blockchain Architecture
-
-**[@udaycodespace](https://github.com/udaycodespace)**
-
+#### Backend & Blockchain Architecture
+**[@udaycodespace](https://github.com/udaycodespace)** - Uday Somapuram
 - Design and implementation of blockchain consensus mechanism
 - Cryptographic protocol development and security architecture
 - Smart contract logic and credential lifecycle management
@@ -637,11 +629,8 @@ pytest -m "not slow" -v
 - DevOps pipeline setup and production deployment
 - System optimization and performance tuning
 
-
-#### Frontend \& User Experience
-
-**[@shashikiran47](https://github.com/shashikiran47)**
-
+#### Frontend & User Experience
+**[@shashikiran47](https://github.com/shashikiran47)** - Shashi Kiran
 - UI/UX design and implementation across all user roles
 - Responsive web design with mobile-first approach
 - JavaScript integration and dynamic frontend interactions
@@ -650,11 +639,8 @@ pytest -m "not slow" -v
 - Interactive dashboard development
 - Real-time data visualization components
 
-
-#### Quality Assurance \& Documentation
-
-**[@tejavarshith](https://github.com/tejavarshith)**
-
+#### Quality Assurance & Documentation
+**[@tejavarshith](https://github.com/tejavarshith)** - Teja Varshith
 - System analysis and requirements documentation
 - Comprehensive test case design and validation
 - User acceptance testing and feedback integration
@@ -663,31 +649,25 @@ pytest -m "not slow" -v
 - User guides, tutorials, and help documentation
 - Quality metrics tracking and reporting
 
-***
-
 ### Contribution Summary
 
 | Developer | Primary Focus | Key Contributions |
-| :-- | :-- | :-- |
-| **[@udaycodespace](https://github.com/udaycodespace)** | Backend \& Infrastructure | Blockchain, Cryptography, Deployment |
-| **[@shashikiran47](https://github.com/shashikiran47)** | Frontend \& Design | UI/UX, IPFS Integration |
-| **[@tejavarshith](https://github.com/tejavarshith)** | Testing \& Documentation | Test Suite, QA, Documentation |
-
-
-***
+|:----------|:-------------|:------------------|
+| **[@udaycodespace](https://github.com/udaycodespace)** | Backend & Infrastructure | Blockchain, Cryptography, CI/CD, Deployment |
+| **[@shashikiran47](https://github.com/shashikiran47)** | Frontend & Design | UI/UX, IPFS Integration, User Experience |
+| **[@tejavarshith](https://github.com/tejavarshith)** | Testing & Documentation | Test Suite, QA, Technical Documentation |
 
 ### Collaborative Achievements
 
 🎯 **Team Milestones:**
 
-- ✅ 100% test coverage on critical paths
+- ✅ 100% test coverage on critical security paths
 - ✅ Production-ready deployment achieved
 - ✅ Comprehensive documentation suite completed
 - ✅ Zero critical security vulnerabilities
 - ✅ Docker containerization implemented
-- ✅ CI/CD pipeline established
-
-***
+- ✅ CI/CD pipeline with automated testing and deployment
+- ✅ Docker Hub integration for image distribution
 
 **All team members contributed equally to the successful completion of this project.**
 
@@ -700,10 +680,9 @@ We express our sincere gratitude to:
 ### Academic Guidance
 
 - **Dr. B. Thimma Reddy - Project Guide** — For invaluable technical insights and continuous mentorship throughout the project lifecycle
-- **Dr. G. Rajeswarappa - Faculty In-Charge,CST-A** — For guidance on system design 
-- **Shri. K. Bala Chowdappa - Mentor** — For guidance on  implementation strategies
+- **Dr. G. Rajeswarappa - Faculty In-Charge, CST-A** — For guidance on system design 
+- **Shri. K. Bala Chowdappa - Mentor** — For guidance on implementation strategies
 - **Department Head** — For providing resources and institutional support
-
 
 ### Institutional Support
 
@@ -712,29 +691,23 @@ We express our sincere gratitude to:
     - For encouraging innovation and academic excellence
     - For supporting final year project initiatives
 
-
 ### Technical Community
 
 - **W3C Verifiable Credentials Working Group** — For standardization efforts
 - **IPFS Community** — For distributed storage solutions
 - **Python Software Foundation** — For excellent development tools
 - **Flask Framework Team** — For the robust web framework
+- **Docker Community** — For containerization best practices
 - **Open-source Contributors** — For various libraries and tools used in this project
-
-
-### Special Thanks
-
-- Academic peers for valuable feedback and testing
-- Early adopters for feature suggestions
-- All contributors to this project
 
 ***
 
-## 📄 License \& Academic Use
+## 📄 License & Academic Use
 
-**Project Classification:** B.Tech Final Year Project
-**Version:** 2.0 (Production-Ready Release)
-**Status:** Complete \& Deployed
+**Project Classification:** B.Tech Final Year Project  
+**Version:** 2.0 (Production-Ready Release)  
+**Status:** Complete & Deployed  
+**Year:** 2024-2025
 
 ### Academic License
 
@@ -745,15 +718,13 @@ This project is developed as part of academic curriculum requirements and is int
 - Academic demonstration
 - Portfolio showcase
 
-
 ### Usage Rights
 
 - ✅ Academic use and research
 - ✅ Learning and educational purposes
 - ✅ Portfolio demonstration
 - ✅ Code reference with attribution
-- ⚠️ Commercial use requires explicit permission
-
+- ⚠️ Commercial use requires explicit permission from the development team
 
 ### Citation
 
@@ -762,35 +733,43 @@ If you use this project for academic or research purposes, please cite:
 ```
 Blockchain-Based Verifiable Credential System for Academic Transcripts
 Version 2.0, 2024-2025
-G. Pulla Reddy Engineering College (Autonomous)
+Developed by: Uday Somapuram, Shashi Kiran, Teja Varshith
+Institution: G. Pulla Reddy Engineering College (Autonomous), Kurnool
+GitHub: https://github.com/udaycodespace/credify
 ```
-
 
 ***
 
-## 📞 Support \& Contact
+## 📞 Support & Contact
+
+### Project Maintainers
+
+For questions, issues, or collaboration opportunities:
+
+- **Uday Somapuram** - [@udaycodespace](https://github.com/udaycodespace)
+- **Shashi Kiran** - [@shashikiran47](https://github.com/shashikiran47)
+- **Teja Varshith** - [@tejavarshith](https://github.com/tejavarshith)
 
 ### Getting Help
 
-- **Issues:** Open an issue on the project repository
-- **Discussions:** Use GitHub Discussions for questions
-- **Security:** Report security issues privately via designated channels
-
+- **Issues:** [Open an issue](https://github.com/udaycodespace/credify/issues) on GitHub
+- **Discussions:** Use [GitHub Discussions](https://github.com/udaycodespace/credify/discussions) for questions
+- **Security:** Report security issues privately by contacting the maintainers
 
 ### Project Links
 
-- **Documentation:** See `/docs` folder
-- **API Reference:** `/docs/API.md`
-- **User Guide:** `/docs/USER_GUIDE.md`
-- **Architecture:** `/docs/ARCHITECTURE.md`
+- **GitHub Repository:** [udaycodespace/credify](https://github.com/udaycodespace/credify)
+- **Docker Hub:** [udaycodespace/credify](https://hub.docker.com/r/udaycodespace/credify)
+- **Live Demo:** [Render Deployment](https://credify.onrender.com) *(if applicable)*
+- **Documentation:** See `/docs` folder in repository
 
 ***
 
 ## 🎉 Project Status
 
-**Current Version:** 2.0
-**Status:** ✅ Production Ready
-**Last Updated:** December 2024
+**Current Version:** 2.0  
+**Status:** ✅ Production Ready  
+**Last Updated:** December 2024  
 **Maintenance:** Active Development
 
 ### Changelog (v2.0)
@@ -798,28 +777,28 @@ G. Pulla Reddy Engineering College (Autonomous)
 #### New Features
 
 - ✨ Complete test suite with 58 tests
-- ✨ Docker containerization
+- ✨ Docker containerization with multi-stage builds
 - ✨ CI/CD pipeline with GitHub Actions
-- ✨ Enhanced security measures
+- ✨ Automated Docker Hub publishing
+- ✨ Enhanced security measures with environment variable configuration
 - ✨ Comprehensive documentation
-- ✨ Production-ready deployment configurations
-
+- ✨ Production-ready deployment configurations for Render
 
 #### Improvements
 
 - ⚡ Optimized blockchain performance
-- ⚡ Enhanced IPFS integration
-- ⚡ Improved error handling
-- ⚡ Better code organization
-- ⚡ Enhanced UI/UX
-
+- ⚡ Enhanced IPFS integration with fallback mechanisms
+- ⚡ Improved error handling and logging
+- ⚡ Better code organization and modularity
+- ⚡ Enhanced UI/UX with responsive design
+- ⚡ Automated deployment pipeline
 
 #### Bug Fixes
 
 - 🐛 Fixed authentication edge cases
-- 🐛 Resolved IPFS connection issues
+- 🐛 Resolved IPFS connection timeout issues
 - 🐛 Fixed credential versioning logic
-- 🐛 Corrected timestamp handling
+- 🐛 Corrected timestamp handling in blockchain
 
 ***
 
@@ -827,19 +806,44 @@ G. Pulla Reddy Engineering College (Autonomous)
 
 Academic fraud costs institutions and employers billions annually. Traditional verification systems are:
 
-- ❌ Slow (days to weeks)
-- ❌ Expensive (administrative overhead)
+- ❌ Slow (days to weeks for verification)
+- ❌ Expensive (administrative overhead and third-party fees)
 - ❌ Centralized (single points of failure)
-- ❌ Privacy-invasive (full data exposure)
+- ❌ Privacy-invasive (unnecessary full data exposure)
 
 Our solution provides:
 
 - ✅ Instant verification (< 2 seconds)
-- ✅ Cost-effective (automated process)
-- ✅ Decentralized (no single authority)
-- ✅ Privacy-preserving (selective disclosure)
+- ✅ Cost-effective (automated cryptographic process)
+- ✅ Decentralized (distributed blockchain and IPFS storage)
+- ✅ Privacy-preserving (selective disclosure with zero-knowledge proofs)
 
-**Impact:** Transforming academic credential verification for the digital age.
+**Impact:** Transforming academic credential verification for the digital age, empowering students with data ownership while providing institutions and employers with trustworthy, instant verification.
+
+***
+
+## 🚀 Deployment
+
+### Docker Hub
+
+```bash
+# Pull latest image
+docker pull udaycodespace/credify:latest
+
+# Run with environment variables
+docker run -d -p 5000:5000 \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -e SECRET_KEY=your_secret_key \
+  udaycodespace/credify:latest
+```
+
+### Render
+
+Automatically deployed from `main` branch via GitHub integration.
+
+### Manual Deployment
+
+See `docs/DEPLOYMENT.md` for detailed deployment instructions for various platforms.
 
 ***
 
@@ -851,8 +855,14 @@ Our solution provides:
 
 **2024-2025 | Version 2.0**
 
-***
+---
+
+[![GitHub Stars](https://img.shields.io/github/stars/udaycodespace/credify?style=social)](https://github.com/udaycodespace/credify)
+[![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify)](https://hub.docker.com/r/udaycodespace/credify)
+[![License](https://img.shields.io/badge/License-Academic-blue.svg)](LICENSE)
 
 *Securing Academic Credentials for the Future*
+
+**[GitHub](https://github.com/udaycodespace/credify)** • **[Docker Hub](https://hub.docker.com/r/udaycodespace/credify)** • **[Documentation](https://github.com/udaycodespace/credify/tree/main/docs)**
 
 </div>

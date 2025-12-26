@@ -1,22 +1,64 @@
-# Core web framework
-Flask==3.1.1
+# Core Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Security & Cryptography
+cryptography==41.0.7
+PyJWT==2.8.0
+
+# IPFS Integration
+ipfshttpclient==0.8.0a2
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Production Server (for Render deployment)
+gunicorn==21.2.0
+gevent==23.9.1
+
+# Testing (Development)
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-flask==1.3.0
+
+# Code Quality (Development)
+black==23.11.0
+flake8==6.1.0
+isort==5.12.0
+
+# Optional: Database (if upgrading from JSON to PostgreSQL)
+# psycopg2-binary==2.9.9
+# SQLAlchemy==2.0.23
+# Core Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Database
 Flask-SQLAlchemy==3.1.1
-Werkzeug==3.1.1
+SQLAlchemy==2.0.23
 
-# Database (SQLite default, PostgreSQL support)
-psycopg2-binary==2.9.10
+# Security & Cryptography
+cryptography==41.0.7
+PyJWT==2.8.0
 
-# Cryptography (REQUIRED for RSA signatures)
-cryptography==45.0.5
+# IPFS Integration
+ipfshttpclient==0.8.0a2
 
-# Production WSGI server
-gunicorn==23.0.0
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
 
-# HTTP requests (IPFS)
-requests==2.32.4
+# Production Server (for deployment)
+gunicorn==21.2.0
+gevent==23.9.1
 
-# Email validation
-email-validator==2.2.0
+# Testing (Development)
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-flask==1.3.0
 
-# Dev only - NOT in production
-# python-dotenv==1.0.1
+# Code Quality (Development)
+black==23.11.0
+flake8==6.1.0
+isort==5.12.0

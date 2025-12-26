@@ -1,110 +1,86 @@
+"""
+Test cases for Credential Management
+"""
+
 import pytest
-import json
-from datetime import datetime
-from unittest.mock import Mock, patch
 from core.credential_manager import CredentialManager
-from core.blockchain import SimpleBlockchain
-from core.crypto_utils import CryptoManager
-from core.ipfs_client import IPFSClient
 
-@pytest.fixture
-def mock_components():
-    blockchain = Mock(spec=SimpleBlockchain)
-    crypto = Mock(spec=CryptoManager)
-    ipfs = Mock(spec=IPFSClient)
-    return blockchain, crypto, ipfs
 
-@pytest.fixture
-def credential_manager(mock_components):
-    blockchain, crypto, ipfs = mock_components
-    return CredentialManager(blockchain, crypto, ipfs)
-
-def test_issue_credential_success(credential_manager, mock_components):
-    """Test successful credential issuance with all fields"""
-    blockchain, crypto, ipfs = mock_components
+class TestCredentialManager:
     
-    # Mock responses
-    crypto.sign_data.return_value = "mock_signature"
-    crypto.hash_data.return_value = "mock_hash"
-    ipfs.add_json.return_value = "Qm_mock_ipfs_cid"
+    def test_credential_creation(self, credential_manager, sample_credential_data):
+        """Test creating a new credential"""
+        result = credential_manager.issue_credential(sample_credential_data)
+        
+        assert result['success'] == True
+        assert 'credential_id' in result
+        assert result['credential_id'].startswith('CRED-')
     
-    block_mock = Mock()
-    block_mock.hash = "mock_block_hash"
-    blockchain.add_block.return_value = block_mock
+    def test_credential_storage(self, credential_manager, sample_credential_data):
+        """Test credential is stored in registry"""
+        result = credential_manager.issue_credential(sample_credential_data)
+        credential_id = result['credential_id']
+        
+        # Retrieve credential
+        credential = credential_manager.get_credential(credential_id)
+        
+        assert credential is not None
+        assert credential['student_id'] == sample_credential_data['student_id']
     
-    # Test data with extended fields
-    transcript_data = {
-        'student_name': 'John Doe',
-        'student_id': '12345',
-        'degree': 'B.Tech CS',
-        'university': 'GPREC',
-        'gpa': 8.5,
-        'graduation_year': 2026,
-        'semester': 5,
-        'year': 3,
-        'class_name': 'B.Tech',
-        'section': 'A',
-        'backlog_count': 1,
-        'backlogs': ['DBMS'],
-        'conduct': 'good',
-        'issue_date': datetime.now().isoformat()
-    }
+    def test_credential_hash_generation(self, credential_manager, sample_credential_data):
+        """Test credential hash is generated"""
+        result = credential_manager.issue_credential(sample_credential_data)
+        credential_id = result['credential_id']
+        
+        credential = credential_manager.get_credential(credential_id)
+        
+        assert 'credential_hash' in credential
+        assert len(credential['credential_hash']) == 64  # SHA-256
     
-    result = credential_manager.issue_credential(transcript_data)
+    def test_selective_disclosure(self, credential_manager, sample_credential_data):
+        """Test selective disclosure functionality"""
+        # Issue credential
+        result = credential_manager.issue_credential(sample_credential_data)
+        credential_id = result['credential_id']
+        
+        # Create selective disclosure
+        fields = ['student_name', 'degree', 'gpa']
+        disclosure = credential_manager.create_selective_disclosure(
+            credential_id, 
+            fields
+        )
+        
+        assert disclosure is not None
+        assert 'disclosedFields' in disclosure
+        assert len(disclosure['disclosedFields']) == len(fields)
     
-    assert result['success'] is True
-    assert 'credential_id' in result
-    assert result['ipfs_cid'] == 'Qm_mock_ipfs_cid'
-    assert result['block_hash'] == 'mock_block_hash'
-
-def test_extended_fields_stored_correctly(credential_manager, mock_components):
-    """Verify extended fields are stored in registry"""
-    # Setup mocks (same as above)
-    blockchain, crypto, ipfs = mock_components
-    crypto.sign_data.return_value = "signature"
-    crypto.hash_data.return_value = "hash"
-    ipfs.add_json.return_value = "cid"
-    block_mock = Mock(hash="block_hash")
-    blockchain.add_block.return_value = block_mock
+    def test_credential_revocation(self, credential_manager, sample_credential_data):
+        """Test credential revocation"""
+        # Issue credential
+        result = credential_manager.issue_credential(sample_credential_data)
+        credential_id = result['credential_id']
+        
+        # Revoke credential
+        revoke_result = credential_manager.revoke_credential(
+            credential_id,
+            reason='Testing revocation'
+        )
+        
+        assert revoke_result['success'] == True
+        
+        # Check status
+        credential = credential_manager.get_credential(credential_id)
+        assert credential['status'] == 'revoked'
     
-    transcript_data = {
-        'student_name': 'Test Student',
-        'student_id': 'TEST001',
-        'degree': 'B.Tech',
-        'university': 'Test Uni',
-        'gpa': 8.0,
-        'graduation_year': 2025,
-        'semester': 6,
-        'backlog_count': 2
-    }
-    
-    result = credential_manager.issue_credential(transcript_data)
-    credential_id = result['credential_id']
-    
-    # Verify registry contains extended fields
-    registry_entry = credential_manager.credentials_registry[credential_id]
-    assert registry_entry['semester'] == 6
-    assert registry_entry['backlog_count'] == 2
-
-def test_validation_handles_null_fields(credential_manager, mock_components):
-    """Test optional fields work correctly"""
-    # Remove optional fields
-    transcript_data = {
-        'student_name': 'Jane Doe',
-        'student_id': '67890',
-        'degree': 'B.Tech',
-        'university': 'GPREC',
-        'gpa': 7.8,
-        'graduation_year': 2026,
-        'issue_date': datetime.now().isoformat()
-    }
-    
-    # Mocks setup
-    blockchain, crypto, ipfs = mock_components
-    crypto.sign_data.return_value = "sig"
-    ipfs.add_json.return_value = "cid"
-    block_mock = Mock(hash="hash")
-    blockchain.add_block.return_value = block_mock
-    
-    result = credential_manager.issue_credential(transcript_data)
-    assert result['success'] is True
+    def test_get_student_credentials(self, credential_manager, sample_credential_data):
+        """Test retrieving all credentials for a student"""
+        student_id = sample_credential_data['student_id']
+        
+        # Issue multiple credentials
+        credential_manager.issue_credential(sample_credential_data)
+        credential_manager.issue_credential(sample_credential_data)
+        
+        # Get all credentials
+        credentials = credential_manager.get_student_credentials(student_id)
+        
+        assert len(credentials) >= 2

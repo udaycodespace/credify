@@ -566,8 +566,8 @@ FLASK_ENV=development
 DEBUG=True
 
 # Security Keys (CHANGE THESE!)
-SECRET_KEY=your-super-secret-key-here
-SESSION_SECRET=your-session-secret-here
+SECRET_KEY=xyz
+SESSION_SECRET=xyz
 
 # Database
 DATABASE_URL=sqlite:///credentials.db

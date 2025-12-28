@@ -1,25 +1,20 @@
-@'
 services:
   - type: web
     name: credify
-    env: docker
-    dockerfilePath: ./Dockerfile
-    region: singapore  # or: oregon, frankfurt, ohio
+    runtime: image
+    image:
+      url: docker.io/udaycodespace/credify:latest
+    region: oregon
     plan: free
-    
+    healthCheckPath: /
     envVars:
-      - key: FLASK_ENV
-        value: production
+      - key: DATABASE_URL
+        value: sqlite:////tmp/credify.db
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_URL
-        value: sqlite:///data/credify.db
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: STUDENT_PASSWORD
+        sync: false
       - key: PORT
         value: 5000
-    
-    healthCheckPath: /
-    
-    # Auto-deploy on push to main
-    autoDeploy: true
-    branch: main
-'@ | Out-File -FilePath render.yaml -Encoding UTF8

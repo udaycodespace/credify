@@ -1,29 +1,441 @@
 {% extends "base.html" %}
 
-{% block title %}Login - Blockchain Credentials{% endblock %}
+{% block title %}Secure Access - Credify 2026{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<style>
+:root {
+    --slate-900: #0f172a;
+    --slate-800: #1e293b;
+    --slate-700: #334155;
+    --cyan-400: #22d3ee;
+    --cyan-500: #06b6d4;
+    --amber-400: #fbbf24;
+    --red-500: #ef4444;
+    --green-500: #10b981;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Orbitron:wght@700&display=swap');
+
+body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--slate-900);
+    color: #e2e8f0;
+    overflow: hidden;
+}
+
+/* Matrix Rain Background */
+.matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.matrix-column {
+    position: absolute;
+    top: -100%;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: var(--cyan-500);
+    opacity: 0.3;
+    animation: matrixFall linear infinite;
+}
+
+@keyframes matrixFall {
+    0% {
+        top: -100%;
+        opacity: 0.3;
+    }
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
+}
+
+/* Login Container */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Main Login Card */
+.login-card {
+    background: var(--slate-800);
+    border: 3px solid var(--slate-700);
+    border-radius: 0;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes slideInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Animated Border Glow */
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--cyan-500), transparent);
+    animation: borderGlow 3s linear infinite;
+}
+
+@keyframes borderGlow {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Lock Icon Animation */
+.lock-icon {
+    font-size: 4rem;
+    color: var(--cyan-500);
+    animation: lockPulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px var(--cyan-500));
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.lock-icon:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+@keyframes lockPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+/* Easter Egg #1: Click lock 5 times to unlock secret */
+.lock-icon.unlocked {
+    color: var(--green-500);
+    animation: unlock 0.5s ease-out;
+}
+
+@keyframes unlock {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-20deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Card Header */
+.card-header {
+    background: linear-gradient(135deg, var(--slate-700), var(--slate-800));
+    border-bottom: 3px solid var(--cyan-500);
+    padding: 2rem;
+}
+
+.card-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    color: var(--cyan-400);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.card-subtitle {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.card-subtitle::before {
+    content: '> ';
+    color: var(--cyan-500);
+}
+
+/* Form Inputs */
+.form-label {
+    color: var(--cyan-400);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+}
+
+.form-control {
+    background: var(--slate-900);
+    border: 2px solid var(--slate-700);
+    border-radius: 0;
+    color: #e2e8f0;
+    padding: 12px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: var(--slate-900);
+    border-color: var(--cyan-500);
+    color: #e2e8f0;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+}
+
+.form-control::placeholder {
+    color: #64748b;
+}
+
+/* Easter Egg #2: Type "credify" in username to see secret hint */
+.secret-hint {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--slate-700);
+    border: 2px solid var(--cyan-500);
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--cyan-400);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s ease;
+    z-index: 10;
+}
+
+.secret-hint.show {
+    transform: scaleY(1);
+}
+
+/* Login Button */
+.btn-login {
+    background: transparent;
+    border: 3px solid var(--cyan-500);
+    color: var(--cyan-500);
+    border-radius: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 15px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--cyan-500);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.btn-login:hover::before {
+    left: 0;
+}
+
+.btn-login:hover {
+    color: var(--slate-900);
+    box-shadow: 0 0 30px var(--cyan-500);
+}
+
+/* Challenge Box (Optional Mini-Game) */
+.challenge-box {
+    background: var(--slate-900);
+    border: 2px solid var(--amber-400);
+    padding: 15px;
+    margin-bottom: 20px;
+    display: none;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 200px;
+    }
+}
+
+.challenge-box.active {
+    display: block;
+}
+
+.challenge-question {
+    color: var(--amber-400);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.challenge-input {
+    background: var(--slate-800);
+    border: 2px solid var(--amber-400);
+    color: #e2e8f0;
+    padding: 8px;
+    width: 100%;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Role Info Cards */
+.role-info-card {
+    background: var(--slate-800);
+    border: 2px solid var(--slate-700);
+    border-radius: 0;
+    margin-top: 20px;
+    animation: fadeInUp 1s ease-out 0.5s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.role-info-item {
+    padding: 10px;
+    border-bottom: 1px solid var(--slate-700);
+    transition: all 0.3s ease;
+}
+
+.role-info-item:last-child {
+    border-bottom: none;
+}
+
+.role-info-item:hover {
+    padding-left: 20px;
+    background: var(--slate-700);
+}
+
+/* Demo Credentials Badge */
+.demo-badge {
+    background: linear-gradient(135deg, var(--red-500), var(--amber-400));
+    color: white;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 0;
+    margin-left: 10px;
+}
+
+/* Easter Egg #3: Press Shift 3 times to toggle dark mode */
+.easter-mode {
+    filter: hue-rotate(180deg) invert(1);
+}
+
+/* Loading Animation */
+.loading-spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Back Button */
+.btn-back {
+    background: transparent;
+    border: 2px solid #64748b;
+    color: #64748b;
+    border-radius: 0;
+    padding: 10px 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    border-color: var(--cyan-500);
+    color: var(--cyan-500);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .lock-icon {
+        font-size: 3rem;
+    }
+    .card-title {
+        font-size: 1.4rem;
+    }
+}
+</style>
+
+<!-- Matrix Background -->
+<div class="matrix-bg" id="matrixBg"></div>
+
+<div class="login-container">
     <div class="col-md-6 col-lg-5">
-        <div class="card shadow-lg">
-            <div class="card-header bg-primary text-white text-center py-4">
-                <h3 class="mb-0">
-                    <i class="fas fa-lock me-2"></i>
-                    Secure Login
+        <!-- Main Login Card -->
+        <div class="card login-card shadow-lg">
+            <div class="card-header text-center">
+                <!-- Easter Egg #1: Click lock 5 times -->
+                <div class="lock-icon mb-3" id="lockIcon" onclick="clickLock()" title="Easter Egg: Click me 5 times!">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 class="card-title">
+                    Secure Access
                 </h3>
-                <p class="mb-0 small mt-2">Blockchain Verifiable Credentials System</p>
+                <p class="card-subtitle mb-0">
+                    Blockchain Verifiable Credentials System
+                </p>
             </div>
+            
             <div class="card-body p-4">
+                <!-- Optional Challenge Box -->
+                <div class="challenge-box" id="challengeBox">
+                    <div class="challenge-question">
+                        🧩 Quick Challenge: What is 7 + 5?
+                    </div>
+                    <input type="text" class="challenge-input" id="challengeInput" placeholder="Enter answer...">
+                    <small class="text-muted d-block mt-2">Complete to unlock login form</small>
+                </div>
+
                 <form method="POST" action="{{ url_for('login') }}" id="loginForm">
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label for="username" class="form-label">
                             <i class="fas fa-user me-1"></i>Username (Student Name)
                         </label>
                         <input type="text" class="form-control" id="username" name="username" required autofocus
                                placeholder="Enter your full name (e.g., John Doe)">
+                        <!-- Easter Egg #2: Secret hint -->
+                        <div class="secret-hint" id="secretHint">
+                            🎉 Secret Dev Hint: Try "admin" / "admin123" for issuer access!
+                        </div>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="password" class="form-label">
                             <i class="fas fa-key me-1"></i>Password (Student ID)
                         </label>
@@ -32,83 +444,144 @@
                     </div>
                     
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-login btn-lg">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </button>
                     </div>
                 </form>
             </div>
             
-            <!--<div class="card-footer bg-light">
-                <div class="row text-center small">
-                    <div class="col-12 mb-3">
-                        <h6 class="text-muted">Demo Login Credentials:</h6>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="border rounded p-2 mb-2">
-                            <strong class="text-danger">Issuer</strong><br>
-                            <small>Username: <code>admin</code></small><br>
-                            <small>Password: <code>admin123</code></small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="border rounded p-2 mb-2">
-                            <strong class="text-success">Student</strong><br>
-                            <small>Username (Full Name): <code>Sample Student</code></small><br>
-                            <small>Password (Student ID): <code>SAMPLE001</code></small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="border rounded p-2 mb-2">
-                            <strong class="text-warning">Verifier</strong><br>
-                            <small>Username: <code>verifier1</code></small><br>
-                            <small>Password: <code>verifier123</code></small>
-                        </div>
-                    </div>
-                </div>-->
-                
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-home me-1"></i>Back to Home
-                    </a>
-                </div>
+            <div class="card-footer text-center" style="background: var(--slate-700); border-top: 2px solid var(--slate-700);">
+                <a href="{{ url_for('index') }}" class="btn btn-back btn-sm">
+                    <i class="fas fa-home me-1"></i>Back to Home
+                </a>
             </div>
         </div>
         
-        <div class="card mt-3">
-            <div class="card-header">
-                <h6><i class="fas fa-info-circle me-2"></i>Role Information</h6>
+        <!-- Role Information Card -->
+        <div class="card role-info-card">
+            <div class="card-header" style="background: var(--slate-700); border-bottom: 2px solid var(--cyan-500);">
+                <h6 style="color: var(--cyan-400); margin: 0;">
+                    <i class="fas fa-info-circle me-2"></i>Role Information
+                </h6>
             </div>
-            <div class="card-body">
-                <ul class="list-unstyled mb-0 small">
-                    <li class="mb-2">
-                        <i class="fas fa-university text-danger me-2"></i>
-                        <strong>Issuer:</strong> Academic institutions who issue credentials
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-user-graduate text-success me-2"></i>
-                        <strong>Student:</strong> Students who hold and share credentials
-                    </li>
-                    <li>
-                        <i class="fas fa-building text-warning me-2"></i>
-                        <strong>Verifier:</strong> Employers who verify credentials
-                    </li>
-                </ul>
+            <div class="card-body p-0">
+                <div class="role-info-item">
+                    <i class="fas fa-university text-danger me-2"></i>
+                    <strong style="color: var(--red-500);">Issuer:</strong>
+                    <span style="color: #94a3b8;">Academic institutions who issue credentials</span>
+                </div>
+                <div class="role-info-item">
+                    <i class="fas fa-user-graduate text-success me-2"></i>
+                    <strong style="color: var(--green-500);">Student:</strong>
+                    <span style="color: #94a3b8;">Students who hold and share credentials</span>
+                </div>
+                <div class="role-info-item">
+                    <i class="fas fa-building text-warning me-2"></i>
+                    <strong style="color: var(--amber-400);">Verifier:</strong>
+                    <span style="color: #94a3b8;">Employers who verify credentials</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
+// Matrix Rain Effect
+function createMatrixRain() {
+    const matrixBg = document.getElementById('matrixBg');
+    const chars = '01アイウエオカキクケコサシスセソタチツテト';
+    const columns = Math.floor(window.innerWidth / 20);
+    
+    for (let i = 0; i < columns; i++) {
+        const column = document.createElement('div');
+        column.className = 'matrix-column';
+        column.style.left = `${i * 20}px`;
+        column.style.animationDuration = `${5 + Math.random() * 10}s`;
+        column.style.animationDelay = `${Math.random() * 5}s`;
+        
+        let text = '';
+        for (let j = 0; j < 30; j++) {
+            text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+        }
+        column.innerHTML = text;
+        matrixBg.appendChild(column);
+    }
+}
+
+createMatrixRain();
+
+// Easter Egg #1: Click lock 5 times to unlock
+let lockClicks = 0;
+function clickLock() {
+    lockClicks++;
+    const lockIcon = document.getElementById('lockIcon');
+    
+    if (lockClicks >= 5) {
+        lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
+        lockIcon.classList.add('unlocked');
+        alert('🎉 Easter Egg Unlocked! You found the secret lock mechanism!');
+        lockClicks = 0;
+        
+        setTimeout(() => {
+            lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+            lockIcon.classList.remove('unlocked');
+        }, 3000);
+    }
+}
+
+// Easter Egg #2: Type "credify" in username to show hint
+document.getElementById('username').addEventListener('input', function(e) {
+    const value = e.target.value.toLowerCase();
+    const hint = document.getElementById('secretHint');
+    
+    if (value === 'credify') {
+        hint.classList.add('show');
+        setTimeout(() => hint.classList.remove('show'), 5000);
+    }
+});
+
+// Easter Egg #3: Press Shift 3 times for color invert
+let shiftCount = 0;
+let shiftTimer;
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Shift') {
+        shiftCount++;
+        clearTimeout(shiftTimer);
+        
+        if (shiftCount >= 3) {
+            document.body.classList.toggle('easter-mode');
+            shiftCount = 0;
+        }
+        
+        shiftTimer = setTimeout(() => shiftCount = 0, 1000);
+    }
+});
+
+// Optional Challenge (Uncomment to enable)
+// const challengeBox = document.getElementById('challengeBox');
+// const loginForm = document.getElementById('loginForm');
+// loginForm.style.display = 'none';
+// challengeBox.classList.add('active');
+
+// document.getElementById('challengeInput').addEventListener('input', function(e) {
+//     if (e.target.value === '12') {
+//         challengeBox.style.display = 'none';
+//         loginForm.style.display = 'block';
+//         alert('✅ Challenge completed! You may now login.');
+//     }
+// });
+
+// Form Submit Animation
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     const submitBtn = this.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Logging in...';
+    submitBtn.innerHTML = '<i class="fas fa-spinner loading-spinner me-2"></i>Authenticating...';
     submitBtn.disabled = true;
     
-    // Form will submit normally, this just provides visual feedback
     setTimeout(() => {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;

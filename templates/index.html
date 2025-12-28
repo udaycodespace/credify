@@ -1,169 +1,691 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Blockchain-Based Verifiable Credentials{% endblock %}
+{% block title %}Credify 2026 - Blockchain Verifiable Credentials{% endblock %}
 
 {% block content %}
-<div class="hero-section text-center py-5 mb-5">
-    <div class="container">
-        <h1 class="display-4 mb-4">
-            <i class="fas fa-certificate text-primary me-3"></i>
-            Blockchain-Based Verifiable Credentials
+<style>
+:root {
+    --slate-900: #0f172a;
+    --slate-800: #1e293b;
+    --slate-700: #334155;
+    --cyan-400: #22d3ee;
+    --cyan-500: #06b6d4;
+    --amber-400: #fbbf24;
+    --amber-500: #f59e0b;
+    --green-500: #10b981;
+}
+
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap');
+
+body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--slate-900);
+    color: #e2e8f0;
+    overflow-x: hidden;
+}
+
+/* Animated Grid Background */
+.hero-section {
+    position: relative;
+    min-height: 70vh;
+    background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(var(--cyan-500) 1px, transparent 1px),
+        linear-gradient(90deg, var(--cyan-500) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.05;
+    animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+/* Glitch Effect on Title */
+.hero-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--cyan-400);
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    position: relative;
+    display: inline-block;
+    animation: fadeInDown 1s ease-out;
+    cursor: pointer;
+}
+
+/* Easter Egg #1: Hover title for glitch */
+.hero-title:hover {
+    animation: glitch 0.3s ease-in-out;
+    text-shadow: 
+        3px 3px 0 var(--amber-500),
+        -3px -3px 0 var(--cyan-500);
+}
+
+@keyframes glitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-2px, -2px); }
+    80% { transform: translate(2px, 2px); }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Blockchain Icon Animation */
+.hero-icon {
+    font-size: 5rem;
+    color: var(--cyan-500);
+    animation: float 3s ease-in-out infinite, pulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px var(--cyan-500));
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hero-icon:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 40px var(--cyan-500));
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Subtitle with Terminal Effect */
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+    animation: fadeIn 1.5s ease-out;
+}
+
+.hero-subtitle::before {
+    content: '> ';
+    color: var(--cyan-500);
+    animation: blink 1.5s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Team Badge */
+.team-badge {
+    background: linear-gradient(135deg, var(--cyan-500), var(--amber-500));
+    color: var(--slate-900);
+    padding: 12px 30px;
+    border-radius: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-block;
+    animation: slideInUp 1s ease-out 0.5s both;
+    border: 3px solid var(--cyan-400);
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.team-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: left 0.5s;
+}
+
+.team-badge:hover::before {
+    left: 100%;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Team Names */
+.team-names {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    line-height: 2;
+    animation: fadeIn 2s ease-out 1s both;
+}
+
+.team-names strong {
+    color: var(--amber-400);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+/* Role Cards - Brutalist Style */
+.role-card {
+    background: var(--slate-800);
+    border: 3px solid var(--slate-700);
+    border-radius: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: cardReveal 0.6s ease-out both;
+    position: relative;
+    overflow: hidden;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--cyan-500), transparent);
+    transition: left 0.5s;
+}
+
+.role-card:hover::before {
+    left: 100%;
+}
+
+/* Staggered animations */
+.col-lg-4:nth-child(1) .role-card { animation-delay: 0.1s; }
+.col-lg-4:nth-child(2) .role-card { animation-delay: 0.3s; }
+.col-lg-4:nth-child(3) .role-card { animation-delay: 0.5s; }
+
+@keyframes cardReveal {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.role-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--cyan-500);
+    box-shadow: 0 20px 60px rgba(6, 182, 212, 0.3);
+}
+
+.role-icon i {
+    transition: transform 0.3s ease;
+}
+
+.role-card:hover .role-icon i {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: var(--cyan-400);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-text {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Buttons */
+.btn-primary, .btn-success, .btn-warning, .btn-outline-info {
+    border-radius: 0;
+    border: 2px solid;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: transparent;
+    border-color: var(--cyan-500);
+    color: var(--cyan-500);
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--cyan-500);
+    transition: left 0.3s;
+    z-index: -1;
+}
+
+.btn-primary:hover {
+    color: var(--slate-900);
+    box-shadow: 0 0 20px var(--cyan-500);
+}
+
+.btn-primary:hover::before {
+    left: 0;
+}
+
+.btn-success {
+    background: transparent;
+    border-color: var(--green-500);
+    color: var(--green-500);
+}
+
+.btn-success::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--green-500);
+    transition: left 0.3s;
+    z-index: -1;
+}
+
+.btn-success:hover {
+    color: var(--slate-900);
+    box-shadow: 0 0 20px var(--green-500);
+}
+
+.btn-success:hover::before {
+    left: 0;
+}
+
+.btn-warning {
+    background: transparent;
+    border-color: var(--amber-500);
+    color: var(--amber-500);
+}
+
+.btn-warning::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--amber-500);
+    transition: left 0.3s;
+    z-index: -1;
+}
+
+.btn-warning:hover {
+    color: var(--slate-900);
+    box-shadow: 0 0 20px var(--amber-500);
+}
+
+.btn-warning:hover::before {
+    left: 0;
+}
+
+.btn-outline-info {
+    background: transparent;
+    border-color: var(--cyan-500);
+    color: var(--cyan-500);
+}
+
+.btn-outline-info:hover {
+    background: var(--cyan-500);
+    color: var(--slate-900);
+    box-shadow: 0 0 20px var(--cyan-500);
+}
+
+/* System Cards */
+.system-card {
+    background: var(--slate-800);
+    border: 2px solid var(--slate-700);
+    border-radius: 0;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.8s ease-out both;
+    transition: all 0.3s ease;
+}
+
+.system-card:hover {
+    border-color: var(--cyan-500);
+    box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+}
+
+.system-card:nth-child(1) { animation-delay: 0.7s; }
+.system-card:nth-child(2) { animation-delay: 0.9s; }
+.system-card:nth-child(3) { animation-delay: 1.1s; }
+.system-card:nth-child(4) { animation-delay: 1.3s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-header {
+    background: var(--slate-700);
+    border-bottom: 2px solid var(--cyan-500);
+    color: var(--cyan-400);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Feature List */
+.list-unstyled li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--slate-700);
+    transition: all 0.3s ease;
+}
+
+.list-unstyled li:hover {
+    padding-left: 10px;
+    color: var(--cyan-400);
+    border-color: var(--cyan-500);
+}
+
+/* Status Badges */
+.badge {
+    border-radius: 0;
+    padding: 8px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    border: 2px solid;
+}
+
+.badge.bg-info {
+    background: transparent !important;
+    border-color: var(--cyan-500);
+    color: var(--cyan-500);
+}
+
+.badge.bg-success {
+    background: transparent !important;
+    border-color: var(--green-500);
+    color: var(--green-500);
+}
+
+.badge.bg-warning {
+    background: transparent !important;
+    border-color: var(--amber-500);
+    color: var(--amber-500);
+}
+
+.badge.bg-secondary {
+    background: transparent !important;
+    border-color: #64748b;
+    color: #64748b;
+}
+
+/* Process Steps */
+.process-step {
+    position: relative;
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.process-step:hover {
+    transform: translateY(-10px);
+}
+
+.step-number {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: var(--cyan-500);
+    color: var(--slate-900);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border: 3px solid var(--slate-900);
+}
+
+/* Easter Egg #2: Secret Konami Code */
+.secret-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: var(--slate-800);
+    border: 3px solid var(--cyan-500);
+    padding: 40px;
+    z-index: 9999;
+    box-shadow: 0 0 100px rgba(6, 182, 212, 0.8);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+}
+
+.secret-message.show {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Easter Egg #3: Double-click blockchain icon */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spin-animation {
+    animation: spin 2s ease-in-out;
+}
+
+/* Easter Egg #4: Triple-click team badge */
+.rainbow-animation {
+    animation: rainbow 2s linear infinite;
+}
+
+@keyframes rainbow {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-icon {
+        font-size: 3.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+}
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section text-center py-5">
+    <div class="container position-relative" style="z-index: 1;">
+        <!-- Easter Egg #3: Double-click to spin -->
+        <div class="hero-icon mb-4" id="blockchainIcon" ondblclick="spinIcon()" title="Easter Egg: Double-click me!">
+            <i class="fas fa-cube"></i>
+        </div>
+        
+        <h1 class="hero-title mb-4" title="Easter Egg: Hover for glitch effect!">
+            CREDIFY 2026
         </h1>
-        <p class="lead mb-4">
+        
+        <p class="hero-subtitle mb-4">
             A secure, decentralized system for academic transcript verification using blockchain technology, 
             IPFS storage, and cryptographic verification with selective disclosure capabilities.
         </p>
-        <div class="badge bg-info fs-6 mb-4">
-            B.Tech Final Year Project - G. Pulla Reddy Engineering College
+        
+        <!-- Easter Egg #4: Triple-click for rainbow -->
+        <div class="team-badge mb-4" id="teamBadge" onclick="rainbowBadge()">
+            🎓 B.Tech Final Year Project - GPREC
         </div>
-        <p class="lead mb-4">
-            Developed By:<br>
+        
+        <div class="team-names mt-4">
             <strong>SHASHI</strong> – Frontend Design, UI Integration, IPFS Handling<br>
-            <strong>UDAY</strong> – Backend Architecture, Blockchain Logic, Cryptography, Deployment<br>
-            <strong>TEJA VARSHITH</strong> – System Analysis, Test Case Design, Validation & Documentation
-        </p>
-    </div>
-</div>
-
-<!-- FIXED: Role Selection Cards (3 columns - unchanged) -->
-<div class="row mb-5">
-    <div class="col-lg-4 mb-4">
-        <div class="card h-100 role-card">
-            <div class="card-body text-center">
-                <div class="role-icon mb-3">
-                    <i class="fas fa-university fa-3x text-primary"></i>
-                </div>
-                <h5 class="card-title">Academic Institution</h5>
-                <p class="card-text">
-                    Issue digital transcript credentials with cryptographic signatures. 
-                    Store credentials securely on IPFS and record transactions on the blockchain.
-                </p>
-                {% if session.get('role') == 'issuer' %}
-                <a href="{{ url_for('issuer') }}" class="btn btn-primary">
-                    <i class="fas fa-plus-circle me-2"></i>Issue Credentials
-                </a>
-                {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login as Issuer
-                </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-4 mb-4">
-        <div class="card h-100 role-card">
-            <div class="card-body text-center">
-                <div class="role-icon mb-3">
-                    <i class="fas fa-user-graduate fa-3x text-success"></i>
-                </div>
-                <h5 class="card-title">Student (Holder)</h5>
-                <p class="card-text">
-                    View and manage your verifiable credentials. Create selective disclosures 
-                    to share only specific information like GPA without revealing full transcripts.
-                </p>
-                {% if session.get('role') == 'student' %}
-                <a href="{{ url_for('holder') }}" class="btn btn-success">
-                    <i class="fas fa-id-card me-2"></i>Manage Credentials
-                </a>
-                {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-success">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login as Student
-                </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-4 mb-4">
-        <div class="card h-100 role-card">
-            <div class="card-body text-center">
-                <div class="role-icon mb-3">
-                    <i class="fas fa-shield-alt fa-3x text-warning"></i>
-                </div>
-                <h5 class="card-title">Employer (Verifier)</h5>
-                <p class="card-text">
-                    Verify the authenticity of academic credentials using blockchain verification. 
-                    Check cryptographic signatures and validate credential integrity.
-                </p>
-                <a href="{{ url_for('verifier') }}" class="btn btn-warning">
-                    <i class="fas fa-check-circle me-2"></i>Verify Credentials
-                </a>
-            </div>
+            <strong>UDAY</strong> – Backend Architecture, Blockchain Logic, Cryptography<br>
+            <strong>TEJA VARSHITH</strong> – System Analysis, Test Design, Documentation
         </div>
     </div>
 </div>
 
-<!-- FIXED: LINE-BY-LINE SECTIONS - Full width, stacked vertically -->
-<div class="container-fluid mb-5">
-    
-    <!-- 1. System Features - Full width -->
-    <div class="card mb-5">
+<!-- Role Selection Cards -->
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 role-card">
+                <div class="card-body text-center">
+                    <div class="role-icon mb-3">
+                        <i class="fas fa-university fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Academic Institution</h5>
+                    <p class="card-text">
+                        Issue digital transcript credentials with cryptographic signatures. 
+                        Store credentials securely on IPFS and record transactions on the blockchain.
+                    </p>
+                    {% if session.get('role') == 'issuer' %}
+                    <a href="{{ url_for('issuer') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Issue Credentials
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login as Issuer
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 role-card">
+                <div class="card-body text-center">
+                    <div class="role-icon mb-3">
+                        <i class="fas fa-user-graduate fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title">Student (Holder)</h5>
+                    <p class="card-text">
+                        View and manage your verifiable credentials. Create selective disclosures 
+                        to share only specific information like GPA without revealing full transcripts.
+                    </p>
+                    {% if session.get('role') == 'student' %}
+                    <a href="{{ url_for('holder') }}" class="btn btn-success">
+                        <i class="fas fa-id-card me-2"></i>Manage Credentials
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-success">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login as Student
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 role-card">
+                <div class="card-body text-center">
+                    <div class="role-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="card-title">Employer (Verifier)</h5>
+                    <p class="card-text">
+                        Verify the authenticity of academic credentials using blockchain verification. 
+                        Check cryptographic signatures and validate credential integrity.
+                    </p>
+                    <a href="{{ url_for('verifier') }}" class="btn btn-warning">
+                        <i class="fas fa-check-circle me-2"></i>Verify Credentials
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Features -->
+    <div class="card system-card">
         <div class="card-header">
-            <h5><i class="fas fa-info-circle me-2"></i>System Features</h5>
+            <h5><i class="fas fa-microchip me-2"></i>System Features</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            W3C Verifiable Credentials Standard
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            Cryptographic Digital Signatures
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            IPFS Distributed Storage
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            Blockchain-based Integrity
-                        </li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>W3C Verifiable Credentials Standard</li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Cryptographic Digital Signatures</li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>IPFS Distributed Storage</li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Blockchain-based Integrity</li>
                     </ul>
                 </div>
                 <div class="col-md-6 mb-3">
                     <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            Selective Disclosure Privacy
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            Tamper-proof Verification
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            Decentralized Architecture
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-check text-success me-2"></i>
-                            Real-time Status Monitoring
-                        </li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Selective Disclosure Privacy</li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Tamper-proof Verification</li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Decentralized Architecture</li>
+                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Real-time Status Monitoring</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 2. System Status - Full width -->
-    <div class="card mb-5">
+    <!-- System Status -->
+    <div class="card system-card">
         <div class="card-header">
-            <h5><i class="fas fa-chart-bar me-2"></i>System Status</h5>
+            <h5><i class="fas fa-server me-2"></i>System Status</h5>
         </div>
         <div class="card-body">
             <div id="system-status">
-                <div class="d-flex justify-content-between mb-2">
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--slate-700) !important;">
                     <span>Blockchain Blocks:</span>
                     <span id="total-blocks" class="badge bg-info">Loading...</span>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--slate-700) !important;">
                     <span>Total Credentials:</span>
                     <span id="total-credentials" class="badge bg-success">Loading...</span>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
+                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--slate-700) !important;">
                     <span>IPFS Status:</span>
                     <span id="ipfs-status" class="badge bg-secondary">Loading...</span>
                 </div>
@@ -175,11 +697,11 @@
         </div>
     </div>
 
-    <!-- 3. Need Help? - Full width -->
-    <div class="card mb-5">
+    <!-- Need Help -->
+    <div class="card system-card">
         <div class="card-body text-center">
-            <h6>Need Help?</h6>
-            <p class="card-text small">
+            <h6 class="text-uppercase" style="color: var(--cyan-400);">Need Help?</h6>
+            <p class="card-text small mb-3">
                 Check out our comprehensive tutorial for step-by-step guidance.
             </p>
             <a href="{{ url_for('tutorial') }}" class="btn btn-outline-info btn-sm">
@@ -188,42 +710,42 @@
         </div>
     </div>
 
-    <!-- 4. How It Works - Full width -->
-    <div class="card">
+    <!-- How It Works -->
+    <div class="card system-card mb-5">
         <div class="card-header">
-            <h5><i class="fas fa-cogs me-2"></i>How It Works</h5>
+            <h5><i class="fas fa-project-diagram me-2"></i>How It Works</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3 text-center mb-3">
                     <div class="process-step">
                         <div class="step-number">1</div>
-                        <i class="fas fa-file-signature fa-2x text-primary mb-2"></i>
-                        <h6>Issue Credential</h6>
+                        <i class="fas fa-file-signature fa-2x mb-2" style="color: var(--cyan-500);"></i>
+                        <h6 style="color: var(--cyan-400);">Issue Credential</h6>
                         <small class="text-muted">University creates and signs digital transcript</small>
                     </div>
                 </div>
                 <div class="col-md-3 text-center mb-3">
                     <div class="process-step">
                         <div class="step-number">2</div>
-                        <i class="fas fa-cloud-upload-alt fa-2x text-info mb-2"></i>
-                        <h6>Store on IPFS</h6>
+                        <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: var(--cyan-500);"></i>
+                        <h6 style="color: var(--cyan-400);">Store on IPFS</h6>
                         <small class="text-muted">Credential stored on distributed IPFS network</small>
                     </div>
                 </div>
                 <div class="col-md-3 text-center mb-3">
                     <div class="process-step">
                         <div class="step-number">3</div>
-                        <i class="fas fa-cube fa-2x text-success mb-2"></i>
-                        <h6>Record on Blockchain</h6>
+                        <i class="fas fa-cube fa-2x mb-2" style="color: var(--cyan-500);"></i>
+                        <h6 style="color: var(--cyan-400);">Record on Blockchain</h6>
                         <small class="text-muted">Hash and metadata stored on blockchain</small>
                     </div>
                 </div>
                 <div class="col-md-3 text-center mb-3">
                     <div class="process-step">
                         <div class="step-number">4</div>
-                        <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
-                        <h6>Verify & Share</h6>
+                        <i class="fas fa-shield-alt fa-2x mb-2" style="color: var(--cyan-500);"></i>
+                        <h6 style="color: var(--cyan-400);">Verify & Share</h6>
                         <small class="text-muted">Selective disclosure and cryptographic verification</small>
                     </div>
                 </div>
@@ -231,15 +753,27 @@
         </div>
     </div>
 </div>
+
+<!-- Easter Egg #2: Secret Message (Konami Code) -->
+<div class="secret-message" id="secretMessage">
+    <h3 style="color: var(--cyan-400); font-family: 'Space Grotesk', sans-serif;">
+        🎉 YOU FOUND IT!
+    </h3>
+    <p style="color: #94a3b8;">
+        Konami Code Master! 🎮<br>
+        You've unlocked the secret developer achievement.<br>
+        <strong style="color: var(--amber-400);">Built with 💙 by Team Credify</strong>
+    </p>
+    <button class="btn btn-primary mt-3" onclick="closeSecret()">Close</button>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Load system status on page load
+// Load system status
 document.addEventListener('DOMContentLoaded', function() {
     loadSystemStatus();
-    
-    // Refresh status every 30 seconds
     setInterval(loadSystemStatus, 30000);
 });
 
@@ -267,6 +801,52 @@ function loadSystemStatus() {
             document.getElementById('total-credentials').textContent = 'Error';
             document.getElementById('ipfs-status').textContent = 'Error';
         });
+}
+
+// Easter Egg #3: Spin the blockchain icon
+function spinIcon() {
+    const icon = document.getElementById('blockchainIcon');
+    icon.classList.add('spin-animation');
+    setTimeout(() => icon.classList.remove('spin-animation'), 2000);
+}
+
+// Easter Egg #2: Konami Code (↑ ↑ ↓ ↓ ← → ← → B A)
+let konamiCode = [];
+const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+
+document.addEventListener('keydown', function(e) {
+    konamiCode.push(e.key);
+    konamiCode = konamiCode.slice(-10);
+    
+    if (konamiCode.join('').toLowerCase() === konamiSequence.join('').toLowerCase()) {
+        document.getElementById('secretMessage').classList.add('show');
+    }
+});
+
+function closeSecret() {
+    document.getElementById('secretMessage').classList.remove('show');
+    konamiCode = [];
+}
+
+// Easter Egg #4: Triple-click team badge for rainbow
+let badgeClicks = 0;
+let badgeTimer;
+
+function rainbowBadge() {
+    badgeClicks++;
+    clearTimeout(badgeTimer);
+    
+    const badge = document.getElementById('teamBadge');
+    
+    if (badgeClicks >= 3) {
+        badge.classList.add('rainbow-animation');
+        setTimeout(() => {
+            badge.classList.remove('rainbow-animation');
+        }, 2000);
+        badgeClicks = 0;
+    }
+    
+    badgeTimer = setTimeout(() => badgeClicks = 0, 500);
 }
 </script>
 {% endblock %}

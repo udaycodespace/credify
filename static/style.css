@@ -1,64 +1,158 @@
-/* Custom styles for Blockchain Verifiable Credentials System */
-/* Built on top of Bootstrap dark theme - minimal overrides */
+/* ============================================================
+   CREDIFY 2026 - BRUTALIST CYBER STYLESHEET
+   Built for: G. Pulla Reddy Engineering College
+   Team: SHASHI, UDAY, TEJA VARSHITH
+   Description: Complete brutalist cyber aesthetic system-wide
+   ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap');
+
+/* ============================================================
+   ROOT VARIABLES - BRUTALIST CYBER THEME
+   ============================================================ */
 :root {
-    /* Academic color scheme */
-    --academic-blue: #1e3a8a;
-    --academic-gold: #fbbf24;
-    --success-green: #10b981;
-    --warning-orange: #f59e0b;
-    --info-blue: #3b82f6;
+    /* Slate Color Palette */
+    --slate-900: #0f172a;
+    --slate-800: #1e293b;
+    --slate-700: #334155;
+    --slate-600: #475569;
+    --slate-500: #64748b;
+    
+    /* Accent Colors */
+    --cyan-400: #22d3ee;
+    --cyan-500: #06b6d4;
+    --amber-400: #fbbf24;
+    --amber-500: #f59e0b;
+    --green-500: #10b981;
+    --red-500: #ef4444;
+    --blue-500: #3b82f6;
+    
+    /* Typography */
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-display: 'Space Grotesk', sans-serif;
+    
+    /* Borders */
+    --border-thick: 3px;
+    --border-medium: 2px;
+    --border-thin: 1px;
+    
+    /* Shadows */
+    --shadow-brutal: 0 4px 0 0 var(--slate-700);
+    --shadow-hover: 0 8px 0 0 var(--slate-700);
 }
 
-/* Hero section styling */
+/* ============================================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================================ */
+* {
+    font-family: var(--font-mono);
+}
+
+body {
+    background: var(--slate-900);
+    color: #e2e8f0;
+    font-family: var(--font-mono);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Remove all default border-radius */
+* {
+    border-radius: 0 !important;
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
 .hero-section {
-    background: linear-gradient(135deg, var(--bs-dark) 0%, var(--bs-secondary) 100%);
-    border-radius: 0.5rem;
+    background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+    border: var(--border-thick) solid var(--cyan-500);
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.2);
     margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Role cards with hover effects */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(var(--cyan-500) 1px, transparent 1px),
+        linear-gradient(90deg, var(--cyan-500) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.05;
+    animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+/* ============================================================
+   ROLE CARDS - BRUTALIST
+   ============================================================ */
 .role-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid var(--bs-border-color);
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700);
+    transition: all 0.3s ease;
 }
 
 .role-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transform: translateY(-8px);
+    border-color: var(--cyan-500);
+    box-shadow: 0 12px 30px rgba(6, 182, 212, 0.3);
 }
 
 .role-icon {
     padding: 1rem;
-    border-radius: 50%;
-    background: rgba(var(--bs-primary-rgb), 0.1);
+    background: rgba(6, 182, 212, 0.1);
     display: inline-block;
+    border: var(--border-medium) solid var(--cyan-500);
 }
 
-/* Process steps */
+/* ============================================================
+   PROCESS STEPS - BRUTALIST
+   ============================================================ */
 .process-step {
     position: relative;
-    padding: 1rem;
+    padding: 1.5rem;
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.process-step:hover {
+    border-color: var(--cyan-500);
+    transform: translateX(5px);
 }
 
 .step-number {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bs-primary);
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
+    position: static;
+    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
+    color: var(--slate-900);
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 0.875rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border: var(--border-medium) solid var(--cyan-400);
+    margin-right: 1rem;
 }
 
-/* Step container for tutorial */
+/* Step Container */
 .step-container {
     position: relative;
 }
@@ -66,384 +160,541 @@
 .step-item {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 2rem;
-    padding-left: 3rem;
-    position: relative;
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background: rgba(6, 182, 212, 0.08);
+    border-left: 4px solid var(--cyan-500);
+    transition: all 0.3s ease;
+}
+
+.step-item:hover {
+    background: rgba(6, 182, 212, 0.15);
+    transform: translateX(5px);
+    border-left-color: var(--amber-500);
 }
 
 .step-item .step-number {
-    position: absolute;
-    left: 0;
-    top: 0;
-    background: var(--bs-primary);
-    color: white;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1rem;
+    position: static;
+    margin-right: 1.25rem;
+    flex-shrink: 0;
 }
 
 .step-content {
     flex: 1;
 }
 
-/* Connect steps with lines */
+/* Remove connecting lines - not brutalist */
 .step-item:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    left: 17px;
-    top: 35px;
-    width: 2px;
-    height: calc(100% + 1rem);
-    background: var(--bs-border-color);
+    display: none;
 }
 
-/* Credential item styling */
+/* ============================================================
+   CREDENTIAL ITEMS
+   ============================================================ */
 .credential-item {
-    background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color) !important;
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700) !important;
     transition: all 0.3s ease;
 }
 
 .credential-item:hover {
-    border-color: var(--bs-primary) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--cyan-500) !important;
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.2);
+    transform: translateY(-3px);
 }
 
-/* Tech component styling */
+.credential-wrapper {
+    transition: all 0.3s ease;
+}
+
+.credential-details-expanded {
+    animation: slideDown 0.3s ease;
+    overflow: hidden;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 2000px;
+    }
+}
+
+.credential-details-expanded .card {
+    border-top: none !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================
+   TECH COMPONENTS
+   ============================================================ */
 .tech-component {
     padding: 1.5rem;
-    border-radius: 0.5rem;
-    background: rgba(var(--bs-primary-rgb), 0.05);
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700);
     margin-bottom: 1rem;
     transition: all 0.3s ease;
+    text-align: center;
 }
 
 .tech-component:hover {
-    background: rgba(var(--bs-primary-rgb), 0.1);
-    transform: translateY(-2px);
+    background: var(--slate-700);
+    transform: translateY(-5px);
+    border-color: var(--cyan-500);
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
 }
 
-/* Status indicators */
+/* ============================================================
+   STATUS INDICATORS - BRUTALIST
+   ============================================================ */
 .status-indicator {
     display: inline-flex;
     align-items: center;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: var(--border-medium) solid;
 }
 
 .status-indicator.online {
-    background: rgba(var(--bs-success-rgb), 0.1);
-    color: var(--bs-success);
-    border: 1px solid rgba(var(--bs-success-rgb), 0.2);
+    background: transparent;
+    color: var(--green-500);
+    border-color: var(--green-500);
 }
 
 .status-indicator.offline {
-    background: rgba(var(--bs-warning-rgb), 0.1);
-    color: var(--bs-warning);
-    border: 1px solid rgba(var(--bs-warning-rgb), 0.2);
+    background: transparent;
+    color: var(--amber-500);
+    border-color: var(--amber-500);
 }
 
-/* Code blocks */
+/* ============================================================
+   CODE BLOCKS - BRUTALIST
+   ============================================================ */
 pre {
-    background: var(--bs-dark) !important;
-    color: var(--bs-light) !important;
-    border: 1px solid var(--bs-border-color);
-    border-radius: 0.375rem;
+    background: var(--slate-900) !important;
+    color: var(--cyan-400) !important;
+    border: var(--border-medium) solid var(--slate-700);
     padding: 1rem;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     overflow-x: auto;
+    font-family: var(--font-mono);
 }
 
 code {
-    background: rgba(var(--bs-primary-rgb), 0.1);
-    color: var(--bs-primary);
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
+    background: var(--slate-900);
+    color: var(--cyan-400);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.9rem;
+    border: 1px solid var(--slate-700);
+    font-family: var(--font-mono);
 }
 
-/* Modal enhancements */
+/* ============================================================
+   MODALS - BRUTALIST
+   ============================================================ */
 .modal-content {
-    border: 1px solid var(--bs-border-color);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    background: var(--slate-800);
+    border: var(--border-thick) solid var(--cyan-500);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .modal-header {
-    border-bottom: 1px solid var(--bs-border-color);
+    background: var(--slate-700);
+    border-bottom: var(--border-medium) solid var(--cyan-500);
+    color: var(--cyan-400);
 }
 
 .modal-footer {
-    border-top: 1px solid var(--bs-border-color);
+    background: var(--slate-700);
+    border-top: var(--border-medium) solid var(--slate-600);
 }
 
-/* Form enhancements */
+/* ============================================================
+   FORMS - BRUTALIST
+   ============================================================ */
+.form-control,
+.form-select {
+    background: var(--slate-900);
+    border: var(--border-medium) solid var(--slate-700);
+    color: #e2e8f0;
+    font-family: var(--font-mono);
+}
+
 .form-control:focus,
 .form-select:focus {
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 0.125rem rgba(var(--bs-primary-rgb), 0.25);
+    background: var(--slate-900);
+    border-color: var(--cyan-500);
+    color: #e2e8f0;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
 }
 
-/* Button enhancements */
+.form-label {
+    color: var(--cyan-400);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   BUTTONS - BRUTALIST
+   ============================================================ */
 .btn {
-    border-radius: 0.375rem;
-    font-weight: 500;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     transition: all 0.3s ease;
+    border: var(--border-medium) solid;
+    font-family: var(--font-mono);
 }
 
 .btn:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
 }
 
-/* Alert enhancements */
+.btn-primary {
+    background: transparent;
+    border-color: var(--cyan-500);
+    color: var(--cyan-500);
+}
+
+.btn-primary:hover {
+    background: var(--cyan-500);
+    color: var(--slate-900);
+    box-shadow: 0 0 20px var(--cyan-500);
+}
+
+.btn-success {
+    background: transparent;
+    border-color: var(--green-500);
+    color: var(--green-500);
+}
+
+.btn-success:hover {
+    background: var(--green-500);
+    color: white;
+    box-shadow: 0 0 20px var(--green-500);
+}
+
+.btn-warning {
+    background: transparent;
+    border-color: var(--amber-500);
+    color: var(--amber-500);
+}
+
+.btn-warning:hover {
+    background: var(--amber-500);
+    color: var(--slate-900);
+    box-shadow: 0 0 20px var(--amber-500);
+}
+
+.btn-danger {
+    background: transparent;
+    border-color: var(--red-500);
+    color: var(--red-500);
+}
+
+.btn-danger:hover {
+    background: var(--red-500);
+    color: white;
+    box-shadow: 0 0 20px var(--red-500);
+}
+
+.btn-info {
+    background: transparent;
+    border-color: var(--blue-500);
+    color: var(--blue-500);
+}
+
+.btn-info:hover {
+    background: var(--blue-500);
+    color: white;
+    box-shadow: 0 0 20px var(--blue-500);
+}
+
+.btn-outline-light {
+    border: var(--border-medium) solid #e2e8f0;
+    color: #e2e8f0;
+}
+
+.btn-outline-light:hover {
+    background: #e2e8f0;
+    color: var(--slate-900);
+}
+
+/* ============================================================
+   ALERTS - BRUTALIST
+   ============================================================ */
 .alert {
-    border: none;
-    border-radius: 0.5rem;
-    border-left: 4px solid;
-    font-weight: 500;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: var(--border-medium) solid;
+    border-left-width: 4px;
+    font-weight: 600;
+    box-shadow: none;
+    animation: slideDown 0.3s ease;
+}
+
+.alert.custom-alert {
+    animation: slideDown 0.3s ease !important;
 }
 
 .alert-success {
-    border-left-color: var(--success-green);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-    color: #065f46;
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--green-500);
+    color: #e2e8f0;
 }
 
 .alert-info {
-    border-left-color: var(--academic-blue);
-    background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 58, 138, 0.05) 100%);
-    color: #1e3a8a;
+    background: rgba(14, 165, 233, 0.15);
+    border-color: var(--blue-500);
+    color: #e2e8f0;
 }
 
 .alert-warning {
-    border-left-color: var(--academic-gold);
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
-    color: #92400e;
+    background: rgba(245, 158, 11, 0.15);
+    border-color: var(--amber-500);
+    color: #e2e8f0;
 }
 
 .alert-danger {
-    border-left-color: #dc2626;
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
-    color: #991b1b;
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--red-500);
+    color: #e2e8f0;
 }
 
-/* Navigation enhancements */
+/* ============================================================
+   NAVIGATION - BRUTALIST
+   ============================================================ */
+.navbar {
+    background: linear-gradient(135deg, var(--slate-800), var(--slate-900)) !important;
+    border-bottom: var(--border-thick) solid var(--cyan-500);
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.2);
+}
+
 .navbar-brand {
-    font-weight: 600;
-    font-size: 1.25rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--cyan-400) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .nav-link {
     transition: color 0.3s ease;
+    color: #94a3b8 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .nav-link:hover {
-    color: var(--bs-primary) !important;
+    color: var(--cyan-400) !important;
 }
 
-/* Footer styling */
+/* ============================================================
+   FOOTER - BRUTALIST
+   ============================================================ */
 footer {
-    border-top: 1px solid var(--bs-border-color);
-    background: var(--bs-dark) !important;
+    background: linear-gradient(135deg, var(--slate-800), var(--slate-900)) !important;
+    border-top: var(--border-thick) solid var(--cyan-500);
 }
 
-/* Loading states */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.spinner-border-sm {
-    width: 1rem;
-    height: 1rem;
-}
-
-/* Table enhancements */
+/* ============================================================
+   TABLES - BRUTALIST
+   ============================================================ */
 .table {
     --bs-table-bg: transparent;
+    color: #e2e8f0;
+}
+
+.table th {
+    background: var(--slate-700);
+    color: var(--amber-400);
+    font-weight: 700;
+    border-color: var(--slate-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    border-color: var(--slate-700);
 }
 
 .table-responsive {
-    border-radius: 0.5rem;
-    border: 1px solid var(--bs-border-color);
+    border: var(--border-medium) solid var(--slate-700);
 }
 
-/* Badge enhancements */
+.table-striped tbody tr:nth-of-type(odd) {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* ============================================================
+   BADGES - BRUTALIST
+   ============================================================ */
 .badge {
-    font-weight: 500;
-    letter-spacing: 0.025em;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0.75rem;
+    border: var(--border-medium) solid;
+    font-family: var(--font-mono);
 }
 
-/* Card enhancements */
+.badge.bg-success {
+    background: transparent !important;
+    border-color: var(--green-500);
+    color: var(--green-500);
+}
+
+.badge.bg-primary {
+    background: transparent !important;
+    border-color: var(--cyan-500);
+    color: var(--cyan-500);
+}
+
+.badge.bg-warning {
+    background: transparent !important;
+    border-color: var(--amber-400);
+    color: var(--amber-400);
+}
+
+.badge.bg-danger {
+    background: transparent !important;
+    border-color: var(--red-500);
+    color: var(--red-500);
+}
+
+.badge.bg-info {
+    background: transparent !important;
+    border-color: var(--blue-500);
+    color: var(--blue-500);
+}
+
+.badge.bg-secondary {
+    background: transparent !important;
+    border-color: var(--slate-500);
+    color: var(--slate-500);
+}
+
+/* ============================================================
+   CARDS - BRUTALIST
+   ============================================================ */
 .card {
-    border: 1px solid var(--bs-border-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
 .card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border-color: var(--cyan-500);
 }
 
 .card-header {
-    background: rgba(var(--bs-primary-rgb), 0.05);
-    border-bottom: 1px solid var(--bs-border-color);
-    font-weight: 600;
+    background: var(--slate-700);
+    border-bottom: var(--border-medium) solid var(--cyan-500);
+    font-weight: 700;
+    color: var(--cyan-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .hero-section .display-4 {
-        font-size: 2rem;
-    }
-    
-    .step-item {
-        padding-left: 2.5rem;
-    }
-    
-    .step-item .step-number {
-        width: 30px;
-        height: 30px;
-        font-size: 0.875rem;
-    }
-    
-    .step-item:not(:last-child)::after {
-        left: 14px;
-    }
+/* ============================================================
+   ACCORDION - BRUTALIST
+   ============================================================ */
+.accordion-item {
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700);
+    margin-bottom: 1rem;
 }
 
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
+.accordion-button {
+    background: var(--slate-700);
+    color: var(--cyan-400);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Focus indicators */
-.btn:focus,
-.form-control:focus,
-.form-select:focus {
-    outline: 2px solid var(--bs-primary);
-    outline-offset: 2px;
-}
-
-/* Print styles */
-@media print {
-    .navbar,
-    .btn,
-    footer {
-        display: none !important;
-    }
-    
-    .card {
-        border: 1px solid #000 !important;
-        box-shadow: none !important;
-    }
-}
-
-/* Custom scrollbar for webkit browsers */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bs-secondary);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--bs-primary);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--bs-primary);
-}
-
-/* Tutorial specific styles */
-.tutorial-content {
-    scroll-behavior: smooth;
-}
-
-.tutorial-content section {
-    scroll-margin-top: 2rem;
-}
-
-.tutorial-content .nav-link.active {
-    background-color: var(--bs-primary);
-    color: white !important;
-}
-
-/* Accordion customization */
 .accordion-button:not(.collapsed) {
-    background-color: rgba(var(--bs-primary-rgb), 0.1);
-    color: var(--bs-primary);
+    background: var(--slate-700);
+    color: var(--amber-400);
+    border-bottom: var(--border-medium) solid var(--cyan-500);
 }
 
 .accordion-button:focus {
-    box-shadow: 0 0 0 0.125rem rgba(var(--bs-primary-rgb), 0.25);
-    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
+    border-color: var(--cyan-500);
 }
 
-/* List group customization */
-.list-group-item {
-    background-color: transparent;
-    border-color: var(--bs-border-color);
+.accordion-body {
+    background: var(--slate-800);
+    color: #cbd5e1;
 }
 
-.list-group-flush .list-group-item {
-    border-width: 0 0 1px;
-}
-
-/* Utility classes */
-.text-gradient {
-    background: linear-gradient(45deg, var(--bs-primary), var(--bs-info));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.shadow-custom {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.border-gradient {
-    border: 2px solid transparent;
-    background: linear-gradient(var(--bs-body-bg), var(--bs-body-bg)) padding-box,
-                linear-gradient(45deg, var(--bs-primary), var(--bs-info)) border-box;
-}
-/* ADMIN SIDEBAR */
+/* ============================================================
+   SIDEBAR (ADMIN) - BRUTALIST
+   ============================================================ */
 .sidebar {
+    background: var(--slate-800) !important;
+    border-right: var(--border-medium) solid var(--slate-700);
     height: calc(100vh - 56px);
-    border-right: 1px solid #dee2e6;
+}
+
+.sidebar .nav-link {
+    color: #ecf0f1 !important;
+    border: var(--border-medium) solid transparent;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar .nav-link:hover {
+    background: var(--slate-700) !important;
+    color: var(--cyan-400) !important;
+    border-color: var(--cyan-500);
+    transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+    background: var(--slate-700) !important;
+    color: var(--cyan-400) !important;
+    border-left: 4px solid var(--cyan-500);
+}
+
+.sidebar h6,
+.sidebar .user-name-bold,
+.sidebar .stats-header-bold {
+    color: var(--cyan-400) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar .text-muted {
+    color: #94a3b8 !important;
+}
+
+.sidebar small,
+.sidebar span {
+    color: #cbd5e1 !important;
 }
 
 .search-box {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    background: white;
+    border: var(--border-medium) solid var(--slate-700);
+    background: var(--slate-900);
 }
 
-/* BACKLOG CARDS */
-.backlog-card {
-    border: none;
-    transition: transform 0.2s;
-}
-
-.backlog-card.poor { border-left: 4px solid #dc3545; }
-.backlog-card.average { border-left: 4px solid #ffc107; }
-.backlog-card.good { border-left: 4px solid #17a2b8; }
-.backlog-card.outstanding { border-left: 4px solid #28a745; }
-
-/* KANBAN BOARD */
+/* ============================================================
+   KANBAN BOARD - BRUTALIST
+   ============================================================ */
 .kanban-container {
     display: flex;
     gap: 1rem;
@@ -454,14 +705,17 @@ footer {
 .kanban-column {
     flex: 1;
     min-width: 300px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700);
     padding: 1rem;
 }
 
 .kanban-column h6 {
     margin-bottom: 1rem;
-    color: #495057;
+    color: var(--cyan-400);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .kanban-items {
@@ -469,183 +723,196 @@ footer {
 }
 
 .kanban-item {
-    background: white;
-    border-radius: 6px;
+    background: var(--slate-900);
+    border: var(--border-medium) solid var(--slate-700);
     padding: 1rem;
     margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     cursor: move;
-}
-.sidebar {
-    background-color: #2c3e50 !important; /* Dark blue-gray */
-}
-
-.sidebar .nav-link {
-    color: #ecf0f1 !important; /* Light text */
-}
-
-.sidebar .nav-link:hover {
-    background-color: #34495e !important;
-    color: #ffffff !important;
-}
-
-.sidebar .nav-link.active {
-    background-color: #3498db !important;
-    color: #ffffff !important;
-}
-.sidebar {
-    background-color: #2c3e50 !important; /* Dark blue-gray */
-}
-
-.sidebar .nav-link {
-    color: #ecf0f1 !important; /* Light text */
-}
-
-.sidebar .nav-link:hover {
-    background-color: #34495e !important;
-    color: #ffffff !important;
-}
-
-.sidebar .nav-link.active {
-    background-color: #3498db !important;
-    color: #ffffff !important;
-}
-
-/* Add these new rules below */
-.sidebar h6 {
-    color: #ffffff !important;
-}
-
-.sidebar .user-name-bold {
-    color: #ffffff !important;
-}
-
-.sidebar .stats-header-bold {
-    color: #ffffff !important;
-}
-
-.sidebar .text-muted {
-    color: #bdc3c7 !important; /* Light gray for muted text */
-}
-
-.sidebar small {
-    color: #ecf0f1 !important;
-}
-
-.sidebar .px-3 .small {
-    color: #ecf0f1 !important;
-}
-
-.sidebar {
-    background-color: #2c3e50 !important;
-}
-
-.sidebar .nav-link {
-    color: #ecf0f1 !important;
-}
-
-.sidebar .nav-link:hover {
-    background-color: #34495e !important;
-    color: #ffffff !important;
-}
-
-.sidebar .nav-link.active {
-    background-color: #3498db !important;
-    color: #ffffff !important;
-}
-
-/* More specific selectors for text elements */
-.sidebar small.user-name-bold {
-    color: #ffffff !important;
-    font-weight: 900 !important;
-}
-
-.sidebar small.stats-header-bold {
-    color: #ffffff !important;
-    font-weight: 900 !important;
-}
-
-.sidebar h6 {
-    color: #ffffff !important;
-}
-
-.sidebar .text-muted {
-    color: #bdc3c7 !important;
-}
-
-.sidebar small {
-    color: #ecf0f1 !important;
-}
-
-.sidebar .px-3 small {
-    color: #ffffff !important;
-}
-
-.sidebar span {
-    color: #ecf0f1 !important;
-}
-/* Fast alert animations */
-.alert.custom-alert {
-    animation: slideDown 0.3s ease !important;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-}
-.credential-wrapper {
     transition: all 0.3s ease;
 }
 
-.credential-details-expanded {
-    animation: slideDown 0.3s ease;
-    overflow: hidden;
+.kanban-item:hover {
+    border-color: var(--cyan-500);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-    }
-    to {
-        opacity: 1;
-        max-height: 2000px;
-    }
-}
-
-.credential-details-expanded .card {
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-.credential-wrapper {
+/* Backlog Cards */
+.backlog-card {
+    background: var(--slate-800);
+    border: var(--border-medium) solid var(--slate-700);
     transition: all 0.3s ease;
 }
 
-.credential-details-expanded {
-    animation: slideDown 0.3s ease;
-    overflow: hidden;
+.backlog-card.poor { 
+    border-left: 4px solid var(--red-500);
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
+.backlog-card.average { 
+    border-left: 4px solid var(--amber-500);
+}
+
+.backlog-card.good { 
+    border-left: 4px solid var(--blue-500);
+}
+
+.backlog-card.outstanding { 
+    border-left: 4px solid var(--green-500);
+}
+
+.backlog-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================
+   SCROLLBAR - BRUTALIST
+   ============================================================ */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--slate-800);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cyan-500);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--cyan-400);
+}
+
+/* ============================================================
+   LIST GROUPS - BRUTALIST
+   ============================================================ */
+.list-group-item {
+    background-color: transparent;
+    border-color: var(--slate-700);
+    color: #cbd5e1;
+}
+
+.list-group-flush .list-group-item {
+    border-width: 0 0 var(--border-thin);
+}
+
+/* ============================================================
+   UTILITY CLASSES - BRUTALIST
+   ============================================================ */
+.text-gradient {
+    background: linear-gradient(45deg, var(--cyan-500), var(--amber-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-custom {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.border-gradient {
+    border: var(--border-medium) solid var(--cyan-500);
+}
+
+/* ============================================================
+   LOADING STATES
+   ============================================================ */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(50%);
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+}
+
+/* ============================================================
+   TUTORIAL SPECIFIC
+   ============================================================ */
+.tutorial-content {
+    scroll-behavior: smooth;
+}
+
+.tutorial-content section {
+    scroll-margin-top: 2rem;
+}
+
+.tutorial-content .nav-link.active {
+    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
+    color: var(--slate-900) !important;
+    border: var(--border-medium) solid var(--cyan-500);
+}
+
+/* ============================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================ */
+@media (max-width: 768px) {
+    .hero-section .display-4 {
+        font-size: 2rem;
     }
-    to {
-        opacity: 1;
-        max-height: 2000px;
+    
+    .step-item {
+        flex-direction: column;
+    }
+    
+    .step-item .step-number {
+        margin-bottom: 1rem;
+        margin-right: 0;
+    }
+    
+    .kanban-column {
+        min-width: 250px;
     }
 }
 
-.credential-details-expanded .card {
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
+
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid var(--cyan-500);
+    outline-offset: 2px;
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+    .navbar,
+    .btn,
+    footer,
+    .sidebar {
+        display: none !important;
+    }
+    
+    .card {
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}
+
+/* ============================================================
+   END OF BRUTALIST CYBER STYLESHEET
+   ============================================================ */

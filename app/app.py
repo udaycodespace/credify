@@ -9,7 +9,7 @@ try:
 except Exception:
     logging.debug('python-dotenv not available; skipping .env load')
 
-from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session, make_response
 from datetime import datetime
 from core import DATA_DIR as DATADIR
 from pathlib import Path
@@ -26,7 +26,9 @@ from .models import db, User, init_database
 from .auth import login_required, role_required
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+from core.logger import setup_logging
+setup_logging()
+logging.info("Advanced structured logging initialized")
 
 import qrcode
 import io
@@ -50,8 +52,8 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 # Initialize components
 init_database(app)
-blockchain = SimpleBlockchain()
 crypto_manager = CryptoManager()
+blockchain = SimpleBlockchain(crypto_manager)
 ipfs_client = IPFSClient()
 credential_manager = CredentialManager(blockchain, crypto_manager, ipfs_client)
 ticket_manager = TicketManager()
@@ -511,6 +513,50 @@ def api_selective_disclosure():
         logging.error(f"Error in selective disclosure: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/nodes/register', methods=['POST'])
+@role_required('issuer')
+def register_nodes():
+    """Register new nodes in the network"""
+    data = request.get_json()
+    nodes = data.get('nodes')
+    
+    if nodes is None:
+        return jsonify({'success': False, 'error': 'Please provide a valid list of nodes'}), 400
+        
+    for node in nodes:
+        blockchain.register_node(node)
+        
+    return jsonify({
+        'success': True,
+        'message': 'New nodes have been added',
+        'total_nodes': list(blockchain.nodes)
+    })
+
+@app.route('/api/nodes/peers')
+def get_peers():
+    """Get the list of registered peers"""
+    return jsonify({
+        'success': True,
+        'peers': list(blockchain.nodes)
+    })
+
+@app.route('/api/nodes/resolve')
+def resolve_nodes():
+    """Trigger consensus resolution"""
+    replaced = blockchain.resolve_conflicts()
+    if replaced:
+        return jsonify({
+            'success': True,
+            'message': 'Chain was replaced',
+            'new_chain': [b.to_dict() for b in blockchain.chain]
+        })
+    else:
+        return jsonify({
+            'success': True,
+            'message': 'Our chain is authoritative',
+            'chain': [b.to_dict() for b in blockchain.chain]
+        })
+
 @app.route('/api/blockchain_status')
 def api_blockchain_status():
     try:
@@ -524,6 +570,38 @@ def api_blockchain_status():
     except Exception as e:
         logging.error(f"Error getting blockchain status: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/blockchain/audit')
+@role_required('issuer')
+def blockchain_audit():
+    """Export the entire blockchain ledger for audit"""
+    try:
+        from io import StringIO
+        import csv
+        
+        si = StringIO()
+        cw = csv.writer(si)
+        
+        # Header
+        cw.writerow(['Index', 'Timestamp', 'Merkle Root', 'Hash', 'Prev Hash', 'Signed By', 'Data'])
+        
+        for block in blockchain.chain:
+            cw.writerow([
+                block.index,
+                block.timestamp,
+                block.merkle_root,
+                block.hash,
+                block.previous_hash,
+                block.signed_by,
+                json.dumps(block.data)
+            ])
+            
+        output = make_response(si.getvalue())
+        output.headers["Content-Disposition"] = f"attachment; filename=blockchain_audit_{datetime.now().strftime('%Y%m%d')}.csv"
+        output.headers["Content-type"] = "text/csv"
+        return output
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/blockchain/blocks')
 def api_get_blocks():

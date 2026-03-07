@@ -394,9 +394,14 @@
                             <div
                                 class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>Blockchain Explorer</h5>
-                                <button class="btn btn-sm btn-outline-light" onclick="loadBlockchainExplorer()">
-                                    <i class="fas fa-sync-alt me-1"></i>Refresh
-                                </button>
+                                <div>
+                                    <a href="/api/blockchain/audit" class="btn btn-sm btn-outline-info me-2">
+                                        <i class="fas fa-file-download me-1"></i>Audit Log (.csv)
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-light" onclick="loadBlockchainExplorer()">
+                                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">

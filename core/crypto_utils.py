@@ -42,10 +42,10 @@ class CryptoManager:
             self.generate_keys()
     
     def generate_keys(self):
-        """Generate new RSA key pair"""
+        """Generate new RSA key pair (Upgraded to 4096 bits for Phase 4)"""
         self.private_key = rsa.generate_private_key(
             public_exponent=65537,
-            key_size=2048,
+            key_size=4096, # UPGRADED
         )
         self.public_key = self.private_key.public_key()
         self.save_keys()
@@ -143,6 +143,66 @@ class CryptoManager:
         except Exception as e:
             logging.debug(f"Signature verification failed: {str(e)}")
             return False
+
+    def sign_jws(self, data):
+        """Create a JWS-compact style signature (Header.Payload.Signature)"""
+        try:
+            header = {"alg": "PS256", "typ": "JWS"}
+            header_b64 = base64.urlsafe_b64encode(json.dumps(header, sort_keys=True).encode()).decode().rstrip('=')
+            
+            if isinstance(data, dict):
+                payload_string = json.dumps(data, sort_keys=True)
+            else:
+                payload_string = str(data)
+            payload_b64 = base64.urlsafe_b64encode(payload_string.encode()).decode().rstrip('=')
+            
+            signing_input = f"{header_b64}.{payload_b64}"
+            
+            signature = self.private_key.sign(
+                signing_input.encode(),
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA256()
+            )
+            signature_b64 = base64.urlsafe_b64encode(signature).decode().rstrip('=')
+            
+            return f"{header_b64}.{payload_b64}.{signature_b64}"
+        except Exception as e:
+            logging.error(f"JWS signing failed: {str(e)}")
+            return None
+
+    def verify_jws(self, jws_string):
+        """Verify a JWS-compact style signature"""
+        try:
+            parts = jws_string.split('.')
+            if len(parts) != 3:
+                return False, None
+                
+            header_b64, payload_b64, signature_b64 = parts
+            signing_input = f"{header_b64}.{payload_b64}"
+            
+            # Pad b64
+            def pad_b64(s):
+                return s + '=' * (4 - len(s) % 4)
+            
+            signature = base64.urlsafe_b64decode(pad_b64(signature_b64))
+            payload_json = json.loads(base64.urlsafe_b64decode(pad_b64(payload_b64)).decode())
+            
+            self.public_key.verify(
+                signature,
+                signing_input.encode(),
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA256()
+            )
+            return True, payload_json
+        except Exception as e:
+            logging.debug(f"JWS verification failed: {str(e)}")
+            return False, None
     
     def hash_data(self, data):
         """Create SHA-256 hash of data"""

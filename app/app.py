@@ -383,6 +383,7 @@ def get_credential_qr(credential_id):
     Generate a QR code linking to the public verification page.
     """
     try:
+        import base64
         # Create verification URL
         verify_url = url_for('public_verify', id=credential_id, _external=True)
         
@@ -403,9 +404,95 @@ def get_credential_qr(credential_id):
         img.save(img_buffer, "PNG")
         img_buffer.seek(0)
         
-        return send_file(img_buffer, mimetype='image/png')
+        qr_base64 = base64.b64encode(img_buffer.getvalue()).decode()
+        
+        return jsonify({
+            'success': True,
+            'qr_base64': qr_base64,
+            'verify_url': verify_url
+        })
     except Exception as e:
         logging.error(f"QR Generation error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/credential/<credential_id>/pdf')
+def get_credential_pdf(credential_id):
+    """
+    Generate a secure PDF transcript with embedded blockchain proof.
+    """
+    try:
+        cred = credential_manager.get_credential(credential_id)
+        if not cred:
+            return jsonify({'error': 'Credential not found'}), 404
+            
+        # Create PDF buffer
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+        
+        # Draw Header
+        p.setFont("Helvetica-Bold", 24)
+        p.drawCentredString(width/2, height - 100, "OFFICIAL DIGITAL TRANSCRIPT")
+        
+        p.setFont("Helvetica", 12)
+        p.drawCentredString(width/2, height - 120, "Secured by Credify Blockchain Technology")
+        
+        # Draw Content
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, height - 200, "Academic Details:")
+        
+        p.setFont("Helvetica", 12)
+        y = height - 230
+        fields = [
+            ("Student Name", cred.get('name')),
+            ("Degree", cred.get('degree')),
+            ("University", cred.get('university')),
+            ("Graduation Year", cred.get('graduationYear')),
+            ("GPA", cred.get('gpa')),
+        ]
+        
+        for label, val in fields:
+            p.drawString(100, y, f"{label}: {val}")
+            y -= 25
+            
+        # Blockchain Proof Section
+        y -= 40
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, y, "Blockchain Proof of Authenticity:")
+        
+        p.setFont("Courier", 9)
+        y -= 25
+        p.drawString(100, y, f"Credential ID: {credential_id}")
+        y -= 15
+        p.drawString(100, y, f"On-Chain Hash: {cred.get('credentialHash', 'N/A')}")
+        
+        # Embed QR Code
+        verify_url = url_for('public_verify', id=credential_id, _external=True)
+        qr = qrcode.make(verify_url)
+        qr_buffer = io.BytesIO()
+        qr.save(qr_buffer, format='PNG')
+        qr_buffer.seek(0)
+        
+        from reportlab.lib.utils import ImageReader
+        qr_img = ImageReader(qr_buffer)
+        p.drawImage(qr_img, width - 200, height - 350, width=100, height=100)
+        
+        p.setFont("Helvetica-Oblique", 8)
+        p.drawString(width - 200, height - 360, "Scan to verify integrity")
+        
+        # Footer
+        p.setFont("Helvetica", 10)
+        p.drawCentredString(width/2, 50, "This is a blockchain-verifiable document. Modifying this PDF will invalidate the hash.")
+        
+        p.showPage()
+        p.save()
+        
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, 
+                         download_name=f"Credential_{credential_id}.pdf", 
+                         mimetype='application/pdf')
+    except Exception as e:
+        logging.error(f"PDF Generation error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/selective_disclosure', methods=['POST'])
@@ -437,6 +524,41 @@ def api_blockchain_status():
     except Exception as e:
         logging.error(f"Error getting blockchain status: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/blockchain/blocks')
+def api_get_blocks():
+    """
+    Get a summary of all blocks for the explorer.
+    
+    Fields returned: index, timestamp, hash, previous_hash, 
+    signed_by, and credential_count.
+    """
+    try:
+        blocks_data = []
+        for block in blockchain.chain:
+            # Handle both object-based and dict-based blocks for stability
+            if hasattr(block, 'index'):
+                blocks_data.append({
+                    'index': block.index,
+                    'timestamp': block.timestamp,
+                    'hash': block.hash,
+                    'previous_hash': block.previous_hash,
+                    'signed_by': getattr(block, 'signed_by', 'Genesis'),
+                    'credential_count': len(block.data) if isinstance(block.data, list) else 1
+                })
+            else:
+                blocks_data.append({
+                    'index': block.get('index'),
+                    'timestamp': block.get('timestamp'),
+                    'hash': block.get('hash'),
+                    'previous_hash': block.get('previous_hash'),
+                    'signed_by': block.get('signed_by', 'Genesis'),
+                    'credential_count': len(block.get('data', [])) if isinstance(block.get('data'), list) else 1
+                })
+        return jsonify({'success': True, 'blocks': blocks_data})
+    except Exception as e:
+        logging.error(f"Error getting blockchain blocks: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/credentials')
 @role_required('issuer')

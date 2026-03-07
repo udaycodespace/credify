@@ -13,7 +13,7 @@
                     <h6 class="mt-2">Issuer Portal</h6>
                     <small class="user-name-bold">{{ session.full_name }}</small>
                 </div>
-                
+
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link active" href="#" onclick="showSection('issue'); return false;">
@@ -47,9 +47,9 @@
                         </a>
                     </li>
                 </ul>
-                
+
                 <hr>
-                
+
                 <div class="px-3">
                     <small class="stats-header-bold">Quick Stats</small>
                     <div class="mt-2">
@@ -68,7 +68,8 @@
 
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <div
+                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h2 id="sectionTitle"><i class="fas fa-plus-circle text-primary me-2"></i>Issue New Credential</h2>
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadDashboardData()">
@@ -97,7 +98,7 @@
                                             <input type="text" class="form-control" id="studentId" required>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="degree" class="form-label">Degree Program *</label>
@@ -112,10 +113,11 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="university" class="form-label">University *</label>
-                                            <input type="text" class="form-control" id="university" value="G. Pulla Reddy Engineering College" required>
+                                            <input type="text" class="form-control" id="university"
+                                                value="G. Pulla Reddy Engineering College" required>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-3 mb-3">
                                             <label for="semester" class="form-label">Semester</label>
@@ -138,29 +140,34 @@
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label for="className" class="form-label">Class</label>
-                                            <input type="text" class="form-control" id="className" placeholder="e.g., B.Tech">
+                                            <input type="text" class="form-control" id="className"
+                                                placeholder="e.g., B.Tech">
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label for="section" class="form-label">Section</label>
-                                            <input type="text" class="form-control" id="section" placeholder="e.g., A/B">
+                                            <input type="text" class="form-control" id="section"
+                                                placeholder="e.g., A/B">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="gpa" class="form-label">GPA/CGPA *</label>
-                                            <input type="number" class="form-control" id="gpa" min="0" max="10" step="0.01" required>
+                                            <input type="number" class="form-control" id="gpa" min="0" max="10"
+                                                step="0.01" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="graduationYear" class="form-label">Graduation Year *</label>
-                                            <input type="number" class="form-control" id="graduationYear" min="2020" max="2030" required>
+                                            <input type="number" class="form-control" id="graduationYear" min="2020"
+                                                max="2030" required>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="backlogCount" class="form-label">Backlog Count</label>
-                                            <input type="number" class="form-control" id="backlogCount" min="0" value="0">
+                                            <input type="number" class="form-control" id="backlogCount" min="0"
+                                                value="0">
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="conduct" class="form-label">Conduct</label>
@@ -173,19 +180,19 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="backlogs" class="form-label">Backlog Courses (if any)</label>
-                                        <textarea class="form-control" id="backlogs" rows="2" 
-                                                  placeholder="Enter backlog courses separated by commas"></textarea>
+                                        <textarea class="form-control" id="backlogs" rows="2"
+                                            placeholder="Enter backlog courses separated by commas"></textarea>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="courses" class="form-label">Completed Courses</label>
-                                        <textarea class="form-control" id="courses" rows="3" 
-                                                  placeholder="Enter courses separated by commas"></textarea>
+                                        <textarea class="form-control" id="courses" rows="3"
+                                            placeholder="Enter courses separated by commas"></textarea>
                                     </div>
-                                    
+
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                         <button type="button" class="btn btn-secondary me-md-2" onclick="clearForm()">
                                             <i class="fas fa-undo me-1"></i>Clear
@@ -198,7 +205,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-4">
                         <div class="card">
                             <div class="card-header">
@@ -245,7 +252,8 @@
                         <div class="row mb-4">
                             <div class="col-md-8">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="searchStudentId" placeholder="Enter Roll Number (e.g., 229X1A2847)">
+                                    <input type="text" class="form-control" id="searchStudentId"
+                                        placeholder="Enter Roll Number (e.g., 229X1A2847)">
                                     <button class="btn btn-primary" onclick="searchByStudentId()">
                                         <i class="fas fa-search me-1"></i>Search
                                     </button>
@@ -320,22 +328,23 @@
                                             <option value="broadcast">Broadcast to All Students</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="mb-3" id="recipientField">
                                         <label for="toStudentId" class="form-label">Student Roll Number</label>
-                                        <input type="text" class="form-control" id="toStudentId" placeholder="e.g., 229X1A2847">
+                                        <input type="text" class="form-control" id="toStudentId"
+                                            placeholder="e.g., 229X1A2847">
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="messageSubject" class="form-label">Subject *</label>
                                         <input type="text" class="form-control" id="messageSubject" required>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="messageBody" class="form-label">Message *</label>
                                         <textarea class="form-control" id="messageBody" rows="5" required></textarea>
                                     </div>
-                                    
+
                                     <button type="submit" class="btn btn-primary w-100">
                                         <i class="fas fa-paper-plane me-1"></i>Send Message
                                     </button>
@@ -343,7 +352,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-7">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
@@ -361,7 +370,7 @@
                     </div>
                 </div>
             </div>
-                        <!-- SECTION 6: System Management -->
+            <!-- SECTION 6: System Management -->
             <div id="systemSection" class="content-section" style="display:none;">
                 <div class="row mb-4">
                     <div class="col-md-12">
@@ -372,6 +381,43 @@
                             <div class="card-body">
                                 <div id="systemStats">
                                     <p class="text-muted">Loading statistics...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blockchain Explorer Row -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div
+                                class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>Blockchain Explorer</h5>
+                                <button class="btn btn-sm btn-outline-light" onclick="loadBlockchainExplorer()">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-sm table-hover table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Block #</th>
+                                                <th>Timestamp</th>
+                                                <th>Hash</th>
+                                                <th>Prev Hash</th>
+                                                <th>Signed By</th>
+                                                <th>Creds</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="explorerTableBody">
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Loading blockchain
+                                                    data...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -394,13 +440,14 @@
                                     <li>All messages</li>
                                     <li>All JSON data files</li>
                                 </ul>
-                                <p class="text-muted mb-3"><strong>Note:</strong> Admin and verifier accounts will be preserved.</p>
-                                
+                                <p class="text-muted mb-3"><strong>Note:</strong> Admin and verifier accounts will be
+                                    preserved.</p>
+
                                 <div class="alert alert-warning">
                                     <i class="fas fa-exclamation-circle me-2"></i>
                                     <strong>Warning:</strong> This action cannot be undone!
                                 </div>
-                                
+
                                 <button class="btn btn-danger btn-lg" onclick="confirmSystemReset()">
                                     <i class="fas fa-trash-alt me-2"></i>Reset Entire System
                                 </button>
@@ -447,7 +494,7 @@
             <div class="modal-body">
                 <p>Are you sure you want to revoke this credential?</p>
                 <p class="text-muted small">Revoked credentials remain on blockchain but become invalid.</p>
-                
+
                 <div class="mb-3">
                     <label for="revokeReason" class="form-label">Reason for Revocation *</label>
                     <select class="form-select" id="revokeReasonCategory">
@@ -458,12 +505,12 @@
                         <option value="other">Other</option>
                     </select>
                 </div>
-                
+
                 <div class="mb-3">
                     <label for="revokeReasonText" class="form-label">Additional Details</label>
                     <textarea class="form-control" id="revokeReasonText" rows="3"></textarea>
                 </div>
-                
+
                 <input type="hidden" id="revokeCredentialId">
             </div>
             <div class="modal-footer">
@@ -498,89 +545,89 @@
 
 {% block scripts %}
 <script>
-// ==================== SECTION NAVIGATION (UNCHANGED) ====================
-function showSection(section) {
-    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    
-    const sectionMap = {
-        'issue': { id: 'issueSection', title: 'Issue New Credential', icon: 'fa-plus-circle' },
-        'manage': { id: 'manageSection', title: 'Manage Credentials', icon: 'fa-list' },
-        'search': { id: 'searchSection', title: 'Search Student', icon: 'fa-search' },
-        'tickets': { id: 'ticketsSection', title: 'Student Tickets', icon: 'fa-ticket-alt' },
-        'messages': { id: 'messagesSection', title: 'Messages', icon: 'fa-envelope' },
-        'system': { id: 'systemSection', title: 'System Management', icon: 'fa-cogs' }
-    };
-    
-    const selected = sectionMap[section];
-    document.getElementById(selected.id).style.display = 'block';
-    document.getElementById('sectionTitle').innerHTML = `<i class="fas ${selected.icon} text-primary me-2"></i>${selected.title}`;
-    
-    event.target.classList.add('active');
-    
-    if (section === 'manage') loadCredentials();
-    if (section === 'tickets') loadAdminTickets();
-    if (section === 'messages') loadAdminMessages();
-    if (section === 'system') loadSystemStats();
-}
+    // ==================== SECTION NAVIGATION (UNCHANGED) ====================
+    function showSection(section) {
+        document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
-// ==================== CREDENTIAL ISSUING (UNCHANGED) ====================
-document.getElementById('issueCredentialForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    issueCredential();
-});
+        const sectionMap = {
+            'issue': { id: 'issueSection', title: 'Issue New Credential', icon: 'fa-plus-circle' },
+            'manage': { id: 'manageSection', title: 'Manage Credentials', icon: 'fa-list' },
+            'search': { id: 'searchSection', title: 'Search Student', icon: 'fa-search' },
+            'tickets': { id: 'ticketsSection', title: 'Student Tickets', icon: 'fa-ticket-alt' },
+            'messages': { id: 'messagesSection', title: 'Messages', icon: 'fa-envelope' },
+            'system': { id: 'systemSection', title: 'System Management', icon: 'fa-cogs' }
+        };
 
-function issueCredential() {
-    const issueBtn = document.getElementById('issueBtn');
-    const originalText = issueBtn.innerHTML;
-    issueBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Issuing...';
-    issueBtn.disabled = true;
-    
-    const formData = {
-        student_name: document.getElementById('studentName').value,
-        student_id: document.getElementById('studentId').value,
-        degree: document.getElementById('degree').value,
-        university: document.getElementById('university').value,
-        gpa: parseFloat(document.getElementById('gpa').value),
-        graduation_year: parseInt(document.getElementById('graduationYear').value),
-        courses: document.getElementById('courses').value.split(',').map(c => c.trim()).filter(c => c),
-        semester: document.getElementById('semester').value ? parseInt(document.getElementById('semester').value) : null,
-        year: document.getElementById('year').value || null,
-        class_name: document.getElementById('className').value || null,
-        section: document.getElementById('section').value || null,
-        backlog_count: parseInt(document.getElementById('backlogCount').value || 0),
-        backlogs: document.getElementById('backlogs').value.split(',').map(c => c.trim()).filter(c => c),
-        conduct: document.getElementById('conduct').value || null
-    };
-    
-    fetch('/api/issue_credential', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showSuccessModal(data);
-            clearForm();
-            loadDashboardData();
-        } else {
-            showAlert('Error: ' + data.error, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('Network error occurred', 'danger');
-    })
-    .finally(() => {
-        issueBtn.innerHTML = originalText;
-        issueBtn.disabled = false;
+        const selected = sectionMap[section];
+        document.getElementById(selected.id).style.display = 'block';
+        document.getElementById('sectionTitle').innerHTML = `<i class="fas ${selected.icon} text-primary me-2"></i>${selected.title}`;
+
+        event.target.classList.add('active');
+
+        if (section === 'manage') loadCredentials();
+        if (section === 'tickets') loadAdminTickets();
+        if (section === 'messages') loadAdminMessages();
+        if (section === 'system') loadSystemStats();
+    }
+
+    // ==================== CREDENTIAL ISSUING (UNCHANGED) ====================
+    document.getElementById('issueCredentialForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        issueCredential();
     });
-}
 
-function showSuccessModal(data) {
-    const credentialDetails = document.getElementById('credentialDetails');
-    credentialDetails.innerHTML = `
+    function issueCredential() {
+        const issueBtn = document.getElementById('issueBtn');
+        const originalText = issueBtn.innerHTML;
+        issueBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Issuing...';
+        issueBtn.disabled = true;
+
+        const formData = {
+            student_name: document.getElementById('studentName').value,
+            student_id: document.getElementById('studentId').value,
+            degree: document.getElementById('degree').value,
+            university: document.getElementById('university').value,
+            gpa: parseFloat(document.getElementById('gpa').value),
+            graduation_year: parseInt(document.getElementById('graduationYear').value),
+            courses: document.getElementById('courses').value.split(',').map(c => c.trim()).filter(c => c),
+            semester: document.getElementById('semester').value ? parseInt(document.getElementById('semester').value) : null,
+            year: document.getElementById('year').value || null,
+            class_name: document.getElementById('className').value || null,
+            section: document.getElementById('section').value || null,
+            backlog_count: parseInt(document.getElementById('backlogCount').value || 0),
+            backlogs: document.getElementById('backlogs').value.split(',').map(c => c.trim()).filter(c => c),
+            conduct: document.getElementById('conduct').value || null
+        };
+
+        fetch('/api/issue_credential', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessModal(data);
+                    clearForm();
+                    loadDashboardData();
+                } else {
+                    showAlert('Error: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Network error occurred', 'danger');
+            })
+            .finally(() => {
+                issueBtn.innerHTML = originalText;
+                issueBtn.disabled = false;
+            });
+    }
+
+    function showSuccessModal(data) {
+        const credentialDetails = document.getElementById('credentialDetails');
+        credentialDetails.innerHTML = `
         <div class="row">
             <div class="col-12">
                 <h6>✅ Credential Issued Successfully</h6>
@@ -669,16 +716,16 @@ function showSuccessModal(data) {
             </div>
         </div>
     `;
-    
+
         // Add to page instead of modal
-    const container = document.getElementById('issueSection');
-    const existingSuccess = document.getElementById('inlineSuccess');
-    if (existingSuccess) existingSuccess.remove();
-    
-    const successDiv = document.createElement('div');
-    successDiv.id = 'inlineSuccess';
-    successDiv.className = 'mt-4';
-    successDiv.innerHTML = `
+        const container = document.getElementById('issueSection');
+        const existingSuccess = document.getElementById('inlineSuccess');
+        if (existingSuccess) existingSuccess.remove();
+
+        const successDiv = document.createElement('div');
+        successDiv.id = 'inlineSuccess';
+        successDiv.className = 'mt-4';
+        successDiv.innerHTML = `
         <div class="alert alert-success alert-dismissible">
             <h5>✅ Credential Issued Successfully</h5>
             <button class="btn-close" onclick="document.getElementById('inlineSuccess').remove()"></button>
@@ -686,39 +733,39 @@ function showSuccessModal(data) {
         ${credentialDetails.innerHTML}
         <button class="btn btn-primary mt-3" onclick="issueAnother()">Issue Another</button>
     `;
-    container.appendChild(successDiv);
-    successDiv.scrollIntoView({ behavior: 'smooth' });
-}
+        container.appendChild(successDiv);
+        successDiv.scrollIntoView({ behavior: 'smooth' });
+    }
 
 
-function clearForm() {
-    document.getElementById('issueCredentialForm').reset();
-    document.getElementById('university').value = 'G. Pulla Reddy Engineering College';
-    document.getElementById('backlogCount').value = '0';
-}
+    function clearForm() {
+        document.getElementById('issueCredentialForm').reset();
+        document.getElementById('university').value = 'G. Pulla Reddy Engineering College';
+        document.getElementById('backlogCount').value = '0';
+    }
 
-function issueAnother() {
-    const elem = document.getElementById('inlineSuccess');
-    if (elem) elem.remove();
-    clearForm();
-}
+    function issueAnother() {
+        const elem = document.getElementById('inlineSuccess');
+        if (elem) elem.remove();
+        clearForm();
+    }
 
 
-// ==================== MANAGE CREDENTIALS (UNCHANGED) ====================
-function loadCredentials() {
-    const container = document.getElementById('credentialsTableContainer');
-    container.innerHTML = '<p class="text-muted">Loading credentials...</p>';
+    // ==================== MANAGE CREDENTIALS (UNCHANGED) ====================
+    function loadCredentials() {
+        const container = document.getElementById('credentialsTableContainer');
+        container.innerHTML = '<p class="text-muted">Loading credentials...</p>';
 
-    fetch('/api/credentials')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                if (data.credentials.length === 0) {
-                    container.innerHTML = '<p class="text-muted">No credentials found.</p>';
-                    return;
-                }
+        fetch('/api/credentials')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.credentials.length === 0) {
+                        container.innerHTML = '<p class="text-muted">No credentials found.</p>';
+                        return;
+                    }
 
-                let html = `<div class="table-responsive"><table class="table table-sm table-hover">
+                    let html = `<div class="table-responsive"><table class="table table-sm table-hover">
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
@@ -733,12 +780,12 @@ function loadCredentials() {
                     </thead>
                     <tbody>`;
 
-                data.credentials.forEach(c => {
-                    const statusBadge = c.status === 'active' ? '<span class="badge bg-success">ACTIVE</span>' :
-                                       c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
-                                       '<span class="badge bg-secondary">SUPERSEDED</span>';
-                    
-                    html += `
+                    data.credentials.forEach(c => {
+                        const statusBadge = c.status === 'active' ? '<span class="badge bg-success">ACTIVE</span>' :
+                            c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
+                                '<span class="badge bg-secondary">SUPERSEDED</span>';
+
+                        html += `
                         <tr>
                             <td><code class="small">${c.credential_id.slice(-8)}</code></td>
                             <td>${c.student_name || ''}</td>
@@ -755,74 +802,74 @@ function loadCredentials() {
                                 ` : '<span class="text-muted small">N/A</span>'}
                             </td>
                         </tr>`;
-                });
+                    });
 
-                html += `</tbody></table></div>`;
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = '<p class="text-danger">Could not load credentials</p>';
-            }
-        })
-        .catch(err => {
-            console.error('Error loading credentials:', err);
-            container.innerHTML = '<p class="text-danger">Network error loading credentials</p>';
-        });
-}
-
-function showRevokeModal(credentialId) {
-    document.getElementById('revokeCredentialId').value = credentialId;
-    const modal = new bootstrap.Modal(document.getElementById('revokeModal'));
-    modal.show();
-}
-
-function confirmRevoke() {
-    const credentialId = document.getElementById('revokeCredentialId').value;
-    const reason = document.getElementById('revokeReasonText').value;
-    const category = document.getElementById('revokeReasonCategory').value;
-    
-    fetch('/api/revoke_credential', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            credential_id: credentialId,
-            reason: reason,
-            reason_category: category
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Credential revoked successfully', 'success');
-            const modal = bootstrap.Modal.getInstance(document.getElementById('revokeModal'));
-            modal.hide();
-            loadCredentials();
-            loadDashboardData();
-        } else {
-            showAlert('Error: ' + data.error, 'danger');
-        }
-    })
-    .catch(err => {
-        console.error('Revoke error:', err);
-        showAlert('Network error while revoking credential', 'danger');
-    });
-}
-
-// ==================== SEARCH (UNCHANGED) ====================
-function searchByStudentId() {
-    const studentId = document.getElementById('searchStudentId').value.trim();
-    if (!studentId) {
-        showAlert('Please enter a roll number', 'warning');
-        return;
+                    html += `</tbody></table></div>`;
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p class="text-danger">Could not load credentials</p>';
+                }
+            })
+            .catch(err => {
+                console.error('Error loading credentials:', err);
+                container.innerHTML = '<p class="text-danger">Network error loading credentials</p>';
+            });
     }
-    
-    const resultsDiv = document.getElementById('searchResults');
-    resultsDiv.innerHTML = '<p class="text-muted">Searching...</p>';
-    
-    fetch(`/api/credential_history/${studentId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.credentials.length > 0) {
-                let html = `
+
+    function showRevokeModal(credentialId) {
+        document.getElementById('revokeCredentialId').value = credentialId;
+        const modal = new bootstrap.Modal(document.getElementById('revokeModal'));
+        modal.show();
+    }
+
+    function confirmRevoke() {
+        const credentialId = document.getElementById('revokeCredentialId').value;
+        const reason = document.getElementById('revokeReasonText').value;
+        const category = document.getElementById('revokeReasonCategory').value;
+
+        fetch('/api/revoke_credential', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                credential_id: credentialId,
+                reason: reason,
+                reason_category: category
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Credential revoked successfully', 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('revokeModal'));
+                    modal.hide();
+                    loadCredentials();
+                    loadDashboardData();
+                } else {
+                    showAlert('Error: ' + data.error, 'danger');
+                }
+            })
+            .catch(err => {
+                console.error('Revoke error:', err);
+                showAlert('Network error while revoking credential', 'danger');
+            });
+    }
+
+    // ==================== SEARCH (UNCHANGED) ====================
+    function searchByStudentId() {
+        const studentId = document.getElementById('searchStudentId').value.trim();
+        if (!studentId) {
+            showAlert('Please enter a roll number', 'warning');
+            return;
+        }
+
+        const resultsDiv = document.getElementById('searchResults');
+        resultsDiv.innerHTML = '<p class="text-muted">Searching...</p>';
+
+        fetch(`/api/credential_history/${studentId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.credentials.length > 0) {
+                    let html = `
                     <h6>Found ${data.total_versions} version(s) for ${studentId}</h6>
                     <div class="table-responsive">
                         <table class="table table-sm table-bordered table-hover">
@@ -839,14 +886,14 @@ function searchByStudentId() {
                             </thead>
                             <tbody>
                 `;
-                
-                data.credentials.forEach(c => {
-                    const statusBadge = c.status === 'active' ? '<span class="badge bg-success">ACTIVE</span>' :
-                                       c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
-                                       '<span class="badge bg-secondary">SUPERSEDED</span>';
-                    const semYear = c.semester ? `Sem ${c.semester}/${c.year || '-'}` : '-';
-                    
-                    html += `
+
+                    data.credentials.forEach(c => {
+                        const statusBadge = c.status === 'active' ? '<span class="badge bg-success">ACTIVE</span>' :
+                            c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
+                                '<span class="badge bg-secondary">SUPERSEDED</span>';
+                        const semYear = c.semester ? `Sem ${c.semester}/${c.year || '-'}` : '-';
+
+                        html += `
                         <tr>
                             <td><span class="badge bg-primary">v${c.version}</span></td>
                             <td>${statusBadge}</td>
@@ -861,54 +908,54 @@ function searchByStudentId() {
                             </td>
                         </tr>
                     `;
-                });
-                
-                html += `</tbody></table></div>`;
-                resultsDiv.innerHTML = html;
-            } else {
-                resultsDiv.innerHTML = '<div class="alert alert-warning">No credentials found for this student.</div>';
-            }
-        })
-        .catch(err => {
-            console.error('Search error:', err);
-            resultsDiv.innerHTML = '<div class="alert alert-danger">Search error occurred</div>';
-        });
-}
-// ==================== TICKET MANAGEMENT (ENHANCED) ====================
-function loadAdminTickets() {
-    fetch('/api/tickets')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const tickets = data.tickets;
-                const open = tickets.filter(t => t.status === 'open');
-                const inProgress = tickets.filter(t => t.status === 'in_progress');
-                const resolved = tickets.filter(t => t.status === 'resolved');
-                
-                document.getElementById('openColumn').innerHTML = renderAdminTickets(open, 'open');
-                document.getElementById('inProgressColumn').innerHTML = renderAdminTickets(inProgress, 'in_progress');
-                document.getElementById('resolvedColumn').innerHTML = renderAdminTickets(resolved, 'resolved');
-                
-                document.getElementById('ticketBadge').textContent = open.length + inProgress.length;
-                document.getElementById('pendingTicketsBadge').textContent = open.length;
-            } else {
-                console.error('Error loading tickets:', data.error);
-            }
-        })
-        .catch(err => {
-            console.error('Error loading tickets:', err);
-            document.getElementById('openColumn').innerHTML = '<p class="text-danger small">Error loading tickets</p>';
-        });
-}
+                    });
+
+                    html += `</tbody></table></div>`;
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<div class="alert alert-warning">No credentials found for this student.</div>';
+                }
+            })
+            .catch(err => {
+                console.error('Search error:', err);
+                resultsDiv.innerHTML = '<div class="alert alert-danger">Search error occurred</div>';
+            });
+    }
+    // ==================== TICKET MANAGEMENT (ENHANCED) ====================
+    function loadAdminTickets() {
+        fetch('/api/tickets')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const tickets = data.tickets;
+                    const open = tickets.filter(t => t.status === 'open');
+                    const inProgress = tickets.filter(t => t.status === 'in_progress');
+                    const resolved = tickets.filter(t => t.status === 'resolved');
+
+                    document.getElementById('openColumn').innerHTML = renderAdminTickets(open, 'open');
+                    document.getElementById('inProgressColumn').innerHTML = renderAdminTickets(inProgress, 'in_progress');
+                    document.getElementById('resolvedColumn').innerHTML = renderAdminTickets(resolved, 'resolved');
+
+                    document.getElementById('ticketBadge').textContent = open.length + inProgress.length;
+                    document.getElementById('pendingTicketsBadge').textContent = open.length;
+                } else {
+                    console.error('Error loading tickets:', data.error);
+                }
+            })
+            .catch(err => {
+                console.error('Error loading tickets:', err);
+                document.getElementById('openColumn').innerHTML = '<p class="text-danger small">Error loading tickets</p>';
+            });
+    }
 
 
-function renderAdminTickets(tickets, status) {
-    if (tickets.length === 0) return '<p class="text-muted small">No tickets</p>';
-    
-    let html = '';
-    tickets.forEach(t => {
-        const priorityColor = t.priority === 'high' ? 'danger' : t.priority === 'medium' ? 'warning' : 'secondary';
-        html += `
+    function renderAdminTickets(tickets, status) {
+        if (tickets.length === 0) return '<p class="text-muted small">No tickets</p>';
+
+        let html = '';
+        tickets.forEach(t => {
+            const priorityColor = t.priority === 'high' ? 'danger' : t.priority === 'medium' ? 'warning' : 'secondary';
+            html += `
             <div class="card mb-2 admin-ticket-card" onclick="viewAdminTicket('${t.ticket_id}')">
                 <div class="card-body p-2">
                     <div class="d-flex justify-content-between align-items-start mb-1">
@@ -925,23 +972,23 @@ function renderAdminTickets(tickets, status) {
                 </div>
             </div>
         `;
-    });
-    return html;
-}
+        });
+        return html;
+    }
 
-function viewAdminTicket(ticketId) {
-    fetch(`/api/tickets/${ticketId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.ticket) {
-                const ticket = data.ticket;
-                let responsesHtml = '';
-                
-                if (ticket.responses && ticket.responses.length > 0) {
-                    responsesHtml = '<hr><h6>Conversation History:</h6>';
-                    ticket.responses.forEach(r => {
-                        const badge = r.responder === 'admin' ? '<span class="badge bg-primary">Admin</span>' : '<span class="badge bg-info">Student</span>';
-                        responsesHtml += `
+    function viewAdminTicket(ticketId) {
+        fetch(`/api/tickets/${ticketId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.ticket) {
+                    const ticket = data.ticket;
+                    let responsesHtml = '';
+
+                    if (ticket.responses && ticket.responses.length > 0) {
+                        responsesHtml = '<hr><h6>Conversation History:</h6>';
+                        ticket.responses.forEach(r => {
+                            const badge = r.responder === 'admin' ? '<span class="badge bg-primary">Admin</span>' : '<span class="badge bg-info">Student</span>';
+                            responsesHtml += `
                             <div class="mb-2 p-2 ${r.responder === 'admin' ? 'bg-light' : 'bg-info bg-opacity-10'} rounded">
                                 <div class="d-flex justify-content-between">
                                     ${badge}
@@ -951,10 +998,10 @@ function viewAdminTicket(ticketId) {
                                 ${r.action ? `<small class="text-info"><i class="fas fa-info-circle me-1"></i>${r.action}</small>` : ''}
                             </div>
                         `;
-                    });
-                }
-                
-                document.getElementById('ticketModalBody').innerHTML = `
+                        });
+                    }
+
+                    document.getElementById('ticketModalBody').innerHTML = `
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Ticket ID:</strong> #${ticket.ticket_id}</p>
@@ -993,153 +1040,153 @@ function viewAdminTicket(ticketId) {
                         </button>
                     </div>
                 `;
-                
-                const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
-                modal.show();
+
+                    const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+                    modal.show();
+                }
+            });
+    }
+
+    function adminMoveTicket(ticketId, newStatus) {
+        const note = document.getElementById('adminNoteInput').value || `Ticket moved to ${newStatus}`;
+
+        fetch(`/api/tickets/${ticketId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                status: newStatus,
+                admin_note: note,
+                by_admin: true
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(`Ticket moved to ${newStatus}`, 'success');
+                    loadAdminTickets();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
+                    if (modal) modal.hide();
+                } else {
+                    showAlert('Error: ' + data.error, 'danger');
+                }
+            });
+    }
+
+    function adminAddNote(ticketId) {
+        const note = document.getElementById('adminNoteInput').value;
+        if (!note.trim()) return;
+
+        fetch(`/api/tickets/${ticketId}/response`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                responder: 'admin',
+                message: note
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Note added', 'success');
+                    viewAdminTicket(ticketId); // Refresh
+                }
+            });
+    }
+
+    // ==================== MESSAGE MANAGEMENT (ENHANCED) ====================
+    document.getElementById('sendMessageForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        sendAdminMessage();
+    });
+
+    function toggleRecipientField() {
+        const messageType = document.getElementById('messageType').value;
+        const recipientField = document.getElementById('recipientField');
+        recipientField.style.display = messageType === 'individual' ? 'block' : 'none';
+    }
+
+    function sendAdminMessage() {
+        const messageType = document.getElementById('messageType').value;
+        const subject = document.getElementById('messageSubject').value;
+        const message = document.getElementById('messageBody').value;
+
+        if (messageType === 'individual') {
+            const toStudentId = document.getElementById('toStudentId').value.trim();
+            if (!toStudentId) {
+                showAlert('Please enter student roll number', 'warning');
+                return;
             }
-        });
-}
 
-function adminMoveTicket(ticketId, newStatus) {
-    const note = document.getElementById('adminNoteInput').value || `Ticket moved to ${newStatus}`;
-    
-    fetch(`/api/tickets/${ticketId}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            status: newStatus,
-            admin_note: note,
-            by_admin: true
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert(`Ticket moved to ${newStatus}`, 'success');
-            loadAdminTickets();
-            const modal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
-            if (modal) modal.hide();
+            fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender_id: 'admin',
+                    sender_type: 'admin',
+                    recipient_id: toStudentId,
+                    recipient_type: 'student',
+                    subject: subject,
+                    message: message
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Message sent successfully', 'success');
+                        document.getElementById('sendMessageForm').reset();
+                        loadAdminMessages();
+                    } else {
+                        showAlert('Error: ' + data.error, 'danger');
+                    }
+                });
         } else {
-            showAlert('Error: ' + data.error, 'danger');
+            fetch('/api/messages/broadcast', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender_id: 'admin',
+                    subject: subject,
+                    message: message
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Broadcast message sent to all students!', 'success');
+                        document.getElementById('sendMessageForm').reset();
+                        loadAdminMessages();
+                    } else {
+                        showAlert('Error: ' + data.error, 'danger');
+                    }
+                });
         }
-    });
-}
+    }
 
-function adminAddNote(ticketId) {
-    const note = document.getElementById('adminNoteInput').value;
-    if (!note.trim()) return;
-    
-    fetch(`/api/tickets/${ticketId}/response`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            responder: 'admin',
-            message: note
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Note added', 'success');
-            viewAdminTicket(ticketId); // Refresh
-        }
-    });
-}
+    function loadAdminMessages() {
+        fetch('/api/messages/all')
+            .then(response => response.json())
+            .then(data => {
+                displayAdminMessages(data.messages || []);
+            })
+            .catch(err => {
+                console.error('Error loading messages:', err);
+                document.getElementById('sentMessages').innerHTML = '<p class="text-danger">Error loading messages</p>';
+            });
+    }
 
-// ==================== MESSAGE MANAGEMENT (ENHANCED) ====================
-document.getElementById('sendMessageForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    sendAdminMessage();
-});
+    function displayAdminMessages(messages) {
+        const container = document.getElementById('sentMessages');
 
-function toggleRecipientField() {
-    const messageType = document.getElementById('messageType').value;
-    const recipientField = document.getElementById('recipientField');
-    recipientField.style.display = messageType === 'individual' ? 'block' : 'none';
-}
-
-function sendAdminMessage() {
-    const messageType = document.getElementById('messageType').value;
-    const subject = document.getElementById('messageSubject').value;
-    const message = document.getElementById('messageBody').value;
-    
-    if (messageType === 'individual') {
-        const toStudentId = document.getElementById('toStudentId').value.trim();
-        if (!toStudentId) {
-            showAlert('Please enter student roll number', 'warning');
+        if (messages.length === 0) {
+            container.innerHTML = '<p class="text-muted">No messages sent yet</p>';
             return;
         }
-        
-        fetch('/api/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sender_id: 'admin',
-                sender_type: 'admin',
-                recipient_id: toStudentId,
-                recipient_type: 'student',
-                subject: subject,
-                message: message
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('Message sent successfully', 'success');
-                document.getElementById('sendMessageForm').reset();
-                loadAdminMessages();
-            } else {
-                showAlert('Error: ' + data.error, 'danger');
-            }
-        });
-    } else {
-        fetch('/api/messages/broadcast', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sender_id: 'admin',
-                subject: subject,
-                message: message
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('Broadcast message sent to all students!', 'success');
-                document.getElementById('sendMessageForm').reset();
-                loadAdminMessages();
-            } else {
-                showAlert('Error: ' + data.error, 'danger');
-            }
-        });
-    }
-}
 
-function loadAdminMessages() {
-    fetch('/api/messages/all')
-        .then(response => response.json())
-        .then(data => {
-            displayAdminMessages(data.messages || []);
-        })
-        .catch(err => {
-            console.error('Error loading messages:', err);
-            document.getElementById('sentMessages').innerHTML = '<p class="text-danger">Error loading messages</p>';
-        });
-}
+        container.innerHTML = messages.map(msg => {
+            const isRevoked = msg.revoked;
+            const isBroadcast = msg.is_broadcast;
 
-function displayAdminMessages(messages) {
-    const container = document.getElementById('sentMessages');
-    
-    if (messages.length === 0) {
-        container.innerHTML = '<p class="text-muted">No messages sent yet</p>';
-        return;
-    }
-    
-    container.innerHTML = messages.map(msg => {
-        const isRevoked = msg.revoked;
-        const isBroadcast = msg.is_broadcast;
-        
-        return `
+            return `
             <div class="card mb-2 ${isRevoked ? 'border-danger' : ''}">
                 <div class="card-body p-2">
                     <div class="d-flex justify-content-between align-items-start">
@@ -1155,91 +1202,91 @@ function displayAdminMessages(messages) {
                             </p>
                         </div>
                         <div class="text-end">
-                            ${isRevoked ? 
-                                `<span class="badge bg-danger mb-1">REVOKED</span><br>
-                                <small class="text-muted">${new Date(msg.revoked_at).toLocaleString()}</small>` 
-                            : 
-                                `<button class="btn btn-sm btn-outline-danger" onclick="revokeMessage('${msg.message_id}')">
+                            ${isRevoked ?
+                    `<span class="badge bg-danger mb-1">REVOKED</span><br>
+                                <small class="text-muted">${new Date(msg.revoked_at).toLocaleString()}</small>`
+                    :
+                    `<button class="btn btn-sm btn-outline-danger" onclick="revokeMessage('${msg.message_id}')">
                                     <i class="fas fa-ban"></i> Revoke
                                 </button>`
-                            }
+                }
                         </div>
                     </div>
                     <small class="text-muted">Sent: ${new Date(msg.timestamp).toLocaleString()}</small>
                 </div>
             </div>
         `;
-    }).join('');
-}
+        }).join('');
+    }
 
-function revokeMessage(messageId) {
-    if (!confirm('Are you sure you want to revoke this message? It will appear as strikethrough for all recipients.')) return;
-    
-    fetch(`/api/messages/${messageId}/revoke`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ admin_id: 'admin' })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Message revoked successfully', 'success');
-            loadAdminMessages();
-        } else {
-            showAlert('Error: ' + data.error, 'danger');
-        }
-    });
-}
+    function revokeMessage(messageId) {
+        if (!confirm('Are you sure you want to revoke this message? It will appear as strikethrough for all recipients.')) return;
 
-// ==================== DASHBOARD & UTILITIES ====================
-function loadDashboardData() {
-    fetch('/api/credentials')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('totalCredsBadge').textContent = data.credentials.length;
-            }
-        });
-    
-    loadAdminTickets();
-}
+        fetch(`/api/messages/${messageId}/revoke`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ admin_id: 'admin' })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Message revoked successfully', 'success');
+                    loadAdminMessages();
+                } else {
+                    showAlert('Error: ' + data.error, 'danger');
+                }
+            });
+    }
 
-function showAlert(message, type) {
-    const alertHtml = `
+    // ==================== DASHBOARD & UTILITIES ====================
+    function loadDashboardData() {
+        fetch('/api/credentials')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('totalCredsBadge').textContent = data.credentials.length;
+                }
+            });
+
+        loadAdminTickets();
+    }
+
+    function showAlert(message, type) {
+        const alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999; min-width: 300px; max-width: 600px;">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', alertHtml);
-    setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) alert.remove();
-    }, 5000);
-}
+        document.body.insertAdjacentHTML('beforeend', alertHtml);
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 5000);
+    }
 
-// Load on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadDashboardData();
-});
-function viewFullCredentialDetails(credentialId) {
-    const detailsDiv = document.getElementById('fullCredentialDetails');
-    detailsDiv.innerHTML = '<p class="text-muted">Loading credential details...</p>';
-    
-    // Show modal immediately
-    const modal = new bootstrap.Modal(document.getElementById('fullCredentialModal'));
-    modal.show();
-    
-    // Fetch full credential data
-    fetch(`/api/get_credential/${credentialId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.credential) {
-                const cred = data.credential;
-                const fullCred = cred.full_credential;
-                const subject = fullCred ? fullCred.credentialSubject : {};
-                
-                detailsDiv.innerHTML = `
+    // Load on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        loadDashboardData();
+    });
+    function viewFullCredentialDetails(credentialId) {
+        const detailsDiv = document.getElementById('fullCredentialDetails');
+        detailsDiv.innerHTML = '<p class="text-muted">Loading credential details...</p>';
+
+        // Show modal immediately
+        const modal = new bootstrap.Modal(document.getElementById('fullCredentialModal'));
+        modal.show();
+
+        // Fetch full credential data
+        fetch(`/api/get_credential/${credentialId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.credential) {
+                    const cred = data.credential;
+                    const fullCred = cred.full_credential;
+                    const subject = fullCred ? fullCred.credentialSubject : {};
+
+                    detailsDiv.innerHTML = `
                     <div class="alert alert-info mb-3">
                         <strong><i class="fas fa-info-circle me-2"></i>Complete Metadata Generated:</strong><br>
                         • Issuer DID: <code>did:edu:gprec</code><br>
@@ -1396,39 +1443,81 @@ function viewFullCredentialDetails(credentialId) {
                         </div>
                     ` : ''}
                 `;
-            } else {
-                detailsDiv.innerHTML = '<div class="alert alert-danger">Failed to load credential details</div>';
-            }
-        })
-        .catch(err => {
-            console.error('Error loading credential:', err);
-            detailsDiv.innerHTML = '<div class="alert alert-danger">Network error loading credential details</div>';
-        });
-}
-// ==================== SYSTEM MANAGEMENT FUNCTIONS ====================
-let currentStats = null;
+                } else {
+                    detailsDiv.innerHTML = '<div class="alert alert-danger">Failed to load credential details</div>';
+                }
+            })
+            .catch(err => {
+                console.error('Error loading credential:', err);
+                detailsDiv.innerHTML = '<div class="alert alert-danger">Network error loading credential details</div>';
+            });
+    }
+    // ==================== SYSTEM MANAGEMENT FUNCTIONS ====================
+    let currentStats = null;
 
-function loadSystemStats() {
-    fetch('/api/system/stats')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                currentStats = data.stats;
-                displaySystemStats(data.stats);
-            } else {
-                document.getElementById('systemStats').innerHTML = 
-                    '<div class="alert alert-danger">Error loading stats</div>';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('systemStats').innerHTML = 
-                '<div class="alert alert-danger">Network error</div>';
-        });
-}
+    function loadSystemStats() {
+        fetch('/api/system/stats')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentStats = data.stats;
+                    displaySystemStats(data.stats);
+                    loadBlockchainExplorer(); // Also load explorer
+                } else {
+                    document.getElementById('systemStats').innerHTML =
+                        '<div class="alert alert-danger">Error loading stats</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('systemStats').innerHTML =
+                    '<div class="alert alert-danger">Network error</div>';
+            });
+    }
 
-function displaySystemStats(stats) {
-    const statsHtml = `
+    function loadBlockchainExplorer() {
+        const tableBody = document.getElementById('explorerTableBody');
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading...</td></tr>';
+
+        fetch('/api/blockchain/blocks')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.blocks.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No blocks found</td></tr>';
+                        return;
+                    }
+
+                    tableBody.innerHTML = '';
+                    // Reverse to show newest first
+                    [...data.blocks].reverse().forEach(block => {
+                        const hashShort = block.hash.substring(0, 10) + '...';
+                        const prevHashShort = block.previous_hash ? (block.previous_hash.substring(0, 10) + '...') : '0000000000';
+
+                        const row = `
+                        <tr>
+                            <td><strong>#${block.index}</strong></td>
+                            <td class="small">${new Date(block.timestamp).toLocaleString()}</td>
+                            <td><code class="small text-primary" title="${block.hash}">${hashShort}</code></td>
+                            <td><code class="small text-muted" title="${block.previous_hash}">${prevHashShort}</code></td>
+                            <td><span class="badge bg-secondary">${block.signed_by}</span></td>
+                            <td class="text-center"><span class="badge bg-info">${block.credential_count}</span></td>
+                        </tr>
+                    `;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${data.error}</td></tr>`;
+                }
+            })
+            .catch(err => {
+                console.error('Error loading explorer:', err);
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Network error loading explorer</td></tr>';
+            });
+    }
+
+    function displaySystemStats(stats) {
+        const statsHtml = `
         <div class="row">
             <div class="col-md-3">
                 <div class="card bg-primary text-white mb-3">
@@ -1468,17 +1557,17 @@ function displaySystemStats(stats) {
             </div>
         </div>
     `;
-    
-    document.getElementById('systemStats').innerHTML = statsHtml;
-}
 
-function confirmSystemReset() {
-    if (!currentStats) {
-        showAlert('Please wait for stats to load', 'warning');
-        return;
+        document.getElementById('systemStats').innerHTML = statsHtml;
     }
-    
-    const modal = `
+
+    function confirmSystemReset() {
+        if (!currentStats) {
+            showAlert('Please wait for stats to load', 'warning');
+            return;
+        }
+
+        const modal = `
         <div class="modal fade" id="resetConfirmModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -1532,121 +1621,121 @@ function confirmSystemReset() {
             </div>
         </div>
     `;
-    
-    document.querySelectorAll('#resetConfirmModal').forEach(el => el.remove());
-    document.body.insertAdjacentHTML('beforeend', modal);
-    const modalEl = document.getElementById('resetConfirmModal');
-    const bsModal = new bootstrap.Modal(modalEl);
-    bsModal.show();
-}
 
-function executeSystemReset() {
-    const confirmation = document.getElementById('resetConfirmation').value;
-    
-    if (confirmation !== 'RESET_EVERYTHING') {
-        showAlert('Invalid confirmation! Please type RESET_EVERYTHING exactly.', 'danger');
-        return;
+        document.querySelectorAll('#resetConfirmModal').forEach(el => el.remove());
+        document.body.insertAdjacentHTML('beforeend', modal);
+        const modalEl = document.getElementById('resetConfirmModal');
+        const bsModal = new bootstrap.Modal(modalEl);
+        bsModal.show();
     }
-    
-    if (!confirm('FINAL WARNING: Are you ABSOLUTELY SURE you want to reset the entire system?')) {
-        return;
-    }
-    
-    showAlert('Resetting system... Please wait...', 'warning');
-    
-    fetch('/api/system/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmation: confirmation })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('✅ System reset successful! Page will reload in 3 seconds...', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal')).hide();
-            setTimeout(() => location.reload(), 3000);
-        } else {
-            showAlert('Error: ' + data.error, 'danger');
+
+    function executeSystemReset() {
+        const confirmation = document.getElementById('resetConfirmation').value;
+
+        if (confirmation !== 'RESET_EVERYTHING') {
+            showAlert('Invalid confirmation! Please type RESET_EVERYTHING exactly.', 'danger');
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('Network error occurred', 'danger');
-    });
-}
+
+        if (!confirm('FINAL WARNING: Are you ABSOLUTELY SURE you want to reset the entire system?')) {
+            return;
+        }
+
+        showAlert('Resetting system... Please wait...', 'warning');
+
+        fetch('/api/system/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ confirmation: confirmation })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('✅ System reset successful! Page will reload in 3 seconds...', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal')).hide();
+                    setTimeout(() => location.reload(), 3000);
+                } else {
+                    showAlert('Error: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Network error occurred', 'danger');
+            });
+    }
 </script>
 <style>
-.sidebar {
-    position: fixed;
-    top: 56px;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    padding: 0;
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-    overflow-y: auto;
-}
+    .sidebar {
+        position: fixed;
+        top: 56px;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        overflow-y: auto;
+    }
 
-.sidebar .nav-link {
-    font-weight: 700;
-    color: #1a1a1a;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-}
+    .sidebar .nav-link {
+        font-weight: 700;
+        color: #1a1a1a;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
 
-.sidebar .nav-link.active {
-    font-weight: 800;
-    color: #0d6efd;
-    background-color: #e7f1ff;
-}
+    .sidebar .nav-link.active {
+        font-weight: 800;
+        color: #0d6efd;
+        background-color: #e7f1ff;
+    }
 
-.sidebar .nav-link:hover {
-    color: #0d6efd;
-    background-color: #f8f9fa;
-    font-weight: 700;
-}
+    .sidebar .nav-link:hover {
+        color: #0d6efd;
+        background-color: #f8f9fa;
+        font-weight: 700;
+    }
 
-.sidebar h6 {
-    font-weight: 700;
-    color: #1a1a1a;
-}
+    .sidebar h6 {
+        font-weight: 700;
+        color: #1a1a1a;
+    }
 
-.sidebar .user-name-bold {
-    font-weight: 900 !important;
-    color: #000000 !important;
-    font-size: 0.9rem;
-    display: block;
-}
+    .sidebar .user-name-bold {
+        font-weight: 900 !important;
+        color: #000000 !important;
+        font-size: 0.9rem;
+        display: block;
+    }
 
-.sidebar .stats-header-bold {
-    font-weight: 900 !important;
-    color: #000000 !important;
-    font-size: 0.875rem;
-    display: block;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+    .sidebar .stats-header-bold {
+        font-weight: 900 !important;
+        color: #000000 !important;
+        font-size: 0.875rem;
+        display: block;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-.sidebar .px-3 .small {
-    font-weight: 600;
-    color: #2c3e50;
-}
+    .sidebar .px-3 .small {
+        font-weight: 600;
+        color: #2c3e50;
+    }
 
-.admin-ticket-card {
-    cursor: pointer;
-    transition: all 0.2s;
-    border-left: 4px solid #007bff;
-}
+    .admin-ticket-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border-left: 4px solid #007bff;
+    }
 
-.admin-ticket-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
+    .admin-ticket-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
 
-main {
-    padding-top: 20px;
-}
+    main {
+        padding-top: 20px;
+    }
 </style>
 <!-- Full Credential Details Modal -->
 <div class="modal fade" id="fullCredentialModal" tabindex="-1">

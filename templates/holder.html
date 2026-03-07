@@ -4,462 +4,488 @@
 
 {% block content %}
 <style>
-:root {
-    --slate-900: #0f172a;
-    --slate-800: #1e293b;
-    --slate-700: #334155;
-    --slate-600: #475569;
-    --cyan-400: #22d3ee;
-    --cyan-500: #06b6d4;
-    --amber-400: #fbbf24;
-    --green-500: #10b981;
-    --red-500: #ef4444;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=JetBrains+Mono:wght@700&display=swap');
-
-body {
-    font-family: 'IBM Plex Mono', monospace;
-    background: var(--slate-900);
-    color: #e2e8f0;
-}
-
-/* Sidebar - Dark Brutalist */
-.sidebar {
-    background: linear-gradient(180deg, var(--slate-800), var(--slate-900)) !important;
-    border-right: 3px solid var(--cyan-500) !important;
-    position: fixed;
-    top: 56px;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    padding: 0;
-    box-shadow: 5px 0 20px rgba(6, 182, 212, 0.2);
-}
-
-.sidebar h6 {
-    color: var(--cyan-400) !important;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    border-bottom: 2px solid var(--slate-700);
-    padding-bottom: 10px;
-}
-
-.sidebar .nav-link {
-    color: #94a3b8 !important;
-    padding: 15px 20px;
-    font-weight: 600;
-    border-left: 3px solid transparent;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.sidebar .nav-link::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 3px;
-    background: var(--cyan-500);
-    transform: scaleY(0);
-    transition: transform 0.3s ease;
-}
-
-.sidebar .nav-link:hover::before {
-    transform: scaleY(1);
-}
-
-.sidebar .nav-link:hover {
-    color: var(--cyan-400) !important;
-    background: var(--slate-700) !important;
-    padding-left: 25px;
-}
-
-.sidebar .nav-link.active {
-    background: var(--slate-700) !important;
-    color: var(--cyan-400) !important;
-    border-left: 3px solid var(--cyan-500);
-    font-weight: 700;
-}
-
-.sidebar .badge {
-    border-radius: 0;
-    padding: 4px 8px;
-    font-weight: 700;
-}
-
-/* Main Content Area */
-main {
-    background: var(--slate-900);
-    min-height: calc(100vh - 56px);
-    padding-bottom: 50px;
-}
-
-/* Page Headers */
-h2 {
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--cyan-400);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 3px solid var(--cyan-500);
-    padding-bottom: 10px;
-    animation: slideInLeft 0.6s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
+    :root {
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --slate-600: #475569;
+        --cyan-400: #22d3ee;
+        --cyan-500: #06b6d4;
+        --amber-400: #fbbf24;
+        --green-500: #10b981;
+        --red-500: #ef4444;
     }
-    to {
-        opacity: 1;
-        transform: translateX(0);
+
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=JetBrains+Mono:wght@700&display=swap');
+
+    body {
+        font-family: 'IBM Plex Mono', monospace;
+        background: var(--slate-900);
+        color: #e2e8f0;
     }
-}
 
-/* Cards - Brutalist Style */
-.card {
-    background: var(--slate-800);
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.card:hover {
-    border-color: var(--cyan-500);
-    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.3);
-    transform: translateY(-3px);
-}
-
-.card-header {
-    background: var(--slate-700);
-    border-bottom: 2px solid var(--cyan-500);
-    color: var(--cyan-400);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.card-body {
-    color: #cbd5e1;
-}
-
-/* Credential Items */
-.credential-item {
-    background: var(--slate-700);
-    border: 2px solid var(--slate-600) !important;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.credential-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan-500), transparent);
-    transition: left 0.5s;
-}
-
-.credential-item:hover::before {
-    left: 100%;
-}
-
-.credential-item:hover {
-    border-color: var(--cyan-500) !important;
-    transform: translateX(5px);
-}
-
-.credential-item h6 {
-    color: var(--cyan-400);
-    font-weight: 700;
-}
-
-/* Buttons */
-.btn-outline-primary {
-    background: transparent;
-    border: 2px solid var(--cyan-500);
-    color: var(--cyan-500);
-    border-radius: 0;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-}
-
-.btn-outline-primary:hover {
-    background: var(--cyan-500);
-    color: var(--slate-900);
-    box-shadow: 0 0 20px var(--cyan-500);
-}
-
-.btn-outline-info {
-    background: transparent;
-    border: 2px solid #0ea5e9;
-    color: #0ea5e9;
-    border-radius: 0;
-    font-weight: 600;
-}
-
-.btn-outline-info:hover {
-    background: #0ea5e9;
-    color: white;
-    box-shadow: 0 0 15px #0ea5e9;
-}
-
-.btn-outline-warning {
-    background: transparent;
-    border: 2px solid var(--amber-400);
-    color: var(--amber-400);
-    border-radius: 0;
-    font-weight: 600;
-}
-
-.btn-outline-warning:hover {
-    background: var(--amber-400);
-    color: var(--slate-900);
-    box-shadow: 0 0 15px var(--amber-400);
-}
-
-.btn-outline-success {
-    background: transparent;
-    border: 2px solid var(--green-500);
-    color: var(--green-500);
-    border-radius: 0;
-    font-weight: 600;
-}
-
-.btn-outline-success:hover {
-    background: var(--green-500);
-    color: white;
-    box-shadow: 0 0 15px var(--green-500);
-}
-
-.btn-success {
-    background: var(--green-500);
-    border: 2px solid var(--green-500);
-    border-radius: 0;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.btn-success:hover {
-    background: transparent;
-    color: var(--green-500);
-    box-shadow: 0 0 20px var(--green-500);
-}
-
-/* Badges */
-.badge {
-    border-radius: 0;
-    padding: 6px 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 700;
-    border: 2px solid;
-}
-
-.badge.bg-success {
-    background: transparent !important;
-    border-color: var(--green-500);
-    color: var(--green-500);
-}
-
-.badge.bg-danger {
-    background: transparent !important;
-    border-color: var(--red-500);
-    color: var(--red-500);
-}
-
-.badge.bg-primary {
-    background: transparent !important;
-    border-color: var(--cyan-500);
-    color: var(--cyan-500);
-}
-
-.badge.bg-warning {
-    background: transparent !important;
-    border-color: var(--amber-400);
-    color: var(--amber-400);
-}
-
-/* Ticket Cards */
-.ticket-card {
-    background: var(--slate-700);
-    border-left: 4px solid var(--cyan-500);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.ticket-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
-}
-
-/* Message Cards */
-.message-card {
-    background: var(--slate-700);
-    border-left: 3px solid var(--cyan-500);
-    margin-bottom: 15px;
-    transition: all 0.3s;
-}
-
-.message-card:hover {
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
-    transform: translateX(5px);
-}
-
-.message-card.unread {
-    background: #1a2332;
-    border-left: 4px solid var(--amber-400);
-}
-
-.message-card h5,
-.message-card h6,
-.message-card p {
-    color: #e2e8f0 !important;
-    font-weight: 600;
-}
-
-.message-card.border-danger {
-    border-left-color: var(--red-500) !important;
-    background: rgba(239, 68, 68, 0.1);
-}
-
-/* Alerts */
-.alert {
-    border-radius: 0;
-    border: 2px solid;
-    font-weight: 600;
-}
-
-.alert-dark {
-    background: var(--slate-800);
-    border-color: var(--cyan-500);
-    color: #e2e8f0;
-}
-
-/* Modals */
-.modal-content {
-    background: var(--slate-800);
-    border: 3px solid var(--slate-700);
-    border-radius: 0;
-    color: #e2e8f0;
-}
-
-.modal-header {
-    background: var(--slate-700);
-    border-bottom: 2px solid var(--cyan-500);
-}
-
-.modal-title {
-    color: var(--cyan-400);
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-}
-
-.modal-body {
-    background: var(--slate-800);
-}
-
-.form-label {
-    color: var(--cyan-400);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 1px;
-}
-
-.form-control,
-.form-select {
-    background: var(--slate-900);
-    border: 2px solid var(--slate-700);
-    color: #e2e8f0;
-    border-radius: 0;
-}
-
-.form-control:focus,
-.form-select:focus {
-    background: var(--slate-900);
-    border-color: var(--cyan-500);
-    color: #e2e8f0;
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
-}
-
-/* Easter Egg #1: Hover over Student Portal title for glitch */
-h2:hover {
-    animation: glitch 0.3s ease-in-out;
-}
-
-@keyframes glitch {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(2px, -2px); }
-    60% { transform: translate(-2px, -2px); }
-    80% { transform: translate(2px, 2px); }
-}
-
-/* Easter Egg #2: Secret Konami Code activation */
-.secret-panel {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: var(--slate-800);
-    border: 3px solid var(--cyan-500);
-    padding: 20px;
-    z-index: 9999;
-    box-shadow: 0 0 50px rgba(6, 182, 212, 0.8);
-    transform: scale(0);
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.secret-panel.show {
-    transform: scale(1);
-}
-
-/* Easter Egg #3: Double-click credential card to pulse */
-@keyframes credentialPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); box-shadow: 0 0 30px var(--cyan-500); }
-}
-
-.credential-pulse {
-    animation: credentialPulse 0.5s ease-in-out;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
+    /* Sidebar - Dark Brutalist */
     .sidebar {
+        background: linear-gradient(180deg, var(--slate-800), var(--slate-900)) !important;
+        border-right: 3px solid var(--cyan-500) !important;
+        position: fixed;
+        top: 56px;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 0;
+        box-shadow: 5px 0 20px rgba(6, 182, 212, 0.2);
+    }
+
+    .sidebar h6 {
+        color: var(--cyan-400) !important;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        border-bottom: 2px solid var(--slate-700);
+        padding-bottom: 10px;
+    }
+
+    .sidebar .nav-link {
+        color: #94a3b8 !important;
+        padding: 15px 20px;
+        font-weight: 600;
+        border-left: 3px solid transparent;
+        transition: all 0.3s ease;
         position: relative;
+    }
+
+    .sidebar .nav-link::before {
+        content: '';
+        position: absolute;
+        left: 0;
         top: 0;
-        height: auto;
-        width: 100% !important;
-        margin-left: 0 !important;
+        height: 100%;
+        width: 3px;
+        background: var(--cyan-500);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
     }
-    
+
+    .sidebar .nav-link:hover::before {
+        transform: scaleY(1);
+    }
+
+    .sidebar .nav-link:hover {
+        color: var(--cyan-400) !important;
+        background: var(--slate-700) !important;
+        padding-left: 25px;
+    }
+
+    .sidebar .nav-link.active {
+        background: var(--slate-700) !important;
+        color: var(--cyan-400) !important;
+        border-left: 3px solid var(--cyan-500);
+        font-weight: 700;
+    }
+
+    .sidebar .badge {
+        border-radius: 0;
+        padding: 4px 8px;
+        font-weight: 700;
+    }
+
+    /* Main Content Area */
     main {
-        margin-left: 0 !important;
-        width: 100% !important;
+        background: var(--slate-900);
+        min-height: calc(100vh - 56px);
+        padding-bottom: 50px;
     }
-}
+
+    /* Page Headers */
+    h2 {
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--cyan-400);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 3px solid var(--cyan-500);
+        padding-bottom: 10px;
+        animation: slideInLeft 0.6s ease-out;
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Cards - Brutalist Style */
+    .card {
+        background: var(--slate-800);
+        border: 2px solid var(--slate-700);
+        border-radius: 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card:hover {
+        border-color: var(--cyan-500);
+        box-shadow: 0 8px 30px rgba(6, 182, 212, 0.3);
+        transform: translateY(-3px);
+    }
+
+    .card-header {
+        background: var(--slate-700);
+        border-bottom: 2px solid var(--cyan-500);
+        color: var(--cyan-400);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .card-body {
+        color: #cbd5e1;
+    }
+
+    /* Credential Items */
+    .credential-item {
+        background: var(--slate-700);
+        border: 2px solid var(--slate-600) !important;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .credential-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--cyan-500), transparent);
+        transition: left 0.5s;
+    }
+
+    .credential-item:hover::before {
+        left: 100%;
+    }
+
+    .credential-item:hover {
+        border-color: var(--cyan-500) !important;
+        transform: translateX(5px);
+    }
+
+    .credential-item h6 {
+        color: var(--cyan-400);
+        font-weight: 700;
+    }
+
+    /* Buttons */
+    .btn-outline-primary {
+        background: transparent;
+        border: 2px solid var(--cyan-500);
+        color: var(--cyan-500);
+        border-radius: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--cyan-500);
+        color: var(--slate-900);
+        box-shadow: 0 0 20px var(--cyan-500);
+    }
+
+    .btn-outline-info {
+        background: transparent;
+        border: 2px solid #0ea5e9;
+        color: #0ea5e9;
+        border-radius: 0;
+        font-weight: 600;
+    }
+
+    .btn-outline-info:hover {
+        background: #0ea5e9;
+        color: white;
+        box-shadow: 0 0 15px #0ea5e9;
+    }
+
+    .btn-outline-warning {
+        background: transparent;
+        border: 2px solid var(--amber-400);
+        color: var(--amber-400);
+        border-radius: 0;
+        font-weight: 600;
+    }
+
+    .btn-outline-warning:hover {
+        background: var(--amber-400);
+        color: var(--slate-900);
+        box-shadow: 0 0 15px var(--amber-400);
+    }
+
+    .btn-outline-success {
+        background: transparent;
+        border: 2px solid var(--green-500);
+        color: var(--green-500);
+        border-radius: 0;
+        font-weight: 600;
+    }
+
+    .btn-outline-success:hover {
+        background: var(--green-500);
+        color: white;
+        box-shadow: 0 0 15px var(--green-500);
+    }
+
+    .btn-success {
+        background: var(--green-500);
+        border: 2px solid var(--green-500);
+        border-radius: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .btn-success:hover {
+        background: transparent;
+        color: var(--green-500);
+        box-shadow: 0 0 20px var(--green-500);
+    }
+
+    /* Badges */
+    .badge {
+        border-radius: 0;
+        padding: 6px 12px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-weight: 700;
+        border: 2px solid;
+    }
+
+    .badge.bg-success {
+        background: transparent !important;
+        border-color: var(--green-500);
+        color: var(--green-500);
+    }
+
+    .badge.bg-danger {
+        background: transparent !important;
+        border-color: var(--red-500);
+        color: var(--red-500);
+    }
+
+    .badge.bg-primary {
+        background: transparent !important;
+        border-color: var(--cyan-500);
+        color: var(--cyan-500);
+    }
+
+    .badge.bg-warning {
+        background: transparent !important;
+        border-color: var(--amber-400);
+        color: var(--amber-400);
+    }
+
+    /* Ticket Cards */
+    .ticket-card {
+        background: var(--slate-700);
+        border-left: 4px solid var(--cyan-500);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .ticket-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
+    }
+
+    /* Message Cards */
+    .message-card {
+        background: var(--slate-700);
+        border-left: 3px solid var(--cyan-500);
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+
+    .message-card:hover {
+        box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+        transform: translateX(5px);
+    }
+
+    .message-card.unread {
+        background: #1a2332;
+        border-left: 4px solid var(--amber-400);
+    }
+
+    .message-card h5,
+    .message-card h6,
+    .message-card p {
+        color: #e2e8f0 !important;
+        font-weight: 600;
+    }
+
+    .message-card.border-danger {
+        border-left-color: var(--red-500) !important;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Alerts */
+    .alert {
+        border-radius: 0;
+        border: 2px solid;
+        font-weight: 600;
+    }
+
+    .alert-dark {
+        background: var(--slate-800);
+        border-color: var(--cyan-500);
+        color: #e2e8f0;
+    }
+
+    /* Modals */
+    .modal-content {
+        background: var(--slate-800);
+        border: 3px solid var(--slate-700);
+        border-radius: 0;
+        color: #e2e8f0;
+    }
+
+    .modal-header {
+        background: var(--slate-700);
+        border-bottom: 2px solid var(--cyan-500);
+    }
+
+    .modal-title {
+        color: var(--cyan-400);
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+    }
+
+    .modal-body {
+        background: var(--slate-800);
+    }
+
+    .form-label {
+        color: var(--cyan-400);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+
+    .form-control,
+    .form-select {
+        background: var(--slate-900);
+        border: 2px solid var(--slate-700);
+        color: #e2e8f0;
+        border-radius: 0;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background: var(--slate-900);
+        border-color: var(--cyan-500);
+        color: #e2e8f0;
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    }
+
+    /* Easter Egg #1: Hover over Student Portal title for glitch */
+    h2:hover {
+        animation: glitch 0.3s ease-in-out;
+    }
+
+    @keyframes glitch {
+
+        0%,
+        100% {
+            transform: translate(0);
+        }
+
+        20% {
+            transform: translate(-2px, 2px);
+        }
+
+        40% {
+            transform: translate(2px, -2px);
+        }
+
+        60% {
+            transform: translate(-2px, -2px);
+        }
+
+        80% {
+            transform: translate(2px, 2px);
+        }
+    }
+
+    /* Easter Egg #2: Secret Konami Code activation */
+    .secret-panel {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--slate-800);
+        border: 3px solid var(--cyan-500);
+        padding: 20px;
+        z-index: 9999;
+        box-shadow: 0 0 50px rgba(6, 182, 212, 0.8);
+        transform: scale(0);
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .secret-panel.show {
+        transform: scale(1);
+    }
+
+    /* Easter Egg #3: Double-click credential card to pulse */
+    @keyframes credentialPulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px var(--cyan-500);
+        }
+    }
+
+    .credential-pulse {
+        animation: credentialPulse 0.5s ease-in-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .sidebar {
+            position: relative;
+            top: 0;
+            height: auto;
+            width: 100% !important;
+            margin-left: 0 !important;
+        }
+
+        main {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+    }
 </style>
 
 <div class="container-fluid">
@@ -494,13 +520,14 @@ h2:hover {
 
         <!-- Main Content -->
         <main role="main" class="col-md-10 ml-sm-auto px-4" style="margin-left: 16.666667%;">
-            
+
             <!-- Credentials Section -->
             <div id="credentialsSection" class="content-section">
                 <div class="d-flex justify-content-between align-items-center mb-4 pt-3">
                     <div>
                         <h2><i class="fas fa-user-graduate me-2"></i>Student Portal</h2>
-                        <p class="text-muted mb-0">Manage your verifiable credentials and create selective disclosures</p>
+                        <p class="text-muted mb-0">Manage your verifiable credentials and create selective disclosures
+                        </p>
                     </div>
                 </div>
 
@@ -516,54 +543,66 @@ h2:hover {
                             <div class="card-body">
                                 <div id="credentialsList">
                                     {% if credentials %}
-                                        {% for credential in credentials %}
-                                        <div class="credential-item border rounded p-3 mb-3" ondblclick="pulseCredential(this)">
-                                            <div class="row">
-                                                <div class="col-md-8">
-                                                    <h6 class="mb-1">{{ credential.student_name }}</h6>
-                                                    <p class="text-muted small mb-1">{{ credential.degree }}</p>
-                                                    <p class="text-muted small mb-1">Student ID: {{ credential.student_id }}</p>
-                                                    <p class="text-muted small mb-1">GPA: {{ credential.gpa }}</p>
-                                                    <small class="text-muted">
-                                                        Issued: {{ credential.issue_date[:10] }}
-                                                        {% if credential.status == 'active' %}
-                                                            <span class="badge bg-success ms-2">Active</span>
-                                                        {% else %}
-                                                            <span class="badge bg-danger ms-2">{{ credential.status|title }}</span>
-                                                        {% endif %}
-                                                    </small>
-                                                </div>
-                                                <div class="col-md-4 text-end">
-                                                    <div class="btn-group-vertical btn-group-sm">
-                                                        <button class="btn btn-outline-info" onclick="viewCredential('{{ credential.credential_id }}')">
-                                                            <i class="fas fa-eye me-1"></i>View
-                                                        </button>
-                                                        <button class="btn btn-outline-warning" onclick="shareCredential('{{ credential.credential_id }}')">
-                                                            <i class="fas fa-share-alt me-1"></i>Share
-                                                        </button>
-                                                        <button class="btn btn-outline-success" onclick="openZKPModal('{{ credential.credential_id }}')">
-                                                            <i class="fas fa-shield-alt me-1"></i>ZKP
-                                                        </button>
-                                                        <button class="btn btn-outline-primary" onclick="showQR('{{ credential.credential_id }}')">
-                                                            <i class="fas fa-qrcode me-1"></i>QR Code
-                                                        </button>
-                                                    </div>
+                                    {% for credential in credentials %}
+                                    <div class="credential-item border rounded p-3 mb-3"
+                                        ondblclick="pulseCredential(this)">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h6 class="mb-1">{{ credential.student_name }}</h6>
+                                                <p class="text-muted small mb-1">{{ credential.degree }}</p>
+                                                <p class="text-muted small mb-1">Student ID: {{ credential.student_id }}
+                                                </p>
+                                                <p class="text-muted small mb-1">GPA: {{ credential.gpa }}</p>
+                                                <small class="text-muted">
+                                                    Issued: {{ credential.issue_date[:10] }}
+                                                    {% if credential.status == 'active' %}
+                                                    <span class="badge bg-success ms-2">Active</span>
+                                                    {% else %}
+                                                    <span class="badge bg-danger ms-2">{{ credential.status|title
+                                                        }}</span>
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <div class="btn-group-vertical btn-group-sm">
+                                                    <button class="btn btn-outline-info"
+                                                        onclick="viewCredential('{{ credential.credential_id }}')">
+                                                        <i class="fas fa-eye me-1"></i>View
+                                                    </button>
+                                                    <button class="btn btn-outline-warning"
+                                                        onclick="shareCredential('{{ credential.credential_id }}')">
+                                                        <i class="fas fa-share-alt me-1"></i>Share
+                                                    </button>
+                                                    <button class="btn btn-outline-success"
+                                                        onclick="openZKPModal('{{ credential.credential_id }}')">
+                                                        <i class="fas fa-shield-alt me-1"></i>ZKP
+                                                    </button>
+                                                    <button class="btn btn-outline-primary"
+                                                        onclick="showQR('{{ credential.credential_id }}')">
+                                                        <i class="fas fa-qrcode me-1"></i>QR Code
+                                                    </button>
+                                                    <button class="btn btn-outline-danger"
+                                                        onclick="window.location.href='/api/credential/{{ credential.credential_id }}/pdf'">
+                                                        <i class="fas fa-file-pdf me-1"></i>Download PDF
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                        {% endfor %}
+                                    </div>
+                                    {% endfor %}
                                     {% else %}
-                                        <div class="text-center text-muted py-5">
-                                            <i class="fas fa-inbox fa-3x mb-3" style="color: var(--cyan-500);"></i>
-                                            <h5 style="color: var(--cyan-400);">No Credentials Found</h5>
-                                            <p>You don't have any issued credentials yet. Contact your academic institution to get your transcript credential issued.</p>
-                                        </div>
+                                    <div class="text-center text-muted py-5">
+                                        <i class="fas fa-inbox fa-3x mb-3" style="color: var(--cyan-500);"></i>
+                                        <h5 style="color: var(--cyan-400);">No Credentials Found</h5>
+                                        <p>You don't have any issued credentials yet. Contact your academic institution
+                                            to get your transcript credential issued.</p>
+                                    </div>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-4">
                         <div class="card">
                             <div class="card-header">
@@ -572,20 +611,25 @@ h2:hover {
                             <div class="card-body">
                                 <h6 style="color: var(--green-500);">Selective Disclosure</h6>
                                 <p class="small text-muted mb-3">
-                                    Share only specific information from your credentials without revealing the entire transcript.
+                                    Share only specific information from your credentials without revealing the entire
+                                    transcript.
                                 </p>
-                                
+
                                 <h6 style="color: var(--cyan-400);">Available Fields:</h6>
                                 <ul class="list-unstyled small">
-                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Student Name</li>
+                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Student Name
+                                    </li>
                                     <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>GPA Only</li>
-                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Degree Program</li>
-                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Graduation Year</li>
-                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Specific Courses</li>
+                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Degree Program
+                                    </li>
+                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Graduation
+                                        Year</li>
+                                    <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Specific
+                                        Courses</li>
                                 </ul>
                             </div>
                         </div>
-                        
+
                         <div class="card mt-3">
                             <div class="card-header">
                                 <h6><i class="fas fa-info-circle me-2"></i>How to Share</h6>
@@ -605,7 +649,8 @@ h2:hover {
 
             <!-- Tickets Section -->
             <div id="ticketsSection" class="content-section" style="display:none;">
-                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom" style="border-color: var(--cyan-500) !important;">
+                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom"
+                    style="border-color: var(--cyan-500) !important;">
                     <h2><i class="fas fa-ticket-alt me-2"></i>Support Tickets</h2>
                     <button class="btn btn-success" onclick="showCreateTicketModal()">
                         <i class="fas fa-plus me-1"></i>Raise New Ticket
@@ -649,7 +694,8 @@ h2:hover {
 
             <!-- Messages Section -->
             <div id="messagesSection" class="content-section" style="display:none;">
-                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom" style="border-color: var(--cyan-500) !important;">
+                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom"
+                    style="border-color: var(--cyan-500) !important;">
                     <h2><i class="fas fa-envelope me-2"></i>Messages from Admin</h2>
                     <button class="btn btn-secondary" disabled style="border-radius: 0;">
                         <i class="fas fa-lock me-1"></i>Read Only
@@ -658,7 +704,8 @@ h2:hover {
 
                 <div class="alert alert-dark">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Note:</strong> Messages are read-only. To communicate with admin, please raise a support ticket.
+                    <strong>Note:</strong> Messages are read-only. To communicate with admin, please raise a support
+                    ticket.
                 </div>
 
                 <!-- Messages List -->
@@ -722,7 +769,8 @@ h2:hover {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 0;">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    style="border-radius: 0;">Cancel</button>
                 <button type="button" class="btn btn-success" onclick="submitTicket()">
                     <i class="fas fa-paper-plane me-1"></i>Submit Ticket
                 </button>
@@ -748,7 +796,8 @@ h2:hover {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 0;">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    style="border-radius: 0;">Close</button>
             </div>
         </div>
     </div>
@@ -768,16 +817,17 @@ h2:hover {
             <div class="modal-body">
                 <div class="alert alert-dark">
                     <i class="fas fa-info-circle me-2"></i>
-                    Select which fields you want to share. Only the selected information will be disclosed to the verifier.
+                    Select which fields you want to share. Only the selected information will be disclosed to the
+                    verifier.
                 </div>
-                
+
                 <form id="selectiveDisclosureForm">
                     <input type="hidden" id="selectedCredentialId">
                     <div id="fieldSelection">
                         <!-- Fields will be populated by JavaScript -->
                     </div>
                 </form>
-                
+
                 <div id="disclosureResult" class="mt-3" style="display: none;">
                     <h6 style="color: var(--cyan-400);">Generated Proof:</h6>
                     <textarea class="form-control" id="proofOutput" rows="6" readonly></textarea>
@@ -789,8 +839,10 @@ h2:hover {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 0;">Close</button>
-                <button type="button" class="btn btn-primary" id="generateProofBtn" onclick="generateProof()" style="border-radius: 0;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    style="border-radius: 0;">Close</button>
+                <button type="button" class="btn btn-primary" id="generateProofBtn" onclick="generateProof()"
+                    style="border-radius: 0;">
                     <i class="fas fa-key me-1"></i>Generate Proof
                 </button>
             </div>
@@ -802,7 +854,8 @@ h2:hover {
 <div class="modal fade" id="zkpModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header" style="background: var(--green-500); color: white; border-bottom: 2px solid var(--green-500);">
+            <div class="modal-header"
+                style="background: var(--green-500); color: white; border-bottom: 2px solid var(--green-500);">
                 <h5 class="modal-title" style="color: white;">
                     <i class="fas fa-shield-alt me-2"></i>
                     Zero-Knowledge Proof Generator
@@ -810,21 +863,27 @@ h2:hover {
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert" style="background: rgba(16, 185, 129, 0.2); border: 2px solid var(--green-500); color: #e2e8f0;">
+                <div class="alert"
+                    style="background: rgba(16, 185, 129, 0.2); border: 2px solid var(--green-500); color: #e2e8f0;">
                     <i class="fas fa-lock me-2"></i>
-                    <strong>Privacy Protected:</strong> Prove claims about your credential WITHOUT revealing the actual values!
+                    <strong>Privacy Protected:</strong> Prove claims about your credential WITHOUT revealing the actual
+                    values!
                 </div>
 
                 <input type="hidden" id="zkpCredentialId">
-                
+
                 <ul class="nav nav-tabs mb-3" id="zkpTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="range-tab" data-bs-toggle="tab" data-bs-target="#rangeProof" type="button" style="border-radius: 0; background: var(--slate-700); color: var(--cyan-400); border: 2px solid var(--slate-700);">
+                        <button class="nav-link active" id="range-tab" data-bs-toggle="tab" data-bs-target="#rangeProof"
+                            type="button"
+                            style="border-radius: 0; background: var(--slate-700); color: var(--cyan-400); border: 2px solid var(--slate-700);">
                             <i class="fas fa-greater-than-equal me-1"></i>Range Proof
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipProof" type="button" style="border-radius: 0; background: var(--slate-700); color: #94a3b8; border: 2px solid var(--slate-700);">
+                        <button class="nav-link" id="membership-tab" data-bs-toggle="tab"
+                            data-bs-target="#membershipProof" type="button"
+                            style="border-radius: 0; background: var(--slate-700); color: #94a3b8; border: 2px solid var(--slate-700);">
                             <i class="fas fa-check-circle me-1"></i>Membership Proof
                         </button>
                     </li>
@@ -835,7 +894,7 @@ h2:hover {
                     <div class="tab-pane fade show active" id="rangeProof" role="tabpanel">
                         <h6 style="color: var(--cyan-400);">Prove Value is Within Range</h6>
                         <p class="small text-muted">Example: Prove "GPA > 7.5" without revealing actual GPA</p>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Field</label>
                             <select class="form-select" id="zkpRangeField">
@@ -846,11 +905,13 @@ h2:hover {
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="form-label">Min Threshold</label>
-                                <input type="number" step="0.01" class="form-control" id="zkpMinThreshold" placeholder="e.g., 7.5">
+                                <input type="number" step="0.01" class="form-control" id="zkpMinThreshold"
+                                    placeholder="e.g., 7.5">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Max Threshold (optional)</label>
-                                <input type="number" step="0.01" class="form-control" id="zkpMaxThreshold" placeholder="e.g., 10.0">
+                                <input type="number" step="0.01" class="form-control" id="zkpMaxThreshold"
+                                    placeholder="e.g., 10.0">
                             </div>
                         </div>
                         <button class="btn btn-success mt-3" onclick="generateRangeProof()">
@@ -861,11 +922,13 @@ h2:hover {
                     <!-- Membership Proof Tab -->
                     <div class="tab-pane fade" id="membershipProof" role="tabpanel">
                         <h6 style="color: var(--cyan-400);">Prove Course Membership</h6>
-                        <p class="small text-muted">Example: Prove you completed "Data Structures" without showing all courses</p>
-                        
+                        <p class="small text-muted">Example: Prove you completed "Data Structures" without showing all
+                            courses</p>
+
                         <div class="mb-3">
                             <label class="form-label">Claim Course</label>
-                            <input type="text" class="form-control" id="zkpClaimedCourse" placeholder="e.g., Data Structures">
+                            <input type="text" class="form-control" id="zkpClaimedCourse"
+                                placeholder="e.g., Data Structures">
                         </div>
                         <button class="btn btn-success" onclick="generateMembershipProof()">
                             <i class="fas fa-key me-1"></i>Generate Membership Proof
@@ -889,7 +952,8 @@ h2:hover {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 0;">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    style="border-radius: 0;">Close</button>
             </div>
         </div>
     </div>
@@ -910,8 +974,10 @@ h2:hover {
             </div>
             <div class="modal-footer" style="background: var(--slate-800); border-top: 1px solid var(--slate-700);">
                 <small class="text-muted" id="qrVerifyUrl" style="word-break: break-all; text-align: left;"></small>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 0;">Close</button>
-                <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyQRLink()" style="border-radius: 0;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    style="border-radius: 0;">Close</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyQRLink()"
+                    style="border-radius: 0;">
                     <i class="fas fa-copy me-1"></i>Copy Link
                 </button>
             </div>
@@ -923,88 +989,88 @@ h2:hover {
 
 {% block scripts %}
 <script>
-// Store student ID from session
-const currentStudentId = '{{ session.student_id }}';
-const createTicketModalEl = document.getElementById('createTicketModal');
-const createTicketModal = new bootstrap.Modal(createTicketModalEl);
-let currentCredential = null;
-let currentZKPCredential = null;
+    // Store student ID from session
+    const currentStudentId = '{{ session.student_id }}';
+    const createTicketModalEl = document.getElementById('createTicketModal');
+    const createTicketModal = new bootstrap.Modal(createTicketModalEl);
+    let currentCredential = null;
+    let currentZKPCredential = null;
 
-// Show specific section
-function showSection(section) {
-    document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-    
-    if (section === 'credentials') {
-        document.getElementById('credentialsSection').style.display = 'block';
-        document.querySelector('[onclick*="credentials"]').classList.add('active');
-    } else if (section === 'tickets') {
-        document.getElementById('ticketsSection').style.display = 'block';
-        document.querySelector('[onclick*="tickets"]').classList.add('active');
-        loadTickets();
-    } else if (section === 'messages') {
-        document.getElementById('messagesSection').style.display = 'block';
-        document.querySelector('[onclick*="messages"]').classList.add('active');
-        loadMessages();
+    // Show specific section
+    function showSection(section) {
+        document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+        if (section === 'credentials') {
+            document.getElementById('credentialsSection').style.display = 'block';
+            document.querySelector('[onclick*="credentials"]').classList.add('active');
+        } else if (section === 'tickets') {
+            document.getElementById('ticketsSection').style.display = 'block';
+            document.querySelector('[onclick*="tickets"]').classList.add('active');
+            loadTickets();
+        } else if (section === 'messages') {
+            document.getElementById('messagesSection').style.display = 'block';
+            document.querySelector('[onclick*="messages"]').classList.add('active');
+            loadMessages();
+        }
     }
-}
 
-// Easter Egg #2: Konami Code
-let konamiCode = [];
-const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    // Easter Egg #2: Konami Code
+    let konamiCode = [];
+    const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 
-document.addEventListener('keydown', function(e) {
-    konamiCode.push(e.key);
-    konamiCode = konamiCode.slice(-10);
-    
-    if (konamiCode.join('').toLowerCase() === konamiSequence.join('').toLowerCase()) {
-        document.getElementById('secretPanel').classList.add('show');
+    document.addEventListener('keydown', function (e) {
+        konamiCode.push(e.key);
+        konamiCode = konamiCode.slice(-10);
+
+        if (konamiCode.join('').toLowerCase() === konamiSequence.join('').toLowerCase()) {
+            document.getElementById('secretPanel').classList.add('show');
+        }
+    });
+
+    function closeSecretPanel() {
+        document.getElementById('secretPanel').classList.remove('show');
+        konamiCode = [];
     }
-});
 
-function closeSecretPanel() {
-    document.getElementById('secretPanel').classList.remove('show');
-    konamiCode = [];
-}
+    // Easter Egg #3: Double-click credential card to pulse
+    function pulseCredential(element) {
+        element.classList.add('credential-pulse');
+        setTimeout(() => element.classList.remove('credential-pulse'), 500);
+    }
 
-// Easter Egg #3: Double-click credential card to pulse
-function pulseCredential(element) {
-    element.classList.add('credential-pulse');
-    setTimeout(() => element.classList.remove('credential-pulse'), 500);
-}
+    // ==================== CREDENTIALS FUNCTIONS ====================
 
-// ==================== CREDENTIALS FUNCTIONS ====================
+    function refreshCredentials() {
+        location.reload();
+    }
 
-function refreshCredentials() {
-    location.reload();
-}
+    function viewCredential(credentialId) {
+        fetch(`/api/get_credential/${credentialId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentCredential = data.credential;
+                    displayCredentialDetails(data.credential);
+                } else {
+                    showAlert('Error loading credential: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Network error occurred while loading credential', 'danger');
+            });
+    }
 
-function viewCredential(credentialId) {
-    fetch(`/api/get_credential/${credentialId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                currentCredential = data.credential;
-                displayCredentialDetails(data.credential);
-            } else {
-                showAlert('Error loading credential: ' + data.error, 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('Network error occurred while loading credential', 'danger');
-        });
-}
+    function displayCredentialDetails(credential) {
+        const content = document.getElementById('credentialModalContent');
 
-function displayCredentialDetails(credential) {
-    const content = document.getElementById('credentialModalContent');
-    
-    let fullCredentialHtml = '';
-    if (credential.full_credential) {
-        const cred = credential.full_credential;
-        const subject = cred.credentialSubject;
-        
-        fullCredentialHtml = `
+        let fullCredentialHtml = '';
+        if (credential.full_credential) {
+            const cred = credential.full_credential;
+            const subject = cred.credentialSubject;
+
+            fullCredentialHtml = `
             <table class="table table-sm table-bordered mb-0" style="color: #e2e8f0;">
                 <tr style="background: var(--slate-700);">
                     <td colspan="2" class="text-center">
@@ -1117,44 +1183,44 @@ function displayCredentialDetails(credential) {
                 </div>
             ` : ''}
         `;
-    } else {
-        fullCredentialHtml = '<div class="alert alert-warning">Credential details not available</div>';
+        } else {
+            fullCredentialHtml = '<div class="alert alert-warning">Credential details not available</div>';
+        }
+
+        content.innerHTML = fullCredentialHtml;
+        const modal = new bootstrap.Modal(document.getElementById('credentialModal'));
+        modal.show();
     }
-    
-    content.innerHTML = fullCredentialHtml;
-    const modal = new bootstrap.Modal(document.getElementById('credentialModal'));
-    modal.show();
-}
 
-function shareCredential(credentialId) {
-    fetch(`/api/get_credential/${credentialId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success && data.credential.full_credential) {
-                setupSelectiveDisclosure(credentialId, data.credential.full_credential);
-            } else {
-                showAlert('Error loading credential for selective disclosure', 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('Network error occurred: ' + error.message, 'danger');
-        });
-}
+    function shareCredential(credentialId) {
+        fetch(`/api/get_credential/${credentialId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.credential.full_credential) {
+                    setupSelectiveDisclosure(credentialId, data.credential.full_credential);
+                } else {
+                    showAlert('Error loading credential for selective disclosure', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Network error occurred: ' + error.message, 'danger');
+            });
+    }
 
-function setupSelectiveDisclosure(credentialId, fullCredential) {
-    document.getElementById('selectedCredentialId').value = credentialId;
-    document.getElementById('disclosureResult').style.display = 'none';
-    
-    const subject = fullCredential.credentialSubject;
-    
-    const fieldSelection = document.getElementById('fieldSelection');
-    fieldSelection.innerHTML = `
+    function setupSelectiveDisclosure(credentialId, fullCredential) {
+        document.getElementById('selectedCredentialId').value = credentialId;
+        document.getElementById('disclosureResult').style.display = 'none';
+
+        const subject = fullCredential.credentialSubject;
+
+        const fieldSelection = document.getElementById('fieldSelection');
+        fieldSelection.innerHTML = `
         <div class="row">
             <div class="col-md-6">
                 <div class="form-check mb-2">
@@ -1198,273 +1264,273 @@ function setupSelectiveDisclosure(credentialId, fullCredential) {
             </div>
         </div>
     `;
-    
-    const modal = new bootstrap.Modal(document.getElementById('selectiveDisclosureModal'));
-    modal.show();
-}
-function generateProof() {
-    const credentialId = document.getElementById('selectedCredentialId').value;
-    const selectedFields = [];
-    
-    const checkboxes = document.querySelectorAll('#fieldSelection input[type="checkbox"]:checked');
-    checkboxes.forEach(checkbox => {
-        selectedFields.push(checkbox.value);
-    });
-    
-    if (selectedFields.length === 0) {
-        showAlert('Please select at least one field to disclose', 'warning');
-        return;
+
+        const modal = new bootstrap.Modal(document.getElementById('selectiveDisclosureModal'));
+        modal.show();
     }
-    
-    const generateBtn = document.getElementById('generateProofBtn');
-    const originalText = generateBtn.innerHTML;
-    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
-    generateBtn.disabled = true;
-    
-    fetch('/api/selective_disclosure', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            credential_id: credentialId,
-            fields: selectedFields
+    function generateProof() {
+        const credentialId = document.getElementById('selectedCredentialId').value;
+        const selectedFields = [];
+
+        const checkboxes = document.querySelectorAll('#fieldSelection input[type="checkbox"]:checked');
+        checkboxes.forEach(checkbox => {
+            selectedFields.push(checkbox.value);
+        });
+
+        if (selectedFields.length === 0) {
+            showAlert('Please select at least one field to disclose', 'warning');
+            return;
+        }
+
+        const generateBtn = document.getElementById('generateProofBtn');
+        const originalText = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
+        generateBtn.disabled = true;
+
+        fetch('/api/selective_disclosure', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                credential_id: credentialId,
+                fields: selectedFields
+            })
         })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('proofOutput').value = JSON.stringify(data.disclosure, null, 2);
+                    document.getElementById('disclosureResult').style.display = 'block';
+                    showAlert('Selective disclosure proof generated successfully!', 'success');
+                } else {
+                    showAlert('Error generating proof: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Network error occurred: ' + error.message, 'danger');
+            })
+            .finally(() => {
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+            });
+    }
+
+    function copyProof() {
+        const proofOutput = document.getElementById('proofOutput');
+        proofOutput.select();
+        document.execCommand('copy');
+        showAlert('Proof copied to clipboard!', 'success');
+    }
+
+    // ==================== ZKP FUNCTIONS ====================
+
+    function openZKPModal(credentialId) {
+        document.getElementById('zkpCredentialId').value = credentialId;
+        document.getElementById('zkpResult').style.display = 'none';
+
+        fetch(`/api/get_credential/${credentialId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentZKPCredential = data.credential;
+                    const modal = new bootstrap.Modal(document.getElementById('zkpModal'));
+                    modal.show();
+                } else {
+                    showAlert('Error loading credential for ZKP', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Network error occurred', 'danger');
+            });
+    }
+
+    function generateRangeProof() {
+        const field = document.getElementById('zkpRangeField').value;
+        const minThreshold = parseFloat(document.getElementById('zkpMinThreshold').value);
+        const maxThreshold = document.getElementById('zkpMaxThreshold').value ? parseFloat(document.getElementById('zkpMaxThreshold').value) : null;
+
+        if (!minThreshold && minThreshold !== 0) {
+            showAlert('Please enter a minimum threshold', 'warning');
+            return;
         }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            document.getElementById('proofOutput').value = JSON.stringify(data.disclosure, null, 2);
-            document.getElementById('disclosureResult').style.display = 'block';
-            showAlert('Selective disclosure proof generated successfully!', 'success');
-        } else {
-            showAlert('Error generating proof: ' + data.error, 'danger');
+
+        if (!currentZKPCredential || !currentZKPCredential.full_credential) {
+            showAlert('Credential data not available', 'danger');
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('Network error occurred: ' + error.message, 'danger');
-    })
-    .finally(() => {
-        generateBtn.innerHTML = originalText;
-        generateBtn.disabled = false;
-    });
-}
 
-function copyProof() {
-    const proofOutput = document.getElementById('proofOutput');
-    proofOutput.select();
-    document.execCommand('copy');
-    showAlert('Proof copied to clipboard!', 'success');
-}
+        const subject = currentZKPCredential.full_credential.credentialSubject;
+        const actualValue = field === 'gpa' ? subject.gpa : subject.backlogCount || 0;
 
-// ==================== ZKP FUNCTIONS ====================
+        const proof = {
+            type: 'RangeProof',
+            field: field,
+            claim: maxThreshold ? `${minThreshold} ≤ ${field} ≤ ${maxThreshold}` : `${field} ≥ ${minThreshold}`,
+            verified: maxThreshold ? (actualValue >= minThreshold && actualValue <= maxThreshold) : (actualValue >= minThreshold),
+            commitment: btoa(Math.random().toString()).substring(0, 32),
+            credentialId: currentZKPCredential.credential_id,
+            timestamp: new Date().toISOString(),
+            signature: btoa(`zkp-range-${Date.now()}`).substring(0, 32)
+        };
 
-function openZKPModal(credentialId) {
-    document.getElementById('zkpCredentialId').value = credentialId;
-    document.getElementById('zkpResult').style.display = 'none';
-    
-    fetch(`/api/get_credential/${credentialId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                currentZKPCredential = data.credential;
-                const modal = new bootstrap.Modal(document.getElementById('zkpModal'));
-                modal.show();
-            } else {
-                showAlert('Error loading credential for ZKP', 'danger');
+        document.getElementById('zkpOutput').value = JSON.stringify(proof, null, 2);
+        document.getElementById('zkpResult').style.display = 'block';
+        showAlert(proof.verified ? 'Range proof generated: CLAIM VERIFIED ✓' : 'Range proof generated: CLAIM FAILED ✗', proof.verified ? 'success' : 'danger');
+    }
+
+    function generateMembershipProof() {
+        const claimedCourse = document.getElementById('zkpClaimedCourse').value.trim();
+
+        if (!claimedCourse) {
+            showAlert('Please enter a course name', 'warning');
+            return;
+        }
+
+        if (!currentZKPCredential || !currentZKPCredential.full_credential) {
+            showAlert('Credential data not available', 'danger');
+            return;
+        }
+
+        const subject = currentZKPCredential.full_credential.credentialSubject;
+        const courses = subject.courses || [];
+        const isMember = courses.some(course => course.toLowerCase() === claimedCourse.toLowerCase());
+
+        const proof = {
+            type: 'MembershipProof',
+            claim: `Completed course: "${claimedCourse}"`,
+            verified: isMember,
+            commitment: btoa(Math.random().toString()).substring(0, 32),
+            credentialId: currentZKPCredential.credential_id,
+            timestamp: new Date().toISOString(),
+            signature: btoa(`zkp-membership-${Date.now()}`).substring(0, 32)
+        };
+
+        document.getElementById('zkpOutput').value = JSON.stringify(proof, null, 2);
+        document.getElementById('zkpResult').style.display = 'block';
+        showAlert(isMember ? 'Membership proof generated: CLAIM VERIFIED ✓' : 'Membership proof generated: CLAIM FAILED ✗', isMember ? 'success' : 'danger');
+    }
+
+    function copyZKPProof() {
+        const zkpOutput = document.getElementById('zkpOutput');
+        zkpOutput.select();
+        document.execCommand('copy');
+        showAlert('ZKP proof copied to clipboard!', 'success');
+    }
+
+    function downloadZKPProof() {
+        const zkpOutput = document.getElementById('zkpOutput').value;
+        const blob = new Blob([zkpOutput], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `zkp-proof-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showAlert('ZKP proof downloaded!', 'success');
+    }
+
+    // ==================== TICKET FUNCTIONS ====================
+
+    function showCreateTicketModal() {
+        document.getElementById('createTicketForm').reset();
+        createTicketModal.show();
+    }
+
+    function submitTicket() {
+        const category = document.getElementById('ticketCategory').value;
+        const priority = document.getElementById('ticketPriority').value;
+        const subject = document.getElementById('ticketSubject').value;
+        const description = document.getElementById('ticketDescription').value;
+
+        if (!subject || !description || !category) {
+            showAlert('Please fill in all required fields', 'warning');
+            return;
+        }
+
+        fetch('/api/tickets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: currentStudentId,
+                subject: subject,
+                description: description,
+                category: category,
+                priority: priority
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Ticket created successfully!', 'success');
+                    createTicketModal.hide();
+                    loadTickets();
+                } else {
+                    showAlert('Error creating ticket: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error creating ticket', 'danger');
+            });
+    }
+
+    function loadTickets() {
+        fetch(`/api/tickets/student/${currentStudentId}`)
+            .then(response => response.json())
+            .then(data => {
+                displayTickets(data.tickets || []);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error loading tickets', 'danger');
+            });
+    }
+
+    function displayTickets(tickets) {
+        const openContainer = document.getElementById('openTickets');
+        const inProgressContainer = document.getElementById('inProgressTickets');
+        const resolvedContainer = document.getElementById('resolvedTickets');
+
+        openContainer.innerHTML = '';
+        inProgressContainer.innerHTML = '';
+        resolvedContainer.innerHTML = '';
+
+        tickets.forEach(ticket => {
+            const ticketCard = createTicketCard(ticket);
+
+            if (ticket.status === 'open') {
+                openContainer.innerHTML += ticketCard;
+            } else if (ticket.status === 'in_progress') {
+                inProgressContainer.innerHTML += ticketCard;
+            } else if (ticket.status === 'resolved') {
+                resolvedContainer.innerHTML += ticketCard;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('Network error occurred', 'danger');
         });
-}
 
-function generateRangeProof() {
-    const field = document.getElementById('zkpRangeField').value;
-    const minThreshold = parseFloat(document.getElementById('zkpMinThreshold').value);
-    const maxThreshold = document.getElementById('zkpMaxThreshold').value ? parseFloat(document.getElementById('zkpMaxThreshold').value) : null;
-    
-    if (!minThreshold && minThreshold !== 0) {
-        showAlert('Please enter a minimum threshold', 'warning');
-        return;
+        if (openContainer.innerHTML === '') openContainer.innerHTML = '<p class="text-muted small">No open tickets</p>';
+        if (inProgressContainer.innerHTML === '') inProgressContainer.innerHTML = '<p class="text-muted small">No tickets in progress</p>';
+        if (resolvedContainer.innerHTML === '') resolvedContainer.innerHTML = '<p class="text-muted small">No resolved tickets</p>';
+
+        const openCount = tickets.filter(t => t.status === 'open').length;
+        document.getElementById('ticketBadge').textContent = openCount;
+        document.getElementById('ticketBadge').style.display = openCount > 0 ? 'inline' : 'none';
     }
-    
-    if (!currentZKPCredential || !currentZKPCredential.full_credential) {
-        showAlert('Credential data not available', 'danger');
-        return;
-    }
-    
-    const subject = currentZKPCredential.full_credential.credentialSubject;
-    const actualValue = field === 'gpa' ? subject.gpa : subject.backlogCount || 0;
-    
-    const proof = {
-        type: 'RangeProof',
-        field: field,
-        claim: maxThreshold ? `${minThreshold} ≤ ${field} ≤ ${maxThreshold}` : `${field} ≥ ${minThreshold}`,
-        verified: maxThreshold ? (actualValue >= minThreshold && actualValue <= maxThreshold) : (actualValue >= minThreshold),
-        commitment: btoa(Math.random().toString()).substring(0, 32),
-        credentialId: currentZKPCredential.credential_id,
-        timestamp: new Date().toISOString(),
-        signature: btoa(`zkp-range-${Date.now()}`).substring(0, 32)
-    };
-    
-    document.getElementById('zkpOutput').value = JSON.stringify(proof, null, 2);
-    document.getElementById('zkpResult').style.display = 'block';
-    showAlert(proof.verified ? 'Range proof generated: CLAIM VERIFIED ✓' : 'Range proof generated: CLAIM FAILED ✗', proof.verified ? 'success' : 'danger');
-}
 
-function generateMembershipProof() {
-    const claimedCourse = document.getElementById('zkpClaimedCourse').value.trim();
-    
-    if (!claimedCourse) {
-        showAlert('Please enter a course name', 'warning');
-        return;
-    }
-    
-    if (!currentZKPCredential || !currentZKPCredential.full_credential) {
-        showAlert('Credential data not available', 'danger');
-        return;
-    }
-    
-    const subject = currentZKPCredential.full_credential.credentialSubject;
-    const courses = subject.courses || [];
-    const isMember = courses.some(course => course.toLowerCase() === claimedCourse.toLowerCase());
-    
-    const proof = {
-        type: 'MembershipProof',
-        claim: `Completed course: "${claimedCourse}"`,
-        verified: isMember,
-        commitment: btoa(Math.random().toString()).substring(0, 32),
-        credentialId: currentZKPCredential.credential_id,
-        timestamp: new Date().toISOString(),
-        signature: btoa(`zkp-membership-${Date.now()}`).substring(0, 32)
-    };
-    
-    document.getElementById('zkpOutput').value = JSON.stringify(proof, null, 2);
-    document.getElementById('zkpResult').style.display = 'block';
-    showAlert(isMember ? 'Membership proof generated: CLAIM VERIFIED ✓' : 'Membership proof generated: CLAIM FAILED ✗', isMember ? 'success' : 'danger');
-}
+    function createTicketCard(ticket) {
+        const priorityColors = { low: 'success', medium: 'warning', high: 'danger' };
+        const canResolve = ticket.can_resolve || false;
 
-function copyZKPProof() {
-    const zkpOutput = document.getElementById('zkpOutput');
-    zkpOutput.select();
-    document.execCommand('copy');
-    showAlert('ZKP proof copied to clipboard!', 'success');
-}
-
-function downloadZKPProof() {
-    const zkpOutput = document.getElementById('zkpOutput').value;
-    const blob = new Blob([zkpOutput], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `zkp-proof-${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showAlert('ZKP proof downloaded!', 'success');
-}
-
-// ==================== TICKET FUNCTIONS ====================
-
-function showCreateTicketModal() {
-    document.getElementById('createTicketForm').reset();
-    createTicketModal.show();
-}
-
-function submitTicket() {
-    const category = document.getElementById('ticketCategory').value;
-    const priority = document.getElementById('ticketPriority').value;
-    const subject = document.getElementById('ticketSubject').value;
-    const description = document.getElementById('ticketDescription').value;
-    
-    if (!subject || !description || !category) {
-        showAlert('Please fill in all required fields', 'warning');
-        return;
-    }
-    
-    fetch('/api/tickets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            student_id: currentStudentId,
-            subject: subject,
-            description: description,
-            category: category,
-            priority: priority
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Ticket created successfully!', 'success');
-            createTicketModal.hide();
-            loadTickets();
-        } else {
-            showAlert('Error creating ticket: ' + data.error, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('Error creating ticket', 'danger');
-    });
-}
-
-function loadTickets() {
-    fetch(`/api/tickets/student/${currentStudentId}`)
-        .then(response => response.json())
-        .then(data => {
-            displayTickets(data.tickets || []);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('Error loading tickets', 'danger');
-        });
-}
-
-function displayTickets(tickets) {
-    const openContainer = document.getElementById('openTickets');
-    const inProgressContainer = document.getElementById('inProgressTickets');
-    const resolvedContainer = document.getElementById('resolvedTickets');
-    
-    openContainer.innerHTML = '';
-    inProgressContainer.innerHTML = '';
-    resolvedContainer.innerHTML = '';
-    
-    tickets.forEach(ticket => {
-        const ticketCard = createTicketCard(ticket);
-        
-        if (ticket.status === 'open') {
-            openContainer.innerHTML += ticketCard;
-        } else if (ticket.status === 'in_progress') {
-            inProgressContainer.innerHTML += ticketCard;
-        } else if (ticket.status === 'resolved') {
-            resolvedContainer.innerHTML += ticketCard;
-        }
-    });
-    
-    if (openContainer.innerHTML === '') openContainer.innerHTML = '<p class="text-muted small">No open tickets</p>';
-    if (inProgressContainer.innerHTML === '') inProgressContainer.innerHTML = '<p class="text-muted small">No tickets in progress</p>';
-    if (resolvedContainer.innerHTML === '') resolvedContainer.innerHTML = '<p class="text-muted small">No resolved tickets</p>';
-    
-    const openCount = tickets.filter(t => t.status === 'open').length;
-    document.getElementById('ticketBadge').textContent = openCount;
-    document.getElementById('ticketBadge').style.display = openCount > 0 ? 'inline' : 'none';
-}
-
-function createTicketCard(ticket) {
-    const priorityColors = {low: 'success', medium: 'warning', high: 'danger'};
-    const canResolve = ticket.can_resolve || false;
-    
-    return `
+        return `
         <div class="card ticket-card mb-2">
             <div class="card-body p-2">
                 <h6 class="mb-1 small" style="color: var(--cyan-400);">${ticket.subject}</h6>
@@ -1490,95 +1556,95 @@ function createTicketCard(ticket) {
             </div>
         </div>
     `;
-}
+    }
 
-function studentResolveTicket(ticketId, isResolved) {
-    const action = isResolved ? 'mark as resolved' : 'mark as not solved and re-ticket';
-    if (!confirm(`Are you sure you want to ${action}?`)) return;
-    
-    fetch(`/api/tickets/${ticketId}/student_action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            student_id: currentStudentId,
-            is_resolved: isResolved
+    function studentResolveTicket(ticketId, isResolved) {
+        const action = isResolved ? 'mark as resolved' : 'mark as not solved and re-ticket';
+        if (!confirm(`Are you sure you want to ${action}?`)) return;
+
+        fetch(`/api/tickets/${ticketId}/student_action`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: currentStudentId,
+                is_resolved: isResolved
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert(isResolved ? 'Ticket marked as resolved!' : 'Ticket re-opened!', 'success');
-            loadTickets();
-        } else {
-            showAlert(data.error || 'Action failed', 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('Error updating ticket', 'danger');
-    });
-}
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(isResolved ? 'Ticket marked as resolved!' : 'Ticket re-opened!', 'success');
+                    loadTickets();
+                } else {
+                    showAlert(data.error || 'Action failed', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error updating ticket', 'danger');
+            });
+    }
 
-function viewTicketDetails(ticketId) {
-    fetch(`/api/tickets/${ticketId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.ticket) {
-                const ticket = data.ticket;
-                let responsesHtml = '';
-                if (ticket.responses && ticket.responses.length > 0) {
-                    responsesHtml = '<hr><h6 style="color: var(--cyan-400);">Responses:</h6>';
-                    ticket.responses.forEach(r => {
-                        responsesHtml += `
+    function viewTicketDetails(ticketId) {
+        fetch(`/api/tickets/${ticketId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.ticket) {
+                    const ticket = data.ticket;
+                    let responsesHtml = '';
+                    if (ticket.responses && ticket.responses.length > 0) {
+                        responsesHtml = '<hr><h6 style="color: var(--cyan-400);">Responses:</h6>';
+                        ticket.responses.forEach(r => {
+                            responsesHtml += `
                             <div class="mb-2 p-2 rounded" style="background: var(--slate-700);">
                                 <small style="color: #e2e8f0;"><strong>${r.responder === 'admin' ? 'Admin' : 'You'}:</strong> ${r.message}</small><br>
                                 ${r.action ? `<small class="text-info">${r.action}</small><br>` : ''}
                                 <small class="text-muted">${new Date(r.timestamp).toLocaleString()}</small>
                             </div>
                         `;
-                    });
-                }
-                
-                const alertContent = `
+                        });
+                    }
+
+                    const alertContent = `
                     <h6 style="color: var(--cyan-400);">${ticket.subject}</h6>
                     <p style="color: #cbd5e1;">${ticket.description}</p>
                     <small style="color: #94a3b8;">Status: ${ticket.status} | Priority: ${ticket.priority}</small>
                     ${responsesHtml}
                 `;
-                
-                showAlert(alertContent, 'info');
-            }
-        });
-}
 
-// ==================== MESSAGE FUNCTIONS ====================
-
-function loadMessages() {
-    fetch(`/api/messages/student/${currentStudentId}`)
-        .then(response => response.json())
-        .then(data => {
-            displayMessages(data.messages || []);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('Error loading messages', 'danger');
-        });
-}
-
-function displayMessages(messages) {
-    const container = document.getElementById('messagesList');
-    
-    if (messages.length === 0) {
-        container.innerHTML = '<p style="color: var(--cyan-400);">No messages yet</p>';
-        return;
+                    showAlert(alertContent, 'info');
+                }
+            });
     }
-    
-    container.innerHTML = messages.map(msg => {
-        const isUnread = !msg.read;
-        const isRevoked = msg.revoked;
-        const isBroadcast = msg.is_broadcast;
-        
-        return `
+
+    // ==================== MESSAGE FUNCTIONS ====================
+
+    function loadMessages() {
+        fetch(`/api/messages/student/${currentStudentId}`)
+            .then(response => response.json())
+            .then(data => {
+                displayMessages(data.messages || []);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error loading messages', 'danger');
+            });
+    }
+
+    function displayMessages(messages) {
+        const container = document.getElementById('messagesList');
+
+        if (messages.length === 0) {
+            container.innerHTML = '<p style="color: var(--cyan-400);">No messages yet</p>';
+            return;
+        }
+
+        container.innerHTML = messages.map(msg => {
+            const isUnread = !msg.read;
+            const isRevoked = msg.revoked;
+            const isBroadcast = msg.is_broadcast;
+
+            return `
             <div class="card message-card ${isUnread ? 'unread' : ''} ${isRevoked ? 'border-danger' : ''} mb-3">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
@@ -1610,97 +1676,97 @@ function displayMessages(messages) {
                 </div>
             </div>
         `;
-    }).join('');
-    
-    const unreadCount = messages.filter(m => !m.read && !m.revoked).length;
-    document.getElementById('messageBadge').textContent = unreadCount;
-    document.getElementById('messageBadge').style.display = unreadCount > 0 ? 'inline' : 'none';
-}
+        }).join('');
 
-function markMessageAsRead(messageId) {
-    fetch(`/api/messages/${messageId}/read`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ student_id: currentStudentId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            loadMessages();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
+        const unreadCount = messages.filter(m => !m.read && !m.revoked).length;
+        document.getElementById('messageBadge').textContent = unreadCount;
+        document.getElementById('messageBadge').style.display = unreadCount > 0 ? 'inline' : 'none';
+    }
 
-// ==================== QR CODE FUNCTIONS ====================
+    function markMessageAsRead(messageId) {
+        fetch(`/api/messages/${messageId}/read`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_id: currentStudentId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadMessages();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
 
-let currentQRUrl = '';
+    // ==================== QR CODE FUNCTIONS ====================
 
-function showQR(credentialId) {
-    const modal = new bootstrap.Modal(document.getElementById('qrModal'));
-    const body = document.getElementById('qrModalBody');
-    const urlEl = document.getElementById('qrVerifyUrl');
+    let currentQRUrl = '';
 
-    body.innerHTML = '<p style="color: var(--cyan-400);"><i class="fas fa-spinner fa-spin me-2"></i>Generating...</p>';
-    urlEl.textContent = '';
-    currentQRUrl = '';
-    modal.show();
+    function showQR(credentialId) {
+        const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+        const body = document.getElementById('qrModalBody');
+        const urlEl = document.getElementById('qrVerifyUrl');
 
-    fetch(`/api/credential/${credentialId}/qr`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                currentQRUrl = data.verify_url;
-                urlEl.textContent = data.verify_url;
-                body.innerHTML = `
+        body.innerHTML = '<p style="color: var(--cyan-400);"><i class="fas fa-spinner fa-spin me-2"></i>Generating...</p>';
+        urlEl.textContent = '';
+        currentQRUrl = '';
+        modal.show();
+
+        fetch(`/api/credential/${credentialId}/qr`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentQRUrl = data.verify_url;
+                    urlEl.textContent = data.verify_url;
+                    body.innerHTML = `
                     <img src="data:image/png;base64,${data.qr_base64}"
                          alt="Verification QR Code"
                          style="width: 220px; height: 220px; border: 3px solid var(--cyan-500); padding: 8px; background: #0f172a;"
                     />
                     <p class="mt-2 small" style="color: #94a3b8;">Employer scans this to verify instantly — no login needed.</p>
                 `;
-            } else {
-                body.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
-            }
-        })
-        .catch(err => {
-            body.innerHTML = `<div class="alert alert-danger">Network error: ${err.message}</div>`;
-        });
-}
+                } else {
+                    body.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                }
+            })
+            .catch(err => {
+                body.innerHTML = `<div class="alert alert-danger">Network error: ${err.message}</div>`;
+            });
+    }
 
-function copyQRLink() {
-    if (!currentQRUrl) return;
-    navigator.clipboard.writeText(currentQRUrl)
-        .then(() => showAlert('Verify link copied to clipboard!', 'success'))
-        .catch(() => {
-            // Fallback for older browsers
-            const el = document.createElement('input');
-            el.value = currentQRUrl;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            showAlert('Verify link copied!', 'success');
-        });
-}
+    function copyQRLink() {
+        if (!currentQRUrl) return;
+        navigator.clipboard.writeText(currentQRUrl)
+            .then(() => showAlert('Verify link copied to clipboard!', 'success'))
+            .catch(() => {
+                // Fallback for older browsers
+                const el = document.createElement('input');
+                el.value = currentQRUrl;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showAlert('Verify link copied!', 'success');
+            });
+    }
 
-// ==================== UTILITY FUNCTIONS ====================
+    // ==================== UTILITY FUNCTIONS ====================
 
-function showAlert(message, type) {
-    const alertHtml = `
+    function showAlert(message, type) {
+        const alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999; min-width: 300px; max-width: 600px; border-radius: 0;">
             ${message}
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', alertHtml);
-    
-    setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) alert.remove();
-    }, 5000);
-}
+        document.body.insertAdjacentHTML('beforeend', alertHtml);
+
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 5000);
+    }
 </script>
 {% endblock %}

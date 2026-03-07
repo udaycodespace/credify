@@ -1,61 +1,57 @@
 """
-Integration tests for complete workflows
+Integration tests — Full Circuit Workflow (Issue -> Mine -> Sync -> Verify)
 """
 import pytest
 import json
 
-
-@pytest.mark.skip(reason="Selective disclosure API - works in production")
-def test_complete_credential_workflow(auth_client, sample_credential_data):
-    """Test complete credential lifecycle"""
-    # 1. Issue credential
-    issue_response = auth_client.post(
+def test_full_blockchain_workflow(auth_client, client, sample_credential_data):
+    """
+    Test the complete flow from issuing a credential to 
+    it being anchored in the blockchain and verified publicly.
+    """
+    # 1. ISSUE
+    issue_resp = auth_client.post(
         '/api/issue_credential',
         data=json.dumps(sample_credential_data),
         content_type='application/json'
     )
-    assert issue_response.status_code == 200
-    credential_id = json.loads(issue_response.data)['credential_id']
-    
-    # 2. Verify credential
-    verify_response = auth_client.post(
-        '/api/verify_credential',
-        data=json.dumps({'credential_id': credential_id}),
-        content_type='application/json'
-    )
-    assert json.loads(verify_response.data)['valid'] is True
-    
-    # 3. Selective disclosure
-    disclosure_response = auth_client.post(
-        '/api/selective_disclosure',
-        data=json.dumps({
-            'credential_id': credential_id,
-            'fields': ['student_name', 'gpa']
-        }),
-        content_type='application/json'
-    )
-    assert json.loads(disclosure_response.data)['success'] is True
-    
-    # 4. Revoke credential
-    revoke_response = auth_client.post(
-        '/api/revoke_credential',
-        data=json.dumps({
-            'credential_id': credential_id,
-            'reason': 'Test revocation',
-            'reason_category': 'other'
-        }),
-        content_type='application/json'
-    )
-    assert json.loads(revoke_response.data)['success'] is True
+    assert issue_resp.status_code == 200
+    res_data = json.loads(issue_resp.data)
+    cred_id = res_data['credential_id']
+    block_hash = res_data['block_hash']
 
-def test_system_reset_workflow(auth_client):
-    """Test system reset functionality"""
-    response = auth_client.post(
+    # 2. EXPLORE (Verify it exists in the ledger)
+    explore_resp = client.get('/api/blockchain/blocks')
+    blocks = json.loads(explore_resp.data)['blocks']
+    
+    # Latest block should match our issuance
+    last_block = blocks[0] # Dashboard usually shows newest first
+    assert last_block['hash'] == block_hash
+    assert last_block['signed_by'] in ["admin", "test_admin"]
+
+    # 3. PUBLIC VERIFY (Verify integrity via public endpoint)
+    # This simulates a verifier/employer checking the transcript
+    verify_resp = client.get(f'/verify?id={cred_id}')
+    assert verify_resp.status_code == 200
+    assert b'Credential Verified' in verify_resp.data or b'ACTIVE &amp; VALID' in verify_resp.data
+
+    # 4. SYSTEM STATS
+    stats_resp = auth_client.get('/api/system/stats')
+    stats = json.loads(stats_resp.data)['stats']
+    assert stats['blockchain']['blocks'] >= 2 # Genesis + our issuance
+    assert stats['credentials']['total'] >= 1
+
+def test_system_wipe_recovery(auth_client, client):
+    """Verify system reset clears identity and ledger but preserves genesis"""
+    # Wipe
+    auth_client.post(
         '/api/system/reset',
         data=json.dumps({'confirmation': 'RESET_EVERYTHING'}),
         content_type='application/json'
     )
     
-    assert response.status_code == 200
-    data = json.loads(response.data)
-    assert data['success'] is True
+    # Check blockchain
+    resp = client.get('/api/blockchain/blocks')
+    blocks = json.loads(resp.data)['blocks']
+    assert len(blocks) == 1 # Only genesis remains
+    assert blocks[0]['index'] == 0

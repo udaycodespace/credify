@@ -1,18 +1,16 @@
 """
-Tests for API endpoints
+Tests for API endpoints — Updated for Track A API Specification
 """
 import pytest
 import json
 
-
 def test_index_page(client):
-    """Test landing page"""
+    """Test public landing page accessibility"""
     response = client.get('/')
     assert response.status_code == 200
 
-
 def test_issue_credential_api(auth_client, sample_credential_data):
-    """Test credential issuance API"""
+    """Test administrative credential issuance API"""
     response = auth_client.post(
         '/api/issue_credential',
         data=json.dumps(sample_credential_data),
@@ -22,53 +20,58 @@ def test_issue_credential_api(auth_client, sample_credential_data):
     assert response.status_code == 200
     data = json.loads(response.data)
     assert data['success'] is True
+    assert 'block_hash' in data
 
-
-def test_verify_credential_api(auth_client, sample_credential_data):
-    """Test credential verification API"""
+def test_verify_credential_api(client, auth_client, sample_credential_data):
+    """Test public-facing verification API"""
     # Issue a credential first
-    issue_response = auth_client.post(
+    issue_resp = auth_client.post(
         '/api/issue_credential',
         data=json.dumps(sample_credential_data),
         content_type='application/json'
     )
-    credential_id = json.loads(issue_response.data)['credential_id']
+    cred_id = json.loads(issue_resp.data)['credential_id']
     
-    # Verify it
-    response = auth_client.post(
+    # Verify via public API
+    response = client.post(
         '/api/verify_credential',
-        data=json.dumps({'credential_id': credential_id}),
+        data=json.dumps({'credential_id': cred_id}),
         content_type='application/json'
     )
     
     assert response.status_code == 200
     data = json.loads(response.data)
     assert data['valid'] is True
+    assert data['status'] == 'active'
 
-
-def test_blockchain_status_api(client):
-    """Test blockchain status API"""
-    response = client.get('/api/blockchain_status')
+def test_blockchain_explorer_api(client):
+    """Test the blockchain explorer data endpoint"""
+    response = client.get('/api/blockchain/blocks')
     assert response.status_code == 200
     
     data = json.loads(response.data)
-    assert 'total_blocks' in data
-    assert 'total_credentials' in data
+    assert 'blocks' in data
+    assert len(data['blocks']) >= 1 # Genesis block at minimum
 
-
-def test_system_stats_api(auth_client):
-    """Test system statistics API"""
-    response = auth_client.get('/api/system/stats')
+def test_blockchain_audit_api(auth_client):
+    """Test the cryptographic audit/validation endpoint"""
+    response = auth_client.get('/api/blockchain/validate')
     assert response.status_code == 200
     
     data = json.loads(response.data)
     assert data['success'] is True
-    assert 'stats' in data
-    assert 'credentials' in data['stats']
-    assert 'users' in data['stats']
+    assert data['valid'] is True
 
+def test_node_chain_api(client):
+    """Test the P2P synchronization endpoint for fetching the full chain"""
+    response = client.get('/api/node/chain')
+    assert response.status_code == 200
+    
+    data = json.loads(response.data)
+    assert 'chain' in data
+    assert 'length' in data
 
-def test_unauthorized_access(client):
-    """Test unauthorized API access"""
-    response = client.get('/api/credentials')
-    assert response.status_code == 302  # Redirect to login
+def test_unauthorized_issuer_routes(client):
+    """Test that unauthorized users are redirected from issuer routes"""
+    response = client.get('/issuer')
+    assert response.status_code == 302 # Login redirect

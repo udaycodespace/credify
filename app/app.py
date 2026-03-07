@@ -59,11 +59,30 @@ blockchain = SimpleBlockchain(crypto_manager, db=db, block_model=BlockRecord)
 blockchain.difficulty = app.config.get("BLOCKCHAIN_DIFFICULTY", 0)
 blockchain.VALIDATORS = app.config.get("VALIDATOR_USERNAMES", ["admin", "issuer1"])
 
-# Track A: Initialize blockchain state within application context
 with app.app_context():
     blockchain.load_blockchain()
     if not blockchain.chain:
         blockchain.create_genesis_block()
+
+    # Track A Step 4: Multi-Node P2P Sync Initialization
+    peer_nodes_env = os.environ.get('PEER_NODES', '')
+    if peer_nodes_env:
+        for peer in peer_nodes_env.split(','):
+            if peer.strip():
+                try:
+                    blockchain.register_node(peer.strip())
+                except ValueError:
+                    logging.warning(f"Invalid peer URI: {peer.strip()}")
+        
+        if blockchain.nodes:
+            try:
+                logging.info(f"Syncing with peers: {blockchain.nodes}...")
+                if blockchain.resolve_conflicts():
+                    logging.info(f"Synchronized chain with peers. New length: {len(blockchain.chain)}")
+                else:
+                    logging.info("Local chain is authoritative or equal length.")
+            except Exception as e:
+                logging.error(f"Error during initial peer sync: {e}")
 
 ipfs_client = IPFSClient()
 credential_manager = CredentialManager(blockchain, crypto_manager, ipfs_client)
@@ -655,33 +674,21 @@ def validate_chain():
 @app.route('/api/blockchain/blocks')
 def api_get_blocks():
     """
-    Get a summary of all blocks for the explorer.
-    
-    Fields returned: index, timestamp, hash, previous_hash, 
-    signed_by, and credential_count.
+    Get all blocks for the explorer with full metadata.
     """
     try:
-        blocks_data = []
-        for block in blockchain.chain:
-            # Handle both object-based and dict-based blocks for stability
-            if hasattr(block, 'index'):
-                blocks_data.append({
-                    'index': block.index,
-                    'timestamp': block.timestamp,
-                    'hash': block.hash,
-                    'previous_hash': block.previous_hash,
-                    'signed_by': getattr(block, 'signed_by', 'Genesis'),
-                    'credential_count': len(block.data) if isinstance(block.data, list) else 1
-                })
+        # Return blocks in reverse order (newest first) for better UX
+        blocks_data = [b.to_dict() for b in reversed(blockchain.chain)]
+        
+        # Add credential count summary for each block for UI convenience
+        for b in blocks_data:
+            if isinstance(b['data'], list):
+                b['credential_count'] = len(b['data'])
+            elif isinstance(b['data'], dict):
+                b['credential_count'] = 1
             else:
-                blocks_data.append({
-                    'index': block.get('index'),
-                    'timestamp': block.get('timestamp'),
-                    'hash': block.get('hash'),
-                    'previous_hash': block.get('previous_hash'),
-                    'signed_by': block.get('signed_by', 'Genesis'),
-                    'credential_count': len(block.get('data', [])) if isinstance(block.get('data'), list) else 1
-                })
+                b['credential_count'] = 0
+
         return jsonify({'success': True, 'blocks': blocks_data})
     except Exception as e:
         logging.error(f"Error getting blockchain blocks: {str(e)}")

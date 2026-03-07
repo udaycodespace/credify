@@ -50,6 +50,13 @@ ipfshttpclient==0.8.0a2
 python-dotenv==1.0.0
 requests==2.31.0
 
+# QR Code Generation
+qrcode[pil]==7.4.2
+Pillow==10.1.0
+
+# PDF Generation
+reportlab==4.0.7
+
 # Production Server (for deployment)
 gunicorn==21.2.0
 gevent==23.9.1

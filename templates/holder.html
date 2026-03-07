@@ -544,6 +544,9 @@ h2:hover {
                                                         <button class="btn btn-outline-success" onclick="openZKPModal('{{ credential.credential_id }}')">
                                                             <i class="fas fa-shield-alt me-1"></i>ZKP
                                                         </button>
+                                                        <button class="btn btn-outline-primary" onclick="showQR('{{ credential.credential_id }}')">
+                                                            <i class="fas fa-qrcode me-1"></i>QR Code
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -887,6 +890,30 @@ h2:hover {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 0;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--slate-700); border-bottom: 2px solid var(--cyan-500);">
+                <h5 class="modal-title" style="color: var(--cyan-400); font-family: 'JetBrains Mono', monospace;">
+                    <i class="fas fa-qrcode me-2"></i>Verify QR Code
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" id="qrModalBody">
+                <p style="color: var(--cyan-400);"><i class="fas fa-spinner fa-spin me-2"></i>Generating...</p>
+            </div>
+            <div class="modal-footer" style="background: var(--slate-800); border-top: 1px solid var(--slate-700);">
+                <small class="text-muted" id="qrVerifyUrl" style="word-break: break-all; text-align: left;"></small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 0;">Close</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyQRLink()" style="border-radius: 0;">
+                    <i class="fas fa-copy me-1"></i>Copy Link
+                </button>
             </div>
         </div>
     </div>
@@ -1605,6 +1632,58 @@ function markMessageAsRead(messageId) {
     .catch(error => {
         console.error('Error:', error);
     });
+}
+
+// ==================== QR CODE FUNCTIONS ====================
+
+let currentQRUrl = '';
+
+function showQR(credentialId) {
+    const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+    const body = document.getElementById('qrModalBody');
+    const urlEl = document.getElementById('qrVerifyUrl');
+
+    body.innerHTML = '<p style="color: var(--cyan-400);"><i class="fas fa-spinner fa-spin me-2"></i>Generating...</p>';
+    urlEl.textContent = '';
+    currentQRUrl = '';
+    modal.show();
+
+    fetch(`/api/credential/${credentialId}/qr`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentQRUrl = data.verify_url;
+                urlEl.textContent = data.verify_url;
+                body.innerHTML = `
+                    <img src="data:image/png;base64,${data.qr_base64}"
+                         alt="Verification QR Code"
+                         style="width: 220px; height: 220px; border: 3px solid var(--cyan-500); padding: 8px; background: #0f172a;"
+                    />
+                    <p class="mt-2 small" style="color: #94a3b8;">Employer scans this to verify instantly — no login needed.</p>
+                `;
+            } else {
+                body.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            }
+        })
+        .catch(err => {
+            body.innerHTML = `<div class="alert alert-danger">Network error: ${err.message}</div>`;
+        });
+}
+
+function copyQRLink() {
+    if (!currentQRUrl) return;
+    navigator.clipboard.writeText(currentQRUrl)
+        .then(() => showAlert('Verify link copied to clipboard!', 'success'))
+        .catch(() => {
+            // Fallback for older browsers
+            const el = document.createElement('input');
+            el.value = currentQRUrl;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showAlert('Verify link copied!', 'success');
+        });
 }
 
 // ==================== UTILITY FUNCTIONS ====================

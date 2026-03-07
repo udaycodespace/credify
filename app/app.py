@@ -28,6 +28,13 @@ from .auth import login_required, role_required
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
+import qrcode
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from flask import send_file
+
 # FIXED: Flask app with ROOT-LEVEL template/static paths
 app = Flask(__name__,
             template_folder='../templates',
@@ -344,6 +351,61 @@ def api_verify_credential():
         return jsonify(result)
     except Exception as e:
         logging.error(f"Error verifying credential: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/verify')
+def public_verify():
+    """
+    Public verification page - no login required.
+    
+    Verifies credential integrity by cross-referencing the 
+    provided ID against the blockchain hash and revocation status.
+    """
+    credential_id = request.args.get('id')
+    result = None
+    credential_data = None
+    
+    if credential_id:
+        try:
+            result = credential_manager.verify_credential(credential_id)
+            credential_data = credential_manager.get_credential(credential_id)
+        except Exception as e:
+            logging.error(f"Public verification error: {e}")
+            
+    return render_template('verify.html', 
+                           credential_id=credential_id, 
+                           result=result, 
+                           credential=credential_data)
+
+@app.route('/api/credential/<credential_id>/qr')
+def get_credential_qr(credential_id):
+    """
+    Generate a QR code linking to the public verification page.
+    """
+    try:
+        # Create verification URL
+        verify_url = url_for('public_verify', id=credential_id, _external=True)
+        
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(verify_url)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Save to buffer
+        img_buffer = io.BytesIO()
+        img.save(img_buffer, "PNG")
+        img_buffer.seek(0)
+        
+        return send_file(img_buffer, mimetype='image/png')
+    except Exception as e:
+        logging.error(f"QR Generation error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/selective_disclosure', methods=['POST'])
@@ -796,6 +858,58 @@ def mark_message_read(message_id):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# ==================== QR CODE & PUBLIC VERIFY ====================
+
+@app.route('/api/credential/<credential_id>/qr')
+def api_credential_qr(credential_id):
+    """Generate a QR code image (base64 PNG) linking to the public verify page."""
+    try:
+        import qrcode
+        import io
+        import base64
+
+        verify_url = url_for('public_verify', _external=True) + f'?id={credential_id}'
+
+        qr = qrcode.QRCode(version=1, box_size=8, border=4)
+        qr.add_data(verify_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='#06b6d4', back_color='#0f172a')
+
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        qr_b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+        return jsonify({'success': True, 'qr_base64': qr_b64, 'verify_url': verify_url})
+    except ImportError:
+        return jsonify({'success': False, 'error': 'qrcode library not installed. Run: pip install qrcode[pil] Pillow'}), 500
+    except Exception as e:
+        logging.error(f'QR generation error: {e}')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/verify')
+def public_verify():
+    """Public credential verification page — no login required.
+    Usage: /verify?id=CRED_ID
+    Anyone (employer, institution) can land here from a QR code scan.
+    """
+    credential_id = request.args.get('id', '').strip()
+    result = None
+    credential = None
+
+    if credential_id:
+        try:
+            result = credential_manager.verify_credential(credential_id)
+            if result.get('valid') and result.get('credential'):
+                credential = result['credential'].get('credentialSubject', {})
+        except Exception as e:
+            logging.error(f'Public verify error: {e}')
+            result = {'valid': False, 'error': str(e)}
+
+    return render_template('verify.html', credential_id=credential_id, result=result, credential=credential)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

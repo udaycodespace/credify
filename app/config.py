@@ -27,7 +27,8 @@ class Config:
     ]
     
     # Blockchain settings - FIXED paths
-    BLOCKCHAIN_DIFFICULTY = 2
+    BLOCKCHAIN_DIFFICULTY = 0
+    VALIDATOR_USERNAMES = ["admin", "issuer1"]
     BLOCKCHAIN_FILE = DATA_DIR / "blockchain_data.json"
     
     # Crypto settings - FIXED path

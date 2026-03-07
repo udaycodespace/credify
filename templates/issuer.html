@@ -395,6 +395,9 @@
                                 class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>Blockchain Explorer</h5>
                                 <div>
+                                    <button class="btn btn-sm btn-outline-success me-2" onclick="validateBlockchain()">
+                                        <i class="fas fa-check-shield me-1"></i>Validate Integrity
+                                    </button>
                                     <a href="/api/blockchain/audit" class="btn btn-sm btn-outline-info me-2">
                                         <i class="fas fa-file-download me-1"></i>Audit Log (.csv)
                                     </a>
@@ -1556,7 +1559,7 @@
                     <div class="card-body text-center">
                         <h3 class="mb-0">${stats.blockchain.blocks}</h3>
                         <p class="mb-0">Blockchain Blocks</p>
-                        <small>${stats.messages.total} messages sent</small>
+                        <small>Node: ${stats.blockchain.node_name} | ${stats.blockchain.peers} Peers</small>
                     </div>
                 </div>
             </div>
@@ -1564,6 +1567,41 @@
     `;
 
         document.getElementById('systemStats').innerHTML = statsHtml;
+    }
+
+    function validateBlockchain() {
+        const btn = event.target.closest('button');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Auditing...';
+        btn.disabled = true;
+
+        fetch('/api/blockchain/validate')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.valid) {
+                    Swal.fire({
+                        title: 'Audit Complete',
+                        text: `Success! Checked ${data.blocks_checked} blocks. Cryptographic integrity is 100% verified.`,
+                        icon: 'success',
+                        confirmButtonColor: 'var(--cyan-600)'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Integrity Failure',
+                        text: 'WARNING: Blockchain integrity check failed! Chain might be corrupted or tampered.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Validation error:', err);
+                Swal.fire('Error', 'Failed to communicate with auditing service', 'error');
+            })
+            .finally(() => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            });
     }
 
     function confirmSystemReset() {

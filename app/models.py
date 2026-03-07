@@ -164,6 +164,25 @@ class Message(db.Model):
         }
 
 
+class BlockRecord(db.Model):
+    """SQL model for storing blockchain blocks persistently"""
+    __tablename__ = "blockchain_blocks"
+
+    id = db.Column(db.Integer, primary_key=True)
+    index = db.Column(db.Integer, unique=True, nullable=False)
+    timestamp = db.Column(db.String(50), nullable=False)
+    data = db.Column(db.Text, nullable=False)  # JSON serialized data
+    merkle_root = db.Column(db.String(64), nullable=True)
+    previous_hash = db.Column(db.String(64), nullable=False)
+    nonce = db.Column(db.Integer, default=0)
+    hash = db.Column(db.String(64), unique=True, nullable=False)
+    signed_by = db.Column(db.String(80))
+    signature = db.Column(db.Text)
+
+    def __repr__(self):
+        return f'<Block {self.index}: {self.hash[:10]}>'
+
+
 def init_database(app):
     """Initialize database with app context"""
     # Configure database URL

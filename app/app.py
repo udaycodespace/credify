@@ -22,7 +22,7 @@ from core.ipfs_client import IPFSClient
 from core.credential_manager import CredentialManager
 from core.ticket_manager import TicketManager
 from core.zkp_manager import ZKPManager  # ✅ NEW: ZKP Import
-from .models import db, User, init_database
+from .models import db, User, init_database, BlockRecord
 from .auth import login_required, role_required
 
 # Configure logging
@@ -53,7 +53,18 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 # Initialize components
 init_database(app)
 crypto_manager = CryptoManager()
-blockchain = SimpleBlockchain(crypto_manager)
+
+# Track A: Initialize blockchain with SQL Storage and PoA difficulty
+blockchain = SimpleBlockchain(crypto_manager, db=db, block_model=BlockRecord)
+blockchain.difficulty = app.config.get("BLOCKCHAIN_DIFFICULTY", 0)
+blockchain.VALIDATORS = app.config.get("VALIDATOR_USERNAMES", ["admin", "issuer1"])
+
+# Track A: Initialize blockchain state within application context
+with app.app_context():
+    blockchain.load_blockchain()
+    if not blockchain.chain:
+        blockchain.create_genesis_block()
+
 ipfs_client = IPFSClient()
 credential_manager = CredentialManager(blockchain, crypto_manager, ipfs_client)
 ticket_manager = TicketManager()
@@ -137,21 +148,22 @@ def api_system_reset():
         logging.info("✅ Cleared credentials_registry.json")
         
         # Reset blockchain
+        try:
+            BlockRecord.query.delete()
+            db.session.commit()
+            logging.info("✅ Cleared BlockRecord database table")
+            
+            # Reset memory chain
+            blockchain.chain = []
+            blockchain.create_genesis_block()
+        except Exception as e:
+            logging.error(f"Error clearing BlockRecord table: {e}")
+            
+        # Legacy JSON reset (Keep for cleanup)
         blockchain_file = DATA_DIR / 'blockchain_data.json'
-        genesis_block = {
-            "chain": [
-                {
-                    "index": 0,
-                    "timestamp": "2025-01-01T00:00:00Z",
-                    "data": "Genesis Block",
-                    "previous_hash": "0",
-                    "hash": "genesis_hash_000"
-                }
-            ]
-        }
-        with open(blockchain_file, 'w') as f:
-            json.dump(genesis_block, f, indent=2)
-        logging.info("✅ Reset blockchain to genesis")
+        if blockchain_file.exists():
+            os.remove(blockchain_file)
+        logging.info("✅ Removed legacy blockchain_data.json")
         
         # Reset IPFS storage
         ipfs_file = DATA_DIR / 'ipfs_storage.json'
@@ -230,6 +242,14 @@ def api_system_stats():
             stats['users']['verifiers'] = User.query.filter_by(role='verifier').count()
         except Exception as e:
             logging.warning(f"Could not load users: {e}")
+
+        # Add Blockchain Networking info
+        stats['blockchain'] = {
+            'blocks': len(blockchain.chain),
+            'peers': len(blockchain.nodes),
+            'node_name': os.environ.get('NODE_NAME', 'standalone'),
+            'validators': blockchain.VALIDATORS
+        }
         
         return jsonify({'success': True, 'stats': stats})
     
@@ -355,70 +375,9 @@ def api_verify_credential():
         logging.error(f"Error verifying credential: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/verify')
-def public_verify():
-    """
-    Public verification page - no login required.
-    
-    Verifies credential integrity by cross-referencing the 
-    provided ID against the blockchain hash and revocation status.
-    """
-    credential_id = request.args.get('id')
-    result = None
-    credential_data = None
-    
-    if credential_id:
-        try:
-            result = credential_manager.verify_credential(credential_id)
-            credential_data = credential_manager.get_credential(credential_id)
-        except Exception as e:
-            logging.error(f"Public verification error: {e}")
-            
-    return render_template('verify.html', 
-                           credential_id=credential_id, 
-                           result=result, 
-                           credential=credential_data)
-
-@app.route('/api/credential/<credential_id>/qr')
-def get_credential_qr(credential_id):
-    """
-    Generate a QR code linking to the public verification page.
-    """
-    try:
-        import base64
-        # Create verification URL
-        verify_url = url_for('public_verify', id=credential_id, _external=True)
-        
-        # Generate QR code
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(verify_url)
-        qr.make(fit=True)
-        
-        img = qr.make_image(fill_color="black", back_color="white")
-        
-        # Save to buffer
-        img_buffer = io.BytesIO()
-        img.save(img_buffer, "PNG")
-        img_buffer.seek(0)
-        
-        qr_base64 = base64.b64encode(img_buffer.getvalue()).decode()
-        
-        return jsonify({
-            'success': True,
-            'qr_base64': qr_base64,
-            'verify_url': verify_url
-        })
-    except Exception as e:
-        logging.error(f"QR Generation error: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
 @app.route('/api/credential/<credential_id>/pdf')
-def get_credential_pdf(credential_id):
+@role_required('student')
+def api_credential_pdf(credential_id):
     """
     Generate a secure PDF transcript with embedded blockchain proof.
     """
@@ -532,6 +491,81 @@ def register_nodes():
         'total_nodes': list(blockchain.nodes)
     })
 
+# Track A: Load Peer Nodes from environment
+peer_nodes_env = os.environ.get('PEER_NODES', '')
+if peer_nodes_env:
+    for p in peer_nodes_env.split(','):
+        if p.strip():
+            blockchain.register_node(p.strip())
+
+@app.route('/api/node/chain', methods=['GET'])
+def get_full_chain():
+    """Return the entire blockchain for peer synchronization"""
+    return jsonify({
+        'chain': [b.to_dict() for b in blockchain.chain],
+        'length': len(blockchain.chain)
+    })
+
+@app.route('/api/node/receive_block', methods=['POST'])
+def receive_peer_block():
+    """Receive a block broadcast from a peer node"""
+    try:
+        block_data = request.get_json()
+        if not block_data:
+            return jsonify({'success': False, 'message': 'No block data provided'}), 400
+            
+        # 1. Reconstruct block object
+        new_block = blockchain.block_model(
+            index=block_data['index'],
+            timestamp=block_data['timestamp'],
+            data=json.dumps(block_data['data']),
+            merkle_root=block_data.get('merkle_root'),
+            previous_hash=block_data['previous_hash'],
+            nonce=block_data['nonce'],
+            hash=block_data['hash'],
+            signed_by=block_data.get('signed_by'),
+            signature=block_data.get('signature')
+        )
+        
+        # 2. Simple validation against local chain
+        last_block = blockchain.get_latest_block()
+        if last_block and block_data['index'] <= last_block.index:
+            return jsonify({'success': False, 'message': 'Block already exists or is outdated'}), 409
+            
+        if last_block and block_data['previous_hash'] != last_block.hash:
+            return jsonify({'success': False, 'message': 'Previous hash mismatch. Sync required.'}), 400
+            
+        # 3. Cryptographic validation (simplified for the model bridge)
+        # Create a Block object for validation methods
+        from core.blockchain import Block
+        v_block = Block(
+            block_data['index'], block_data['data'], block_data['previous_hash'],
+            signed_by=block_data.get('signed_by'), signature=block_data.get('signature')
+        )
+        v_block.timestamp = block_data['timestamp']
+        v_block.nonce = block_data['nonce']
+        v_block.merkle_root = block_data.get('merkle_root')
+        v_block.hash = block_data['hash']
+        
+        if v_block.hash != v_block.calculate_hash():
+             return jsonify({'success': False, 'message': 'Invalid block hash'}), 400
+             
+        if blockchain.crypto_manager and v_block.signature:
+            if not blockchain.crypto_manager.verify_signature(v_block.hash, v_block.signature):
+                return jsonify({'success': False, 'message': 'Invalid digital signature'}), 400
+
+        # All checks passed, add to local DB and chain
+        db.session.add(new_block)
+        db.session.commit()
+        blockchain.chain.append(v_block)
+        
+        logging.info(f"Accepted peer block {block_data['index']} from {block_data.get('signed_by')}")
+        return jsonify({'success': True, 'message': 'Block accepted and added to chain'})
+        
+    except Exception as e:
+        logging.error(f"Error receiving peer block: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @app.route('/api/nodes/peers')
 def get_peers():
     """Get the list of registered peers"""
@@ -600,6 +634,21 @@ def blockchain_audit():
         output.headers["Content-Disposition"] = f"attachment; filename=blockchain_audit_{datetime.now().strftime('%Y%m%d')}.csv"
         output.headers["Content-type"] = "text/csv"
         return output
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/blockchain/validate')
+@role_required('issuer')
+def validate_chain():
+    """Perform a full integrity audit of the blockchain"""
+    try:
+        is_valid = blockchain.is_chain_valid()
+        return jsonify({
+            'success': True,
+            'valid': is_valid,
+            'blocks_checked': len(blockchain.chain),
+            'timestamp': datetime.now().isoformat()
+        })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 

@@ -1,24 +1,50 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  web:
+  node1:
     build: .
-    container_name: credify-app
+    container_name: credify-node1
     ports:
-      - "5000:5000"
+      - "5001:5000"
     environment:
-      - FLASK_ENV=development
+      - NODE_NAME=node1
       - PORT=5000
       - HOST=0.0.0.0
-      - DATABASE_URL=sqlite:///credentials.db
-      - SESSION_SECRET=your-secret-key-change-in-production
+      - DATABASE_URL=sqlite:///data/node1.db
+      - SESSION_SECRET=node1-secret-key
+      - PEER_NODES=http://node2:5000,http://node3:5000
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
+      - ./data/node1:/app/data
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+
+  node2:
+    build: .
+    container_name: credify-node2
+    ports:
+      - "5002:5000"
+    environment:
+      - NODE_NAME=node2
+      - PORT=5000
+      - HOST=0.0.0.0
+      - DATABASE_URL=sqlite:///data/node2.db
+      - SESSION_SECRET=node2-secret-key
+      - PEER_NODES=http://node1:5000,http://node3:5000
+    volumes:
+      - ./data/node2:/app/data
+    restart: unless-stopped
+
+  node3:
+    build: .
+    container_name: credify-node3
+    ports:
+      - "5003:5000"
+    environment:
+      - NODE_NAME=node3
+      - PORT=5000
+      - HOST=0.0.0.0
+      - DATABASE_URL=sqlite:///data/node3.db
+      - SESSION_SECRET=node3-secret-key
+      - PEER_NODES=http://node1:5000,http://node2:5000
+    volumes:
+      - ./data/node3:/app/data
+    restart: unless-stopped

@@ -1,0 +1,34 @@
+                                     ABSTRACT
+
+TITLE:    Blockchain-Based Verifiable Credential System For Academic 
+          Transcripts With Selective Disclosure (Credify)
+
+DOMAIN:   Blockchain & Cryptography
+
+KEY WORDS: Blockchain, Verifiable Credentials, Selective Disclosure, 
+           IPFS, SHA-256 Hashing, RSA-2048, Data Privacy
+
+DESCRIPTION:
+The digital transformation of academic administration has created an urgent 
+need for secure credential management. Traditional systems rely on manual 
+validation and centralized databases, making them slow, expensive, and 
+vulnerable to document forgery. To solve these issues, we have developed 
+"Credify," a high-performance Verifiable Credential System designed to 
+secure the issuance and instant verification of academic transcripts.
+
+Credify uses a decentralized architecture to enable institutions to issue 
+digitally signed academic credentials (RSA-2048) over a private blockchain 
+ledger. By recording only cryptographic fingerprints (SHA-256) on-chain, 
+the system ensures document integrity while minimizing storage overhead. 
+A key feature of the project is the "Selective Disclosure" mechanism, 
+which allows students to share only specific data—such as GPA or degree 
+status—without revealing their entire academic history, significantly 
+enhancing user privacy.
+
+The system is built using a professional Python Flask backend and a 
+responsive Bootstrap 5.3 frontend. It integrates the InterPlanetary 
+File System (IPFS) for secure, off-chain storage and follows W3C 
+Verifiable Credentials standards. Credify reduces the credential 
+verification process from several weeks to just a few seconds, providing 
+a secure, scalable, and user-centric alternative to traditional 
+certificate verification methods.

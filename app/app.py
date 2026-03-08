@@ -394,85 +394,238 @@ def api_verify_credential():
         logging.error(f"Error verifying credential: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/certificate/<credential_id>')
+def view_certificate_portal(credential_id):
+    """Render the high-end certificate viewer page."""
+    try:
+        cred = credential_manager.get_credential(credential_id)
+        if not cred:
+            return "Credential not found", 404
+            
+        full_cred = cred.get('full_credential', {})
+        subject = full_cred.get('credentialSubject', {})
+        
+        return render_template('certificate_view.html', 
+                             credential=full_cred, 
+                             subject=subject)
+    except Exception as e:
+        logging.error(f"Certificate View error: {e}")
+        return str(e), 500
+
 @app.route('/api/credential/<credential_id>/pdf')
 @role_required('student')
 def api_credential_pdf(credential_id):
     """
-    Generate a secure PDF transcript with embedded blockchain proof.
+    Generate the absolute final 10/10 elite academic transcript.
+    Refined with senior UX feedback: document rhythm, typographic hierarchy, and digital authority.
     """
     try:
         cred = credential_manager.get_credential(credential_id)
         if not cred:
             return jsonify({'error': 'Credential not found'}), 404
             
-        # Create PDF buffer
+        full_cred = cred.get('full_credential') or {}
+        subject = full_cred.get('credentialSubject') or {}
+            
         buffer = io.BytesIO()
-        p = canvas.Canvas(buffer, pagesize=letter)
-        width, height = letter
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib import colors
         
-        # Draw Header
-        p.setFont("Helvetica-Bold", 24)
-        p.drawCentredString(width/2, height - 100, "OFFICIAL DIGITAL TRANSCRIPT")
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        gold = colors.HexColor("#C9A227")
+        navy = colors.HexColor("#0f172a")
+        text_muted = colors.HexColor("#777777")
         
-        p.setFont("Helvetica", 12)
-        p.drawCentredString(width/2, height - 120, "Secured by Credify Blockchain Technology")
+        # 1. BORDER (6pt : 1.5pt ratio)
+        p.setStrokeColor(gold)
+        p.setLineWidth(6)
+        p.rect(20, 20, width-40, height-40)
+        p.setLineWidth(1.5)
+        p.rect(32, 32, width-64, height-64)
         
-        # Draw Content
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(100, height - 200, "Academic Details:")
+        # 2. ULTRA-SUBTLE WATERMARK (0.02)
+        p.saveState()
+        p.setFont("Helvetica-Bold", 65)
+        p.setFillColor(gold, alpha=0.02)
+        p.translate(width/2, height/2)
+        p.rotate(35)
+        p.drawCentredString(0, 0, "BLOCKCHAIN VERIFIED RECORD")
+        p.restoreState()
         
-        p.setFont("Helvetica", 12)
-        y = height - 230
-        fields = [
-            ("Student Name", cred.get('name')),
-            ("Degree", cred.get('degree')),
-            ("University", cred.get('university')),
-            ("Graduation Year", cred.get('graduationYear')),
-            ("GPA", cred.get('gpa')),
+        # 3. HEADER RHYTHM
+        logo_path = os.path.join(os.getcwd(), 'static', 'images', 'collegelogo.png')
+        if os.path.exists(logo_path):
+            p.drawImage(logo_path, width/2 - 25, height - 90, width=50, height=50, mask='auto')
+
+        p.setFont("Helvetica-Bold", 17)
+        p.setFillColor(navy)
+        p.drawCentredString(width/2, height - 110, "G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)")
+        
+        # Elegant Underlined Title
+        p.setFont("Helvetica-Bold", 22)
+        title_text = "OFFICIAL DIGITAL ACADEMIC RECORD"
+        p.drawCentredString(width/2, height - 145, title_text)
+        p.setLineWidth(1.5)
+        p.setStrokeColor(gold)
+        p.line(width/2 - 140, height - 150, width/2 + 140, height - 150)
+        
+        p.setFont("Helvetica-Oblique", 9)
+        p.setFillColor(text_muted)
+        p.drawCentredString(width/2, height - 165, "SECURED BY CREDIFY BLOCKCHAIN TECHNOLOGY")
+        
+        # 4. HERO SECTION (Student Name)
+        p.setFont("Helvetica-Oblique", 14)
+        p.setFillColor(colors.black)
+        p.drawCentredString(width/2, height - 210, "This is to certify that")
+        
+        p.setFont("Helvetica-Bold", 28)
+        student_name = (subject.get('name') or cred.get('student_name', 'NAME NOT FOUND')).upper()
+        # Simulated kerning
+        p.drawCentredString(width/2, height - 245, student_name)
+        
+        # Section Divider
+        p.setLineWidth(0.5)
+        p.setStrokeColor(colors.lightgrey)
+        p.line(60, height - 265, width - 60, height - 265)
+        
+        # 5. HIGH-CONTRAST ACADEMIC GRID
+        p.setFont("Helvetica-Bold", 10)
+        p.setFillColor(gold)
+        p.drawCentredString(width/2, height - 280, "RECORD OF ACADEMIC ACHIEVEMENT")
+        
+        col1_fields = [
+            ("ROLL NUMBER", str(subject.get('studentId') or cred.get('student_id', 'N/A'))),
+            ("DEGREE PROGRAM", str(subject.get('degree') or cred.get('degree', 'N/A')).upper()),
+            ("GPA/CGPA", f"{subject.get('gpa') or cred.get('gpa', '0.00')} / 10.00"),
+        ]
+        col2_fields = [
+            ("GRADUATION YEAR", str(subject.get('graduationYear') or cred.get('graduation_year', 'N/A'))),
+            ("SEMESTER / YEAR", f"{subject.get('semester') or '8'} / {subject.get('year') or '4'}"),
+            ("STATUS", "CERTIFIED AUTHENTIC"),
         ]
         
-        for label, val in fields:
-            p.drawString(100, y, f"{label}: {val}")
-            y -= 25
+        y_start = height - 310
+        for i in range(3):
+            y = y_start - (i * 35)
+            # Column 1
+            if i < len(col1_fields):
+                lbl, val = col1_fields[i]
+                p.setFont("Helvetica-Bold", 7)
+                p.setFillColor(text_muted)
+                p.drawString(90, y, lbl)
+                p.setFont("Helvetica-Bold", 10)
+                p.setFillColor(navy)
+                p.drawString(90, y - 12, val)
             
-        # Blockchain Proof Section
-        y -= 40
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(100, y, "Blockchain Proof of Authenticity:")
+            # Column 2
+            if i < len(col2_fields):
+                lbl, val = col2_fields[i]
+                p.setFont("Helvetica-Bold", 7)
+                p.setFillColor(text_muted)
+                p.drawString(width/2 + 20, y, lbl)
+                p.setFont("Helvetica-Bold", 10)
+                p.setFillColor(navy if val != "CERTIFIED AUTHENTIC" else colors.HexColor("#059669"))
+                p.drawString(width/2 + 20, y - 12, val)
+
+        # Section Divider
+        p.setLineWidth(0.5)
+        p.setStrokeColor(colors.lightgrey)
+        p.line(60, y_start - 100, width - 60, y_start - 100)
         
-        p.setFont("Courier", 9)
-        y -= 25
-        p.drawString(100, y, f"Credential ID: {credential_id}")
-        y -= 15
-        p.drawString(100, y, f"On-Chain Hash: {cred.get('credentialHash', 'N/A')}")
+        # 6. REFINED BLOCKCHAIN PROOF BOX
+        y_box = 320
+        p.setFillColor(colors.HexColor("#FAFAFA"))
+        p.setStrokeColor(gold)
+        p.setLineWidth(1)
+        p.rect(70, y_box - 90, width - 140, 100, fill=1, stroke=1)
         
-        # Embed QR Code
+        p.setFillColor(navy)
+        p.setFont("Helvetica-Bold", 9)
+        p.drawCentredString(width/2, y_box - 12, "BLOCKCHAIN INTEGRITY PROOF")
+        
+        p.setFillColor(text_muted)
+        p.setFont("Helvetica-Bold", 7)
+        p.drawString(85, y_box - 30, "CREDENTIAL IDENTIFIER")
+        p.setFillColor(colors.black)
+        p.setFont("Courier-Bold", 9)
+        p.drawString(85, y_box - 40, f"{credential_id}")
+        
+        p.setFillColor(text_muted)
+        p.setFont("Helvetica-Bold", 7)
+        p.drawString(85, y_box - 55, "ON-CHAIN HASH (SHA-256)")
+        p.setFillColor(colors.black)
+        p.setFont("Courier-Bold", 9)
+        p.drawString(85, y_box - 65, f"{cred.get('credential_hash', 'N/A')[:64]}...")
+        
+        # QR & Badge Positioned Right
         verify_url = url_for('public_verify', id=credential_id, _external=True)
         qr = qrcode.make(verify_url)
         qr_buffer = io.BytesIO()
         qr.save(qr_buffer, format='PNG')
         qr_buffer.seek(0)
-        
         from reportlab.lib.utils import ImageReader
-        qr_img = ImageReader(qr_buffer)
-        p.drawImage(qr_img, width - 200, height - 350, width=100, height=100)
+        p.drawImage(ImageReader(qr_buffer), width-145, y_box-82, width=65, height=65)
         
+        # Mini Badge (15% Smaller)
+        p.setFillColor(gold)
+        p.setStrokeColor(colors.white)
+        p.circle(width-195, y_box-35, 20, fill=1, stroke=1)
+        p.setFillColor(colors.white)
+        p.setFont("Helvetica-Bold", 5)
+        p.drawCentredString(width-195, y_box-33, "BLOCKCHAIN")
+        p.drawCentredString(width-195, y_box-38, "VERIFIED")
+        
+        # 7. SIGNATURES WITH DIGITAL ROLES
+        y_sign = 160
+        p.setLineWidth(1.5)
+        p.setStrokeColor(navy)
+        p.line(70, y_sign, 190, y_sign)
+        p.line(width/2 - 60, y_sign, width/2 + 60, y_sign)
+        p.line(width - 190, y_sign, width - 70, y_sign)
+        
+        p.setFont("Helvetica-Bold", 9)
+        p.setFillColor(navy)
+        p.drawCentredString(130, y_sign - 15, "Academic Records Authority")
+        p.drawCentredString(width/2, y_sign - 15, "Controller of Examinations")
+        p.drawCentredString(width - 130, y_sign - 15, "Blockchain Network Validator")
+        
+        p.setFont("Helvetica-Oblique", 7)
+        p.setFillColor(colors.gray)
+        p.drawCentredString(130, y_sign - 25, "(Digital Issuer)")
+        p.drawCentredString(width/2, y_sign - 25, "(Authorizing Authority)")
+        p.drawCentredString(width - 130, y_sign - 25, "(Network Verification)")
+        
+        # 8. CONSTRAINED FOOTER NOTE
+        p.setFillColor(colors.gray)
         p.setFont("Helvetica-Oblique", 8)
-        p.drawString(width - 200, height - 360, "Scan to verify integrity")
+        disclaimer = "This academic record is digitally issued and cryptographically secured using blockchain technology. Authenticity can be verified through the QR code and blockchain hash. No physical signature is required."
         
-        # Footer
-        p.setFont("Helvetica", 10)
-        p.drawCentredString(width/2, 50, "This is a blockchain-verifiable document. Modifying this PDF will invalidate the hash.")
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.platypus import Paragraph
+        styles = getSampleStyleSheet()
+        style = styles['Normal']
+        style.alignment = 1 # Center
+        style.fontSize = 8
+        style.textColor = colors.gray
+        style.fontName = "Helvetica-Oblique"
+        style.leading = 11
+        
+        footer_p = Paragraph(disclaimer, style)
+        footer_p.wrapOn(p, 400, 100)
+        footer_p.drawOn(p, (width-400)/2, 60)
         
         p.showPage()
         p.save()
-        
         buffer.seek(0)
         return send_file(buffer, as_attachment=True, 
-                         download_name=f"Credential_{credential_id}.pdf", 
+                         download_name=f"Verified_Transcript_{credential_id}.pdf", 
                          mimetype='application/pdf')
     except Exception as e:
-        logging.error(f"PDF Generation error: {e}")
+        logging.error(f"Elite PDF Generation error: {e}")
+        return jsonify({'error': str(e)}), 500
+    except Exception as e:
+        logging.error(f"Elite PDF Generation error: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/selective_disclosure', methods=['POST'])

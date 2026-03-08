@@ -862,7 +862,7 @@ See `docs/DEPLOYMENT.md` for detailed deployment instructions for various platfo
 
 **B.Tech Final Year Project**
 **G. Pulla Reddy Engineering College (Autonomous)**
-*Under Esteemed Guidance of: **Dr. B. Thimma Reddy Sir**, **Dr. G. Rajeswarappa Sir** and **Shri Shri K Bala Chowdappa Sir***
+*Under Esteemed Guidance of: **Dr. B. Thimma Reddy Sir**, **Dr. G. Rajeswarappa Sir** and **Shri Shri Shri K Bala Chowdappa Sir***
 
 ---
 

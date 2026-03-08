@@ -28,11 +28,7 @@
     .sidebar {
         background: linear-gradient(180deg, var(--slate-800), var(--slate-900)) !important;
         border-right: 3px solid var(--cyan-500) !important;
-        position: fixed;
-        top: 56px;
-        bottom: 0;
-        left: 0;
-        z-index: 100;
+        min-height: calc(100vh - 56px);
         padding: 0;
         box-shadow: 5px 0 20px rgba(6, 182, 212, 0.2);
     }
@@ -260,6 +256,7 @@
         background: var(--green-500);
         border: 2px solid var(--green-500);
         border-radius: 0;
+        color: var(--slate-900);
         font-weight: 700;
         text-transform: uppercase;
     }
@@ -519,7 +516,7 @@
         </nav>
 
         <!-- Main Content -->
-        <main role="main" class="col-md-10 ml-sm-auto px-4" style="margin-left: 16.666667%;">
+        <main role="main" class="col-md-10 px-4">
 
             <!-- Credentials Section -->
             <div id="credentialsSection" class="content-section">
@@ -582,8 +579,8 @@
                                                         <i class="fas fa-qrcode me-1"></i>QR Code
                                                     </button>
                                                     <button class="btn btn-outline-danger"
-                                                        onclick="window.location.href='/api/credential/{{ credential.credential_id }}/pdf'">
-                                                        <i class="fas fa-file-pdf me-1"></i>Download PDF
+                                                        onclick="window.open('/certificate/{{ credential.credential_id }}', '_blank')">
+                                                        <i class="fas fa-file-pdf me-1"></i>Official Certificate
                                                     </button>
                                                 </div>
                                             </div>

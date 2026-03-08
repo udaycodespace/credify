@@ -61,11 +61,11 @@ if __name__ == '__main__':
     
     print(f"""
     ╔══════════════════════════════════════════════════════════════════════════════════════            
-    ║  🎓Blockchain Credential Verification System                                  
-    ║  🚀Starting server...                                                          
-    ║  📡Host: {host:<42}                                                            
-    ║  🔌Port: {str(port):<42}                                                       
-    ║  🌍Environment: {'Production (Render)' if is_production else 'Development':<32}
+    ║  🎓 Credify 2026 - Blockchain Credential System                                  
+    ║  🚀 Starting server...                                                          
+    ║  📡 Host: {host:<42}                                                            
+    ║  🔌 Port: {str(port):<42}                                                       
+    ║  🌍 Environment: {'Production (Render)' if is_production else 'Development':<32}
     ╚══════════════════════════════════════════════════════════════════════════════════════ 
     """)
     

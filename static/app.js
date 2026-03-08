@@ -38,7 +38,7 @@ class CredentialSystem {
             matrixActive: false
         };
         this.konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-        
+
         this.init();
         this.setupEventListeners();
         this.startStatusMonitoring();
@@ -62,7 +62,7 @@ class CredentialSystem {
                 '⚡ Cryptographic Engine: Active',
                 '✅ System: Operational'
             ];
-            
+
             messages.forEach((msg, index) => {
                 setTimeout(() => {
                     console.log(`%c${msg}`, 'color: #10b981;');
@@ -77,7 +77,7 @@ class CredentialSystem {
     setupEventListeners() {
         // Copy buttons
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('copy-btn') || 
+            if (e.target.classList.contains('copy-btn') ||
                 e.target.closest('.copy-btn')) {
                 this.handleCopyClick(e);
             }
@@ -85,7 +85,7 @@ class CredentialSystem {
 
         // Refresh buttons
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('refresh-btn') || 
+            if (e.target.classList.contains('refresh-btn') ||
                 e.target.closest('.refresh-btn')) {
                 this.handleRefreshClick(e);
             }
@@ -112,14 +112,22 @@ class CredentialSystem {
         const gpaInputs = document.querySelectorAll('input[type="number"][id*="gpa"]');
         gpaInputs.forEach(input => {
             input.addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (value < 0 || value > 10) {
-                    e.target.setCustomValidity('GPA must be between 0 and 10');
-                    this.showFieldError(e.target, 'GPA must be between 0 and 10');
+                const valueStr = e.target.value;
+                const value = parseFloat(valueStr);
+
+                // Reset custom validity implicitly before evaluating
+                e.target.setCustomValidity('');
+
+                if (valueStr && !/^(10\.00|\d{1}\.\d{2})$/.test(valueStr)) {
+                    e.target.setCustomValidity('Must be formatted as X.XX or 10.00 (e.g., 8.50, 9.00)');
+                } else if (value < 0 || value > 10) {
+                    e.target.setCustomValidity('GPA must be between 0.00 and 10.00');
                 } else {
                     e.target.setCustomValidity('');
-                    this.showFieldSuccess(e.target);
                 }
+
+                // Re-trigger the general validation immediately to show/hide correctly
+                this.validateField(e.target);
             });
         });
 
@@ -128,13 +136,16 @@ class CredentialSystem {
         studentIdInputs.forEach(input => {
             input.addEventListener('input', (e) => {
                 const value = e.target.value.trim();
+
+                e.target.setCustomValidity('');
+
                 if (value && !/^[A-Za-z0-9]+$/.test(value)) {
                     e.target.setCustomValidity('Student ID should contain only letters and numbers');
-                    this.showFieldError(e.target, 'Student ID: Alphanumeric only');
                 } else {
                     e.target.setCustomValidity('');
-                    if (value) this.showFieldSuccess(e.target);
                 }
+
+                if (value) this.validateField(e.target);
             });
         });
     }
@@ -142,20 +153,25 @@ class CredentialSystem {
     validateField(field) {
         const fieldType = field.type;
         const fieldValue = field.value.trim();
-        
-        // Remove existing validation feedback
-        const existingFeedback = field.parentNode.querySelector('.invalid-feedback, .valid-feedback');
-        if (existingFeedback) {
-            existingFeedback.remove();
-        }
-        
+
+        // Remove existing validation feedback (all of them to prevent dupes)
+        const existingFeedbacks = field.parentNode.querySelectorAll('.invalid-feedback, .valid-feedback');
+        existingFeedbacks.forEach(el => el.remove());
+
         field.classList.remove('is-valid', 'is-invalid');
-        
+
         if (fieldValue === '' && field.required) {
             this.showFieldError(field, 'This field is required');
             return false;
         }
-        
+
+        // HTML5 validity check handles pattern constraints & customValidity set by GPA logic
+        if (!field.validity.valid) {
+            let errorMsg = field.validationMessage || 'Invalid input';
+            this.showFieldError(field, errorMsg);
+            return false;
+        }
+
         // Specific validation based on field type
         switch (fieldType) {
             case 'email':
@@ -171,11 +187,11 @@ class CredentialSystem {
                 }
                 break;
         }
-        
+
         if (fieldValue) {
             this.showFieldSuccess(field);
         }
-        
+
         return true;
     }
 
@@ -222,14 +238,14 @@ class CredentialSystem {
                 tag: 'credential-system'
             });
         }
-        
+
         // Brutalist in-app notification
         this.showBrutalistAlert(message, type);
     }
 
     showBrutalistAlert(message, type = 'info', duration = 5000) {
         const alertContainer = document.querySelector('.container') || document.body;
-        
+
         const alertElement = document.createElement('div');
         alertElement.className = `alert alert-${type} alert-dismissible fade show custom-alert`;
         alertElement.style.cssText = `
@@ -243,22 +259,22 @@ class CredentialSystem {
             border: 2px solid;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         `;
-        
+
         const icons = {
             'success': 'fa-check-circle',
             'info': 'fa-info-circle',
             'warning': 'fa-exclamation-triangle',
             'danger': 'fa-times-circle'
         };
-        
+
         alertElement.innerHTML = `
             <i class="fas ${icons[type]} me-2"></i>
             <strong>${message}</strong>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         `;
-        
+
         document.body.appendChild(alertElement);
-        
+
         // Auto-dismiss
         if (duration > 0) {
             setTimeout(() => {
@@ -277,7 +293,7 @@ class CredentialSystem {
     // ============================================================
     startStatusMonitoring() {
         this.updateBlockchainStatus();
-        
+
         // Update every 30 seconds
         setInterval(() => {
             this.updateBlockchainStatus();
@@ -288,7 +304,7 @@ class CredentialSystem {
         try {
             const response = await fetch('/api/blockchain_status');
             const data = await response.json();
-            
+
             this.updateStatusDisplay(data);
         } catch (error) {
             console.warn('%c⚠️ Could not update blockchain status', 'color: #f59e0b;', error);
@@ -345,12 +361,12 @@ class CredentialSystem {
     handleFormSubmission(e) {
         const form = e.target;
         const submitButton = form.querySelector('button[type="submit"]');
-        
+
         if (submitButton) {
             const originalText = submitButton.innerHTML;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>PROCESSING...';
             submitButton.disabled = true;
-            
+
             setTimeout(() => {
                 if (submitButton.disabled) {
                     submitButton.innerHTML = originalText;
@@ -368,7 +384,7 @@ class CredentialSystem {
         const button = e.target.closest('.copy-btn');
         const targetSelector = button.dataset.target;
         const targetElement = document.querySelector(targetSelector);
-        
+
         if (targetElement) {
             const textToCopy = targetElement.value || targetElement.textContent;
             this.copyToClipboard(textToCopy);
@@ -401,7 +417,7 @@ class CredentialSystem {
         button.innerHTML = '<i class="fas fa-check me-1"></i>COPIED!';
         button.classList.remove('btn-outline-primary');
         button.classList.add('btn-success');
-        
+
         setTimeout(() => {
             button.innerHTML = originalText;
             button.classList.remove('btn-success');
@@ -416,10 +432,10 @@ class CredentialSystem {
         e.preventDefault();
         const button = e.target.closest('.refresh-btn');
         const originalText = button.innerHTML;
-        
+
         button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>REFRESHING...';
         button.disabled = true;
-        
+
         setTimeout(() => {
             location.reload();
         }, 1000);
@@ -493,7 +509,7 @@ class CredentialSystem {
     initEasterEggs() {
         console.log('%c🥚 Easter Egg System: Active', 'color: #fbbf24;');
         console.log('%cTry: Konami Code, Triple-click logo, Type "matrix", Click corners!', 'color: #94a3b8;');
-        
+
         // Konami Code
         document.addEventListener('keydown', (e) => {
             this.easterEggs.konamiCode.push(e.key);
@@ -533,9 +549,9 @@ class CredentialSystem {
 
     triggerKonamiEasterEgg() {
         console.log('%c🎮 KONAMI CODE ACTIVATED!', 'color: #10b981; font-size: 20px; font-weight: bold;');
-        
+
         this.showBrutalistAlert('🎮 KONAMI CODE UNLOCKED! You are a true gamer! 🕹️', 'success', 5000);
-        
+
         // Add rainbow animation to body
         document.body.style.animation = 'rainbow 2s linear';
         setTimeout(() => {
@@ -545,7 +561,7 @@ class CredentialSystem {
 
     triggerLogoEasterEgg() {
         console.log('%c⚡ LOGO EASTER EGG!', 'color: #fbbf24; font-size: 16px; font-weight: bold;');
-        
+
         const logo = document.querySelector('.navbar-brand');
         if (logo) {
             logo.style.animation = 'glitchEffect 0.5s ease-in-out';
@@ -553,7 +569,7 @@ class CredentialSystem {
                 logo.style.animation = '';
             }, 500);
         }
-        
+
         this.showBrutalistAlert('⚡ You found the logo secret! Welcome to the cyber realm!', 'info', 4000);
     }
 
@@ -564,9 +580,9 @@ class CredentialSystem {
         }
 
         console.log('%c🌧️ MATRIX MODE: ACTIVATED', 'color: #10b981; font-size: 16px;');
-        
+
         this.easterEggs.matrixActive = true;
-        
+
         const canvas = document.createElement('canvas');
         canvas.id = 'matrix-canvas';
         canvas.style.cssText = `
@@ -623,24 +639,24 @@ class CredentialSystem {
 
     stopMatrixRain() {
         if (!this.easterEggs.matrixActive) return;
-        
+
         clearInterval(this.easterEggs.matrixInterval);
         const canvas = document.getElementById('matrix-canvas');
         if (canvas) canvas.remove();
         this.easterEggs.matrixActive = false;
-        
+
         console.log('%c🌧️ MATRIX MODE: DEACTIVATED', 'color: #f59e0b;');
         this.showBrutalistAlert('Matrix rain stopped', 'info', 2000);
     }
 
     triggerGlitchEffect() {
         console.log('%c⚡ GLITCH EFFECT ACTIVATED!', 'color: #ef4444; font-size: 16px;');
-        
+
         document.body.style.animation = 'glitchEffect 0.5s ease-in-out';
         setTimeout(() => {
             document.body.style.animation = '';
         }, 500);
-        
+
         this.showBrutalistAlert('⚡ G̸̢̛L̵͝I̸̧T̴͜C̸̨H̵̡ M̴̛O̵͝D̸̢E̴͜!', 'warning', 2000);
     }
 
@@ -653,13 +669,13 @@ class CredentialSystem {
             'Easter Eggs Found': '4/5',
             'Hack Level': 'ADVANCED'
         });
-        
+
         this.showBrutalistAlert('📊 Check console for secret stats!', 'info', 3000);
     }
 
     triggerHackAnimation() {
         console.log('%c🔓 INITIATING HACK SEQUENCE...', 'color: #10b981; font-size: 16px;');
-        
+
         const messages = [
             'Connecting to blockchain...',
             'Bypassing cryptographic signatures...',
@@ -667,7 +683,7 @@ class CredentialSystem {
             'Extracting credentials...',
             'HACK COMPLETE! (Just kidding 😄)'
         ];
-        
+
         messages.forEach((msg, index) => {
             setTimeout(() => {
                 console.log(`%c[${index + 1}/5] ${msg}`, 'color: #22d3ee;');
@@ -706,7 +722,7 @@ class CredentialSystem {
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
         `, 'color: #06b6d4; font-weight: bold;');
-        
+
         this.showBrutalistAlert('🎓 Check console for full credits!', 'info', 3000);
     }
 }
@@ -730,20 +746,20 @@ class CredentialVerifier {
             });
 
             const result = await response.json();
-            
+
             // Add to verification history
             this.verificationHistory.push({
                 credentialId,
                 result,
                 timestamp: new Date().toISOString()
             });
-            
+
             // Update localStorage counter
             const count = parseInt(localStorage.getItem('verifiedCount') || '0') + 1;
             localStorage.setItem('verifiedCount', count);
-            
+
             console.log(`%c✅ Credential ${credentialId} verified successfully`, 'color: #10b981;');
-            
+
             return result;
         } catch (error) {
             console.error('%c❌ Verification error:', 'color: #ef4444;', error);
@@ -783,7 +799,7 @@ class SelectiveDisclosure {
             });
 
             const result = await response.json();
-            
+
             // Add to disclosure history
             this.disclosureHistory.push({
                 credentialId,
@@ -791,13 +807,13 @@ class SelectiveDisclosure {
                 result,
                 timestamp: new Date().toISOString()
             });
-            
+
             // Update localStorage counter
             const count = parseInt(localStorage.getItem('disclosureCount') || '0') + 1;
             localStorage.setItem('disclosureCount', count);
-            
+
             console.log(`%c🔐 Selective disclosure created for ${credentialId}`, 'color: #22d3ee;');
-            
+
             return result;
         } catch (error) {
             console.error('%c❌ Disclosure error:', 'color: #ef4444;', error);
@@ -813,16 +829,16 @@ class SelectiveDisclosure {
 // ============================================================
 // INITIALIZATION
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Track page loads
     const pageLoads = parseInt(sessionStorage.getItem('pageLoads') || '0') + 1;
     sessionStorage.setItem('pageLoads', pageLoads);
-    
+
     // Initialize main system
     window.credentialSystem = new CredentialSystem();
     window.credentialVerifier = new CredentialVerifier();
     window.selectiveDisclosure = new SelectiveDisclosure();
-    
+
     console.log('%c✅ Blockchain Verifiable Credentials System Loaded Successfully', 'color: #10b981; font-weight: bold; font-size: 14px;');
     console.log('%c🎨 Brutalist Cyber Design: Active', 'color: #22d3ee;');
 });
@@ -835,9 +851,9 @@ window.SelectiveDisclosure = SelectiveDisclosure;
 // ============================================================
 // GLOBAL ERROR HANDLING
 // ============================================================
-window.addEventListener('error', function(e) {
+window.addEventListener('error', function (e) {
     console.error('%c❌ JavaScript Error:', 'color: #ef4444; font-weight: bold;', e.error);
-    
+
     if (window.credentialSystem) {
         window.credentialSystem.showAlert(
             '❌ An unexpected error occurred. Please refresh and try again.',
@@ -849,7 +865,7 @@ window.addEventListener('error', function(e) {
 // ============================================================
 // ONLINE/OFFLINE DETECTION
 // ============================================================
-window.addEventListener('online', function() {
+window.addEventListener('online', function () {
     console.log('%c🌐 Connection Restored', 'color: #10b981; font-weight: bold;');
     if (window.credentialSystem) {
         window.credentialSystem.showAlert('🌐 Connection restored', 'success', 3000);
@@ -857,7 +873,7 @@ window.addEventListener('online', function() {
     }
 });
 
-window.addEventListener('offline', function() {
+window.addEventListener('offline', function () {
     console.log('%c⚠️ Connection Lost', 'color: #f59e0b; font-weight: bold;');
     if (window.credentialSystem) {
         window.credentialSystem.showAlert(

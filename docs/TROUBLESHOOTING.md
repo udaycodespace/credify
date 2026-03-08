@@ -752,20 +752,61 @@ Include:
 ***
 
 ## 📚 Additional Resources
-
-- **README.md** - System overview and setup
-- **AUTHENTICATION_GUIDE.md** - Login and user management
-- **DESCRIPTION.md** - Technical architecture
-- **API.md** - API endpoint documentation
-
-***
-
-<div align="center">
-
-**Still stuck? Don't worry!**
-
-**Open an issue on GitHub with detailed error logs**
-
-***
-
-*Troubleshooting guide last updated: December 26, 2025*
+ 
+ - **README.md** - System overview and setup
+ - **AUTHENTICATION_GUIDE.md** - Login and user management
+ - **Description.md** - Technical architecture
+ - **API.md** - API endpoint documentation
+  
+ ***
+ 
+ ### Issue 11: PDF Generation Errors
+ 
+ **Symptoms:**
+ 
+ - "Elite PDF Generation error" in logs
+ - 500 Internal Server Error when clicking "Download PDF"
+ - ReportLab import failures
+ 
+ **Solutions:**
+ 
+ 1. **Import Errors:** Ensure `reportlab` is installed (`pip install reportlab`).
+ 2. **Logo Missing:** Ensure `static/images/collegelogo.png` exists.
+ 3. **Font Errors:** The system uses standard Helvetica/Courier. Ensure no corrupt font files are in the system path.
+ 
+ ***
+ 
+ ### Issue 12: UI/UX Spacing & Scaling
+ 
+ **Symptoms:**
+ 
+ - Certificate header looks cramped
+ - QR code overflows border
+ - Text overlaps on small screens
+ 
+ **Solutions:**
+ 
+ 1. **Clear Cache:** The new CSS (v2.1) requires a hard refresh (Ctrl+F5).
+ 2. **Scale Factor:** Ensure browser zoom is at 100% for the most accurate certificate representation.
+ 3. **Responsive Check:** If elements overlap, ensure you are using a modern browser (Chrome/Edge recommended).
+ 
+ ***
+ 
+ <div align="center">
+ 
+ **Still stuck? Don't worry!**
+ 
+ **Open an issue on GitHub with detailed error logs**
+ 
+ ***
+ 
+ *Troubleshooting guide last updated: March 08, 2026*
+ 
+ ***
+ 
+ > [!NOTE]
+ > **🚨 TROUBLESHOOTING STATUS: UPDATED**
+ > 
+ > **Architecture Version:** 2.1.0
+ > 
+ > **Current Edited Date:** `2026-03-08`

@@ -1,6 +1,6 @@
 # System Description \& Technical Architecture
 
-**Version 2.0** | Blockchain-Based Verifiable Credentials System for Academic Transcripts
+**Version 2.1 (Elite UI/UX Overhaul)** | Blockchain-Based Verifiable Credentials System for Academic Transcripts
 
 ***
 
@@ -112,9 +112,9 @@ A comprehensive platform where universities issue cryptographically signed digit
 **2. Student Portal**
 
 - Personal credential gallery
-- Detailed credential viewer
+- Detailed credential viewer with Hero-style branding
 - Selective disclosure builder
-- Download as PDF functionality
+- **Elite 10/10 PDF Export:** Institutional-grade transcript generation with blockchain hashes and QR codes.
 
 **3. Verifier Interface**
 
@@ -800,10 +800,24 @@ docker run -d -p 5000:5000 \
 
 For technical inquiries, contributions, or issues:
 
-- **Backend Architecture \& Blockchain:** [@udaycodespace](https://github.com/udaycodespace)
-- **Frontend \& IPFS Integration:** [@shashikiran47](https://github.com/shashikiran47)
-- **Testing \& Documentation:** [@tejavarshith](https://github.com/tejavarshith)
+- **Backend Architecture & Blockchain:** [@udaycodespace](https://github.com/udaycodespace)
+- **Frontend & IPFS Integration:** [@shashikiran47](https://github.com/shashikiran47)
+- **Testing & Documentation:** [@tejavarshith](https://github.com/tejavarshith)
 
+### 4. Technical Writers & QA
+**[@tejavarshith](https://github.com/tejavarshith)** - Teja Varshith
+- Comprehensive documentation suite
+- Automated test scripts
+- System health monitoring logic
+
+***
+
+> [!NOTE]
+> **🚀 ARCHITECTURE DESCRIPTION: UPDATED**
+> 
+> **Architecture Version:** 2.1.0 (Elite Edition)
+> 
+> **Current Edited Date:** `2026-03-08`
 
 ### Resources
 

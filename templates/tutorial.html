@@ -4,535 +4,612 @@
 
 {% block content %}
 <style>
-:root {
-    --slate-900: #0f172a;
-    --slate-800: #1e293b;
-    --slate-700: #334155;
-    --slate-600: #475569;
-    --cyan-400: #22d3ee;
-    --cyan-500: #06b6d4;
-    --amber-400: #fbbf24;
-    --amber-500: #f59e0b;
-    --green-500: #10b981;
-    --red-500: #ef4444;
-    --blue-500: #3b82f6;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap');
-
-body {
-    font-family: 'IBM Plex Mono', monospace;
-    background: var(--slate-900);
-    color: #e2e8f0;
-}
-
-/* Tutorial Content Typography */
-.tutorial-content {
-    font-size: 1rem;
-    line-height: 1.7;
-}
-
-.tutorial-content h3 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--cyan-400);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
-    animation: slideInLeft 0.6s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
+    :root {
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --slate-600: #475569;
+        --cyan-400: #22d3ee;
+        --cyan-500: #06b6d4;
+        --amber-400: #fbbf24;
+        --amber-500: #f59e0b;
+        --green-500: #10b981;
+        --red-500: #ef4444;
+        --blue-500: #3b82f6;
     }
-    to {
-        opacity: 1;
-        transform: translateX(0);
+
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap');
+
+    body {
+        font-family: 'IBM Plex Mono', monospace;
+        background: var(--slate-900);
+        color: #e2e8f0;
     }
-}
 
-.tutorial-content h5 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--amber-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.tutorial-content h6 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--cyan-400);
-    margin-bottom: 0.75rem;
-}
-
-.tutorial-content p {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    color: #cbd5e1;
-}
-
-.tutorial-content ul, .tutorial-content ol {
-    font-size: 1rem;
-    line-height: 1.8;
-    margin-bottom: 1rem;
-    color: #cbd5e1;
-}
-
-.tutorial-content li {
-    margin-bottom: 0.5rem;
-}
-
-/* Brutalist Cards */
-.card {
-    background: var(--slate-800);
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+    /* Tutorial Content Typography */
+    .tutorial-content {
+        font-size: 1rem;
+        line-height: 1.7;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    .tutorial-content h3 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--cyan-400);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        animation: slideInLeft 0.6s ease-out;
     }
-}
 
-.card:hover {
-    border-color: var(--cyan-500);
-    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.2);
-}
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
 
-.card-header {
-    background: var(--slate-700);
-    border-bottom: 2px solid var(--cyan-500);
-    color: var(--cyan-400);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 1.25rem 1.5rem;
-    border-radius: 0;
-}
-
-.card-header h3, .card-header h6 {
-    margin-bottom: 0;
-}
-
-.card-body {
-    padding: 1.75rem;
-}
-
-/* Step Container - Brutalist Style */
-.step-container {
-    margin: 1.5rem 0;
-}
-
-.step-item {
-    display: flex;
-    margin-bottom: 1.75rem;
-    padding: 1.25rem;
-    border-left: 4px solid var(--cyan-500);
-    background: rgba(6, 182, 212, 0.08);
-    border-radius: 0;
-    transition: all 0.3s ease;
-}
-
-.step-item:hover {
-    background: rgba(6, 182, 212, 0.15);
-    transform: translateX(5px);
-    border-left-color: var(--amber-500);
-}
-
-.step-number {
-    min-width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
-    color: var(--slate-900);
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.3rem;
-    margin-right: 1.25rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);
-    border: 2px solid var(--cyan-400);
-}
-
-.step-content {
-    flex: 1;
-}
-
-.step-content h6 {
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    color: var(--amber-400);
-    font-weight: 700;
-}
-
-/* Code Blocks - Brutalist */
-.tutorial-content pre {
-    font-size: 0.9rem;
-    padding: 1rem;
-    border-radius: 0;
-    margin: 1rem 0;
-    background: var(--slate-900);
-    border: 2px solid var(--slate-700);
-    color: var(--cyan-400);
-}
-
-.tutorial-content code {
-    font-size: 0.9rem;
-    padding: 0.2rem 0.5rem;
-    background: var(--slate-900);
-    border-radius: 0;
-    border: 1px solid var(--slate-700);
-    color: var(--cyan-400);
-}
-
-/* Tech Component Cards */
-.tech-component {
-    padding: 1.5rem 1rem;
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    transition: all 0.3s ease;
-    height: 100%;
-    text-align: center;
-    background: var(--slate-800);
-}
-
-.tech-component:hover {
-    transform: translateY(-5px);
-    border-color: var(--cyan-500);
-    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
-}
-
-.tech-component i {
-    font-size: 2.5rem;
-}
-
-.tech-component h6 {
-    font-size: 1.05rem;
-    margin-top: 0.75rem;
-    margin-bottom: 0.5rem;
-    color: var(--cyan-400);
-    font-weight: 700;
-}
-
-.tech-component small {
-    color: #94a3b8;
-}
-
-/* Alerts - Brutalist */
-.tutorial-content .alert {
-    font-size: 1rem;
-    padding: 1.25rem;
-    margin: 1.5rem 0;
-    border-radius: 0;
-    border: 2px solid;
-}
-
-.alert-info {
-    background: rgba(14, 165, 233, 0.15);
-    border-color: #0ea5e9;
-    color: #e2e8f0;
-}
-
-.alert-success {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: var(--green-500);
-    color: #e2e8f0;
-}
-
-.alert-warning {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: var(--amber-500);
-    color: #e2e8f0;
-}
-
-.alert-danger {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: var(--red-500);
-    color: #e2e8f0;
-}
-
-.tutorial-content .alert strong {
-    font-size: 1.05rem;
-    color: var(--cyan-400);
-}
-
-/* Tables - Brutalist */
-.tutorial-content table {
-    font-size: 0.95rem;
-    border: 2px solid var(--slate-700);
-}
-
-.tutorial-content table th {
-    font-size: 1rem;
-    font-weight: 700;
-    background: var(--slate-700);
-    color: var(--amber-400);
-    border-color: var(--slate-700);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.tutorial-content table td {
-    padding: 0.9rem;
-    border-color: var(--slate-700);
-    color: #cbd5e1;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background: rgba(255, 255, 255, 0.03);
-}
-
-/* List Groups - Brutalist */
-.list-group-item {
-    font-size: 1rem;
-    padding: 0.9rem 1rem;
-    background: transparent;
-    border-color: var(--slate-700);
-    color: #cbd5e1;
-    border-radius: 0;
-}
-
-.list-group-flush .list-group-item {
-    border-left: 0;
-    border-right: 0;
-}
-
-/* Accordion - Brutalist */
-.accordion-item {
-    background: var(--slate-800);
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    margin-bottom: 1rem;
-}
-
-.accordion-button {
-    font-size: 1.05rem;
-    padding: 1rem 1.25rem;
-    background: var(--slate-700);
-    color: var(--cyan-400);
-    border-radius: 0;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.accordion-button:not(.collapsed) {
-    background: var(--slate-700);
-    color: var(--amber-400);
-    border-bottom: 2px solid var(--cyan-500);
-}
-
-.accordion-button:focus {
-    box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
-    border-color: var(--cyan-500);
-}
-
-.accordion-body {
-    font-size: 1rem;
-    padding: 1.5rem;
-    color: #cbd5e1;
-}
-
-/* Navigation Pills - Brutalist */
-.nav-pills .nav-link {
-    font-size: 0.95rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    border-radius: 0;
-    color: #94a3b8;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    font-weight: 600;
-}
-
-.nav-pills .nav-link:hover {
-    background: rgba(6, 182, 212, 0.15);
-    transform: translateX(5px);
-    border-color: var(--cyan-500);
-    color: var(--cyan-400);
-}
-
-.nav-pills .nav-link.active {
-    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
-    color: var(--slate-900);
-    border-color: var(--cyan-500);
-}
-
-/* Badges */
-.badge {
-    border-radius: 0;
-    padding: 0.4rem 0.7rem;
-    font-weight: 700;
-    border: 2px solid;
-}
-
-.badge.bg-success {
-    background: transparent !important;
-    border-color: var(--green-500);
-    color: var(--green-500);
-}
-
-.badge.bg-primary {
-    background: transparent !important;
-    border-color: var(--cyan-500);
-    color: var(--cyan-500);
-}
-
-.badge.bg-warning {
-    background: transparent !important;
-    border-color: var(--amber-400);
-    color: var(--amber-400);
-}
-
-.rounded-pill {
-    border-radius: 0 !important;
-}
-
-/* Colored background cards */
-.bg-success.bg-opacity-10 {
-    background: rgba(16, 185, 129, 0.1) !important;
-}
-
-.bg-info.bg-opacity-10 {
-    background: rgba(14, 165, 233, 0.1) !important;
-}
-
-.bg-primary.text-white .card-header {
-    background: var(--cyan-500) !important;
-    color: var(--slate-900) !important;
-}
-
-.bg-success.text-white .card-header {
-    background: var(--green-500) !important;
-    color: white !important;
-}
-
-.border-success {
-    border-color: var(--green-500) !important;
-}
-
-.border-info {
-    border-color: #0ea5e9 !important;
-}
-
-.text-success {
-    color: var(--green-500) !important;
-}
-
-.text-info {
-    color: #0ea5e9 !important;
-}
-
-/* Sticky Sidebar */
-@media (min-width: 992px) {
-    .sticky-top {
-        position: sticky;
-        top: 1rem;
-        max-height: calc(100vh - 2rem);
-        overflow-y: auto;
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
-    
-    .sticky-top::-webkit-scrollbar {
-        width: 6px;
+
+    .tutorial-content h5 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--amber-400);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
     }
-    
-    .sticky-top::-webkit-scrollbar-track {
+
+    .tutorial-content h6 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--cyan-400);
+        margin-bottom: 0.75rem;
+    }
+
+    .tutorial-content p {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+    }
+
+    .tutorial-content ul,
+    .tutorial-content ol {
+        font-size: 1rem;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+    }
+
+    .tutorial-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Brutalist Cards */
+    .card {
         background: var(--slate-800);
+        border: 2px solid var(--slate-700);
+        border-radius: 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease-out;
     }
-    
-    .sticky-top::-webkit-scrollbar-thumb {
-        background: var(--cyan-500);
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card:hover {
+        border-color: var(--cyan-500);
+        box-shadow: 0 8px 30px rgba(6, 182, 212, 0.2);
+    }
+
+    .card-header {
+        background: var(--slate-700);
+        border-bottom: 2px solid var(--cyan-500);
+        color: var(--cyan-400);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 1.25rem 1.5rem;
         border-radius: 0;
     }
-}
 
-/* Smooth Scroll */
-html {
-    scroll-behavior: smooth;
-}
+    .card-header h3,
+    .card-header h6 {
+        margin-bottom: 0;
+    }
 
-section {
-    scroll-margin-top: 2rem;
-}
+    .card-body {
+        padding: 1.75rem;
+    }
 
-/* Easter Egg: Triple-click page title */
-.glitch-active {
-    animation: glitchEffect 0.5s ease-in-out;
-}
+    /* Step Container - Brutalist Style */
+    .step-container {
+        margin: 1.5rem 0;
+    }
 
-@keyframes glitchEffect {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-3px, 3px); text-shadow: 3px -3px var(--red-500); }
-    40% { transform: translate(3px, -3px); text-shadow: -3px 3px var(--cyan-500); }
-    60% { transform: translate(-3px, -3px); text-shadow: 3px 3px var(--amber-400); }
-    80% { transform: translate(3px, 3px); text-shadow: -3px -3px var(--green-500); }
-}
-
-/* Responsive Design */
-@media (max-width: 991px) {
-    .tutorial-content {
-        font-size: 0.95rem;
-    }
-    
-    .tutorial-content h3 {
-        font-size: 1.5rem;
-    }
-    
-    .tutorial-content h5 {
-        font-size: 1.15rem;
-    }
-    
-    .step-number {
-        min-width: 45px;
-        height: 45px;
-        font-size: 1.2rem;
-    }
-    
-    .tech-component {
-        margin-bottom: 1.5rem;
-    }
-}
-
-@media (max-width: 767px) {
-    .tutorial-content {
-        font-size: 0.9rem;
-    }
-    
-    .tutorial-content h3 {
-        font-size: 1.35rem;
-    }
-    
     .step-item {
-        flex-direction: column;
-        align-items: flex-start;
+        display: flex;
+        margin-bottom: 1.75rem;
+        padding: 1.25rem;
+        border-left: 4px solid var(--cyan-500);
+        background: rgba(6, 182, 212, 0.08);
+        border-radius: 0;
+        transition: all 0.3s ease;
     }
-    
+
+    .step-item:hover {
+        background: rgba(6, 182, 212, 0.15);
+        transform: translateX(5px);
+        border-left-color: var(--amber-500);
+    }
+
     .step-number {
-        margin-bottom: 1rem;
-        margin-right: 0;
+        min-width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
+        color: var(--slate-900);
+        border-radius: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-right: 1.25rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);
+        border: 2px solid var(--cyan-400);
     }
-    
+
+    .step-content {
+        flex: 1;
+    }
+
+    .step-content h6 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        color: var(--amber-400);
+        font-weight: 700;
+    }
+
+    /* Code Blocks - Elite Terminal Style */
+    .code-wrapper {
+        position: relative;
+        margin: 1.5rem 0;
+        background: #000000;
+        border: 2px solid var(--slate-700);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .code-header {
+        background: var(--slate-800);
+        padding: 8px 15px;
+        border-bottom: 2px solid var(--slate-700);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .terminal-dots {
+        display: flex;
+        gap: 6px;
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .dot-red {
+        background: #ff5f56;
+    }
+
+    .dot-yellow {
+        background: #ffbd2e;
+    }
+
+    .dot-green {
+        background: #27c93f;
+    }
+
+    .tutorial-content pre {
+        font-size: 0.95rem !important;
+        padding: 1.5rem !important;
+        background: transparent !important;
+        border: none !important;
+        color: #22d3ee !important;
+        margin: 0 !important;
+        font-family: 'IBM Plex Mono', monospace !important;
+    }
+
+    .copy-btn {
+        background: transparent;
+        border: 1px solid var(--cyan-500);
+        color: var(--cyan-500);
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    .copy-btn:hover {
+        background: var(--cyan-500);
+        color: #000;
+    }
+
+    .tutorial-content code {
+        font-family: inherit;
+    }
+
+    /* Tech Component Cards */
+    .tech-component {
+        padding: 1.5rem 1rem;
+        border: 2px solid var(--slate-700);
+        border-radius: 0;
+        transition: all 0.3s ease;
+        height: 100%;
+        text-align: center;
+        background: var(--slate-800);
+    }
+
+    .tech-component:hover {
+        transform: translateY(-5px);
+        border-color: var(--cyan-500);
+        box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
+    }
+
     .tech-component i {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
-}
+
+    .tech-component h6 {
+        font-size: 1.05rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.5rem;
+        color: var(--cyan-400);
+        font-weight: 700;
+    }
+
+    .tech-component small {
+        color: #94a3b8;
+    }
+
+    /* Alerts - Brutalist */
+    .tutorial-content .alert {
+        font-size: 1rem;
+        padding: 1.25rem;
+        margin: 1.5rem 0;
+        border-radius: 0;
+        border: 2px solid;
+    }
+
+    .alert-info {
+        background: rgba(14, 165, 233, 0.15);
+        border-color: #0ea5e9;
+        color: #e2e8f0;
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: var(--green-500);
+        color: #e2e8f0;
+    }
+
+    .alert-warning {
+        background: rgba(245, 158, 11, 0.15);
+        border-color: var(--amber-500);
+        color: #e2e8f0;
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: var(--red-500);
+        color: #e2e8f0;
+    }
+
+    .tutorial-content .alert strong {
+        font-size: 1.05rem;
+        color: var(--cyan-400);
+    }
+
+    /* Tables - Brutalist */
+    .tutorial-content table {
+        font-size: 0.95rem;
+        border: 2px solid var(--slate-700);
+    }
+
+    .tutorial-content table th {
+        font-size: 1rem;
+        font-weight: 700;
+        background: var(--slate-700);
+        color: var(--amber-400);
+        border-color: var(--slate-700);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .tutorial-content table td {
+        padding: 0.9rem;
+        border-color: var(--slate-700);
+        color: #cbd5e1;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* List Groups - Brutalist */
+    .list-group-item {
+        font-size: 1rem;
+        padding: 0.9rem 1rem;
+        background: transparent;
+        border-color: var(--slate-700);
+        color: #cbd5e1;
+        border-radius: 0;
+    }
+
+    .list-group-flush .list-group-item {
+        border-left: 0;
+        border-right: 0;
+    }
+
+    /* Accordion - Brutalist */
+    .accordion-item {
+        background: var(--slate-800);
+        border: 2px solid var(--slate-700);
+        border-radius: 0;
+        margin-bottom: 1rem;
+    }
+
+    .accordion-button {
+        font-size: 1.05rem;
+        padding: 1rem 1.25rem;
+        background: var(--slate-700);
+        color: var(--cyan-400);
+        border-radius: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background: var(--slate-700);
+        color: var(--amber-400);
+        border-bottom: 2px solid var(--cyan-500);
+    }
+
+    .accordion-button:focus {
+        box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
+        border-color: var(--cyan-500);
+    }
+
+    .accordion-body {
+        font-size: 1rem;
+        padding: 1.5rem;
+        color: #cbd5e1;
+    }
+
+    /* Navigation Pills - Brutalist */
+    .nav-pills .nav-link {
+        font-size: 0.95rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0;
+        color: #94a3b8;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .nav-pills .nav-link:hover {
+        background: rgba(6, 182, 212, 0.15);
+        transform: translateX(5px);
+        border-color: var(--cyan-500);
+        color: var(--cyan-400);
+    }
+
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
+        color: var(--slate-900);
+        border-color: var(--cyan-500);
+    }
+
+    /* Badges */
+    .badge {
+        border-radius: 0;
+        padding: 0.4rem 0.7rem;
+        font-weight: 700;
+        border: 2px solid;
+    }
+
+    .badge.bg-success {
+        background: transparent !important;
+        border-color: var(--green-500);
+        color: var(--green-500);
+    }
+
+    .badge.bg-primary {
+        background: transparent !important;
+        border-color: var(--cyan-500);
+        color: var(--cyan-500);
+    }
+
+    .badge.bg-warning {
+        background: transparent !important;
+        border-color: var(--amber-400);
+        color: var(--amber-400);
+    }
+
+    .rounded-pill {
+        border-radius: 0 !important;
+    }
+
+    /* Colored background cards */
+    .bg-success.bg-opacity-10 {
+        background: rgba(16, 185, 129, 0.1) !important;
+    }
+
+    .bg-info.bg-opacity-10 {
+        background: rgba(14, 165, 233, 0.1) !important;
+    }
+
+    .bg-primary.text-white .card-header {
+        background: var(--cyan-500) !important;
+        color: var(--slate-900) !important;
+    }
+
+    .bg-success.text-white .card-header {
+        background: var(--green-500) !important;
+        color: white !important;
+    }
+
+    .border-success {
+        border-color: var(--green-500) !important;
+    }
+
+    .border-info {
+        border-color: #0ea5e9 !important;
+    }
+
+    .text-success {
+        color: var(--green-500) !important;
+    }
+
+    .text-info {
+        color: #0ea5e9 !important;
+    }
+
+    /* Sticky Sidebar */
+    @media (min-width: 992px) {
+        .sticky-top {
+            position: sticky;
+            top: 1rem;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+        }
+
+        .sticky-top::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sticky-top::-webkit-scrollbar-track {
+            background: var(--slate-800);
+        }
+
+        .sticky-top::-webkit-scrollbar-thumb {
+            background: var(--cyan-500);
+            border-radius: 0;
+        }
+    }
+
+    /* Smooth Scroll */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    section {
+        scroll-margin-top: 2rem;
+    }
+
+    /* Easter Egg: Triple-click page title */
+    .glitch-active {
+        animation: glitchEffect 0.5s ease-in-out;
+    }
+
+    @keyframes glitchEffect {
+
+        0%,
+        100% {
+            transform: translate(0);
+        }
+
+        20% {
+            transform: translate(-3px, 3px);
+            text-shadow: 3px -3px var(--red-500);
+        }
+
+        40% {
+            transform: translate(3px, -3px);
+            text-shadow: -3px 3px var(--cyan-500);
+        }
+
+        60% {
+            transform: translate(-3px, -3px);
+            text-shadow: 3px 3px var(--amber-400);
+        }
+
+        80% {
+            transform: translate(3px, 3px);
+            text-shadow: -3px -3px var(--green-500);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 991px) {
+        .tutorial-content {
+            font-size: 0.95rem;
+        }
+
+        .tutorial-content h3 {
+            font-size: 1.5rem;
+        }
+
+        .tutorial-content h5 {
+            font-size: 1.15rem;
+        }
+
+        .step-number {
+            min-width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+        }
+
+        .tech-component {
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .tutorial-content {
+            font-size: 0.9rem;
+        }
+
+        .tutorial-content h3 {
+            font-size: 1.35rem;
+        }
+
+        .step-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            margin-bottom: 1rem;
+            margin-right: 0;
+        }
+
+        .tech-component i {
+            font-size: 2rem;
+        }
+    }
 </style>
 
 <div class="row">
@@ -555,25 +632,28 @@ section {
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-9">
         <!-- Tutorial Content -->
         <div class="tutorial-content">
-            
+
             <!-- System Overview -->
             <section id="overview" class="mb-5">
                 <div class="card">
                     <div class="card-header">
-                        <h3 id="pageTitle" onclick="triggerGlitch()"><i class="fas fa-info-circle me-2"></i>System Overview</h3>
+                        <h3 id="pageTitle" onclick="triggerGlitch()"><i class="fas fa-info-circle me-2"></i>System
+                            Overview</h3>
                     </div>
                     <div class="card-body">
                         <h5>What is Credify 2026?</h5>
                         <p>
-                            A <strong>production-ready blockchain-based verifiable credential system</strong> specifically 
-                            designed for academic transcripts. Universities issue tamper-proof digital credentials 
-                            that students can share selectively with employers while maintaining privacy and cryptographic authenticity.
+                            A <strong>production-ready blockchain-based verifiable credential system</strong>
+                            specifically
+                            designed for academic transcripts. Universities issue tamper-proof digital credentials
+                            that students can share selectively with employers while maintaining privacy and
+                            cryptographic authenticity.
                         </p>
-                        
+
                         <h5>Key Features:</h5>
                         <div class="row">
                             <div class="col-md-6">
@@ -617,24 +697,27 @@ section {
                                 </ul>
                             </div>
                         </div>
-                        
+
                         <div class="alert alert-info mt-3">
                             <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Project Context:</strong> B.Tech Final Year project from 
+                            <strong>Project Context:</strong> B.Tech Final Year project from
                             <strong>G. Pulla Reddy Engineering College (Autonomous)</strong>, CSE Dept.
                         </div>
 
                         <div class="alert alert-success mt-3">
                             <i class="fas fa-users me-2"></i>
                             <strong>Development Team:</strong><br>
-                            <strong style="color: var(--amber-400);">SHASHI:</strong> Frontend Design, UI Integration, IPFS Handling<br>
-                            <strong style="color: var(--amber-400);">UDAY:</strong> Backend Architecture, Blockchain Logic, Cryptography<br>
-                            <strong style="color: var(--amber-400);">TEJA VARSHITH:</strong> System Analysis, Testing, Documentation
+                            <strong style="color: var(--amber-400);">SHASHI:</strong> Frontend Design, UI Integration,
+                            IPFS Handling<br>
+                            <strong style="color: var(--amber-400);">UDAY:</strong> Backend Architecture, Blockchain
+                            Logic, Cryptography<br>
+                            <strong style="color: var(--amber-400);">TEJA VARSHITH:</strong> System Analysis, Test
+                            Design, Documentation
                         </div>
                     </div>
                 </div>
             </section>
-            
+
             <!-- System Setup -->
             <section id="setup" class="mb-5">
                 <div class="card">
@@ -649,65 +732,150 @@ section {
                             <li>Git for version control</li>
                             <li>Internet connection for IPFS (optional - has local fallback)</li>
                         </ul>
-                        
+
                         <h5>Installation Steps:</h5>
                         <div class="step-container">
+                            <!-- Step 1 -->
                             <div class="step-item">
                                 <div class="step-number">1</div>
                                 <div class="step-content">
                                     <h6>Clone the Repository</h6>
-                                    <pre><code>git clone &lt;repository-url&gt;
-cd blockchain-credentials</code></pre>
+                                    <div class="code-wrapper">
+                                        <div class="code-header">
+                                            <div class="terminal-dots">
+                                                <div class="dot dot-red"></div>
+                                                <div class="dot dot-yellow"></div>
+                                                <div class="dot dot-green"></div>
+                                            </div>
+                                            <button class="copy-btn"
+                                                onclick="copyToClipboard('git clone https://github.com/udaycodespace/credify.git\ncd credify', this)">
+                                                <i class="far fa-copy me-1"></i> Copy
+                                            </button>
+                                        </div>
+                                        <pre><code>git clone https://github.com/udaycodespace/credify.git
+cd credify</code></pre>
+                                    </div>
                                 </div>
                             </div>
-                            
+
+                            <!-- Step 2 -->
                             <div class="step-item">
                                 <div class="step-number">2</div>
                                 <div class="step-content">
                                     <h6>Create Virtual Environment</h6>
-                                    <pre><code>python -m venv venv
+                                    <div class="code-wrapper">
+                                        <div class="code-header">
+                                            <div class="terminal-dots">
+                                                <div class="dot dot-red"></div>
+                                                <div class="dot dot-yellow"></div>
+                                                <div class="dot dot-green"></div>
+                                            </div>
+                                            <button class="copy-btn"
+                                                onclick="copyToClipboard('python -m venv venv\nvenv\\Scripts\\Activate.ps1', this)">
+                                                <i class="far fa-copy me-1"></i> Copy
+                                            </button>
+                                        </div>
+                                        <pre><code>python -m venv venv
 
 # Windows PowerShell
 venv\Scripts\Activate.ps1
 
 # Mac/Linux
 source venv/bin/activate</code></pre>
+                                    </div>
                                 </div>
                             </div>
-                            
+
+                            <!-- Step 3 -->
                             <div class="step-item">
                                 <div class="step-number">3</div>
                                 <div class="step-content">
                                     <h6>Install Dependencies</h6>
-                                    <pre><code>pip install -r requirements.txt</code></pre>
+                                    <div class="code-wrapper">
+                                        <div class="code-header">
+                                            <div class="terminal-dots">
+                                                <div class="dot dot-red"></div>
+                                                <div class="dot dot-yellow"></div>
+                                                <div class="dot dot-green"></div>
+                                            </div>
+                                            <button class="copy-btn"
+                                                onclick="copyToClipboard('pip install -r requirements.txt', this)">
+                                                <i class="far fa-copy me-1"></i> Copy
+                                            </button>
+                                        </div>
+                                        <pre><code>pip install -r requirements.txt</code></pre>
+                                    </div>
                                 </div>
                             </div>
 
+                            <!-- Step 4 -->
                             <div class="step-item">
                                 <div class="step-number">4</div>
                                 <div class="step-content">
                                     <h6>Initialize Database</h6>
-                                    <pre><code>python -c "from app.models import init_database; from app.app import app; init_database(app)"</code></pre>
+                                    <div class="code-wrapper">
+                                        <div class="code-header">
+                                            <div class="terminal-dots">
+                                                <div class="dot dot-red"></div>
+                                                <div class="dot dot-yellow"></div>
+                                                <div class="dot dot-green"></div>
+                                            </div>
+                                            <button class="copy-btn"
+                                                onclick="copyToClipboard('python -c &quot;from app.models import init_database; \\\nfrom app.app import app; \\\ninit_database(app)&quot;', this)">
+                                                <i class="far fa-copy me-1"></i> Copy
+                                            </button>
+                                        </div>
+                                        <pre><code>python -c "from app.models import init_database; \
+from app.app import app; \
+init_database(app)"</code></pre>
+                                    </div>
                                 </div>
                             </div>
 
+                            <!-- Step 5 -->
                             <div class="step-item">
                                 <div class="step-number">5</div>
                                 <div class="step-content">
                                     <h6>Create Admin User</h6>
-                                    <pre><code>python scripts/create_admin.py</code></pre>
+                                    <div class="code-wrapper">
+                                        <div class="code-header">
+                                            <div class="terminal-dots">
+                                                <div class="dot dot-red"></div>
+                                                <div class="dot dot-yellow"></div>
+                                                <div class="dot dot-green"></div>
+                                            </div>
+                                            <button class="copy-btn"
+                                                onclick="copyToClipboard('python scripts/create_admin.py', this)">
+                                                <i class="far fa-copy me-1"></i> Copy
+                                            </button>
+                                        </div>
+                                        <pre><code>python scripts/create_admin.py</code></pre>
+                                    </div>
                                 </div>
                             </div>
-                            
+
+                            <!-- Step 6 -->
                             <div class="step-item">
                                 <div class="step-number">6</div>
                                 <div class="step-content">
                                     <h6>Run the Application</h6>
-                                    <pre><code>python main.py</code></pre>
+                                    <div class="code-wrapper">
+                                        <div class="code-header">
+                                            <div class="terminal-dots">
+                                                <div class="dot dot-red"></div>
+                                                <div class="dot dot-yellow"></div>
+                                                <div class="dot dot-green"></div>
+                                            </div>
+                                            <button class="copy-btn" onclick="copyToClipboard('python main.py', this)">
+                                                <i class="far fa-copy me-1"></i> Copy
+                                            </button>
+                                        </div>
+                                        <pre><code>python main.py</code></pre>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="alert alert-success mt-3">
                             <i class="fas fa-check-circle me-2"></i>
                             <strong>Success!</strong> Application running at <code>http://localhost:5000</code>
@@ -720,7 +888,7 @@ source venv/bin/activate</code></pre>
                     </div>
                 </div>
             </section>
-            
+
             <!-- Issuer Guide -->
             <section id="issuer-guide" class="mb-5">
                 <div class="card">
@@ -729,8 +897,9 @@ source venv/bin/activate</code></pre>
                     </div>
                     <div class="card-body">
                         <h5>Role: Academic Institution</h5>
-                        <p>As an academic institution, you can issue verifiable credentials for student transcripts with full cryptographic security.</p>
-                        
+                        <p>As an academic institution, you can issue verifiable credentials for student transcripts with
+                            full cryptographic security.</p>
+
                         <h5>Step-by-Step Process:</h5>
                         <div class="step-container">
                             <div class="step-item">
@@ -748,7 +917,7 @@ source venv/bin/activate</code></pre>
                                     <p>Click on "Issuer" in the navigation menu or visit <code>/issuer</code></p>
                                 </div>
                             </div>
-                            
+
                             <div class="step-item">
                                 <div class="step-number">3</div>
                                 <div class="step-content">
@@ -766,7 +935,7 @@ source venv/bin/activate</code></pre>
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="step-item">
                                 <div class="step-number">4</div>
                                 <div class="step-content">
@@ -782,7 +951,7 @@ source venv/bin/activate</code></pre>
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="step-item">
                                 <div class="step-number">5</div>
                                 <div class="step-content">
@@ -812,16 +981,19 @@ source venv/bin/activate</code></pre>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Important:</strong> Once issued, credentials are immutably recorded on the blockchain. 
-                            Ensure all information is accurate before issuing. For corrections, use the "Create New Version" feature.
+                            <strong>Important:</strong> Once issued, credentials are immutably recorded on the
+                            blockchain.
+                            Ensure all information is accurate before issuing. For corrections, use the "Create New
+                            Version" feature.
                         </div>
 
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>Student Access:</strong> Students can login using their roll number as username and password 
+                            <strong>Student Access:</strong> Students can login using their roll number as username and
+                            password
                             (default: roll number). They should change their password after first login.
                         </div>
                     </div>
@@ -835,15 +1007,17 @@ source venv/bin/activate</code></pre>
                     </div>
                     <div class="card-body">
                         <h5>Role: Student (Credential Holder)</h5>
-                        <p>As a student, you can view your credentials and create privacy-preserving selective disclosures for sharing with employers.</p>
-                        
+                        <p>As a student, you can view your credentials and create privacy-preserving selective
+                            disclosures for sharing with employers.</p>
+
                         <h5>Managing Your Credentials:</h5>
                         <div class="step-container">
                             <div class="step-item">
                                 <div class="step-number">1</div>
                                 <div class="step-content">
                                     <h6>Login to Student Portal</h6>
-                                    <p>Use your roll number as username and password (change password after first login)</p>
+                                    <p>Use your roll number as username and password (change password after first login)
+                                    </p>
                                 </div>
                             </div>
 
@@ -851,7 +1025,8 @@ source venv/bin/activate</code></pre>
                                 <div class="step-number">2</div>
                                 <div class="step-content">
                                     <h6>View Your Credentials</h6>
-                                    <p>Navigate to "Student" portal to see all your issued credentials with details like:</p>
+                                    <p>Navigate to "Student" portal to see all your issued credentials with details
+                                        like:</p>
                                     <ul>
                                         <li>Credential ID</li>
                                         <li>Degree Program</li>
@@ -861,7 +1036,7 @@ source venv/bin/activate</code></pre>
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="step-item">
                                 <div class="step-number">3</div>
                                 <div class="step-content">
@@ -876,7 +1051,7 @@ source venv/bin/activate</code></pre>
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="step-item">
                                 <div class="step-number">4</div>
                                 <div class="step-content">
@@ -897,8 +1072,10 @@ source venv/bin/activate</code></pre>
                                     <h6>Generate Zero-Knowledge Proofs</h6>
                                     <p>Create proofs for:</p>
                                     <ul>
-                                        <li><strong>Range Proofs:</strong> "My GPA is greater than 7.5" (without revealing exact value)</li>
-                                        <li><strong>Membership Proofs:</strong> "I completed Data Structures" (without revealing all courses)</li>
+                                        <li><strong>Range Proofs:</strong> "My GPA is greater than 7.5" (without
+                                            revealing exact value)</li>
+                                        <li><strong>Membership Proofs:</strong> "I completed Data Structures" (without
+                                            revealing all courses)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -907,7 +1084,8 @@ source venv/bin/activate</code></pre>
                                 <div class="step-number">6</div>
                                 <div class="step-content">
                                     <h6>Download PDF Transcript</h6>
-                                    <p>Download a printable PDF version of your credential with QR code for verification</p>
+                                    <p>Download a printable PDF version of your credential with QR code for verification
+                                    </p>
                                 </div>
                             </div>
 
@@ -915,11 +1093,12 @@ source venv/bin/activate</code></pre>
                                 <div class="step-number">7</div>
                                 <div class="step-content">
                                     <h6>Raise Support Tickets</h6>
-                                    <p>If you have issues or need corrections, raise a support ticket directly from your dashboard</p>
+                                    <p>If you have issues or need corrections, raise a support ticket directly from your
+                                        dashboard</p>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <h5>Privacy Benefits:</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -954,13 +1133,13 @@ source venv/bin/activate</code></pre>
 
                         <div class="alert alert-success mt-3">
                             <i class="fas fa-shield-alt me-2"></i>
-                            <strong>Data Control:</strong> You have complete control over what information you share. 
+                            <strong>Data Control:</strong> You have complete control over what information you share.
                             Employers can only see what you explicitly choose to disclose.
                         </div>
                     </div>
                 </div>
             </section>
-            
+
             <!-- Verifier Guide (Employer) -->
             <section id="verifier-guide" class="mb-5">
                 <div class="card">
@@ -969,10 +1148,11 @@ source venv/bin/activate</code></pre>
                     </div>
                     <div class="card-body">
                         <h5>Role: Employer/Verifier</h5>
-                        <p>As an employer, you can verify the authenticity of academic credentials and selective disclosure proofs with cryptographic certainty.</p>
-                        
+                        <p>As an employer, you can verify the authenticity of academic credentials and selective
+                            disclosure proofs with cryptographic certainty.</p>
+
                         <h5>Verification Methods:</h5>
-                        
+
                         <div class="row mb-4">
                             <div class="col-md-4 mb-3">
                                 <div class="card h-100 border-primary">
@@ -1023,7 +1203,7 @@ source venv/bin/activate</code></pre>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <h5>Verification Checks Performed:</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -1070,22 +1250,24 @@ source venv/bin/activate</code></pre>
                             <li><strong>IPFS Storage:</strong> Content ID and accessibility status</li>
                             <li><strong>Cryptographic Signature:</strong> RSA verification result</li>
                         </ul>
-                        
+
                         <div class="alert alert-info mt-3">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>Trust Guarantee:</strong> Selective disclosure proofs are cryptographically verifiable and maintain the same 
-                            level of trust as full credentials while protecting student privacy through zero-knowledge proofs.
+                            <strong>Trust Guarantee:</strong> Selective disclosure proofs are cryptographically
+                            verifiable and maintain the same
+                            level of trust as full credentials while protecting student privacy through zero-knowledge
+                            proofs.
                         </div>
 
                         <div class="alert alert-success">
                             <i class="fas fa-shield-alt me-2"></i>
-                            <strong>No Registration Required:</strong> The verifier portal is publicly accessible. 
+                            <strong>No Registration Required:</strong> The verifier portal is publicly accessible.
                             Anyone can verify credentials without creating an account.
                         </div>
                     </div>
                 </div>
             </section>
-            
+
             <!-- Technical Details -->
             <section id="technical" class="mb-5">
                 <div class="card">
@@ -1124,7 +1306,7 @@ source venv/bin/activate</code></pre>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <h5>Technology Stack:</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -1154,7 +1336,8 @@ source venv/bin/activate</code></pre>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <div class="card" style="border-color: var(--amber-500);">
-                                    <div class="card-header" style="background: var(--amber-500); color: var(--slate-900);">
+                                    <div class="card-header"
+                                        style="background: var(--amber-500); color: var(--slate-900);">
                                         <h6 class="mb-0">Cryptographic Security</h6>
                                     </div>
                                     <div class="card-body">
@@ -1248,13 +1431,14 @@ source venv/bin/activate</code></pre>
 
                         <div class="alert alert-info">
                             <i class="fas fa-code me-2"></i>
-                            <strong>Open Source:</strong> This project uses open-source technologies and follows industry best practices 
+                            <strong>Open Source:</strong> This project uses open-source technologies and follows
+                            industry best practices
                             for academic credential verification systems.
                         </div>
                     </div>
                 </div>
             </section>
-            
+
             <!-- Troubleshooting -->
             <section id="troubleshooting" class="mb-5">
                 <div class="card">
@@ -1263,24 +1447,29 @@ source venv/bin/activate</code></pre>
                     </div>
                     <div class="card-body">
                         <h5>Common Issues & Solutions:</h5>
-                        
+
                         <div class="accordion" id="troubleshootingAccordion">
                             <!-- Issue 1 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#issue1">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#issue1">
                                         <i class="fas fa-database me-2"></i>Database Initialization Failed
                                     </button>
                                 </h2>
-                                <div id="issue1" class="accordion-collapse collapse show" data-bs-parent="#troubleshootingAccordion">
+                                <div id="issue1" class="accordion-collapse collapse show"
+                                    data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Error when running database initialization command.</p>
+                                        <p><strong>Problem:</strong> Error when running database initialization command.
+                                        </p>
                                         <p><strong>Solution:</strong></p>
                                         <ol>
                                             <li>Ensure virtual environment is activated</li>
                                             <li>Check if <code>instance/</code> folder exists, create if not</li>
                                             <li>Delete existing <code>instance/credentials.db</code> if corrupted</li>
-                                            <li>Run: <code>python -c "from app.models import init_database; from app.app import app; init_database(app)"</code></li>
+                                            <li>Run:
+                                                <code>python -c "from app.models import init_database; from app.app import app; init_database(app)"</code>
+                                            </li>
                                         </ol>
                                     </div>
                                 </div>
@@ -1289,20 +1478,27 @@ source venv/bin/activate</code></pre>
                             <!-- Issue 2 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#issue2">
                                         <i class="fas fa-cloud me-2"></i>IPFS Connection Failed
                                     </button>
                                 </h2>
-                                <div id="issue2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div id="issue2" class="accordion-collapse collapse"
+                                    data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
                                         <p><strong>Problem:</strong> Cannot connect to IPFS network.</p>
                                         <p><strong>Solution:</strong></p>
                                         <ul>
-                                            <li><strong>Option 1:</strong> System automatically falls back to local storage</li>
-                                            <li><strong>Option 2:</strong> Install IPFS Desktop from <a href="https://ipfs.io" target="_blank">ipfs.io</a></li>
-                                            <li><strong>Option 3:</strong> Use Infura IPFS endpoint (configure in <code>config.py</code>)</li>
+                                            <li><strong>Option 1:</strong> System automatically falls back to local
+                                                storage</li>
+                                            <li><strong>Option 2:</strong> Install IPFS Desktop from <a
+                                                    href="https://ipfs.io" target="_blank">ipfs.io</a></li>
+                                            <li><strong>Option 3:</strong> Use Infura IPFS endpoint (configure in
+                                                <code>config.py</code>)
+                                            </li>
                                         </ul>
-                                        <p><strong>Note:</strong> Local fallback works perfectly for development and testing.</p>
+                                        <p><strong>Note:</strong> Local fallback works perfectly for development and
+                                            testing.</p>
                                     </div>
                                 </div>
                             </div>
@@ -1310,17 +1506,22 @@ source venv/bin/activate</code></pre>
                             <!-- Issue 3 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue3">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#issue3">
                                         <i class="fas fa-key me-2"></i>Login Credentials Not Working
                                     </button>
                                 </h2>
-                                <div id="issue3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div id="issue3" class="accordion-collapse collapse"
+                                    data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
                                         <p><strong>Problem:</strong> Cannot login with created credentials.</p>
                                         <p><strong>Solution:</strong></p>
                                         <ul>
-                                            <li><strong>For Issuers:</strong> Run <code>python scripts/create_admin.py</code> again</li>
-                                            <li><strong>For Students:</strong> Default password is roll number. Contact admin if locked out</li>
+                                            <li><strong>For Issuers:</strong> Run
+                                                <code>python scripts/create_admin.py</code> again
+                                            </li>
+                                            <li><strong>For Students:</strong> Default password is roll number. Contact
+                                                admin if locked out</li>
                                             <li>Check if database was properly initialized</li>
                                             <li>Verify username is correct (roll number for students)</li>
                                         </ul>
@@ -1331,11 +1532,13 @@ source venv/bin/activate</code></pre>
                             <!-- Issue 4 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue4">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#issue4">
                                         <i class="fas fa-cube me-2"></i>Blockchain Mining Too Slow
                                     </button>
                                 </h2>
-                                <div id="issue4" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div id="issue4" class="accordion-collapse collapse"
+                                    data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
                                         <p><strong>Problem:</strong> Credential issuance takes too long.</p>
                                         <p><strong>Solution:</strong></p>
@@ -1345,7 +1548,8 @@ source venv/bin/activate</code></pre>
                                             <li>Change <code>DIFFICULTY = 4</code> to <code>DIFFICULTY = 2</code></li>
                                             <li>Restart application</li>
                                         </ol>
-                                        <p><strong>Note:</strong> Lower difficulty = faster mining but less security (fine for development).</p>
+                                        <p><strong>Note:</strong> Lower difficulty = faster mining but less security
+                                            (fine for development).</p>
                                     </div>
                                 </div>
                             </div>
@@ -1353,11 +1557,13 @@ source venv/bin/activate</code></pre>
                             <!-- Issue 5 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue5">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#issue5">
                                         <i class="fas fa-code me-2"></i>Module Import Errors
                                     </button>
                                 </h2>
-                                <div id="issue5" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div id="issue5" class="accordion-collapse collapse"
+                                    data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
                                         <p><strong>Problem:</strong> Python cannot find application modules.</p>
                                         <p><strong>Solution:</strong></p>
@@ -1379,18 +1585,24 @@ pip install -r requirements.txt</code></pre>
                             <!-- Issue 6 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue6">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#issue6">
                                         <i class="fas fa-shield-alt me-2"></i>Verification Always Fails
                                     </button>
                                 </h2>
-                                <div id="issue6" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div id="issue6" class="accordion-collapse collapse"
+                                    data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
                                         <p><strong>Problem:</strong> Valid credentials show as invalid.</p>
                                         <p><strong>Possible Causes:</strong></p>
                                         <ul>
-                                            <li><strong>Blockchain corruption:</strong> Delete <code>blockchain_data/</code> and restart</li>
-                                            <li><strong>Key mismatch:</strong> Issuer keys changed after credential issuance</li>
-                                            <li><strong>IPFS storage:</strong> Credential not found on IPFS (check local storage)</li>
+                                            <li><strong>Blockchain corruption:</strong> Delete
+                                                <code>blockchain_data/</code> and restart
+                                            </li>
+                                            <li><strong>Key mismatch:</strong> Issuer keys changed after credential
+                                                issuance</li>
+                                            <li><strong>IPFS storage:</strong> Credential not found on IPFS (check local
+                                                storage)</li>
                                             <li><strong>Database sync:</strong> Database and blockchain out of sync</li>
                                         </ul>
                                         <p><strong>Fix:</strong> For development, delete all data and restart fresh.</p>
@@ -1401,11 +1613,13 @@ pip install -r requirements.txt</code></pre>
                             <!-- Issue 7 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue7">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#issue7">
                                         <i class="fas fa-server me-2"></i>Port 5000 Already in Use
                                     </button>
                                 </h2>
-                                <div id="issue7" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div id="issue7" class="accordion-collapse collapse"
+                                    data-bs-parent="#troubleshootingAccordion">
                                     <div class="accordion-body">
                                         <p><strong>Problem:</strong> Cannot start Flask app on port 5000.</p>
                                         <p><strong>Solution 1 - Kill Existing Process:</strong></p>
@@ -1424,13 +1638,15 @@ lsof -ti:5000 | xargs kill -9</code></pre>
 
                         <div class="alert alert-info mt-4">
                             <i class="fas fa-life-ring me-2"></i>
-                            <strong>Need More Help?</strong> Contact the development team or raise an issue on the GitHub repository.
+                            <strong>Need More Help?</strong> Contact the development team or raise an issue on the
+                            GitHub repository.
                         </div>
 
                         <h5 class="mt-4">Best Practices:</h5>
                         <ul>
                             <li>Always activate virtual environment before running</li>
-                            <li>Keep dependencies updated with <code>pip install --upgrade -r requirements.txt</code></li>
+                            <li>Keep dependencies updated with <code>pip install --upgrade -r requirements.txt</code>
+                            </li>
                             <li>Back up <code>instance/</code> folder before major changes</li>
                             <li>Use version control (Git) to track changes</li>
                             <li>Test on development environment before production deployment</li>
@@ -1439,13 +1655,14 @@ lsof -ti:5000 | xargs kill -9</code></pre>
 
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle me-2"></i>
-                            <strong>Production Ready:</strong> This system has been thoroughly tested and is ready for academic deployment 
+                            <strong>Production Ready:</strong> This system has been thoroughly tested and is ready for
+                            academic deployment
                             with proper server configuration and security hardening.
                         </div>
                     </div>
                 </div>
             </section>
-            
+
         </div>
     </div>
 </div>
@@ -1453,96 +1670,95 @@ lsof -ti:5000 | xargs kill -9</code></pre>
 
 {% block scripts %}
 <script>
-// Smooth scrolling for navigation links
-document.addEventListener('DOMContentLoaded', function() {
-    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            
-            if (targetSection) {
-                targetSection.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                
-                // Update active nav link
-                navLinks.forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-            }
+    // Smooth scrolling for navigation links
+    document.addEventListener('DOMContentLoaded', function () {
+        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+
+                    // Update active nav link
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Update active nav link on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${id}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '-100px 0px -66% 0px'
+        });
+
+        // Observe all sections
+        document.querySelectorAll('section[id]').forEach(section => {
+            observer.observe(section);
         });
     });
-    
-    // Update active nav link on scroll
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.id;
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${id}`) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-        });
-    }, { 
-        threshold: 0.1,
-        rootMargin: '-100px 0px -66% 0px'
-    });
-    
-    // Observe all sections
-    document.querySelectorAll('section[id]').forEach(section => {
-        observer.observe(section);
-    });
-});
 
-// Easter Egg: Triple-click title for glitch effect
-let clickCount = 0;
-let clickTimer;
+    // Easter Egg: Triple-click title for glitch effect
+    let clickCount = 0;
+    let clickTimer;
 
-function triggerGlitch() {
-    clickCount++;
-    clearTimeout(clickTimer);
-    
-    const title = document.getElementById('pageTitle');
-    
-    if (clickCount >= 3) {
-        title.classList.add('glitch-active');
-        setTimeout(() => {
-            title.classList.remove('glitch-active');
-        }, 500);
-        
-        // Show secret message
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
-        alertDiv.innerHTML = `
+    function triggerGlitch() {
+        clickCount++;
+        clearTimeout(clickTimer);
+
+        const title = document.getElementById('pageTitle');
+
+        if (clickCount >= 3) {
+            title.classList.add('glitch-active');
+            setTimeout(() => {
+                title.classList.remove('glitch-active');
+            }, 500);
+
+            // Show secret message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
             <i class="fas fa-trophy me-2"></i>
             <strong>🎉 Easter Egg Unlocked!</strong> You found the tutorial secret!
             <br><small>Triple-click achievement: Master of Documentation 📚</small>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         `;
-        
-        title.closest('.card-body').insertBefore(alertDiv, title.closest('.card-body').firstChild);
-        
-        clickCount = 0;
-    }
-    
-    clickTimer = setTimeout(() => clickCount = 0, 500);
-}
 
-// Keyboard shortcut: Press 'T' to scroll to top
-document.addEventListener('keydown', function(e) {
-    if (e.key.toLowerCase() === 't' && !e.ctrlKey && !e.metaKey) {
-        const target = document.querySelector('#overview');
-        if (target && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            title.closest('.card-body').insertBefore(alertDiv, title.closest('.card-body').firstChild);
+
+            clickCount = 0;
         }
+
+        clickTimer = setTimeout(() => clickCount = 0, 500);
     }
-});
+
+    // Keyboard shortcut: Press 'T' to scroll to top
+    document.addEventListener('keydown', function (e) {
+        if (e.key.toLowerCase() === 't' && !e.ctrlKey && !e.metaKey) {
+            const target = document.querySelector('#overview');
+            if (target && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    });
 </script>
 {% endblock %}
-

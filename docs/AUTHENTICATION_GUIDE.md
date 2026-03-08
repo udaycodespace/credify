@@ -1,6 +1,6 @@
 # Authentication System Guide
 
-**Version 2.0** | Secure role-based authentication for blockchain credential management
+**Version 2.1** | Secure role-based authentication for blockchain credential management (Elite Edition)
 
 ***
 
@@ -127,8 +127,8 @@ Required Fields:
 Available Actions:
 ├── View All Credentials (filtered by student ID)
 ├── View Credential Details (full transcript)
-├── Download as PDF
-├── Check Verification Status
+├── Download as Elite 10/10 PDF
+├── Check Verification Status (On-Chain)
 └── Create Selective Disclosure
 ```
 
@@ -588,8 +588,16 @@ If you encounter issues not covered in this guide:
 
 <div align="center">
 
-**Built with 🔐 by the Development Team**
-
 **Security First | Privacy Preserved | Trust Verified**
 
 </div>
+
+***
+
+> [!NOTE]
+> **🔐 AUTHENTICATION GUIDE: UPDATED**
+> 
+> **Architecture Version:** 2.1.0
+> 
+> **Current Edited Date:** `2026-03-08`
+

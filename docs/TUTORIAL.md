@@ -1,6 +1,6 @@
 # Complete Tutorial: Blockchain-Based Verifiable Credentials System
 
-**Version 2.0** | A comprehensive guide to building, understanding, and using a blockchain-based academic credential verification platform
+**Version 2.1** | A comprehensive guide to building, understanding, and using a blockchain-based academic credential verification platform (Elite UI/UX Edition)
 
 ***
 
@@ -32,6 +32,7 @@ This tutorial provides a complete, step-by-step guide to building and deploying 
 - **RSA-2048 Cryptography** — Digital signatures for authenticity
 - **W3C Verifiable Credentials** — Industry-standard credential format
 - **Zero-Knowledge Proofs** — Privacy-preserving selective disclosure
+- **Elite 10/10 PDF Engine** — Senior-grade academic document generation (March 2026)
 
 
 ### The Problem We're Solving
@@ -60,7 +61,7 @@ This tutorial provides a complete, step-by-step guide to building and deploying 
 - **Institution:** G. Pulla Reddy Engineering College (Autonomous), Kurnool
 - **Department:** Computer Science Engineering
 - **Project Type:** B.Tech Final Year Project
-- **Version:** 2.0 (Production-Ready)
+- **Version:** 2.1 (Elite Production-Ready Edition)
 
 **Development Team:**
 
@@ -497,8 +498,8 @@ python3 --version
 
 ```bash
 # Clone the project
-git clone <repository-url>
-cd blockchain-credential-system
+git clone https://github.com/udaycodespace/credify.git
+cd credify
 
 # Or download ZIP and extract
 ```
@@ -1956,10 +1957,20 @@ contract CredentialRegistry {
 
 **G. Pulla Reddy Engineering College (Autonomous)**
 
-**Version 2.0 | December 2025**
+**Version 2.1 | March 2026**
 
 ***
 
 *From Academic Project to Production System*
 
 </div>
+
+***
+
+> [!NOTE]
+> **📚 TUTORIAL STATUS: UPDATED**
+> 
+> **Architecture Version:** 2.1.0 (Elite Milestone)
+> 
+> **Current Edited Date:** `2026-03-08`
+

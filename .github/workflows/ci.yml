@@ -10,7 +10,8 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    
+    continue-on-error: true   # Job-level: allows downstream jobs to run even if tests fail
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -37,13 +38,13 @@ jobs:
     - name: Run tests
       run: |
         pytest tests/ -v --cov=app --cov=core --cov-report=term-missing
-      continue-on-error: true
 
   build:
     name: Build Docker Image
     needs: test
     runs-on: ubuntu-latest
-    
+    if: always()   # Always run build even if tests had failures
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -68,7 +69,7 @@ jobs:
   lint:
     name: Code Quality Check
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

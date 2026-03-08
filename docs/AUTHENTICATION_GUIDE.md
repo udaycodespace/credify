@@ -1,136 +1,98 @@
-# Authentication System Guide
+# 🔐 Authentication System Guide
 
-**Version 2.1** | Secure role-based authentication for blockchain credential management (Elite Edition)
+**Version 2.2** | Hardened Multi-Portal Authentication for Private (PVT) Blockchain Infrastructure
 
 ***
 
 ## 📌 Overview
 
-The system implements secure login-based authentication with three distinct user roles:
+The Credify system has transitioned to a **Hardened Private Blockchain** architecture. Authentication is now isolated into dedicated role-specific portals to ensure maximum security and a premium user experience:
 
-- **🏛️ Issuer** — Universities and Academic Institutions
-- **👨‍🎓 Student** — Credential Holders
-- **💼 Verifier** — Employers and Verification Entities
+- **🏛️ Issuer Portal (`/issuer`)** — Academic Institutions & Network Controllers (MFA Enforced)
+- **👨‍🎓 Student Portal (`/holder`)** — Credential Holders & Asset Managers
+- **💼 Verifier Portal (`/verifier`)** — Public verification gateway (No login required)
 
-Each role has specific permissions and access levels to ensure data privacy and system security.
+Each role is strictly isolated via a **Multi-Portal Gatekeeper** to prevent unauthorized cross-portal access.
 
 ***
 
 ## 🔐 Authentication Architecture
 
-### Role-Based Access Control (RBAC)
+### Identity Trust Tiers (ITT)
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Authentication Layer                 │
-├─────────────────────────────────────────────────────────┤
-│  Login → Session → Role Check → Route Access            │
-└─────────────────────────────────────────────────────────┘
-                            ▼
-        ┌───────────────────┴───────────────────┐
-        │                                       │
-    ┌───▼────┐         ┌──────────┐      ┌─────▼─────┐
-    │ ISSUER │         │ STUDENT  │      │ VERIFIER  │
-    └────────┘         └──────────┘      └───────────┘
-        │                   │                   │
-        ▼                   ▼                   ▼
-   Issue Creds         View Own Creds     Verify Any Cred
-   Revoke Creds        Share Proofs       Public Access
-   Manage System       Privacy Control    No Auth Required
+┌─────────────────────────────────────────────────────────────┐
+│                 PRIVATE NETWORK ENTRANCE                    │
+├─────────────────────────────────────────────────────────────┤
+│  Request → Portal Detection → Role Context → Entry Process  │
+└─────────────────────────────────────────────────────────────┘
+                             ▼
+         ┌───────────────────┴───────────────────┐
+         │                                       │
+    ┌────▼─────┐                           ┌─────▼─────┐
+    │ ISSUER   │                           │ STUDENT   │
+    │(/issuer) │                           │(/holder)  │
+    └────┬─────┘                           └─────┬─────┘
+         │                                       │
+   ┌─────▼─────┐                           ┌─────▼─────┐
+   │ MFA CHECK │                           │ JWT/SID   │
+   │ (TOTP)    │                           │ VALIDATION│
+   └─────┬─────┘                           └─────┬─────┘
+         │                                       │
+    HIGH-SECURITY                           ACADEMIC HUB
+    DASHBOARD                               ACCESS
 ```
-
 
 ***
 
-## 👥 Test Accounts
+## 👥 Administrative Accounts
 
-### 🏛️ Issuer Account (University Administrator)
+### 🏛️ Issuer Account (Production Grade)
 
-```
-Role:     Issuer
-Access:   Issue credentials, revoke credentials, system management
-Features: Full credential lifecycle control
-```
-
-
-### 👨‍🎓 Student Account (Credential Holder)
+> [!IMPORTANT]
+> **Issuer accounts now require Multi-Factor Authentication (MFA).** Legacy default passwords like `admin123` are automatically randomized by the system during startup if MFA is active to "break the chain" of insecure access.
 
 ```
-Role:     Student
-Access:   View own credentials, create selective disclosures
-Features: Privacy-protected personal dashboard
+Access:   Credential Minting, Ledger Management, System Governance
+Security: Username + Password + 6-Digit TOTP Token
 ```
 
-
-### 💼 Verifier Account (Employer/HR)
+### 👨‍🎓 Student Account (Verified Access)
 
 ```
-Role:     Verifier (Optional Login)
-Access:   Verify any credential (public access)
-Features: Credential authenticity validation
+Access:   On-Chain Asset Viewing, Selective Disclosure, Identity Sharing
+Security: Student ID (Roll Number) + Password
 ```
-
-> ⚠️ **Note:** Here we used default credentials are for development only & Changed all passwords before production deployment.
 
 ***
 
-## 🔄 Complete Workflow
+## 🔄 Hardened Authentication Workflow
 
-### Step 1: Issue a Credential (Issuer Role)
+### Step 1: Administrator Entry (Issuer Role)
 
-1. **Navigate to Application**
+1. **Navigate to Issuer Portal**
+   ```
+   http://localhost:5000/issuer
+   ```
+2. **Standard Credentials**
+   - Enter your authorized username and password.
+3. **MFA Verification**
+   - Provide the 6-digit rolling code from your Google Authenticator or Authy app.
+   - **Emergency Bypass**: In case of lost phone, use the administrative secret: `adminadmin123` (Emergency use only).
+4. **Administrative Dashboard**
+   - Access the one-page responsive hub for credential management.
 
-```
-http://localhost:5000
-```
+### Step 2: Student Entry (Holder Role)
 
-2. **Login as Issuer**
-    - Click "Login" button (top navigation)
-    - Enter issuer credentials
-    - System validates and creates session
-3. **Access Issuer Dashboard**
-    - Automatic redirect after successful login
-    - View issuer-specific interface
-4. **Create Credential**
-
-```
-Required Fields:
-├── Student Name: Full legal name
-├── Student ID: Must match student account
-├── Degree: Program name
-├── University: Issuing institution
-├── GPA: Academic performance (0.0 - 10.0)
-├── Graduation Year: Completion year
-└── Additional Fields: As required
-```
-
-5. **Submit \& Sign**
-    - Click "Issue Credential"
-    - System generates cryptographic signature
-    - Credential stored on IPFS
-    - Hash recorded on blockchain
-    - Confirmation displayed
-
-***
-
-### Step 2: View Credentials (Student Role)
-
-1. **Logout from Issuer**
-    - Click "Logout" (top navigation)
-    - Session cleared
-2. **Login as Student**
-    - Enter student credentials
-    - Student ID used as username
-3. **Student Dashboard**
-
-```
-Available Actions:
-├── View All Credentials (filtered by student ID)
-├── View Credential Details (full transcript)
-├── Download as Elite 10/10 PDF
-├── Check Verification Status (On-Chain)
-└── Create Selective Disclosure
-```
+1. **Navigate to Student Portal**
+   ```
+   http://localhost:5000/holder
+   ```
+2. **Roll Number Access**
+   - Enter your Student Roll Number as the username.
+   - Enter your secure password.
+3. **Asset Dashboard**
+   - Access your private academic record vault.
 
 4. **Privacy Protection**
     - Only sees own credentials

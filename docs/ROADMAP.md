@@ -15,6 +15,9 @@
 | **PDF Engine** | ✅ Done | Institutional-grade ReportLab PDF generation |
 | **QR System** | ✅ Done | Dynamic QR codes for instant document verification |
 | **Support System** | ✅ Done | Full ticketing and collaborative messaging system |
+| **Pvt Transition** | ✅ Done | Dedicated /issuer and /holder portals with role gates |
+| **MFA Guard** | ✅ Done | Mandatory TOTP verification for administrative keys |
+| **Auto-Hardening** | ✅ Done | Automatic default password removal and schema sync |
 
 ---
 
@@ -88,10 +91,11 @@ The following steps are identified as the next evolutionary stage for the projec
 [✅] Milestone 1: Elite UI/UX & Senior Branding
 [✅] Milestone 2: Professional PDF Generation (ReportLab)
 [✅] Milestone 3: Digital QR Verification System
-[✅] Milestone 4: Centralized Blockchain Core
-[ ] Milestone 5: SQL Chain Persistence (Future Scope)
-[ ] Milestone 6: Keypair Block Signing (Future Scope)
-[ ] Milestone 7: Multi-Node P2P Replication (Future Scope)
+[✅] Milestone 4: Private (PVT) Blockchain Architecture
+[✅] Milestone 5: Administrative MFA & One-Page Portals
+[✅] Milestone 6: Automated Security Hardening (Schema Sync)
+[ ] Milestone 7: Formal Proof of Authority (PoA) (Future Scope)
+[ ] Milestone 8: Multi-Node P2P Replication (Future Scope)
 ```
 
 ---
@@ -110,7 +114,7 @@ The following steps are identified as the next evolutionary stage for the projec
 > [!NOTE]
 > **🚀 ROADMAP STATUS: UPDATED**
 > 
-> **Project Version:** 2.1.0 (Elite Edition)
+> **Project Version:** 2.2.0 (PVT Master Edition)
 > **Institution:** G. Pulla Reddy Engineering College
 > **Guidance:** Dr. B. Thimma Reddy Sir, Dr. G. Rajeswarappa Sir and Shri Shri K Bala Chowdappa Sir
 > 

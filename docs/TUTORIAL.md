@@ -61,7 +61,7 @@ This tutorial provides a complete, step-by-step guide to building and deploying 
 - **Institution:** G. Pulla Reddy Engineering College (Autonomous), Kurnool
 - **Department:** Computer Science Engineering
 - **Project Type:** B.Tech Final Year Project
-- **Version:** 2.1 (Elite Production-Ready Edition)
+- **Version:** 2.2 (Private PVT Blockchain - Master Security Edition)
 
 **Development Team:**
 
@@ -136,7 +136,7 @@ flake8==7.0.0             # Code linter
 
 ```bash
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # Optional
+# New key modules included: pyotp (MFA), qrcode (Auth Setup)
 ```
 
 
@@ -579,6 +579,10 @@ PORT=5000
 
 # IPFS (Optional)
 IPFS_ENABLED=False
+
+# Initial Admin Secrets (Optional - System will randomize if missing)
+INITIAL_ADMIN_PASSWORD=your_secure_password
+INITIAL_ISSUER_PASSWORD=your_secure_issuer_password
 ```
 
 
@@ -599,14 +603,14 @@ make init-db
 ### Step 7: Create Admin User
 
 ```bash
-# Run admin creation script
-python scripts/create_admin.py
+# Start the application
+python main.py
 
-# Follow prompts:
-# Enter username: admin
-# Enter password: [secure_password]
-# Enter email: admin@example.edu
-# Enter full name: System Administrator
+# ON FIRST BOOT:
+# 1. Look at your terminal logs!
+# 2. The system will print: "🔐 GENERATED SECURE ADMIN PASSWORD: [random_key]"
+# 3. Use this key to login at http://localhost:5000/issuer
+# 4. Follow the MFA setup prompt to link your phone.
 ```
 
 

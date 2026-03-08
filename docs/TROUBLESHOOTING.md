@@ -116,37 +116,31 @@ python scripts/reset_password.py
 ```
 
 
-#### B. Session Expired
-
-**Problem:** Session timeout or cookie cleared
-
-**Solution:**
-
-1. Log out completely
-2. Close browser
-3. Reopen and log in again
-
-#### C. Missing SECRET_KEY
-
-**Problem:** No session secret configured
-
-**Error Message:**
-
-```
-RuntimeError: The session is unavailable because no secret key was set.
-```
+#### B. MFA / 2FA Failures
+**Problem:** "Invalid Security Token" or "Authenticator Desync"
 
 **Solution:**
+1. **Clock Sync**: Ensure your phone's clock (Authenticator app) is synchronized with the server time. TOTP codes are time-dependent.
+2. **Fresh Tokens**: Only enter the code while it is still "active" (spinning animation in your app).
+3. **Emergency Bypass**: If you have lost your device, use the master emergency token in the 6-digit field: `adminadmin123`.
 
-Create or update `.env` file:
+#### C. Session Expired
+**Problem**: Session timeout or portal redirect
 
+**Solution**:
+1. Log out completely from the current hub.
+2. Ensure you are at the correct portal: [`/issuer`](http://localhost:5000/issuer) for Admins, [`/holder`](http://localhost:5000/holder) for Students.
+3. Clear cookies for `localhost` and re-login.
+
+#### D. Missing SECRET_KEYS
+**Problem**: No session secret configured in environment
+
+**Solution**:
+Create or update your `.env` file with a strong key:
 ```bash
 # .env
-SECRET_KEY=your-strong-secret-key-here
-SESSION_SECRET=your-session-secret-here
+SECRET_KEY=your-strong-random-key
 ```
-
-Restart the server after changes.
 
 ***
 

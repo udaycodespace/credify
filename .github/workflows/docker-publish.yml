@@ -19,40 +19,35 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Login to Docker Hub
-      # Only login and push when triggered by a push event (not pull_request).
-      # Secrets are not available to pull_request workflows from forks,
-      # and push-to-registry is unsafe from unreviewed PR branches.
+      # Secrets are NOT available on pull_request events — skip login on PRs
       if: github.event_name == 'push'
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ secrets.DOCKER_USERNAME }}/credify
-        tags: |
-          type=ref,event=branch
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=raw,value=v2.1.0,enable={{is_default_branch}}
-        flavor: |
-          latest=auto
-
-    - name: Build and push Docker image
+    - name: Build and push Docker image (push event)
+      # On push: build + push to Docker Hub with clean, valid tags
+      if: github.event_name == 'push'
       uses: docker/build-push-action@v5
       with:
         context: .
-        # Only push on actual push events — NOT on pull_request
-        push: ${{ github.event_name == 'push' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/credify:latest
+          ${{ secrets.DOCKER_USERNAME }}/credify:v2.1.0
+          ${{ secrets.DOCKER_USERNAME }}/credify:sha-${{ github.sha }}
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/credify:buildcache
-        cache-to: ${{ github.event_name == 'push' && format('type=registry,ref={0}/credify:buildcache,mode=max', secrets.DOCKER_USERNAME) || '' }}
+        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/credify:buildcache,mode=max
+
+    - name: Build only (pull_request validation — no push)
+      # On PR: just validate the image builds cleanly — no login, no push
+      if: github.event_name == 'pull_request'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: credify:pr-validate
 
     - name: Image digest
-      run: echo "✅ Docker build completed successfully!"
+      run: echo "✅ Docker build step completed."

@@ -10,7 +10,6 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    continue-on-error: true   # Job-level: allows downstream jobs to run even if tests fail
 
     steps:
     - name: Checkout code
@@ -33,7 +32,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov
 
     - name: Run tests
       run: |
@@ -43,7 +41,7 @@ jobs:
     name: Build Docker Image
     needs: test
     runs-on: ubuntu-latest
-    if: always()   # Always run build even if tests had failures
+    if: always()
 
     steps:
     - name: Checkout code
@@ -56,7 +54,7 @@ jobs:
       run: |
         docker build -t credify:${{ github.sha }} .
 
-    - name: Test Docker image
+    - name: Test Docker image starts correctly
       run: |
         docker run -d -p 5000:5000 --name test-app \
           -e DATABASE_URL=sqlite:////tmp/credify.db \

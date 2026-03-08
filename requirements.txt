@@ -43,4 +43,5 @@ flake8==7.0.0
 isort==5.13.2
 mypy==1.8.0
 pre-commit==3.6.0
-safety==2.3.5
+# safety removed: safety==2.3.5 conflicts with black>=23 (packaging<22 vs packaging>=22)
+# Run safety audits separately: pip install safety && safety check

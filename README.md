@@ -161,6 +161,17 @@ python main.py
 
 ## 🧰 Technology Stack
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/IPFS-65C2CB?style=for-the-badge&logo=ipfs&logoColor=white" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
+</p>
+
 ### Backend Architecture
 
 - **Framework:** Python 3.10+ with Flask 3.0
@@ -614,7 +625,7 @@ pytest tests/test_blockchain.py -v
 ### Core Development Team
 
 #### Backend & Blockchain Architecture
-**[@udaycodespace](https://github.com/udaycodespace)** - Uday Somapuram
+**[@udaycodespace](https://github.com/udaycodespace)** - [Somapuram Uday](https://www.linkedin.com/in/somapuram-uday/)
 - Design and implementation of blockchain consensus mechanism
 - Cryptographic protocol development and security architecture
 - Smart contract logic and credential lifecycle management
@@ -624,7 +635,7 @@ pytest tests/test_blockchain.py -v
 - System optimization and performance tuning
 
 #### Frontend & User Experience
-**[@shashikiran47](https://github.com/shashikiran47)** - Shashi Kiran
+**[@shashikiran47](https://github.com/shashikiran47)** - [Shashi Kiran](https://www.linkedin.com/in/sashi-kiran-02bb8a255/)
 - UI/UX design and implementation across all user roles
 - Responsive web design with mobile-first approach
 - JavaScript integration and dynamic frontend interactions
@@ -634,7 +645,7 @@ pytest tests/test_blockchain.py -v
 - Real-time data visualization components
 
 #### Quality Assurance & Documentation
-**[@tejavarshith](https://github.com/tejavarshith)** - Teja Varshith
+**[@tejavarshith](https://github.com/tejavarshith)** - [Teja Varshith](https://www.linkedin.com/in/teja-varshith-85b921376/)
 - System analysis and requirements documentation
 - Comprehensive test case design and validation
 - User acceptance testing and feedback integration
@@ -696,29 +707,27 @@ We express our sincere gratitude to:
 
 ***
 
-## 📄 License & Academic Use
+## 📄 License & Intellectual Property
 
 **Project Classification:** B.Tech Final Year Project  
 **Version:** 2.1.0 (Elite Private Blockchain Release)  
 **Status:** Complete & Deployed  
 **Year:** 2026
 
-### Academic License
+### Proprietary License - All Rights Reserved
 
-This project is developed as part of academic curriculum requirements and is intended for:
+**© 2026 CREDIFY.** This project is the exclusive intellectual property of the core development team (**Uday, Shashi, and Varshith**). Whole and sole, we 3 are owning it! 
 
-- Educational purposes
-- Research and development
-- Academic demonstration
-- Portfolio showcase
+This system was designed, built, and optimized natively by the core team for B.Tech demonstration.
 
-### Usage Rights
+### Usage Policy
 
-- ✅ Academic use and research
-- ✅ Learning and educational purposes
-- ✅ Portfolio demonstration
-- ✅ Code reference with attribution
-- ⚠️ Commercial use requires explicit permission from the development team
+- ✅ Academic evaluation and grading
+- ✅ Portfolio demonstration for the core developers
+- ❌ **Unauthorized replication, copying, or use of this codebase is strictly prohibited.**
+- ❌ **Commercial use, distribution, or modifications are expressly forbidden.**
+
+*If you need to use or reference any part of this system, please DM us and we will talk. Unauthorized replication or use of this codebase may lead to legal issues.*
 
 ### Citation
 
@@ -738,11 +747,11 @@ GitHub: https://github.com/udaycodespace/credify
 
 ### Project Maintainers
 
-For questions, issues, or collaboration opportunities:
+For questions, issues, or direct collaboration opportunities, please DM:
 
-- **Uday Somapuram** - [@udaycodespace](https://github.com/udaycodespace)
-- **Shashi Kiran** - [@shashikiran47](https://github.com/shashikiran47)
-- **Teja Varshith** - [@tejavarshith](https://github.com/tejavarshith)
+- **Somapuram Uday** - [@udaycodespace](https://github.com/udaycodespace) | [LinkedIn](https://www.linkedin.com/in/somapuram-uday/)
+- **Shashi Kiran** - [@shashikiran47](https://github.com/shashikiran47) | [LinkedIn](https://www.linkedin.com/in/sashi-kiran-02bb8a255/)
+- **Teja Varshith** - [@tejavarshith](https://github.com/tejavarshith) | [LinkedIn](https://www.linkedin.com/in/teja-varshith-85b921376/)
 
 ### Getting Help
 

@@ -510,6 +510,17 @@ class CredentialManager:
             return registry_entry
         return None
     
+    def get_credentials_by_student(self, student_id):
+        """Get all credentials for a specific student as a list"""
+        credentials = []
+        for cred_id, registry_entry in self.credentials_registry.items():
+            if registry_entry.get('student_id') == student_id:
+                credentials.append(registry_entry)
+        
+        # Sort by version (latest first) for better UX in emails/dashboards
+        credentials.sort(key=lambda x: x.get('version', 1), reverse=True)
+        return credentials
+    
     def get_credential_history(self, student_id):
         """Get complete credential history for a student (all versions)"""
         try:

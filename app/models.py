@@ -54,6 +54,16 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
+    # Onboarding & Verification Fields
+    is_verified = db.Column(db.Boolean, default=False)
+    onboarding_status = db.Column(db.String(20), default='pending')  # pending, verified, rejected, revoked
+    activation_token = db.Column(db.String(100), unique=True, nullable=True)
+    rejection_reason = db.Column(db.Text, nullable=True)
+    last_login = db.Column(db.DateTime, nullable=True)
+    
+    # MFA / TOTP for administrative security
+    totp_secret = db.Column(db.String(32), nullable=True)
+    
     # Relationships for Tickets and Messages
     tickets = db.relationship('Ticket', backref='student', lazy=True, foreign_keys='Ticket.student_user_id')
     sent_messages = db.relationship('Message', backref='sender', lazy=True, foreign_keys='Message.from_user_id')
@@ -66,6 +76,32 @@ class User(db.Model):
     def check_password(self, password):
         """Verify password"""
         return check_password_hash(self.password_hash, password)
+    
+    def get_totp_uri(self):
+        """Generate a Google Authenticator compatible URI for the QR code"""
+        try:
+            import pyotp
+            if not self.totp_secret:
+                # Generate a new secret if one doesn't exist
+                self.totp_secret = pyotp.random_base32()
+            return pyotp.totp.TOTP(self.totp_secret).provisioning_uri(
+                name=self.username, 
+                issuer_name="Credify GPREC"
+            )
+        except ImportError:
+            return None
+
+    def verify_totp(self, token):
+        """Verify a 6-digit TOTP token"""
+        try:
+            import pyotp
+            if not self.totp_secret:
+                return False
+            # Standard TOTP verification (supports 30s window)
+            totp = pyotp.totp.TOTP(self.totp_secret)
+            return totp.verify(token)
+        except ImportError:
+            return False
     
     def __repr__(self):
         return f'<User {self.username} ({self.role})>'
@@ -203,6 +239,24 @@ def init_database(app):
     with app.app_context():
         try:
             db.create_all()
+            
+            # SCHEMA SYNC: Handle missing MFA column for existing databases
+            from sqlalchemy import text
+            try:
+                # Check if totp_secret column exists
+                db.session.execute(text("SELECT totp_secret FROM users LIMIT 1")).fetchone()
+            except Exception:
+                # Column mission, add it
+                print("🔄 Updating database schema: Adding totp_secret for MFA support...")
+                try:
+                    db.session.rollback() # Clear failed check
+                    db.session.execute(text("ALTER TABLE users ADD COLUMN totp_secret VARCHAR(32)"))
+                    db.session.commit()
+                    print("✅ Schema updated successfully: totp_secret column added.")
+                except Exception as ex:
+                    print(f"⚠️  Schema update failed: {ex}")
+                    db.session.rollback()
+
             print(f"✅ Database initialized successfully")
         except Exception as e:
             print(f"❌ Database initialization failed: {e}")
@@ -213,60 +267,70 @@ def init_database(app):
 
 
 def create_default_users():
-    """Create default users for testing"""
+    """Create default users using secure parameters from environment"""
     try:
         # Create default admin/issuer account if not exists
         admin = User.query.filter_by(username='admin').first()
         if not admin:
-            print("📝 Creating default user accounts...")
+            print("📝 Initializing Secure Administrative Accounts...")
             
             # Admin account
+            admin_pwd = os.environ.get('INITIAL_ADMIN_PASSWORD')
+            if not admin_pwd:
+                import secrets
+                admin_pwd = secrets.token_hex(8)
+                print(f"🔐 GENERATED SECURE ADMIN PASSWORD: {admin_pwd}")
+                print(f"   (Use this + your MFA to login the first time)")
+            
             admin = User(
                 username='admin',
                 role='issuer',
                 full_name='System Administrator',
-                email='admin@gprec.ac.in'
+                email='admin@gprec.ac.in',
+                onboarding_status='verified',
+                is_verified=True
             )
-            admin.set_password('admin123')
+            admin.set_password(admin_pwd)
             db.session.add(admin)
             
             # Issuer account
+            issuer_pwd = os.environ.get('INITIAL_ISSUER_PASSWORD', secrets.token_hex(8))
             issuer = User(
                 username='issuer1',
                 role='issuer',
                 full_name='Dr. Academic Dean',
-                email='dean@gprec.ac.in'
+                email='dean@gprec.ac.in',
+                onboarding_status='verified',
+                is_verified=True
             )
-            issuer.set_password('issuer123')
+            issuer.set_password(issuer_pwd)
             db.session.add(issuer)
             
-            # Sample student account
-            student = User(
-                username='21131A05E9',
-                role='student',
-                student_id='21131A05E9',
-                full_name='Sample Student',
-                email='student@gprec.ac.in'
-            )
-            student.set_password('21131A05E9')
-            db.session.add(student)
-            
             # Verifier account
+            verifier_pwd = os.environ.get('INITIAL_VERIFIER_PASSWORD', secrets.token_hex(8))
             verifier = User(
                 username='verifier1',
                 role='verifier',
                 full_name='HR Manager',
-                email='hr@company.com'
+                email='hr@company.com',
+                onboarding_status='verified',
+                is_verified=True
             )
-            verifier.set_password('verifier123')
+            verifier.set_password(verifier_pwd)
             db.session.add(verifier)
             
             db.session.commit()
-            print(f"✅ Default user accounts created (4 users)")
-            print(f"   ℹ️  Check README.md for login credentials")
+            print(f"✅ Secure base system initialized (3 administrative users)")
         else:
-            print("✅ Default users already exist")
+            # SECURITY SYNC: Force change away from admin123 if MFA is setup
+            if admin and admin.totp_secret and admin.check_password('admin123'):
+                 import secrets
+                 new_pwd = secrets.token_hex(12)
+                 admin.set_password(new_pwd)
+                 db.session.commit()
+                 print(f"🛡️  SECURITY: Default 'admin123' password removed. New secure admin password generated: {new_pwd}")
+            print("✅ Production environments: Administrative users already exist")
             
     except Exception as e:
-        print(f"⚠️  Warning: Could not create default users: {e}")
+        print(f"⚠️  Warning: Could not initialize secure users: {e}")
         db.session.rollback()

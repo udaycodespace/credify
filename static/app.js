@@ -852,14 +852,9 @@ window.SelectiveDisclosure = SelectiveDisclosure;
 // GLOBAL ERROR HANDLING
 // ============================================================
 window.addEventListener('error', function (e) {
-    console.error('%c❌ JavaScript Error:', 'color: #ef4444; font-weight: bold;', e.error);
-
-    if (window.credentialSystem) {
-        window.credentialSystem.showAlert(
-            '❌ An unexpected error occurred. Please refresh and try again.',
-            'danger'
-        );
-    }
+    // Log to console only — do NOT show a UI alert for background JS errors
+    // as it confuses users on pages like /login during unrelated interactions
+    console.error('%c❌ JavaScript Error:', 'color: #ef4444; font-weight: bold;', e.error || e.message);
 });
 
 // ============================================================

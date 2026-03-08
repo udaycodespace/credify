@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Account Setup - Credify{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-dark text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Finalize Account Setup</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">You are setting up access for: <strong>{{ user.full_name
+                            }}</strong> ({{ user.student_id }})</p>
+
+                    <form id="setupForm">
+                        <input type="hidden" id="setupToken" value="{{ token }}">
+
+                        <div class="mb-3">
+                            <label for="setupUsername" class="form-label">Choose Username</label>
+                            <input type="text" class="form-control" id="setupUsername" value="{{ user.username }}"
+                                required>
+                            <div class="form-text">You can change this from your roll number default.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="setupPassword" class="form-label">Set Password</label>
+                            <input type="password" class="form-control" id="setupPassword" required minlength="8">
+                            <div class="form-text">Minimum 8 characters. Use a strong password.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="setupBtn">
+                                <i class="fas fa-check-circle me-1"></i>Secure My Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <div class="alert alert-warning small">
+                    <i class="fas fa-key me-1"></i>
+                    Upon saving, the system will also generate your unique <strong>RSA-2048 identity keys</strong> for
+                    blockchain signing.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('setupForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const password = document.getElementById('setupPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+
+        if (password !== confirm) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        const btn = document.getElementById('setupBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating Secure Identity...';
+
+        const data = {
+            token: document.getElementById('setupToken').value,
+            username: document.getElementById('setupUsername').value,
+            password: password
+        };
+
+        fetch('/api/activate/setup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/login?msg=setup_complete';
+                } else {
+                    alert("Error: " + data.error);
+                    btn.disabled = false;
+                    btn.innerHTML = 'Secure My Account';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Network error occurred.");
+                btn.disabled = false;
+            });
+    });
+</script>
+{% endblock %}

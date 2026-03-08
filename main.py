@@ -51,7 +51,7 @@ if __name__ == '__main__':
     initialize_app()
     
     # Get port from environment (Render sets this automatically)
-    port = int(os.environ.get('PORT', 5005))
+    port = Config.PORT
     
     # Get host from environment
     host = os.environ.get('HOST', '0.0.0.0')

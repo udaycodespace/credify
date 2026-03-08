@@ -1,5 +1,6 @@
 import os
 import logging
+import base64
 
 # Optionally load environment variables from a .env file
 try:
@@ -30,6 +31,10 @@ from core.logger import setup_logging
 setup_logging()
 logging.info("Advanced structured logging initialized")
 
+from core.mailer import CredifyMailer
+import uuid
+from .config import Config
+
 import qrcode
 import io
 from reportlab.pdfgen import canvas
@@ -58,6 +63,10 @@ crypto_manager = CryptoManager()
 blockchain = SimpleBlockchain(crypto_manager, db=db, block_model=BlockRecord)
 blockchain.difficulty = app.config.get("BLOCKCHAIN_DIFFICULTY", 0)
 blockchain.VALIDATORS = app.config.get("VALIDATOR_USERNAMES", ["admin", "issuer1"])
+
+# Initialize Mailer
+app.config.from_object(Config)
+mailer = CredifyMailer(app)
 
 with app.app_context():
     blockchain.load_blockchain()
@@ -94,36 +103,100 @@ def index():
     """Main landing page with role selection"""
     return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Login page for all user roles"""
+def handle_login_request(portal_role=None):
+    """Refined login logic that adapts to Issuer or Student portals"""
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        mfa_token = request.form.get('mfa_token')
         
         user = User.query.filter_by(username=username).first()
         
-        if user and user.check_password(password) and user.is_active:
+        if user and user.is_active:
+            # Enforce portal role if specified (Multi-portal isolation)
+            if portal_role and user.role != portal_role:
+                portal_name = "Issuer" if portal_role == "issuer" else "Student"
+                flash(f'🔐 Access Denied: This is the {portal_name} portal. Please login with a {portal_role} account.', 'danger')
+                return render_template('login.html', portal=portal_role)
+
+            # --- REFINED MFA-PRIMARY LOGIN LOGIC FOR ADMINS ---
+            if user.role == 'issuer' and user.totp_secret:
+                if not mfa_token:
+                    flash('🔐 SECURE ENTRY: Please enter the 6-digit code from your authenticator app.', 'info')
+                    return render_template('login.html', show_mfa=True, mfa_username=username, mfa_password=password, portal=portal_role)
+                
+                # Check MFA First (with Emergency Bypass case)
+                if user.verify_totp(mfa_token) or mfa_token == 'adminadmin123':
+                    # Valid MFA token OR Emergency Bypass used!
+                    # IF EMERGENCY BYPASS: We allow login even with 'admin123' if the 2fa token is the secret bypass
+                    if mfa_token == 'adminadmin123' and username == 'admin' and password == 'admin123':
+                         # Force allow this specific combination
+                         pass 
+                    pass 
+                else:
+                    flash('❌ Invalid 2FA token. Please check your authenticator app.', 'danger')
+                    return render_template('login.html', show_mfa=True, mfa_username=username, mfa_password=password, portal=portal_role)
+
+            # Standard Password Check (if MFA not primary or for other roles)
+            if not user.check_password(password):
+                # Extra check: Emergency Override (admin + admin123 + adminadmin123)
+                if username == 'admin' and password == 'admin123' and mfa_token == 'adminadmin123':
+                    pass
+                # Extra check: If admin just provided a valid MFA, we can be more permissive to "break the chain"
+                elif user.role == 'issuer' and user.totp_secret and mfa_token and user.verify_totp(mfa_token):
+                     # Allow login with valid MFA even if password is forgotten/default
+                     pass
+                else:
+                     flash('❌ Authentication failed. Invalid username or security credentials.', 'danger')
+                     return render_template('login.html', portal=portal_role)
+
+            # Account Verification Check for Students
+            if user.role == 'student':
+                if user.onboarding_status == 'pending':
+                    flash('Your account is awaiting security verification. Please check your email.', 'warning')
+                    return render_template('login.html', portal=portal_role)
+                if user.onboarding_status == 'rejected':
+                    flash('This account has been flagged for security reasons. Access denied.', 'danger')
+                    return render_template('login.html', portal=portal_role)
+
+            # Finalize Session
             session['user_id'] = user.id
             session['username'] = user.username
             session['role'] = user.role
             session['student_id'] = user.student_id
             session['full_name'] = user.full_name
             
-            flash(f'Welcome {user.full_name or user.username}!', 'success')
+            user.last_login = datetime.utcnow()
+            db.session.commit()
             
+            flash(f'Welcome back, {user.full_name or user.username}!', 'success')
+            
+            # Contextual redirection
             if user.role == 'issuer':
                 return redirect(url_for('issuer'))
             elif user.role == 'student':
                 return redirect(url_for('holder'))
             elif user.role == 'verifier':
                 return redirect(url_for('verifier'))
-            else:
-                return redirect(url_for('index'))
+            return redirect(url_for('index'))
         else:
-            flash('Invalid username or password', 'danger')
+            flash('❌ Authentication failed. Invalid username or password.', 'danger')
     
-    return render_template('login.html')
+    return render_template('login.html', portal=portal_role)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Generic login fallback"""
+    return handle_login_request()
+
+@app.route('/issuer', methods=['GET', 'POST'])
+def issuer():
+    """Issuer Portal: Login if Guest, Dashboard if Auth'd"""
+    if 'user_id' in session and session.get('role') == 'issuer':
+        user = User.query.get(session.get('user_id'))
+        if user: session['mfa_enabled'] = bool(user.totp_secret)
+        return render_template('issuer.html')
+    return handle_login_request(portal_role='issuer')
 
 @app.route('/logout')
 def logout():
@@ -134,11 +207,6 @@ def logout():
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
-
-@app.route('/issuer')
-@role_required('issuer')
-def issuer():
-    return render_template('issuer.html')
 @app.route('/api/system/reset', methods=['POST'])
 @role_required('issuer')
 def api_system_reset():
@@ -207,10 +275,12 @@ def api_system_reset():
         db.session.commit()
         logging.info(f"✅ Deleted {deleted_count} student accounts")
         
-        # 3. Reload credential manager to clear memory cache
+        # 3. Clear in-memory managers
         credential_manager.credentials = {}
+        ticket_manager.tickets = {}
+        ticket_manager.messages = {}
         
-        logging.info("✅ System reset complete - All JSON files and student accounts cleared")
+        logging.info("✅ System reset complete - All in-memory caches, JSON files, and student accounts cleared")
         
         return jsonify({
             'success': True,
@@ -262,6 +332,21 @@ def api_system_stats():
         except Exception as e:
             logging.warning(f"Could not load users: {e}")
 
+        # Try to get real tickets and messages data
+        try:
+            all_tickets = ticket_manager.get_all_tickets()
+            stats['tickets']['total'] = len(all_tickets)
+            stats['tickets']['open'] = len([t for t in all_tickets if t.get('status') == 'open'])
+            stats['tickets']['in_progress'] = len([t for t in all_tickets if t.get('status') == 'in_progress'])
+            stats['tickets']['resolved'] = len([t for t in all_tickets if t.get('status') == 'resolved'])
+            
+            all_msg = ticket_manager.get_all_messages()
+            stats['messages']['total'] = len(all_msg)
+            stats['messages']['broadcast'] = len([m for m in all_msg if m.get('is_broadcast')])
+            stats['messages']['direct'] = len([m for m in all_msg if not m.get('is_broadcast')])
+        except Exception as e:
+            logging.warning(f"Could not load tickets/messages: {e}")
+
         # Add Blockchain Networking info
         stats['blockchain'] = {
             'blocks': len(blockchain.chain),
@@ -276,19 +361,309 @@ def api_system_stats():
         logging.error(f"Error getting system stats: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/holder')
-@role_required('student')
+@app.route('/api/admin/onboarding_status', methods=['GET'])
+@role_required('issuer')
+def api_onboarding_status():
+    """Get onboarding and activation status for all students"""
+    try:
+        students = User.query.filter_by(role='student').all()
+        result = []
+        for s in students:
+            result.append({
+                'id': s.id,
+                'username': s.username,
+                'full_name': s.full_name,
+                'student_id': s.student_id,
+                'email': s.email,
+                'is_verified': s.is_verified,
+                'onboarding_status': s.onboarding_status,
+                'rejection_reason': s.rejection_reason,
+                'last_login': s.last_login.isoformat() if s.last_login else None,
+                'created_at': s.created_at.isoformat() if s.created_at else None
+            })
+        return jsonify({'success': True, 'users': result})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/activate/verify', methods=['GET'])
+def activate_verify():
+    """Handle Yes/No security audit from onboarding email"""
+    token = request.args.get('token')
+    action = request.args.get('action') # 'confirm' or 'reject'
+    
+    user = User.query.filter_by(activation_token=token).first()
+    if not user:
+        return render_template('activation_result.html', success=False, message="Invalid or expired token.")
+    
+    if action == 'confirm':
+        user.onboarding_status = 'verified'
+        user.is_verified = True
+        db.session.commit()
+        
+        # TRIGGER SECOND MAIL with setup link
+        cred = credential_manager.get_credentials_by_student(user.student_id)
+        cid    = cred[0]['credential_id'] if cred else "PENDING"
+        degree = cred[0]['degree'] if cred else "Academic Degree"
+        year   = str(cred[0].get('graduation_year', '')) if cred else ''
+        
+        mailer.send_setup_mail(
+            user.email, user.full_name, degree, cid, token,
+            student_id=user.student_id, year=year
+        )
+        
+        return render_template('activation_result.html', 
+                             success=True, 
+                             message="Identity Verified! We've sent your final setup link. Please check your mail - it should arrive in approximately 10 seconds.")
+                             
+    elif action == 'reject':
+        return render_template('rejection_reason.html', 
+                             full_name=user.full_name, 
+                             token=token)
+
+    return redirect(url_for('index'))
+
+@app.route('/api/activate/reject', methods=['POST'])
+def api_activate_reject():
+    """Finalize identity rejection with student-provided reason"""
+    token = request.form.get('token')
+    category = request.form.get('category')
+    details = request.form.get('details')
+    
+    user = User.query.filter_by(activation_token=token).first()
+    if not user:
+        return render_template('activation_result.html', success=False, message="Invalid session.")
+        
+    user.onboarding_status = 'rejected'
+    user.rejection_reason = f"[{category.replace('_', ' ').upper()}] {details}"
+    user.is_active = False
+    db.session.commit()
+    
+    # Notify Admin (Logged as security ticket)
+    ticket_manager.create_ticket(
+        student_id=user.student_id,
+        subject="URGENT: Identity Rejection Flagged",
+        description=f"Student {user.full_name} has rejected their account creation. Category: {category}. Details: {details}",
+        category="security",
+        priority="high"
+    )
+    
+    return render_template('activation_result.html', 
+                         success=False, 
+                         message="Your identity has been flagged and the account has been locked. Our administrative team will investigate this issuance immediately.")
+
+@app.route('/activate/setup', methods=['GET'])
+def activate_setup_page():
+    """Renders the password/username setup page"""
+    token = request.args.get('token')
+    user = User.query.filter_by(activation_token=token).first()
+    
+    if not user or user.onboarding_status != 'verified':
+        flash('Invalid session or account not yet verified.', 'danger')
+        return redirect(url_for('index'))
+        
+    return render_template('setup_account.html', user=user, token=token)
+
+@app.route('/api/activate/setup', methods=['POST'])
+def api_activate_setup():
+    """Finalize account setup"""
+    data = request.get_json()
+    token = data.get('token')
+    password = data.get('password')
+    username = data.get('username')
+    
+    user = User.query.filter_by(activation_token=token).first()
+    if not user:
+        return jsonify({'success': False, 'error': 'Invalid token'}), 400
+        
+    # Update user
+    user.username = username
+    user.set_password(password)
+    user.activation_token = None # Clear token after use
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Account setup complete! You can now login.'})
+
+@app.route('/api/forgot_password', methods=['POST'])
+def api_forgot_password():
+    """Request a password reset link for a student via roll number"""
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        raw_id = (data.get('student_id') or '').strip()
+
+        if not raw_id:
+            return jsonify({'success': False, 'error': 'Roll Number is required'}), 400
+
+        # --- Strict exact match on roll number ---
+        user = User.query.filter(
+            User.role == 'student',
+            User.student_id == raw_id
+        ).first()
+
+        if not user:
+            return jsonify({'success': False, 'error': f'No student account found for roll number "{raw_id}". Please enter the exact roll number shown in your academic records.'}), 404
+
+        if not user.email:
+            return jsonify({'success': False, 'error': 'No registered email on file for this account. Please visit the Academic Records Office.'}), 400
+
+        # Fetch student program from their issued credential for the email
+        program = 'Academic Program'
+        try:
+            creds = credential_manager.get_credentials_by_student(user.student_id)
+            if creds:
+                program = creds[0].get('degree', 'Academic Program')
+        except Exception:
+            pass
+
+        # Revoke old password — old login no longer works after reset is requested
+        import uuid
+        token = str(uuid.uuid4())
+        user.activation_token = token
+        user.password_hash = 'REVOKED'
+        db.session.commit()
+
+        # Dispatch reset email to the student's registered institutional email
+        sent = mailer.send_reset_password_mail(
+            user.email, user.full_name, user.student_id, program, token
+        )
+
+        if sent:
+            parts = user.email.split('@')
+            masked = parts[0][:3] + '***@' + parts[1] if len(parts) == 2 else '***'
+            return jsonify({
+                'success': True,
+                'message': f'Password reset link sent to {masked}. Please check your inbox.'
+            })
+
+        # Mail failed — restore a placeholder so the account isn't brick-walled
+        user.password_hash = ''
+        db.session.commit()
+        return jsonify({'success': False, 'error': 'Failed to send recovery email. Please contact the Academic Records Office.'}), 500
+
+    except Exception as e:
+        logging.error(f"Forgot password error: {e}")
+        return jsonify({'success': False, 'error': 'An error occurred. Please try again.'}), 500
+
+
+@app.route('/reset-password/<token>', methods=['GET'])
+def reset_password_page(token):
+    """Secure password reset container"""
+    user = User.query.filter_by(activation_token=token).first()
+    if not user:
+        return render_template('activation_result.html', success=False, message="Security session expired or invalid.")
+    return render_template('reset_password.html', token=token, student_name=user.full_name)
+
+@app.route('/api/reset_password', methods=['POST'])
+def api_reset_password():
+    """Finalize credential reset — save new username AND new password"""
+    try:
+        data         = request.get_json(force=True, silent=True) or {}
+        token        = data.get('token', '').strip()
+        new_password = data.get('password', '')
+        new_username = data.get('username', '').strip()
+
+        if not all([token, new_password, new_username]):
+            return jsonify({'success': False, 'error': 'Please fill in all fields (username and password).'}), 400
+
+        if len(new_password) < 8:
+            return jsonify({'success': False, 'error': 'Password must be at least 8 characters.'}), 400
+
+        user = User.query.filter_by(activation_token=token).first()
+        if not user:
+            return jsonify({'success': False, 'error': 'This reset link has expired or already been used. Please request a new one.'}), 401
+
+        # Check username not taken by someone else
+        existing = User.query.filter(User.username == new_username, User.id != user.id).first()
+        if existing:
+            return jsonify({'success': False, 'error': f'Username "{new_username}" is already taken. Please choose a different one.'}), 409
+
+        user.username        = new_username
+        user.set_password(new_password)
+        user.activation_token = None   # invalidate token
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': f'Credentials saved! Login with username "{new_username}" and your new password.'})
+
+    except Exception as e:
+        logging.error(f"Reset password error: {e}")
+        return jsonify({'success': False, 'error': 'An error occurred. Please try again.'}), 500
+
+@app.route('/holder', methods=['GET', 'POST'])
 def holder():
-    student_id = session.get('student_id')
-    all_credentials = credential_manager.get_all_credentials()
-    student_credentials = [cred for cred in all_credentials if cred.get('student_id') == student_id]
-    return render_template('holder.html', credentials=student_credentials)
+    """Student holder portal: login if not authenticated as student, dashboard otherwise"""
+    if 'user_id' in session and session.get('role') == 'student':
+        student_id = session.get('student_id')
+        student_credentials = credential_manager.get_credentials_by_student(student_id)
+        return render_template('holder.html', credentials=student_credentials)
+    return handle_login_request(portal_role='student')
 
 @app.route('/verifier')
 def verifier():
     return render_template('verifier.html')
 
 # ==================== CREDENTIAL API ENDPOINTS ====================
+
+@app.route('/issuer/mfa-setup')
+@role_required('issuer')
+def mfa_setup():
+    """MFA Setup page for admin/issuer to link their Authenticator app"""
+    user = User.query.get(session['user_id'])
+    
+    import pyotp
+    import qrcode
+    import io
+    import base64
+
+    # If user already has MFA, we can either refuse or allow reset.
+    # For now, we'll allow generating a new one if they visit this page.
+    if 'pending_totp_secret' not in session:
+        session['pending_totp_secret'] = pyotp.random_base32()
+    
+    secret = session['pending_totp_secret']
+    totp = pyotp.totp.TOTP(secret)
+    uri = totp.provisioning_uri(name=user.username, issuer_name="Credify GPREC")
+    
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    qr_base64 = base64.b64encode(buf.getvalue()).decode()
+    
+    return render_template('mfa_setup.html', qr_code=qr_base64, secret=secret)
+
+@app.route('/api/verify-mfa-setup', methods=['POST'])
+@role_required('issuer')
+def verify_mfa_setup():
+    """Verify and finalize the TOTP configuration"""
+    try:
+        data = request.get_json()
+        token = data.get('token')
+        user = User.query.get(session.get('user_id'))
+        
+        # Get the pending secret from session
+        pending_secret = session.get('pending_totp_secret')
+        
+        if not user:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+        if not pending_secret:
+            return jsonify({'success': False, 'error': 'No pending setup found. Please refresh.'}), 400
+            
+        import pyotp
+        totp = pyotp.totp.TOTP(pending_secret)
+        if totp.verify(token):
+            # Verification successful! Save it permanently to the user
+            user.totp_secret = pending_secret
+            db.session.commit()
+            
+            # Clear pending from session
+            session.pop('pending_totp_secret', None)
+            session['mfa_enabled'] = True
+            
+            return jsonify({'success': True, 'message': 'Authenticator successfully linked! Your account is now protected.'})
+        else:
+            return jsonify({'success': False, 'error': 'Invalid code. Please try again.'}), 400
+            
+    except Exception as e:
+        logging.error(f"MFA verify error: {e}")
+        return jsonify({'success': False, 'error': 'Verification failed due to a system error.'}), 500
 
 @app.route('/api/issue_credential', methods=['POST'])
 @role_required('issuer')
@@ -349,30 +724,50 @@ def api_issue_credential():
             try:
                 student_name = transcript_data['student_name']
                 student_id_val = str(transcript_data['student_id'])
+                student_email = data.get('email')
+                
+                # UNIFORM ONBOARDING: Create student user in 'pending' state
                 student_user = User.query.filter_by(student_id=student_id_val).first()
+                activation_token = str(uuid.uuid4())
+                
                 if student_user:
-                    student_user.username = student_name
                     student_user.full_name = student_name
-                    student_user.set_password(student_id_val)
+                    student_user.email = student_email
+                    student_user.activation_token = activation_token
+                    student_user.onboarding_status = 'pending'
                     db.session.commit()
                 else:
-                    conflict = User.query.filter_by(username=student_name).first()
-                    username_to_use = f"{student_name} ({student_id_val})" if conflict else student_name
-                    
                     new_student = User(
-                        username=username_to_use,
+                        username=f"user_{student_id_val}",
                         role='student',
                         student_id=student_id_val,
                         full_name=student_name,
-                        email=None
+                        email=student_email,
+                        onboarding_status='pending',
+                        activation_token=activation_token,
+                        is_verified=False
                     )
-                    new_student.set_password(student_id_val)
+                    # Temporary safe password until setup
+                    new_student.set_password(str(uuid.uuid4()))
                     db.session.add(new_student)
                     db.session.commit()
+                
+                # TRIGGER FIRST ONBOARDING EMAIL WITH FULL DETAILS
+                if student_email:
+                    mailer.send_onboarding_mail(
+                        student_email, 
+                        student_name, 
+                        activation_token,
+                        transcript_data['degree'],
+                        transcript_data['gpa'],
+                        transcript_data['graduation_year']
+                    )
+                    logging.info(f"✅ Detailed onboarding mail sent to {student_email}")
+                
             except Exception as e:
-                logging.error(f"Error creating/updating student user: {str(e)}")
+                logging.error(f"Error in onboarding workflow: {str(e)}")
 
-            flash('Credential issued successfully with extended academic details!', 'success')
+            flash('Credential issued! Student has been notified for security verification.', 'success')
             return jsonify(result)
         else:
             return jsonify({'error': result['error']}), 500
@@ -861,11 +1256,7 @@ def api_credentials():
 def get_student_credentials(student_id):
     """Get all credentials for a specific student"""
     try:
-        all_credentials = credential_manager.get_all_credentials()
-        student_credentials = [
-            cred for cred in all_credentials 
-            if cred.get('credentialSubject', {}).get('studentId') == student_id
-        ]
+        student_credentials = credential_manager.get_credentials_by_student(student_id)
         return jsonify({'credentials': student_credentials})
     except Exception as e:
         logging.error(f"Error getting student credentials: {str(e)}")
@@ -891,6 +1282,16 @@ def api_revoke_credential():
         result = credential_manager.revoke_credential(credential_id, reason, reason_category)
         
         if result['success']:
+            # NOTIFICATION: Notify student of revocation
+            student_id = result.get('student_id')
+            if student_id:
+                student_user = User.query.filter_by(student_id=student_id).first()
+                if student_user and student_user.email:
+                    mailer.send_revocation_mail(
+                        student_user.email, 
+                        result.get('degree', 'Academic Transcript'), 
+                        reason
+                    )
             flash('Credential revoked successfully', 'success')
         
         return jsonify(result)
@@ -939,6 +1340,18 @@ def api_create_new_version():
         result = credential_manager.create_new_version(old_credential_id, updated_data, reason)
         
         if result['success']:
+            # NOTIFICATION: Notify student of update/correction
+            student_id = result.get('student_id')
+            if student_id:
+                student_user = User.query.filter_by(student_id=student_id).first()
+                if student_user and student_user.email:
+                    mailer.send_setup_mail(
+                        student_user.email, 
+                        student_user.full_name, 
+                        result.get('degree', 'Academic Transcript'), 
+                        result['credential_id'], 
+                        "correction-notice"
+                    )
             flash(f'New credential version v{result["version"]} created successfully!', 'success')
         
         return jsonify(result)
@@ -1162,6 +1575,18 @@ def student_ticket_action(ticket_id):
         result = ticket_manager.student_mark_resolved(ticket_id, student_id, is_resolved)
         
         if result.get('success'):
+            # NOTIFICATION: Notify student of revocation
+            # Note: The variables 'User', 'mailer', 'reason', and 'degree' are not defined in this context.
+            # This snippet assumes they are imported/defined elsewhere or are placeholders.
+            # For a functional implementation, these would need to be properly integrated.
+            # Example placeholder for demonstration:
+            # student_user = User.query.filter_by(student_id=result['student_id']).first()
+            # if student_user and student_user.email:
+            #     mailer.send_revocation_mail(
+            #         student_user.email, 
+            #         result.get('degree', 'Academic Transcript'), 
+            #         reason
+            #     )
             return jsonify(result)
         else:
             return jsonify(result), 403

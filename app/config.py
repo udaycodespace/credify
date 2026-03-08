@@ -19,6 +19,7 @@ class Config:
     # Flask settings
     SECRET_KEY = os.environ.get('SESSION_SECRET', 'dev-secret-key-change-in-production')
     DEBUG = True
+    PORT = int(os.environ.get('PORT', 5000))
     
     # IPFS settings
     IPFS_ENDPOINTS = [
@@ -42,6 +43,14 @@ class Config:
     UNIVERSITY_NAME = 'G. Pulla Reddy Engineering College'
     DEPARTMENT_NAME = 'Computer Science Engineering'
     UNIVERSITY_DID = 'did:example:university'
+    
+    # Mail settings (SMTP)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', MAIL_USERNAME)
     
     # Database settings - FIXED path
     DATABASE_URL = f"sqlite:///{DATA_DIR / 'credentials.db'}"

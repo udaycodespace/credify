@@ -483,6 +483,69 @@
             width: 100% !important;
         }
     }
+
+    /* Stepper UI */
+    .stepper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .stepper::before {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--slate-700);
+        z-index: 1;
+    }
+
+    .step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        width: 100%;
+    }
+
+    .step-icon {
+        width: 30px;
+        height: 30px;
+        background: var(--slate-800);
+        border: 2px solid var(--slate-700);
+        border-radius: 50%;
+        margin: 0 auto 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--slate-600);
+        transition: all 0.3s ease;
+    }
+
+    .step.active .step-icon {
+        border-color: var(--cyan-500);
+        color: var(--cyan-400);
+        box-shadow: 0 0 10px var(--cyan-500);
+    }
+
+    .step.completed .step-icon {
+        background: var(--green-500);
+        border-color: var(--green-500);
+        color: white;
+    }
+
+    .step-label {
+        font-size: 10px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    .step.active .step-label {
+        color: var(--cyan-400);
+    }
 </style>
 
 <div class="container-fluid">
@@ -1588,28 +1651,68 @@
             .then(data => {
                 if (data.ticket) {
                     const ticket = data.ticket;
+
+                    // Generate Stepper HTML
+                    const statuses = ['open', 'in_progress', 'resolved'];
+                    const statusLabels = ['Filed', 'Under Review', 'Resolution Ready'];
+                    const currentIndex = statuses.indexOf(ticket.status);
+
+                    let stepperHtml = '<div class="stepper mt-3 mb-4">';
+                    statusLabels.forEach((label, idx) => {
+                        const state = idx < currentIndex ? 'completed' : (idx === currentIndex ? 'active' : '');
+                        const icon = idx < currentIndex ? 'fa-check' : (idx === 0 ? 'fa-file-alt' : (idx === 1 ? 'fa-user-cog' : 'fa-certificate'));
+                        stepperHtml += `
+                            <div class="step ${state}">
+                                <div class="step-icon">
+                                    <i class="fas ${icon}"></i>
+                                </div>
+                                <div class="step-label">${label}</div>
+                            </div>
+                        `;
+                    });
+                    stepperHtml += '</div>';
+
                     let responsesHtml = '';
                     if (ticket.responses && ticket.responses.length > 0) {
-                        responsesHtml = '<hr><h6 style="color: var(--cyan-400);">Responses:</h6>';
+                        responsesHtml = '<hr><h6 style="color: var(--cyan-400);">Timeline & Audit Log:</h6>';
                         ticket.responses.forEach(r => {
                             responsesHtml += `
-                            <div class="mb-2 p-2 rounded" style="background: var(--slate-700);">
-                                <small style="color: #e2e8f0;"><strong>${r.responder === 'admin' ? 'Admin' : 'You'}:</strong> ${r.message}</small><br>
-                                ${r.action ? `<small class="text-info">${r.action}</small><br>` : ''}
-                                <small class="text-muted">${new Date(r.timestamp).toLocaleString()}</small>
+                            <div class="mb-2 p-2 rounded border-start border-3 border-info" style="background: var(--slate-900); border-radius: 0 !important;">
+                                <div class="d-flex justify-content-between">
+                                    <small style="color: #e2e8f0;"><strong>${r.responder === 'admin' ? 'Institutional Response' : 'System Notice'}:</strong></small>
+                                    <small class="text-muted" style="font-size: 10px;">${new Date(r.timestamp).toLocaleString()}</small>
+                                </div>
+                                <div class="small mt-1">${r.message}</div>
+                                ${r.action ? `<div class="mt-1"><span class="badge bg-primary text-dark py-0" style="font-size: 9px; min-width: auto; border:none;">${r.action}</span></div>` : ''}
                             </div>
                         `;
                         });
                     }
 
                     const alertContent = `
-                    <h6 style="color: var(--cyan-400);">${ticket.subject}</h6>
-                    <p style="color: #cbd5e1;">${ticket.description}</p>
-                    <small style="color: #94a3b8;">Status: ${ticket.status} | Priority: ${ticket.priority}</small>
-                    ${responsesHtml}
+                    <div class="text-start">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                             <h6 class="mb-0" style="color: var(--cyan-400); text-transform: uppercase;">Ticket #${ticket.ticket_id}</h6>
+                             <span class="badge bg-${ticket.priority === 'high' ? 'danger' : 'warning'} py-1">${ticket.priority}</span>
+                        </div>
+                        <h5 class="mb-2">${ticket.subject}</h5>
+                        <p class="text-muted small mb-3" style="font-family: inherit;">${ticket.description}</p>
+                        
+                        ${stepperHtml}
+                        
+                        ${responsesHtml}
+                        
+                        ${ticket.status === 'resolved' ? `
+                            <div class="alert alert-success mt-4 mb-0" style="border-radius: 0;">
+                                <i class="fas fa-check-circle me-2"></i>
+                                This issue has been marked as <strong>Resolved</strong> by the institution. 
+                                Please confirm if you are satisfied with the resolution using the buttons on the ticket card.
+                            </div>
+                        ` : ''}
+                    </div>
                 `;
 
-                    showAlert(alertContent, 'info');
+                    showAlert(alertContent, 'dark');
                 }
             });
     }

@@ -1,6 +1,6 @@
 # 🎓 Blockchain-Based Verifiable Credential System for Academic Transcripts
 
-**Version 2.0** | A decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using blockchain technology and advanced cryptography.
+**Version 2.1.0** | An elite decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using Private Blockchain technology and advanced cryptography.
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
 [![Docker Image Size](https://img.shields.io/docker/image-size/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
@@ -36,27 +36,26 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 - 🔒 **Privacy** is preserved through selective disclosure mechanisms
 - 🎓 **Elite Presentation** Professional institutional-grade certificate viewer and 10/10 PDF generator
 
-**Current Status:** Production-ready with comprehensive test coverage and premium UI/UX (Updated March 2026)
+**Current Status:** Production-ready with comprehensive test coverage, premium UI/UX, and Multi-Node P2P Sync (Updated March 2026)
 
 ***
 
 ## 🚀 Quick Start
 
-### 🐳 Docker Deployment (Recommended)
+### 🐳 Docker Deployment: 3-Node Cluster (Recommended)
 
 ```bash
-# Pull from Docker Hub
-docker pull udaycodespace/credify:latest
+# Clone the repository
+git clone https://github.com/udaycodespace/credify.git
+cd credify
 
-# Run the container
-docker run -d -p 5000:5000 \
-  -e ADMIN_PASSWORD=your_secure_password \
-  -e SECRET_KEY=your_secret_key \
-  --name credify \
-  udaycodespace/credify:latest
+# Launch the decentralized 3-node P2P cluster
+docker-compose up -d
 
-# Access the application
-open http://localhost:5000
+# Access the isolated nodes
+open http://localhost:5001 # Institutional Node 1
+open http://localhost:5002 # Institutional Node 2
+open http://localhost:5003 # Institutional Node 3
 ```
 
 **Docker Hub Repository:** [udaycodespace/credify](https://hub.docker.com/r/udaycodespace/credify)
@@ -405,20 +404,13 @@ DATABASE_URL=your_database_url
 python -c "from app.models import init_database; from app.app import app; init_database(app)"
 ```
 
-### Using Docker (Recommended)
+### Using Docker & docker-compose (Recommended)
 
 ```bash
-# Build image
-docker build -t credify:v2.0 .
+# Build the highly optimized multi-stage image
+docker build -t udaycodespace/credify:latest .
 
-# Run container with environment variables
-docker run -d -p 5000:5000 \
-  -e ADMIN_PASSWORD=your_secure_password \
-  -e SECRET_KEY=your_secret_key \
-  --name credify \
-  credify:v2.0
-
-# Or use docker-compose
+# Run the full Private Blockchain 3-Node Cluster
 docker-compose up -d
 ```
 
@@ -444,9 +436,8 @@ python main.py
 ### Docker Deployment
 
 ```bash
-# Using pre-built image from Docker Hub
-docker pull udaycodespace/credify:latest
-docker run -d -p 5000:5000 udaycodespace/credify:latest
+# Spin up the fully orchestrated 3-node network directly via compose
+docker-compose up -d
 ```
 
 ***
@@ -656,8 +647,8 @@ pytest tests/test_blockchain.py -v
 
 | Developer | Primary Focus | Key Contributions |
 |:----------|:-------------|:------------------|
-| **[@udaycodespace](https://github.com/udaycodespace)** | Backend & Infrastructure | Blockchain, Cryptography, CI/CD, Deployment |
-| **[@shashikiran47](https://github.com/shashikiran47)** | Frontend & Design | UI/UX, IPFS Integration, User Experience |
+| **[@udaycodespace](https://github.com/udaycodespace)** | Backend & Infrastructure | Blockchain, Cryptography, CI/CD, DevOps |
+| **[@shashikiran47](https://github.com/shashikiran47)** | Frontend & Design | Senior UI/UX, IPFS Integration, User Experience |
 | **[@tejavarshith](https://github.com/tejavarshith)** | Testing & Documentation | Test Suite, QA, Technical Documentation |
 
 ### Collaborative Achievements
@@ -708,9 +699,9 @@ We express our sincere gratitude to:
 ## 📄 License & Academic Use
 
 **Project Classification:** B.Tech Final Year Project  
-**Version:** 2.0 (Production-Ready Release)  
+**Version:** 2.1.0 (Elite Private Blockchain Release)  
 **Status:** Complete & Deployed  
-**Year:** 2024-2025
+**Year:** 2026
 
 ### Academic License
 
@@ -735,8 +726,8 @@ If you use this project for academic or research purposes, please cite:
 
 ```
 Blockchain-Based Verifiable Credential System for Academic Transcripts
-Version 2.0, 2024-2025
-Developed by: Uday Somapuram, Shashi Kiran, Teja Varshith
+Version 2.1.0 (Elite Private Blockchain Edition), 2026
+Developed by: Somapuram Uday, Shashi Kiran, Teja Varshith
 Institution: G. Pulla Reddy Engineering College (Autonomous), Kurnool
 GitHub: https://github.com/udaycodespace/credify
 ```
@@ -770,12 +761,12 @@ For questions, issues, or collaboration opportunities:
 
 ## 🎉 Project Status
 
-**Current Version:** 2.1 (Elite UI/UX Edition)  
+**Current Version:** 2.1.0 (Elite Private Blockchain Edition)  
 **Status:** ✅ Production Ready  
 **Last Updated:** March 2026  
 **Maintenance:** Active Development
 
-### Changelog (v2.0)
+### Changelog (v2.1.0)
 
 #### New Features
 
@@ -789,6 +780,7 @@ For questions, issues, or collaboration opportunities:
 - ✨ **Elite 10/10 PDF Generation Engine** (March 2026)
 - ✨ **Senior UI/UX Branding Overhaul** (March 2026)
 - ✨ **Digital Authority Signature Hierarchy** (March 2026)
+- ✨ **Multi-Node P2P Blockchain Network & Docker Orchestration** (March 2026)
 
 #### Improvements
 
@@ -830,17 +822,15 @@ Our solution provides:
 
 ## 🚀 Deployment
 
-### Docker Hub
+### Docker Hub Cluster Deployment
 
 ```bash
-# Pull latest image
-docker pull udaycodespace/credify:latest
+# Clone the infrastructure repository directly
+git clone https://github.com/udaycodespace/credify.git
+cd credify
 
-# Run with environment variables
-docker run -d -p 5000:5000 \
-  -e ADMIN_PASSWORD=your_secure_password \
-  -e SECRET_KEY=your_secret_key \
-  udaycodespace/credify:latest
+# Boot up the 3-node P2P ledger (Node 1, Node 2, Node 3)
+docker-compose up -d
 ```
 
 ### Render
@@ -862,7 +852,7 @@ See `docs/DEPLOYMENT.md` for detailed deployment instructions for various platfo
 
 **B.Tech Final Year Project**
 **G. Pulla Reddy Engineering College (Autonomous)**
-*Under Esteemed Guidance of: **Dr. B. Thimma Reddy Sir**, **Dr. G. Rajeswarappa Sir** and **Shri Shri K Bala Chowdappa Sir***
+*Under Esteemed Guidance of: **Dr. B. Thimma Reddy Sir**, **Dr. G. Rajeswarappa Sir** and **Shri K Bala Chowdappa Sir***
 
 ---
 
@@ -881,7 +871,7 @@ See `docs/DEPLOYMENT.md` for detailed deployment instructions for various platfo
 > [!NOTE]
 > **🚀 DOCUMENTATION STATUS: UPDATED**
 > 
-> **Architecture Version:** 2.1.0 (Elite UI/UX Overhaul)
+> **Architecture Version:** 2.1.0 (Elite Private Blockchain & UI/UX Overhaul)
 > 
-> **Current Edited Date:** `2026-03-08`
+> **Current Edited Date:** `2026-03-08 19:50:00 IST`
 

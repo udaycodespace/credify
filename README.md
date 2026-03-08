@@ -234,6 +234,7 @@ git push → GitHub Actions → Tests → Build Docker → Push to Docker Hub �
 
 - **GitHub Actions:** [View Workflows](https://github.com/udaycodespace/credify/actions)
 - **Docker Hub:** [View Images](https://hub.docker.com/r/udaycodespace/credify)
+- **Story Time:** [The Origins of Credify](docs/STORY_TIME.md)
 
 ***
 
@@ -763,7 +764,7 @@ For questions, issues, or direct collaboration opportunities, please DM:
 
 - **GitHub Repository:** [udaycodespace/credify](https://github.com/udaycodespace/credify)
 - **Docker Hub:** [udaycodespace/credify](https://hub.docker.com/r/udaycodespace/credify)
-- **Live Demo:** [Render Deployment](https://credify.onrender.com) *(if applicable)*
+- **How we built it:** [Story Time: The Origins of Credify](docs/STORY_TIME.md)
 - **Documentation:** See `/docs` folder in repository
 
 ***
@@ -842,9 +843,12 @@ cd credify
 docker-compose up -d
 ```
 
-### Render
+### 📖 The Origin Story
 
-Automatically deployed from `main` branch via GitHub integration.
+Before we built an elite Private Blockchain, we explored Steganography, Android Hostel Management, and Web3 Voting systems.
+
+Read the full story of our engineering decisions and deep pivots here:
+👉 **[Story Time: The Origins of Credify](docs/STORY_TIME.md)**
 
 ### Manual Deployment
 

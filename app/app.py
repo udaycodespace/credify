@@ -84,14 +84,22 @@ with app.app_context():
                     logging.warning(f"Invalid peer URI: {peer.strip()}")
         
         if blockchain.nodes:
-            try:
-                logging.info(f"Syncing with peers: {blockchain.nodes}...")
-                if blockchain.resolve_conflicts():
-                    logging.info(f"Synchronized chain with peers. New length: {len(blockchain.chain)}")
-                else:
-                    logging.info("Local chain is authoritative or equal length.")
-            except Exception as e:
-                logging.error(f"Error during initial peer sync: {e}")
+            def initial_sync():
+                import time
+                # Wait 5 seconds to let all nodes start their Flask servers
+                time.sleep(5)
+                with app.app_context():
+                    try:
+                        logging.info(f"Syncing with peers: {blockchain.nodes}...")
+                        if blockchain.resolve_conflicts():
+                            logging.info(f"Synchronized chain with peers. New length: {len(blockchain.chain)}")
+                        else:
+                            logging.info("Local chain is authoritative or equal length.")
+                    except Exception as e:
+                        logging.error(f"Error during initial peer sync: {e}")
+            
+            import threading
+            threading.Thread(target=initial_sync, daemon=True).start()
 
 ipfs_client = IPFSClient()
 credential_manager = CredentialManager(blockchain, crypto_manager, ipfs_client)

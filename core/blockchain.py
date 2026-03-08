@@ -146,7 +146,7 @@ class SimpleBlockchain:
         # Grab and verify the chains from all the nodes in our network
         for node in neighbors:
             try:
-                response = requests.get(f'http://{node}/api/node/chain')
+                response = requests.get(f'http://{node}/api/node/chain', timeout=3)
                 
                 if response.status_code == 200:
                     data = response.json()

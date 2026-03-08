@@ -14,8 +14,15 @@ services:
       - SESSION_SECRET=node1-secret-key
       - PEER_NODES=http://node2:5000,http://node3:5000
     volumes:
-      - ./data/node1:/app/data
+      - node1_data:/app/data
+    networks:
+      - blockchain-net
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   node2:
     build: .
@@ -30,7 +37,9 @@ services:
       - SESSION_SECRET=node2-secret-key
       - PEER_NODES=http://node1:5000,http://node3:5000
     volumes:
-      - ./data/node2:/app/data
+      - node2_data:/app/data
+    networks:
+      - blockchain-net
     restart: unless-stopped
 
   node3:
@@ -46,5 +55,16 @@ services:
       - SESSION_SECRET=node3-secret-key
       - PEER_NODES=http://node1:5000,http://node2:5000
     volumes:
-      - ./data/node3:/app/data
+      - node3_data:/app/data
+    networks:
+      - blockchain-net
     restart: unless-stopped
+
+networks:
+  blockchain-net:
+    driver: bridge
+
+volumes:
+  node1_data:
+  node2_data:
+  node3_data:

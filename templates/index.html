@@ -635,23 +635,136 @@
 
         <p class="hero-subtitle mb-4">
             Credify 2026 is an elite digital credentialing system. We help universities issue tamper-proof transcripts
-            using blockchain,
-            give students private control over their records, and allow employers to instantly verify authenticity with
-            a single click.
+            using blockchain, give students private control over their records, and allow employers to instantly verify
+            authenticity with a single click.
         </p>
 
         <!-- Easter Egg #4: Triple-click for rainbow -->
-        <div class="team-badge mb-4" id="teamBadge" onclick="rainbowBadge()">
+        <div class="team-badge mb-5" id="teamBadge" onclick="rainbowBadge()">
             🎓 B.Tech Final Year Project - GPREC
         </div>
 
-        <div class="team-names mt-4">
-            <strong>SHASHI</strong> – Frontend Design, UI Integration, IPFS Handling<br>
-            <strong>UDAY</strong> – Backend Architecture, Blockchain Logic, Cryptography<br>
-            <strong>TEJA VARSHITH</strong> – System Analysis, Test Design, Documentation
+        <!-- Team Section: Cyber Grid POV -->
+        <div class="team-container mt-5 pt-4 border-top border-secondary border-opacity-25">
+            <h6 class="text-uppercase mb-5"
+                style="letter-spacing: 4px; color: var(--cyan-400); font-size: 0.9rem; font-weight: 800; text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);">
+                <i class="fas fa-microchip me-2"></i>Engineering Core
+            </h6>
+
+            <div class="row g-4 justify-content-center mb-5">
+                <!-- SHASHI -->
+                <div class="col-md-4">
+                    <a href="https://www.linkedin.com/in/sashi-kiran-02bb8a255/" target="_blank" class="team-node">
+                        <div class="node-glitch"></div>
+                        <div class="node-content">
+                            <i class="fas fa-layer-group mb-3"></i>
+                            <span class="node-name">SHASHI</span>
+                            <span class="node-role">Frontend Design, UI Integration, IPFS Handling</span>
+                        </div>
+                    </a>
+                </div>
+                <!-- TEJA VARSHITH -->
+                <div class="col-md-4">
+                    <a href="https://www.linkedin.com/in/teja-varshith-85b921376/" target="_blank" class="team-node">
+                        <div class="node-glitch"></div>
+                        <div class="node-content">
+                            <i class="fas fa-file-shield mb-3"></i>
+                            <span class="node-name">TEJA VARSHITH</span>
+                            <span class="node-role">System Analysis, Test Design, Documentation</span>
+                        </div>
+                    </a>
+                </div>
+                <!-- UDAY -->
+                <div class="col-md-4">
+                    <a href="https://www.linkedin.com/in/somapuram-uday/" target="_blank" class="team-node">
+                        <div class="node-glitch"></div>
+                        <div class="node-content">
+                            <i class="fas fa-code-branch mb-3"></i>
+                            <span class="node-name">UDAY</span>
+                            <span class="node-role">Backend Architecture, Blockchain Logic, Cryptography</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="guidance-section mt-5 pt-4 border-top border-secondary border-opacity-10">
+                <span class="text-uppercase fw-bold"
+                    style="font-size: 0.75rem; letter-spacing: 2px; color: var(--amber-400);">Academy
+                    Steering</span><br>
+                <div class="fw-bold mt-3"
+                    style="color: #e2e8f0; font-size: 1.1rem; line-height: 1.8; letter-spacing: 0.5px;">
+                    Dr. B. Thimma Reddy Sir, Dr. G. Rajeswarappa Sir<br>
+                    <span class="text-white">and Shri K Bala Chowdappa Sir</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .team-node {
+        display: block;
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2rem 1.5rem;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+    }
+
+    .team-node:hover {
+        transform: translateY(-10px);
+        border-color: var(--cyan-400);
+        box-shadow: 0 0 30px rgba(34, 211, 238, 0.15);
+        background: rgba(34, 211, 238, 0.05);
+    }
+
+    .team-node i {
+        font-size: 2.5rem;
+        color: var(--cyan-500);
+        transition: 0.3s;
+    }
+
+    .team-node:hover i {
+        color: #fff;
+        transform: scale(1.1);
+    }
+
+    .node-name {
+        display: block;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: #fff;
+        letter-spacing: 2px;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+    }
+
+    .node-role {
+        display: block;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-family: 'IBM Plex Mono', monospace;
+        line-height: 1.6;
+    }
+
+    .node-glitch {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(34, 211, 238, 0.1), transparent);
+        transition: 0.6s;
+    }
+
+    .team-node:hover .node-glitch {
+        left: 100%;
+    }
+</style>
 
 <!-- Role Selection Cards -->
 <div class="container">
@@ -708,15 +821,15 @@
             <div class="card h-100 role-card">
                 <div class="card-body text-center">
                     <div class="role-icon mb-3">
-                        <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                        <i class="fas fa-shield-check fa-3x text-warning"></i>
                     </div>
                     <h5 class="card-title">Employer (Verifier)</h5>
                     <p class="card-text">
-                        Verify the authenticity of academic credentials using blockchain verification.
-                        Check cryptographic signatures and validate credential integrity.
+                        Instantly verify the authenticity of credentials shared by students.
+                        The system checks blockchain proofs and cryptographic signatures in real-time.
                     </p>
                     <a href="{{ url_for('verifier') }}" class="btn btn-warning">
-                        <i class="fas fa-check-circle me-2"></i>Verify Credentials
+                        <i class="fas fa-check-circle me-2"></i>Verify Integrity
                     </a>
                 </div>
             </div>
@@ -726,32 +839,33 @@
     <!-- System Features -->
     <div class="card system-card">
         <div class="card-header">
-            <h5><i class="fas fa-microchip me-2"></i>System Features</h5>
+            <h5><i class="fas fa-microchip me-2"></i>System Features Matrix</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body px-4">
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>W3C Verifiable Credentials
-                            Standard</li>
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Cryptographic Digital
-                            Signatures</li>
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>IPFS Distributed Storage
+                <div class="col-md-6">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>W3C Verifiable Credentials Standard
                         </li>
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Blockchain-based Integrity
-                        </li>
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>Cryptographic Digital Signatures</li>
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>IPFS Distributed Storage</li>
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>Blockchain-based Integrity</li>
                     </ul>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Selective Disclosure
-                            Privacy</li>
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Tamper-proof Verification
-                        </li>
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Decentralized Architecture
-                        </li>
-                        <li><i class="fas fa-check me-2" style="color: var(--green-500);"></i>Real-time Status
-                            Monitoring</li>
+                <div class="col-md-6">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>Selective Disclosure Privacy</li>
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>Tamper-proof Verification</li>
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>Decentralized Architecture</li>
+                        <li class="mb-3 d-flex align-items-center"><i
+                                class="fas fa-check-circle me-3 text-success"></i>Real-time Status Monitoring</li>
                     </ul>
                 </div>
             </div>
@@ -788,16 +902,31 @@
         </div>
     </div>
 
-    <!-- Need Help -->
-    <div class="card system-card">
-        <div class="card-body text-center">
-            <h6 class="text-uppercase" style="color: var(--cyan-400);">Need Help?</h6>
-            <p class="card-text small mb-3">
-                Check out our comprehensive tutorial for step-by-step guidance.
-            </p>
-            <a href="{{ url_for('tutorial') }}" class="btn btn-outline-info btn-sm">
-                <i class="fas fa-book me-1"></i>View Tutorial
-            </a>
+    <!-- Need Help (High Conversion Revamp) -->
+    <div class="card system-card border-0"
+        style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)); backdrop-filter: blur(10px);">
+        <div class="card-body p-5">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center d-none d-md-block">
+                    <div class="help-icon-wrapper"
+                        style="width: 80px; height: 80px; background: rgba(6, 182, 212, 0.1); border: 2px dashed var(--cyan-500); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                        <i class="fas fa-brain fa-3x text-info"></i>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <h4 class="text-uppercase fw-bold mb-2" style="color: var(--cyan-400); letter-spacing: 2px;">Neural
+                        Learning Core</h4>
+                    <p class="text-white-50 mb-0">
+                        New to the 2026 Private Blockchain? Master the cryptographic workflow with our interactive,
+                        step-by-step institutional guide. Learn how to secure your digital identity in minutes.
+                    </p>
+                </div>
+                <div class="col-md-3 text-center text-md-end mt-4 mt-md-0">
+                    <a href="{{ url_for('tutorial') }}" class="btn btn-warning w-100 py-3 fw-bold text-uppercase">
+                        <i class="fas fa-play-circle me-2"></i>Boot Tutorial
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -861,6 +990,13 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Essential site interactions
+        loadSystemStatus();
+        setInterval(loadSystemStatus, 30000);
+    });
+</script>
 <script>
     // Load system status
     document.addEventListener('DOMContentLoaded', function () {

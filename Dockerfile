@@ -1,43 +1,64 @@
-# Use official Python runtime as base image
-FROM python:3.11-slim
+# --- Stage 1: Builder ---
+FROM python:3.11-slim AS builder
 
-# Set working directory in container
-WORKDIR /app
+WORKDIR /build
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PORT=5000
-
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     libpq-dev \
+    libffi-dev \
+    libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for better caching)
-COPY requirements.txt .
+# Create and use a virtualenv
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# --- Stage 2: Runtime ---
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Set production environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PORT=5000 \
+    FLASK_ENV=production \
+    PATH="/opt/venv/bin:$PATH"
+
+# Install minimal runtime libraries
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    libfreetype6 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy virtualenv from builder
+COPY --from=builder /opt/venv /opt/venv
 
 # Copy application code
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p data logs static templates
+# Create persistent data volumes with correct permissions
+RUN mkdir -p data logs static/uploads \
+    && useradd -m -u 1000 appuser \
+    && chown -R appuser:appuser /app
 
-# Create a non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# Ensure appuser can write to the data directories
+RUN chmod -R 755 data logs static/uploads
+
 USER appuser
 
-# Expose port
+# Health check using curl
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:5000/ || exit 1
+
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/', timeout=5)" || exit 1
-
-# Run the application
+# Entry point
 CMD ["python", "main.py"]

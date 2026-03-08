@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "credify"
-version = "1.0.0"
-description = "Blockchain-Based Verifiable Academic Credential System with Zero-Knowledge Proofs"
-authors = ["Your Name <your.email@example.com>"]
+version = "2.1.0"
+description = "Elite Private Blockchain Verifiable Credential System with ZKP & IPFS"
+authors = ["Somapuram Uday", "Shashi Kiran", "Teja Varshith"]
 readme = "README.md"
 license = "MIT"
 

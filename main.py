@@ -51,7 +51,7 @@ if __name__ == '__main__':
     initialize_app()
     
     # Get port from environment (Render sets this automatically)
-    port = int(os.environ.get('PORT', 5000))
+    port = Config.PORT
     
     # Get host from environment
     host = os.environ.get('HOST', '0.0.0.0')
@@ -61,11 +61,11 @@ if __name__ == '__main__':
     
     print(f"""
     ╔══════════════════════════════════════════════════════════════════════════════════════            
-    ║  🎓Blockchain Credential Verification System                                  
-    ║  🚀Starting server...                                                          
-    ║  📡Host: {host:<42}                                                            
-    ║  🔌Port: {str(port):<42}                                                       
-    ║  🌍Environment: {'Production (Render)' if is_production else 'Development':<32}
+    ║  🎓 Credify 2026 - Blockchain Credential System                                  
+    ║  🚀 Starting server...                                                          
+    ║  📡 Host: {host:<42}                                                            
+    ║  🔌 Port: {str(port):<42}                                                       
+    ║  🌍 Environment: {'Production (Render)' if is_production else 'Development':<32}
     ╚══════════════════════════════════════════════════════════════════════════════════════ 
     """)
     

@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Credential — Credify{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --cyan-400: #22d3ee;
+        --cyan-500: #06b6d4;
+        --green-500: #10b981;
+        --red-500: #ef4444;
+        --amber-400: #fbbf24;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=JetBrains+Mono:wght@700&display=swap');
+
+    body {
+        font-family: 'IBM Plex Mono', monospace;
+        background: var(--slate-900);
+        color: #e2e8f0;
+    }
+
+    .verify-header {
+        text-align: center;
+        padding: 40px 20px 20px;
+        border-bottom: 3px solid var(--cyan-500);
+        margin-bottom: 40px;
+    }
+
+    .verify-header h1 {
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--cyan-400);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-size: 1.8rem;
+    }
+
+    .result-box {
+        border: 3px solid;
+        border-radius: 0;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .result-box.valid {
+        border-color: var(--green-500);
+        background: rgba(16, 185, 129, 0.1);
+        box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .result-box.invalid {
+        border-color: var(--red-500);
+        background: rgba(239, 68, 68, 0.1);
+        box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
+    }
+
+    .result-box.pending {
+        border-color: var(--cyan-500);
+        background: rgba(6, 182, 212, 0.05);
+    }
+
+    .result-icon {
+        font-size: 4rem;
+        margin-bottom: 15px;
+    }
+
+    .result-box.valid .result-icon {
+        color: var(--green-500);
+    }
+
+    .result-box.invalid .result-icon {
+        color: var(--red-500);
+    }
+
+    .result-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .result-box.valid .result-title {
+        color: var(--green-500);
+    }
+
+    .result-box.invalid .result-title {
+        color: var(--red-500);
+    }
+
+    .card {
+        background: var(--slate-800);
+        border: 2px solid var(--slate-700);
+        border-radius: 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+        background: var(--slate-700);
+        border-bottom: 2px solid var(--cyan-500);
+        color: var(--cyan-400);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .table {
+        color: #e2e8f0;
+    }
+
+    .table th {
+        color: var(--cyan-400);
+        font-weight: 700;
+        border-color: var(--slate-700);
+        width: 35%;
+    }
+
+    .table td {
+        border-color: var(--slate-700);
+    }
+
+    .badge {
+        border-radius: 0;
+        padding: 6px 12px;
+        font-weight: 700;
+        border: 2px solid;
+    }
+
+    .badge-valid {
+        background: transparent;
+        border-color: var(--green-500);
+        color: var(--green-500);
+    }
+
+    .badge-invalid {
+        background: transparent;
+        border-color: var(--red-500);
+        color: var(--red-500);
+    }
+
+    .powered-by {
+        text-align: center;
+        color: #475569;
+        font-size: 0.8rem;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid var(--slate-700);
+    }
+
+    .verify-form {
+        background: var(--slate-800);
+        border: 2px solid var(--slate-700);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    .form-control {
+        background: var(--slate-900);
+        border: 2px solid var(--slate-700);
+        color: #e2e8f0;
+        border-radius: 0;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .form-control:focus {
+        background: var(--slate-900);
+        border-color: var(--cyan-500);
+        color: #e2e8f0;
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    }
+
+    .btn-verify {
+        background: var(--cyan-500);
+        border: 2px solid var(--cyan-500);
+        color: var(--slate-900);
+        border-radius: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px 30px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-verify:hover {
+        background: transparent;
+        color: var(--cyan-400);
+        box-shadow: 0 0 20px var(--cyan-500);
+    }
+
+    @keyframes pulse-valid {
+
+        0%,
+        100% {
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+        }
+
+        50% {
+            box-shadow: 0 0 60px rgba(16, 185, 129, 0.6);
+        }
+    }
+
+    .result-box.valid {
+        animation: pulse-valid 2s ease-in-out infinite;
+    }
+</style>
+
+<div class="container" style="max-width: 700px; margin: 0 auto;">
+
+    <div class="verify-header">
+        <h1><i class="fas fa-shield-alt me-2"></i>Credential Verification</h1>
+        <p class="text-muted mb-0">Powered by Credify Blockchain System</p>
+    </div>
+
+    {% if not credential_id %}
+    <!-- No ID provided — show a manual input form -->
+    <div class="verify-form">
+        <h5 style="color: var(--cyan-400); margin-bottom: 20px;">
+            <i class="fas fa-search me-2"></i>Enter Credential ID
+        </h5>
+        <form method="GET" action="/verify">
+            <div class="mb-3">
+                <label class="form-label"
+                    style="color: var(--cyan-400); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">
+                    Credential ID
+                </label>
+                <input type="text" name="id" class="form-control" placeholder="e.g. CRED-abc12345"
+                    value="{{ credential_id or '' }}" required>
+                <div class="form-text" style="color: #94a3b8;">
+                    Get this from the student's certificate or by scanning the QR code.
+                </div>
+            </div>
+            <button type="submit" class="btn-verify">
+                <i class="fas fa-check-circle me-2"></i>Verify Now
+            </button>
+        </form>
+    </div>
+
+    {% elif result %}
+
+    {% if result.get('valid') and result.get('status') == 'active' %}
+    <!-- ✅ VALID -->
+    <div class="result-box valid">
+        <div class="result-icon">✅</div>
+        <div class="result-title">Credential Verified</div>
+        <p class="mt-2 mb-0" style="color: #94a3b8;">
+            This credential is authentic, blockchain-anchored, and has not been tampered with.
+        </p>
+        <div class="mt-3">
+            <span class="badge badge-valid" style="font-size: 1rem;">ACTIVE &amp; VALID</span>
+        </div>
+    </div>
+
+    {% if credential %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-user-graduate me-2"></i>Student Information
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm mb-0">
+                {% if credential.get('name') %}
+                <tr>
+                    <th>Student Name</th>
+                    <td><strong>{{ credential.name }}</strong></td>
+                </tr>
+                {% endif %}
+                {% if credential.get('studentId') %}
+                <tr>
+                    <th>Roll Number</th>
+                    <td><code style="color: var(--cyan-400);">{{ credential.studentId }}</code></td>
+                </tr>
+                {% endif %}
+                {% if credential.get('degree') %}
+                <tr>
+                    <th>Degree</th>
+                    <td>{{ credential.degree }}</td>
+                </tr>
+                {% endif %}
+                {% if credential.get('university') %}
+                <tr>
+                    <th>University</th>
+                    <td>{{ credential.university }}</td>
+                </tr>
+                {% endif %}
+                {% if credential.get('gpa') %}
+                <tr>
+                    <th>GPA / CGPA</th>
+                    <td><strong style="color: var(--green-500);">{{ credential.gpa }}</strong></td>
+                </tr>
+                {% endif %}
+                {% if credential.get('graduationYear') %}
+                <tr>
+                    <th>Graduation Year</th>
+                    <td>{{ credential.graduationYear }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-lock me-2"></i>Security Checks Passed
+        </div>
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-check-circle me-2" style="color: var(--green-500);"></i>
+                <span>Blockchain hash integrity verified</span>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-check-circle me-2" style="color: var(--green-500);"></i>
+                <span>RSA-2048 digital signature valid</span>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-check-circle me-2" style="color: var(--green-500);"></i>
+                <span>Credential has not been revoked</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle me-2" style="color: var(--green-500);"></i>
+                <span>IPFS storage reference intact</span>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ❌ INVALID / REVOKED -->
+    <div class="result-box invalid">
+        <div class="result-icon">❌</div>
+        <div class="result-title">
+            {% if result.get('status') == 'revoked' %}Credential Revoked{% else %}Verification Failed{% endif %}
+        </div>
+        <p class="mt-2 mb-0" style="color: #94a3b8;">
+            {% if result.get('status') == 'revoked' %}
+            This credential has been revoked by the issuing institution. It is no longer valid.
+            {% elif result.get('error') %}
+            {{ result.error }}
+            {% else %}
+            This credential could not be verified. It may be invalid, tampered with, or does not exist.
+            {% endif %}
+        </p>
+        <div class="mt-3">
+            <span class="badge badge-invalid" style="font-size: 1rem;">
+                {{ result.get('status', 'INVALID') | upper }}
+            </span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Search again -->
+    <div class="text-center mt-3">
+        <a href="/verify" style="color: var(--cyan-400); text-decoration: none;">
+            <i class="fas fa-search me-1"></i>Verify a different credential
+        </a>
+    </div>
+
+    {% else %}
+    <!-- ID provided but result is None (error) -->
+    <div class="result-box invalid">
+        <div class="result-icon">⚠️</div>
+        <div class="result-title">Lookup Error</div>
+        <p class="mt-2 mb-0" style="color: #94a3b8;">
+            Could not find credential <code style="color: var(--red-500);">{{ credential_id }}</code>.
+            Please check the ID and try again.
+        </p>
+    </div>
+    <div class="text-center mt-3">
+        <a href="/verify" style="color: var(--cyan-400); text-decoration: none;">
+            <i class="fas fa-search me-1"></i>Try again
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="powered-by">
+        <i class="fas fa-link me-1"></i>
+        Credify — Blockchain-based Academic Credential System &nbsp;|&nbsp;
+        G. Pulla Reddy Engineering College
+    </div>
+
+</div>
+{% endblock %}

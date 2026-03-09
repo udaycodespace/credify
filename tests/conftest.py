@@ -110,10 +110,26 @@ def student_client(client):
     return client
 
 
+from app.models import db, User, BlockRecord
+
 @pytest.fixture
-def blockchain():
-    """Create a test blockchain instance"""
-    return SimpleBlockchain()
+def blockchain(crypto_manager, app):
+    """Create a test blockchain instance with app context for DB access"""
+    with app.app_context():
+        # Initialize with DB support
+        b = SimpleBlockchain(crypto_manager, db=db, block_model=BlockRecord)
+        
+        # Load existing blocks (from in-memory DB)
+        b.load_blockchain()
+        
+        # Create genesis if chain is empty
+        if not b.chain:
+            b.create_genesis_block()
+            
+        # Force PoA difficulty for tests
+        b.difficulty = 0
+        b.VALIDATORS = ["test_admin", "admin", "issuer1"]
+        return b
 
 
 @pytest.fixture

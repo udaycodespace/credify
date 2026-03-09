@@ -1,89 +1,56 @@
 """
-Tests for ticket management system
+Tests for ticket and message management — Audit Log
 """
 import pytest
 
-
-@pytest.mark.skip(reason="Ticket storage uses list - works in production")
-def test_create_ticket(ticket_manager):
-    """Test creating a support ticket"""
+def test_ticket_creation_lifecycle(ticket_manager):
+    """Test full cycle of a support ticket from creation to update"""
+    # 1. Create
     ticket = ticket_manager.create_ticket(
-        student_id='TEST123',
-        subject='Test Ticket',
-        description='This is a test ticket',
-        category='technical',
-        priority='medium'
+        student_id='STU-456',
+        subject='Credential error',
+        description='Need update to GPA',
+        category='correction'
     )
     
-    assert ticket is not None
-    assert ticket['subject'] == 'Test Ticket'
+    assert ticket['ticket_id'] is not None
     assert ticket['status'] == 'open'
-
-
-@pytest.mark.skip(reason="Ticket storage uses list - works in production")
-def test_get_ticket(ticket_manager):
-    """Test retrieving a ticket"""
-    created_ticket = ticket_manager.create_ticket(
-        student_id='TEST123',
-        subject='Test Ticket',
-        description='Test',
-        category='technical'
-    )
     
-    ticket_id = created_ticket['id']
-    retrieved_ticket = ticket_manager.get_ticket(ticket_id)
-    
-    assert retrieved_ticket is not None
-    assert retrieved_ticket['id'] == ticket_id
-
-
-@pytest.mark.skip(reason="Ticket storage uses list - works in production")
-def test_update_ticket_status(ticket_manager):
-    """Test updating ticket status"""
-    ticket = ticket_manager.create_ticket(
-        student_id='TEST123',
-        subject='Test',
-        description='Test',
-        category='technical'
-    )
-    
+    # 2. Update Status
     success = ticket_manager.update_ticket_status(
-        ticket['id'],
-        status='in_progress',
-        admin_note='Working on it',
+        ticket['ticket_id'],
+        status='resolved',
+        admin_note='GPA updated and re-issued',
         by_admin=True
     )
-    
     assert success is True
     
-    updated_ticket = ticket_manager.get_ticket(ticket['id'])
-    assert updated_ticket['status'] == 'in_progress'
+    # 3. Verify Retrieval
+    fetched = ticket_manager.get_ticket(ticket['ticket_id'])
+    assert fetched['status'] == 'resolved'
+    assert 'GPA updated' in fetched['responses'][-1]['message']
 
+def test_admin_broadcast(ticket_manager):
+    """Test broadcasting an announcement to all students"""
+    msg = ticket_manager.broadcast_message(
+        sender_id='admin_user',
+        subject='Maintenance',
+        message='System update at midnight'
+    )
+    
+    assert msg['is_broadcast'] is True
+    assert msg['subject'] == 'Maintenance'
 
-@pytest.mark.skip(reason="Message storage uses list - works in production")
-def test_send_message(ticket_manager):
-    """Test sending a message"""
-    message = ticket_manager.send_message(
+def test_direct_messaging(ticket_manager):
+    """Test sending a direct response to a specific student"""
+    msg = ticket_manager.send_message(
         sender_id='admin',
         sender_type='issuer',
-        recipient_id='TEST123',
+        recipient_id='STUDENT-1',
         recipient_type='student',
-        subject='Test Message',
-        message='Hello student'
+        subject='RE: Support',
+        message='Your issue is being looked at'
     )
     
-    assert message is not None
-    assert message['subject'] == 'Test Message'
-
-
-@pytest.mark.skip(reason="Message storage uses list - works in production")
-def test_broadcast_message(ticket_manager):
-    """Test broadcasting a message"""
-    message = ticket_manager.broadcast_message(
-        sender_id='admin',
-        subject='Announcement',
-        message='Important announcement'
-    )
-    
-    assert message is not None
-    assert message['is_broadcast'] is True
+    assert msg['recipient_id'] == 'STUDENT-1'
+    assert msg['is_broadcast'] is False

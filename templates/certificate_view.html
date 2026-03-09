@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+
+{% block title %}Official Digital Certificate - {{ credential.id }}{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;700&display=swap');
+
+    :root {
+        --cert-gold: #C9A227;
+        --cert-dark: #0f172a;
+        --cert-light: #fafaf9;
+        --cert-text-muted: #777;
+    }
+
+    body {
+        background: #f1f5f9;
+        font-family: 'Crimson Pro', serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .cert-container {
+        max-width: 1050px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .certificate {
+        background: white;
+        padding: 80px;
+        position: relative;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.1);
+        min-height: 1100px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Fixed Border Ratio */
+    .certificate::before {
+        content: '';
+        position: absolute;
+        top: 25px;
+        left: 25px;
+        right: 25px;
+        bottom: 25px;
+        border: 6px solid var(--cert-gold);
+        pointer-events: none;
+    }
+
+    .certificate::after {
+        content: '';
+        position: absolute;
+        top: 38px;
+        left: 38px;
+        right: 38px;
+        bottom: 38px;
+        border: 2px solid var(--cert-gold);
+        pointer-events: none;
+    }
+
+    /* 1. Institutional Header Spacing */
+    .cert-header {
+        text-align: center;
+        margin-bottom: 40px;
+        z-index: 2;
+    }
+
+    .cert-logo {
+        height: 70px;
+        margin-bottom: 24px;
+    }
+
+    .cert-header h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 auto 14px;
+        letter-spacing: 1.5px;
+        color: #1e293b;
+    }
+
+    /* 2. Elegant Title Underline */
+    .cert-header h2 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--cert-dark);
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+        display: inline-block;
+        padding-bottom: 15px;
+        position: relative;
+    }
+
+    .cert-header h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 15%;
+        width: 70%;
+        height: 2px;
+        background: var(--cert-gold);
+    }
+
+    .cert-subtitle {
+        font-size: 13px;
+        letter-spacing: 4px;
+        color: var(--cert-text-muted);
+        text-transform: uppercase;
+        margin-top: 10px;
+    }
+
+    /* 3. Hero Student Name Kerning */
+    .hero-student-section {
+        text-align: center;
+        margin: 40px 0;
+        z-index: 2;
+    }
+
+    .presented-to {
+        font-style: italic;
+        font-size: 18px;
+        color: #64748b;
+        margin-bottom: 12px;
+    }
+
+    .student-name {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 34px;
+        font-weight: 700;
+        color: var(--cert-dark);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    /* 4. Section Dividers */
+    .section-divider {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+        margin: 20px 0;
+    }
+
+    /* Academic Layout Contrast */
+    .academic-section {
+        z-index: 2;
+        margin-top: 10px;
+    }
+
+    .section-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 13px;
+        color: var(--cert-gold);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 80px;
+        row-gap: 20px;
+    }
+
+    .grid-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f8fafc;
+        padding-bottom: 8px;
+    }
+
+    .grid-label {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        font-size: 11px;
+        color: var(--cert-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .grid-value {
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--cert-dark);
+    }
+
+    /* Refined Proof Box */
+    .proof-box {
+        margin-top: 60px;
+        padding: 30px 40px;
+        background: #fafaf9;
+        border: 1px solid #e2e8f0;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Mini gold line above proof section */
+    .proof-box::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: 10%;
+        width: 80%;
+        height: 2px;
+        background: var(--cert-gold);
+    }
+
+    .proof-header {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--cert-dark);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 25px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .proof-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .proof-details {
+        width: 65%;
+    }
+
+    .proof-field {
+        margin-bottom: 20px;
+    }
+
+    .field-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        letter-spacing: 1px;
+    }
+
+    .field-value {
+        font-family: "Courier New", monospace;
+        font-size: 13px;
+        word-break: break-all;
+        color: #334155;
+        background: white;
+        padding: 10px;
+        border: 1px solid #f1f5f9;
+        line-height: 1.4;
+    }
+
+    .proof-visuals {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    #qrcode-canvas {
+        background: white;
+        padding: 5px;
+        border: 1px solid #e2e8f0;
+        margin-right: 15px;
+    }
+
+    /* 6. Smaller Badge Integrated */
+    .mini-seal {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #ffd700, #fff, #ffd700);
+        background-size: 400% 400%;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(201, 162, 39, 0.15);
+        font-family: 'Montserrat', sans-serif;
+        color: #b45309;
+        animation: hologramShift 8s linear infinite;
+        border: 1px solid rgba(201, 162, 39, 0.3);
+    }
+
+    @keyframes hologramShift {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* Institutional Roles & 10. Subtitles */
+    .cert-footer-signatures {
+        margin-top: 100px;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 2;
+    }
+
+    .signature-item {
+        width: 260px;
+        text-align: center;
+    }
+
+    .signature-line {
+        border-top: 2px solid var(--cert-dark);
+        margin-bottom: 12px;
+    }
+
+    .signature-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 11px;
+        color: #334155;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .signature-subtitle {
+        font-size: 10px;
+        color: #94a3b8;
+        font-style: italic;
+        text-transform: none;
+    }
+
+    /* 9. Ultra-Subtle Watermark */
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-30deg);
+        font-size: 150px;
+        font-weight: 900;
+        color: var(--cert-gold);
+        opacity: 0.02;
+        pointer-events: none;
+        white-space: nowrap;
+        font-family: 'Montserrat', sans-serif;
+        z-index: 1;
+    }
+
+    /* 8. Footer Note Constraints */
+    .final-footer-note {
+        margin-top: auto;
+        padding-top: 40px;
+        text-align: center;
+        color: #64748b;
+        font-size: 11px;
+        font-style: italic;
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="cert-container">
+    <div class="certificate" id="certificatePDF">
+        <div class="watermark">VERIFIED</div>
+
+        <div class="cert-header">
+            <img src="/static/images/collegelogo.png" class="cert-logo" alt="GPREC Logo">
+            <h1>G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)</h1>
+            <h2>OFFICIAL DIGITAL ACADEMIC RECORD</h2>
+            <div class="cert-subtitle">SECURED BY CREDIFY BLOCKCHAIN TECHNOLOGY</div>
+        </div>
+
+        <div class="hero-student-section">
+            <div class="presented-to">This is to certify that</div>
+            <div class="student-name">{{ subject.name or credential.student_name }}</div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="academic-section">
+            <h3 class="section-title">Record of Academic Achievement</h3>
+            <div class="details-grid">
+                <!-- Column 1 -->
+                <div class="grid-col">
+                    <div class="grid-item">
+                        <span class="grid-label">Roll Number</span>
+                        <span class="grid-value">{{ subject.studentId or credential.student_id or 'N/A' }}</span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">Degree Program</span>
+                        <span class="grid-value" style="font-size: 13px;">{{ subject.degree or credential.degree or
+                            'N/A' }}</span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">GPA/CGPA</span>
+                        <span class="grid-value">{{ subject.gpa or credential.gpa or '0.00' }} / 10.00</span>
+                    </div>
+                </div>
+                <!-- Column 2 -->
+                <div class="grid-col">
+                    <div class="grid-item">
+                        <span class="grid-label">Graduation Year</span>
+                        <span class="grid-value">{{ subject.graduationYear or credential.graduation_year or 'N/A'
+                            }}</span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">Semester / Year</span>
+                        <span class="grid-value">{{ subject.semester or credential.semester or '8' }} / {{ subject.year
+                            or credential.year or '4' }}</span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">Status</span>
+                        <span class="grid-value" style="color: #059669; font-size: 11px;">CERTIFIED AUTHENTIC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="proof-box">
+            <div class="proof-header">
+                <i class="fas fa-fingerprint me-2"></i>
+                Blockchain Integrity Proof
+            </div>
+            <div class="proof-content">
+                <div class="proof-details">
+                    <div class="proof-field">
+                        <div class="field-label">Credential ID</div>
+                        <div class="field-value">{{ credential.id }}</div>
+                    </div>
+                    <div class="proof-field">
+                        <div class="field-label">On-Chain Hash (SHA-256)</div>
+                        <div class="field-value">{{ (credential.proof.signatureValue if credential.proof else
+                            'N/A')[:64] }}...</div>
+                    </div>
+                </div>
+                <div class="proof-visuals">
+                    <div id="qrcode"></div>
+                    <div class="mini-seal">
+                        <i class="fas fa-shield-check fa-lg mb-1"></i>
+                        <span style="font-size: 7px; font-weight: 700;">BLOCKCHAIN</span>
+                        <span style="font-size: 5px;">VERIFIED</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cert-footer-signatures">
+            <div class="signature-item">
+                <div class="signature-line"></div>
+                <div class="signature-title">Academic Records Authority</div>
+                <div class="signature-subtitle">(Digital Issuer)</div>
+            </div>
+            <div class="signature-item">
+                <div class="signature-line"></div>
+                <div class="signature-title">Controller of Examinations</div>
+                <div class="signature-subtitle">(Authorizing Authority)</div>
+            </div>
+            <div class="signature-item">
+                <div class="signature-line"></div>
+                <div class="signature-title">Blockchain Network Validator</div>
+                <div class="signature-subtitle">(Network Verification)</div>
+            </div>
+        </div>
+
+        <div class="final-footer-note">
+            This academic record is digitally issued and cryptographically secured using blockchain technology.
+            Authenticity can be verified through the QR code and blockchain hash. No physical signature is required.
+        </div>
+    </div>
+
+    <div class="btn-group-container mt-5 text-center">
+        <a href="/api/credential/{{ credential.id.split(':')[-1] }}/pdf"
+            class="btn btn-primary btn-lg px-5 shadow rounded-pill">
+            <i class="fas fa-file-download me-2"></i>Download Official Certificate (PDF)
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const verifyURL = window.location.origin + '/verify/{{ credential.id.split(":")[-1] }}';
+        QRCode.toCanvas(document.createElement('canvas'), verifyURL, {
+            width: 140,
+            margin: 2
+        }, function (error, canvas) {
+            if (error) console.error(error);
+            document.getElementById('qrcode').appendChild(canvas);
+        });
+    });
+</script>
+{% endblock %}

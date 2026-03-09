@@ -1,6 +1,6 @@
 # 🎓 Blockchain-Based Verifiable Credential System for Academic Transcripts
 
-**Version 2.0** | A decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using blockchain technology and advanced cryptography.
+**Version 2.1.0** | An elite decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using Private Blockchain technology and advanced cryptography.
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
 [![Docker Image Size](https://img.shields.io/docker/image-size/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
@@ -34,28 +34,28 @@ Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced
 - 👨‍🎓 **Students** maintain complete ownership and control over their academic data
 - 💼 **Employers** verify credentials instantly with cryptographic proof, without third-party involvement
 - 🔒 **Privacy** is preserved through selective disclosure mechanisms
+- 🎓 **Elite Presentation** Professional institutional-grade certificate viewer and 10/10 PDF generator
 
-**Current Status:** Production-ready with comprehensive test coverage (34 passed, 23 skipped)
+**Current Status:** Production-ready with comprehensive test coverage, premium UI/UX, and Multi-Node P2P Sync (Updated March 2026)
 
 ***
 
 ## 🚀 Quick Start
 
-### 🐳 Docker Deployment (Recommended)
+### 🐳 Docker Deployment: 3-Node Cluster (Recommended)
 
 ```bash
-# Pull from Docker Hub
-docker pull udaycodespace/credify:latest
+# Clone the repository
+git clone https://github.com/udaycodespace/credify.git
+cd credify
 
-# Run the container
-docker run -d -p 5000:5000 \
-  -e ADMIN_PASSWORD=your_secure_password \
-  -e SECRET_KEY=your_secret_key \
-  --name credify \
-  udaycodespace/credify:latest
+# Launch the decentralized 3-node P2P cluster
+docker-compose up -d
 
-# Access the application
-open http://localhost:5000
+# Access the isolated nodes
+open http://localhost:5001 # Institutional Node 1
+open http://localhost:5002 # Institutional Node 2
+open http://localhost:5003 # Institutional Node 3
 ```
 
 **Docker Hub Repository:** [udaycodespace/credify](https://hub.docker.com/r/udaycodespace/credify)
@@ -152,13 +152,25 @@ python main.py
 
 - **Selective Disclosure:** Share only required fields (e.g., degree, GPA)
 - **Credential Versioning:** Track updates and amendments
-- **Batch Operations:** Issue multiple credentials efficiently
 - **Support System:** Integrated ticketing and messaging
 - **Analytics Dashboard:** Real-time system statistics and insights
+- **Elite PDF Generation:** 10/10 academic transcript generation with blockchain proofs, QR integration, and institutional branding.
+- **Senior UI/UX:** Hero-styled student dashboards and certificate viewers designed for institutional credibility.
 
 ***
 
 ## 🧰 Technology Stack
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/IPFS-65C2CB?style=for-the-badge&logo=ipfs&logoColor=white" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
+</p>
 
 ### Backend Architecture
 
@@ -167,6 +179,7 @@ python main.py
 - **ORM:** SQLAlchemy with Flask-SQLAlchemy
 - **Authentication:** Flask-Login with secure session management
 - **Security:** Werkzeug password hashing, CSRF protection
+- **PDF Engine:** ReportLab for high-fidelity academic document generation
 
 ### Frontend Stack
 
@@ -221,6 +234,7 @@ git push → GitHub Actions → Tests → Build Docker → Push to Docker Hub �
 
 - **GitHub Actions:** [View Workflows](https://github.com/udaycodespace/credify/actions)
 - **Docker Hub:** [View Images](https://hub.docker.com/r/udaycodespace/credify)
+- **Story Time:** [The Origins of Credify](docs/STORY_TIME.md)
 
 ***
 
@@ -402,20 +416,13 @@ DATABASE_URL=your_database_url
 python -c "from app.models import init_database; from app.app import app; init_database(app)"
 ```
 
-### Using Docker (Recommended)
+### Using Docker & docker-compose (Recommended)
 
 ```bash
-# Build image
-docker build -t credify:v2.0 .
+# Build the highly optimized multi-stage image
+docker build -t udaycodespace/credify:latest .
 
-# Run container with environment variables
-docker run -d -p 5000:5000 \
-  -e ADMIN_PASSWORD=your_secure_password \
-  -e SECRET_KEY=your_secret_key \
-  --name credify \
-  credify:v2.0
-
-# Or use docker-compose
+# Run the full Private Blockchain 3-Node Cluster
 docker-compose up -d
 ```
 
@@ -441,9 +448,8 @@ python main.py
 ### Docker Deployment
 
 ```bash
-# Using pre-built image from Docker Hub
-docker pull udaycodespace/credify:latest
-docker run -d -p 5000:5000 udaycodespace/credify:latest
+# Spin up the fully orchestrated 3-node network directly via compose
+docker-compose up -d
 ```
 
 ***
@@ -620,7 +626,7 @@ pytest tests/test_blockchain.py -v
 ### Core Development Team
 
 #### Backend & Blockchain Architecture
-**[@udaycodespace](https://github.com/udaycodespace)** - Uday Somapuram
+**[@udaycodespace](https://github.com/udaycodespace)** - [Somapuram Uday](https://www.linkedin.com/in/somapuram-uday/)
 - Design and implementation of blockchain consensus mechanism
 - Cryptographic protocol development and security architecture
 - Smart contract logic and credential lifecycle management
@@ -630,7 +636,7 @@ pytest tests/test_blockchain.py -v
 - System optimization and performance tuning
 
 #### Frontend & User Experience
-**[@shashikiran47](https://github.com/shashikiran47)** - Shashi Kiran
+**[@shashikiran47](https://github.com/shashikiran47)** - [Shashi Kiran](https://www.linkedin.com/in/sashi-kiran-02bb8a255/)
 - UI/UX design and implementation across all user roles
 - Responsive web design with mobile-first approach
 - JavaScript integration and dynamic frontend interactions
@@ -640,7 +646,7 @@ pytest tests/test_blockchain.py -v
 - Real-time data visualization components
 
 #### Quality Assurance & Documentation
-**[@tejavarshith](https://github.com/tejavarshith)** - Teja Varshith
+**[@tejavarshith](https://github.com/tejavarshith)** - [Teja Varshith](https://www.linkedin.com/in/teja-varshith-85b921376/)
 - System analysis and requirements documentation
 - Comprehensive test case design and validation
 - User acceptance testing and feedback integration
@@ -653,8 +659,8 @@ pytest tests/test_blockchain.py -v
 
 | Developer | Primary Focus | Key Contributions |
 |:----------|:-------------|:------------------|
-| **[@udaycodespace](https://github.com/udaycodespace)** | Backend & Infrastructure | Blockchain, Cryptography, CI/CD, Deployment |
-| **[@shashikiran47](https://github.com/shashikiran47)** | Frontend & Design | UI/UX, IPFS Integration, User Experience |
+| **[@udaycodespace](https://github.com/udaycodespace)** | Backend & Infrastructure | Blockchain, Cryptography, CI/CD, DevOps |
+| **[@shashikiran47](https://github.com/shashikiran47)** | Frontend & Design | Senior UI/UX, IPFS Integration, User Experience |
 | **[@tejavarshith](https://github.com/tejavarshith)** | Testing & Documentation | Test Suite, QA, Technical Documentation |
 
 ### Collaborative Achievements
@@ -679,9 +685,9 @@ We express our sincere gratitude to:
 
 ### Academic Guidance
 
-- **Dr. B. Thimma Reddy - Project Guide** — For invaluable technical insights and continuous mentorship throughout the project lifecycle
-- **Dr. G. Rajeswarappa - Faculty In-Charge, CST-A** — For guidance on system design 
-- **Shri. K. Bala Chowdappa - Mentor** — For guidance on implementation strategies
+- **Dr. B. Thimma Reddy Sir - Project Guide** — For invaluable technical insights and continuous mentorship throughout the project lifecycle
+- **Dr. G. Rajeswarappa Sir - Faculty In-Charge, CST-A** — For guidance on system design 
+- **Shri. K. Bala Chowdappa Sir - Mentor** — For guidance on implementation strategies
 - **Department Head** — For providing resources and institutional support
 
 ### Institutional Support
@@ -702,29 +708,27 @@ We express our sincere gratitude to:
 
 ***
 
-## 📄 License & Academic Use
+## 📄 License & Intellectual Property
 
 **Project Classification:** B.Tech Final Year Project  
-**Version:** 2.0 (Production-Ready Release)  
+**Version:** 2.1.0 (Elite Private Blockchain Release)  
 **Status:** Complete & Deployed  
-**Year:** 2024-2025
+**Year:** 2026
 
-### Academic License
+### Proprietary License - All Rights Reserved
 
-This project is developed as part of academic curriculum requirements and is intended for:
+**© 2026 CREDIFY.** This project is the exclusive intellectual property of the core development team (**Uday, Shashi, and Varshith**). Whole and sole, we 3 are owning it! 
 
-- Educational purposes
-- Research and development
-- Academic demonstration
-- Portfolio showcase
+This system was designed, built, and optimized natively by the core team for B.Tech demonstration.
 
-### Usage Rights
+### Usage Policy
 
-- ✅ Academic use and research
-- ✅ Learning and educational purposes
-- ✅ Portfolio demonstration
-- ✅ Code reference with attribution
-- ⚠️ Commercial use requires explicit permission from the development team
+- ✅ Academic evaluation and grading
+- ✅ Portfolio demonstration for the core developers
+- ❌ **Unauthorized replication, copying, or use of this codebase is strictly prohibited.**
+- ❌ **Commercial use, distribution, or modifications are expressly forbidden.**
+
+*If you need to use or reference any part of this system, please DM us and we will talk. Unauthorized replication or use of this codebase may lead to legal issues.*
 
 ### Citation
 
@@ -732,8 +736,8 @@ If you use this project for academic or research purposes, please cite:
 
 ```
 Blockchain-Based Verifiable Credential System for Academic Transcripts
-Version 2.0, 2024-2025
-Developed by: Uday Somapuram, Shashi Kiran, Teja Varshith
+Version 2.1.0 (Elite Private Blockchain Edition), 2026
+Developed by: Somapuram Uday, Shashi Kiran, Teja Varshith
 Institution: G. Pulla Reddy Engineering College (Autonomous), Kurnool
 GitHub: https://github.com/udaycodespace/credify
 ```
@@ -744,11 +748,11 @@ GitHub: https://github.com/udaycodespace/credify
 
 ### Project Maintainers
 
-For questions, issues, or collaboration opportunities:
+For questions, issues, or direct collaboration opportunities, please DM:
 
-- **Uday Somapuram** - [@udaycodespace](https://github.com/udaycodespace)
-- **Shashi Kiran** - [@shashikiran47](https://github.com/shashikiran47)
-- **Teja Varshith** - [@tejavarshith](https://github.com/tejavarshith)
+- **Somapuram Uday** - [@udaycodespace](https://github.com/udaycodespace) | [LinkedIn](https://www.linkedin.com/in/somapuram-uday/)
+- **Shashi Kiran** - [@shashikiran47](https://github.com/shashikiran47) | [LinkedIn](https://www.linkedin.com/in/sashi-kiran-02bb8a255/)
+- **Teja Varshith** - [@tejavarshith](https://github.com/tejavarshith) | [LinkedIn](https://www.linkedin.com/in/teja-varshith-85b921376/)
 
 ### Getting Help
 
@@ -760,19 +764,19 @@ For questions, issues, or collaboration opportunities:
 
 - **GitHub Repository:** [udaycodespace/credify](https://github.com/udaycodespace/credify)
 - **Docker Hub:** [udaycodespace/credify](https://hub.docker.com/r/udaycodespace/credify)
-- **Live Demo:** [Render Deployment](https://credify.onrender.com) *(if applicable)*
+- **How we built it:** [Story Time: The Origins of Credify](docs/STORY_TIME.md)
 - **Documentation:** See `/docs` folder in repository
 
 ***
 
 ## 🎉 Project Status
 
-**Current Version:** 2.0  
+**Current Version:** 2.1.0 (Elite Private Blockchain Edition)  
 **Status:** ✅ Production Ready  
-**Last Updated:** December 2024  
+**Last Updated:** March 2026  
 **Maintenance:** Active Development
 
-### Changelog (v2.0)
+### Changelog (v2.1.0)
 
 #### New Features
 
@@ -783,6 +787,10 @@ For questions, issues, or collaboration opportunities:
 - ✨ Enhanced security measures with environment variable configuration
 - ✨ Comprehensive documentation
 - ✨ Production-ready deployment configurations for Render
+- ✨ **Elite 10/10 PDF Generation Engine** (March 2026)
+- ✨ **Senior UI/UX Branding Overhaul** (March 2026)
+- ✨ **Digital Authority Signature Hierarchy** (March 2026)
+- ✨ **Multi-Node P2P Blockchain Network & Docker Orchestration** (March 2026)
 
 #### Improvements
 
@@ -824,22 +832,23 @@ Our solution provides:
 
 ## 🚀 Deployment
 
-### Docker Hub
+### Docker Hub Cluster Deployment
 
 ```bash
-# Pull latest image
-docker pull udaycodespace/credify:latest
+# Clone the infrastructure repository directly
+git clone https://github.com/udaycodespace/credify.git
+cd credify
 
-# Run with environment variables
-docker run -d -p 5000:5000 \
-  -e ADMIN_PASSWORD=your_secure_password \
-  -e SECRET_KEY=your_secret_key \
-  udaycodespace/credify:latest
+# Boot up the 3-node P2P ledger (Node 1, Node 2, Node 3)
+docker-compose up -d
 ```
 
-### Render
+### 📖 The Origin Story
 
-Automatically deployed from `main` branch via GitHub integration.
+Before we built an elite Private Blockchain, we explored Steganography, Android Hostel Management, and Web3 Voting systems.
+
+Read the full story of our engineering decisions and deep pivots here:
+👉 **[Story Time: The Origins of Credify](docs/STORY_TIME.md)**
 
 ### Manual Deployment
 
@@ -849,20 +858,33 @@ See `docs/DEPLOYMENT.md` for detailed deployment instructions for various platfo
 
 <div align="center">
 
-**Built with ❤️ by the Development Team**
+**Built with ❤️ by Team Credify**
 
+**Credify 2026**
+*Blockchain-Based Verifiable Credentials*
+
+**B.Tech Final Year Project**
 **G. Pulla Reddy Engineering College (Autonomous)**
-
-**2024-2025 | Version 2.0**
+*Under Esteemed Guidance of: **Dr. B. Thimma Reddy Sir**, **Dr. G. Rajeswarappa Sir** and **Shri K Bala Chowdappa Sir***
 
 ---
 
 [![GitHub Stars](https://img.shields.io/github/stars/udaycodespace/credify?style=social)](https://github.com/udaycodespace/credify)
-[![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify)](https://hub.docker.com/r/udaycodespace/credify)
-[![License](https://img.shields.io/badge/License-Academic-blue.svg)](LICENSE)
+[![Docker Hub](https://img.shields.io/badge/Docker-Hub-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/udaycodespace/credify)
+[![Project](https://img.shields.io/badge/Framework-Flask-orange.svg)](https://flask.palletsprojects.com/)
 
 *Securing Academic Credentials for the Future*
 
-**[GitHub](https://github.com/udaycodespace/credify)** • **[Docker Hub](https://hub.docker.com/r/udaycodespace/credify)** • **[Documentation](https://github.com/udaycodespace/credify/tree/main/docs)**
+**[GitHub Project](https://github.com/udaycodespace/credify)** • **[Docker Images](https://hub.docker.com/r/udaycodespace/credify)** • **[Documentation Portal](https://github.com/udaycodespace/credify/tree/main/docs)**
 
 </div>
+
+***
+
+> [!NOTE]
+> **🚀 DOCUMENTATION STATUS: UPDATED**
+> 
+> **Architecture Version:** 2.1.0 (Elite Private Blockchain & UI/UX Overhaul)
+> 
+> **Current Edited Date:** `2026-03-08 19:50:00 IST`
+

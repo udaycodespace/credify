@@ -1,1548 +1,523 @@
 {% extends "base.html" %}
 
-{% block title %}Tutorial - Credify 2026 Documentation{% endblock %}
+{% block title %}Tutorial - Credify 2026 Guide{% endblock %}
 
 {% block content %}
 <style>
-:root {
-    --slate-900: #0f172a;
-    --slate-800: #1e293b;
-    --slate-700: #334155;
-    --slate-600: #475569;
-    --cyan-400: #22d3ee;
-    --cyan-500: #06b6d4;
-    --amber-400: #fbbf24;
-    --amber-500: #f59e0b;
-    --green-500: #10b981;
-    --red-500: #ef4444;
-    --blue-500: #3b82f6;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap');
-
-body {
-    font-family: 'IBM Plex Mono', monospace;
-    background: var(--slate-900);
-    color: #e2e8f0;
-}
-
-/* Tutorial Content Typography */
-.tutorial-content {
-    font-size: 1rem;
-    line-height: 1.7;
-}
-
-.tutorial-content h3 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--cyan-400);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
-    animation: slideInLeft 0.6s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
+    :root {
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --cyan-400: #22d3ee;
+        --cyan-500: #06b6d4;
+        --amber-400: #fbbf24;
+        --green-400: #4ade80;
+        --red-500: #ef4444;
     }
-    to {
-        opacity: 1;
-        transform: translateX(0);
+
+    body {
+        background-color: var(--slate-900);
+        overflow-y: auto !important;
+        height: auto !important;
     }
-}
 
-.tutorial-content h5 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--amber-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.tutorial-content h6 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--cyan-400);
-    margin-bottom: 0.75rem;
-}
-
-.tutorial-content p {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    color: #cbd5e1;
-}
-
-.tutorial-content ul, .tutorial-content ol {
-    font-size: 1rem;
-    line-height: 1.8;
-    margin-bottom: 1rem;
-    color: #cbd5e1;
-}
-
-.tutorial-content li {
-    margin-bottom: 0.5rem;
-}
-
-/* Brutalist Cards */
-.card {
-    background: var(--slate-800);
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.card:hover {
-    border-color: var(--cyan-500);
-    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.2);
-}
-
-.card-header {
-    background: var(--slate-700);
-    border-bottom: 2px solid var(--cyan-500);
-    color: var(--cyan-400);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 1.25rem 1.5rem;
-    border-radius: 0;
-}
-
-.card-header h3, .card-header h6 {
-    margin-bottom: 0;
-}
-
-.card-body {
-    padding: 1.75rem;
-}
-
-/* Step Container - Brutalist Style */
-.step-container {
-    margin: 1.5rem 0;
-}
-
-.step-item {
-    display: flex;
-    margin-bottom: 1.75rem;
-    padding: 1.25rem;
-    border-left: 4px solid var(--cyan-500);
-    background: rgba(6, 182, 212, 0.08);
-    border-radius: 0;
-    transition: all 0.3s ease;
-}
-
-.step-item:hover {
-    background: rgba(6, 182, 212, 0.15);
-    transform: translateX(5px);
-    border-left-color: var(--amber-500);
-}
-
-.step-number {
-    min-width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
-    color: var(--slate-900);
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.3rem;
-    margin-right: 1.25rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);
-    border: 2px solid var(--cyan-400);
-}
-
-.step-content {
-    flex: 1;
-}
-
-.step-content h6 {
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    color: var(--amber-400);
-    font-weight: 700;
-}
-
-/* Code Blocks - Brutalist */
-.tutorial-content pre {
-    font-size: 0.9rem;
-    padding: 1rem;
-    border-radius: 0;
-    margin: 1rem 0;
-    background: var(--slate-900);
-    border: 2px solid var(--slate-700);
-    color: var(--cyan-400);
-}
-
-.tutorial-content code {
-    font-size: 0.9rem;
-    padding: 0.2rem 0.5rem;
-    background: var(--slate-900);
-    border-radius: 0;
-    border: 1px solid var(--slate-700);
-    color: var(--cyan-400);
-}
-
-/* Tech Component Cards */
-.tech-component {
-    padding: 1.5rem 1rem;
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    transition: all 0.3s ease;
-    height: 100%;
-    text-align: center;
-    background: var(--slate-800);
-}
-
-.tech-component:hover {
-    transform: translateY(-5px);
-    border-color: var(--cyan-500);
-    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
-}
-
-.tech-component i {
-    font-size: 2.5rem;
-}
-
-.tech-component h6 {
-    font-size: 1.05rem;
-    margin-top: 0.75rem;
-    margin-bottom: 0.5rem;
-    color: var(--cyan-400);
-    font-weight: 700;
-}
-
-.tech-component small {
-    color: #94a3b8;
-}
-
-/* Alerts - Brutalist */
-.tutorial-content .alert {
-    font-size: 1rem;
-    padding: 1.25rem;
-    margin: 1.5rem 0;
-    border-radius: 0;
-    border: 2px solid;
-}
-
-.alert-info {
-    background: rgba(14, 165, 233, 0.15);
-    border-color: #0ea5e9;
-    color: #e2e8f0;
-}
-
-.alert-success {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: var(--green-500);
-    color: #e2e8f0;
-}
-
-.alert-warning {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: var(--amber-500);
-    color: #e2e8f0;
-}
-
-.alert-danger {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: var(--red-500);
-    color: #e2e8f0;
-}
-
-.tutorial-content .alert strong {
-    font-size: 1.05rem;
-    color: var(--cyan-400);
-}
-
-/* Tables - Brutalist */
-.tutorial-content table {
-    font-size: 0.95rem;
-    border: 2px solid var(--slate-700);
-}
-
-.tutorial-content table th {
-    font-size: 1rem;
-    font-weight: 700;
-    background: var(--slate-700);
-    color: var(--amber-400);
-    border-color: var(--slate-700);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.tutorial-content table td {
-    padding: 0.9rem;
-    border-color: var(--slate-700);
-    color: #cbd5e1;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background: rgba(255, 255, 255, 0.03);
-}
-
-/* List Groups - Brutalist */
-.list-group-item {
-    font-size: 1rem;
-    padding: 0.9rem 1rem;
-    background: transparent;
-    border-color: var(--slate-700);
-    color: #cbd5e1;
-    border-radius: 0;
-}
-
-.list-group-flush .list-group-item {
-    border-left: 0;
-    border-right: 0;
-}
-
-/* Accordion - Brutalist */
-.accordion-item {
-    background: var(--slate-800);
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    margin-bottom: 1rem;
-}
-
-.accordion-button {
-    font-size: 1.05rem;
-    padding: 1rem 1.25rem;
-    background: var(--slate-700);
-    color: var(--cyan-400);
-    border-radius: 0;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.accordion-button:not(.collapsed) {
-    background: var(--slate-700);
-    color: var(--amber-400);
-    border-bottom: 2px solid var(--cyan-500);
-}
-
-.accordion-button:focus {
-    box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
-    border-color: var(--cyan-500);
-}
-
-.accordion-body {
-    font-size: 1rem;
-    padding: 1.5rem;
-    color: #cbd5e1;
-}
-
-/* Navigation Pills - Brutalist */
-.nav-pills .nav-link {
-    font-size: 0.95rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    border-radius: 0;
-    color: #94a3b8;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    font-weight: 600;
-}
-
-.nav-pills .nav-link:hover {
-    background: rgba(6, 182, 212, 0.15);
-    transform: translateX(5px);
-    border-color: var(--cyan-500);
-    color: var(--cyan-400);
-}
-
-.nav-pills .nav-link.active {
-    background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
-    color: var(--slate-900);
-    border-color: var(--cyan-500);
-}
-
-/* Badges */
-.badge {
-    border-radius: 0;
-    padding: 0.4rem 0.7rem;
-    font-weight: 700;
-    border: 2px solid;
-}
-
-.badge.bg-success {
-    background: transparent !important;
-    border-color: var(--green-500);
-    color: var(--green-500);
-}
-
-.badge.bg-primary {
-    background: transparent !important;
-    border-color: var(--cyan-500);
-    color: var(--cyan-500);
-}
-
-.badge.bg-warning {
-    background: transparent !important;
-    border-color: var(--amber-400);
-    color: var(--amber-400);
-}
-
-.rounded-pill {
-    border-radius: 0 !important;
-}
-
-/* Colored background cards */
-.bg-success.bg-opacity-10 {
-    background: rgba(16, 185, 129, 0.1) !important;
-}
-
-.bg-info.bg-opacity-10 {
-    background: rgba(14, 165, 233, 0.1) !important;
-}
-
-.bg-primary.text-white .card-header {
-    background: var(--cyan-500) !important;
-    color: var(--slate-900) !important;
-}
-
-.bg-success.text-white .card-header {
-    background: var(--green-500) !important;
-    color: white !important;
-}
-
-.border-success {
-    border-color: var(--green-500) !important;
-}
-
-.border-info {
-    border-color: #0ea5e9 !important;
-}
-
-.text-success {
-    color: var(--green-500) !important;
-}
-
-.text-info {
-    color: #0ea5e9 !important;
-}
-
-/* Sticky Sidebar */
-@media (min-width: 992px) {
-    .sticky-top {
+    /* Interactive Sidebar */
+    .tutorial-nav {
         position: sticky;
-        top: 1rem;
-        max-height: calc(100vh - 2rem);
-        overflow-y: auto;
+        top: 100px;
+        padding-right: 20px;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
-    .sticky-top::-webkit-scrollbar {
-        width: 6px;
+
+    .nav-step {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        opacity: 0.6;
     }
-    
-    .sticky-top::-webkit-scrollbar-track {
+
+    .nav-step:hover,
+    .nav-step.active {
+        opacity: 1;
+        transform: translateX(5px);
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--slate-700);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: var(--slate-800);
+        color: var(--slate-500);
+        transition: 0.3s;
     }
-    
-    .sticky-top::-webkit-scrollbar-thumb {
-        background: var(--cyan-500);
-        border-radius: 0;
-    }
-}
 
-/* Smooth Scroll */
-html {
-    scroll-behavior: smooth;
-}
+    .nav-step.active .step-icon {
+        border-color: var(--cyan-400);
+        color: var(--cyan-400);
+        background: rgba(34, 211, 238, 0.1);
+        box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+    }
 
-section {
-    scroll-margin-top: 2rem;
-}
+    .step-label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-/* Easter Egg: Triple-click page title */
-.glitch-active {
-    animation: glitchEffect 0.5s ease-in-out;
-}
+    /* Training Modules */
+    .training-module {
+        background: var(--slate-800);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        margin-bottom: 60px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s;
+    }
 
-@keyframes glitchEffect {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-3px, 3px); text-shadow: 3px -3px var(--red-500); }
-    40% { transform: translate(3px, -3px); text-shadow: -3px 3px var(--cyan-500); }
-    60% { transform: translate(-3px, -3px); text-shadow: 3px 3px var(--amber-400); }
-    80% { transform: translate(3px, 3px); text-shadow: -3px -3px var(--green-500); }
-}
+    .training-module:hover {
+        border-color: var(--cyan-500);
+    }
 
-/* Responsive Design */
-@media (max-width: 991px) {
-    .tutorial-content {
-        font-size: 0.95rem;
+    .module-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 12px;
+        background: rgba(34, 211, 238, 0.1);
+        color: var(--cyan-400);
+        text-transform: uppercase;
+        border: 1px solid var(--cyan-500);
     }
-    
-    .tutorial-content h3 {
-        font-size: 1.5rem;
-    }
-    
-    .tutorial-content h5 {
-        font-size: 1.15rem;
-    }
-    
-    .step-number {
-        min-width: 45px;
-        height: 45px;
-        font-size: 1.2rem;
-    }
-    
-    .tech-component {
-        margin-bottom: 1.5rem;
-    }
-}
 
-@media (max-width: 767px) {
-    .tutorial-content {
-        font-size: 0.9rem;
-    }
-    
-    .tutorial-content h3 {
-        font-size: 1.35rem;
-    }
-    
-    .step-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .step-number {
-        margin-bottom: 1rem;
-        margin-right: 0;
-    }
-    
-    .tech-component i {
+    .training-module h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 800;
         font-size: 2rem;
+        margin-bottom: 25px;
+        color: var(--cyan-400);
     }
-}
+
+    /* Terminal */
+    .terminal-box {
+        background: #000;
+        border-radius: 4px;
+        border: 1px solid var(--slate-700);
+        margin: 20px 0;
+        overflow: hidden;
+    }
+
+    .terminal-header {
+        background: var(--slate-700);
+        padding: 8px 12px;
+        display: flex;
+        gap: 6px;
+    }
+
+    .t-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .t-red {
+        background: #ff5f56;
+    }
+
+    .t-yellow {
+        background: #ffbd2e;
+    }
+
+    .t-green {
+        background: #27c93f;
+    }
+
+    .terminal-body {
+        padding: 15px;
+        font-family: 'IBM Plex Mono', monospace;
+        color: #fff;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    /* Architecture Grid */
+    .arch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+    }
+
+    .arch-node {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .arch-node:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--cyan-400);
+    }
+
+    .arch-node i {
+        font-size: 2rem;
+        color: var(--cyan-400);
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    /* Hover List */
+    .hover-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .hover-list li {
+        padding: 15px;
+        border-left: 3px solid transparent;
+        background: rgba(255, 255, 255, 0.02);
+        margin-bottom: 10px;
+        transition: 0.3s;
+    }
+
+    .hover-list li:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-left-color: var(--amber-400);
+        transform: translateX(5px);
+    }
+
+    section {
+        scroll-margin-top: 100px;
+    }
 </style>
 
-<div class="row">
-    <div class="col-lg-3">
-        <!-- Table of Contents -->
-        <div class="card sticky-top">
-            <div class="card-header">
-                <h6><i class="fas fa-list me-2"></i>Table of Contents</h6>
-            </div>
-            <div class="card-body p-0">
-                <nav class="nav nav-pills flex-column p-2">
-                    <a class="nav-link active" href="#overview">1. System Overview</a>
-                    <a class="nav-link" href="#setup">2. System Setup</a>
-                    <a class="nav-link" href="#issuer-guide">3. Issuer Guide</a>
-                    <a class="nav-link" href="#holder-guide">4. Student Guide</a>
-                    <a class="nav-link" href="#verifier-guide">5. Verifier Guide</a>
-                    <a class="nav-link" href="#technical">6. Technical Details</a>
-                    <a class="nav-link" href="#troubleshooting">7. Troubleshooting</a>
-                </nav>
+<div class="container-fluid py-5">
+    <div class="row px-lg-5">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="tutorial-nav">
+                <a href="#overview" class="nav-step active">
+                    <div class="step-icon"><i class="fas fa-home"></i></div>
+                    <span class="step-label">Overview</span>
+                </a>
+                <a href="#setup" class="nav-step">
+                    <div class="step-icon"><i class="fas fa-tools"></i></div>
+                    <span class="step-label">Setup</span>
+                </a>
+                <a href="#issuer" class="nav-step">
+                    <div class="step-icon"><i class="fas fa-university"></i></div>
+                    <span class="step-label">University Portal</span>
+                </a>
+                <a href="#holder" class="nav-step">
+                    <div class="step-icon"><i class="fas fa-user-graduate"></i></div>
+                    <span class="step-label">Student Portal</span>
+                </a>
+                <a href="#verifier" class="nav-step">
+                    <div class="step-icon"><i class="fas fa-check-double"></i></div>
+                    <span class="step-label">Verification</span>
+                </a>
+                <a href="#trouble" class="nav-step">
+                    <div class="step-icon"><i class="fas fa-question-circle"></i></div>
+                    <span class="step-label">Troubleshooting</span>
+                </a>
+                <a href="#recovery" class="nav-step">
+                    <div class="step-icon"><i class="fas fa-key"></i></div>
+                    <span class="step-label">Emergency</span>
+                </a>
             </div>
         </div>
-    </div>
-    
-    <div class="col-lg-9">
-        <!-- Tutorial Content -->
-        <div class="tutorial-content">
-            
-            <!-- System Overview -->
-            <section id="overview" class="mb-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 id="pageTitle" onclick="triggerGlitch()"><i class="fas fa-info-circle me-2"></i>System Overview</h3>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+
+            <!-- SECTION 1: Overview -->
+            <section id="overview" class="training-module">
+                <div class="module-badge">Step 1</div>
+                <h2>The Elite Protocol</h2>
+                <p class="lead" style="color: #e2e8f0; font-weight: 600;">Credify 2026 is an elite digital credentialing
+                    system. We help universities issue tamper-proof transcripts using blockchain, give students private
+                    control over their records, and allow employers to instantly verify authenticity with a single
+                    click.</p>
+                <p>By leveraging Private Blockchain clusters and IPFS decentralised storage, we've eliminated the
+                    possibility of academic fraud while ensuring students have 100% ownership of their educational
+                    identity.</p>
+
+                <div class="arch-grid mt-4">
+                    <div class="arch-node">
+                        <i class="fas fa-shield-halved"></i>
+                        <h6>Blockchain Bound</h6>
+                        <p class="small text-muted mb-0">Records are cryptographically hashed and anchored to an
+                            immutable ledger.</p>
                     </div>
-                    <div class="card-body">
-                        <h5>What is Credify 2026?</h5>
-                        <p>
-                            A <strong>production-ready blockchain-based verifiable credential system</strong> specifically 
-                            designed for academic transcripts. Universities issue tamper-proof digital credentials 
-                            that students can share selectively with employers while maintaining privacy and cryptographic authenticity.
+                    <div class="arch-node">
+                        <i class="fas fa-microchip"></i>
+                        <h6>ZKP Integration</h6>
+                        <p class="small text-muted mb-0">Prove your GPA without revealing your entire transcript via
+                            Zero-Knowledge Proofs.</p>
+                    </div>
+                    <div class="arch-node">
+                        <i class="fas fa-fingerprint"></i>
+                        <h6>W3C Standards</h6>
+                        <p class="small text-muted mb-0">Fully compliant with World Wide Web Consortium (W3C) Verifiable
+                            Credentials.</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-cyan-500 bg-opacity-10 border-start border-3 border-cyan-400">
+                    <p class="mb-0 small text-white">Engineering Core Guided by:</p>
+                    <p class="fw-bold fs-5 mb-1" style="color: var(--amber-400);">Dr. B. Thimma Reddy Sir, Dr. G.
+                        Rajeswarappa Sir</p>
+                    <p class="fw-bold fs-5 mb-0" style="color: #fff;">and Shri K Bala Chowdappa Sir</p>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Setup -->
+            <section id="setup" class="training-module">
+                <div class="module-badge">Step 2</div>
+                <h2>Environment Injection</h2>
+                <p>Follow the standard sequence to initialize the Credify node on your local machine:</p>
+
+                <div class="terminal-box">
+                    <div class="terminal-header">
+                        <div class="t-dot t-red"></div>
+                        <div class="t-dot t-yellow"></div>
+                        <div class="t-dot t-green"></div>
+                    </div>
+                    <div class="terminal-body">
+                        # 1. Clone & Enter Core<br>
+                        git clone https://github.com/udaycodespace/credify.git<br>
+                        cd credify<br><br>
+                        # 2. Virtual Layer Setup<br>
+                        python -m venv venv<br>
+                        source venv/Scripts/activate # Windows: venv\Scripts\activate<br><br>
+                        # 3. Dependencies<br>
+                        pip install -r requirements.txt
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-dark border border-slate-700">
+                    <h6 class="text-amber-400"><i class="fas fa-key me-2"></i>Security Config (.env)</h6>
+                    <p class="small text-muted">You MUST configure <code>MAIL_SERVER</code> and
+                        <code>MAIL_PASSWORD</code> to enable the MFA activation emails and security alerts.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECTION 3: Issuer -->
+            <section id="issuer" class="training-module">
+                <div class="module-badge">Institution</div>
+                <h2>University Operations</h2>
+                <ul class="hover-list">
+                    <li>
+                        <h6 class="text-cyan-400">1. Authority Onboarding</h6>
+                        <p class="small text-muted mb-0">Institutions log in via the elite portal. System enforces
+                            mandatory Time-based One-Time Password (TOTP) setup via Google Authenticator for all issuing
+                            officers.</p>
+                    </li>
+                    <li>
+                        <h6 class="text-cyan-400">2. Credential Anchoring</h6>
+                        <p class="small text-muted mb-0">Input Roll Number and GPA. The core generates a signed JSON-LD
+                            manifest, uploads to IPFS Cluster, and records the transaction hash on the Private
+                            Blockchain.</p>
+                    </li>
+                    <li>
+                        <h6 class="text-cyan-400">3. Student Handover</h6>
+                        <p class="small text-muted mb-0">The system automatically triggers a cryptographically signed
+                            activation link to the student's institutional email address.</p>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- SECTION 4: Holder -->
+            <section id="holder" class="training-module">
+                <div class="module-badge">Student</div>
+                <h2>Holder Vault & Privacy</h2>
+                <p>Students maintain absolute control over their records through a "Selective Disclosure" mechanism.</p>
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 bg-dark border border-slate-700 h-100">
+                            <i class="fas fa-shield-check text-cyan-400 mb-2 fs-4"></i>
+                            <h6 class="text-white">Secure Storage</h6>
+                            <p class="small text-muted mb-0">View all issued credentials in a unified glassmorphic
+                                dashboard with real-time status updates.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 bg-dark border border-slate-700 h-100">
+                            <i class="fas fa-eye-slash text-cyan-400 mb-2 fs-4"></i>
+                            <h6 class="text-white">Selective Sharing</h6>
+                            <p class="small text-muted mb-0">Generate "Proofs" that only show the necessary data (e.g.,
+                                just GPA) to third parties.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: Verifier -->
+            <section id="verifier" class="training-module">
+                <div class="module-badge">Verifier</div>
+                <h2>Verification Architecture</h2>
+                <p>The Verifier portal supports four high-integrity verification methods to validate academic
+                    authenticity:</p>
+                <div class="arch-grid mt-4">
+                    <div class="arch-node">
+                        <i class="fas fa-passport"></i>
+                        <h6>Credential ID</h6>
+                        <p class="small text-muted mb-0">Search the ledger directly using the unique Credential UUID.
                         </p>
-                        
-                        <h5>Key Features:</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-certificate me-2" style="color: var(--green-500);"></i>
-                                        W3C Verifiable Credentials Standard
-                                    </li>
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-signature me-2" style="color: var(--green-500);"></i>
-                                        RSA-2048 Digital Signatures
-                                    </li>
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-cube me-2" style="color: var(--green-500);"></i>
-                                        Blockchain-based Integrity
-                                    </li>
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-code-branch me-2" style="color: var(--green-500);"></i>
-                                        Credential Versioning System
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-cloud me-2" style="color: var(--green-500);"></i>
-                                        IPFS Distributed Storage
-                                    </li>
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-eye-slash me-2" style="color: var(--green-500);"></i>
-                                        Selective Disclosure Privacy
-                                    </li>
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-shield-alt me-2" style="color: var(--green-500);"></i>
-                                        Tamper-proof Verification
-                                    </li>
-                                    <li class="list-group-item d-flex align-items-center">
-                                        <i class="fas fa-user-secret me-2" style="color: var(--green-500);"></i>
-                                        Zero-Knowledge Proofs
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="alert alert-info mt-3">
-                            <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Project Context:</strong> B.Tech Final Year project from 
-                            <strong>G. Pulla Reddy Engineering College (Autonomous)</strong>, CSE Dept.
-                        </div>
+                    </div>
+                    <div class="arch-node">
+                        <i class="fas fa-qrcode"></i>
+                        <h6>QR Dynamic Scan</h6>
+                        <p class="small text-muted mb-0">Instant lookup via the QR code printed on official transcripts.
+                        </p>
+                    </div>
+                    <div class="arch-node">
+                        <i class="fas fa-file-signature"></i>
+                        <h6>SD Proof</h6>
+                        <p class="small text-muted mb-0">Validate Selective Disclosure proofs without seeing the full
+                            document.</p>
+                    </div>
+                    <div class="arch-node">
+                        <i class="fas fa-brackets-curly"></i>
+                        <h6>ZKP JSON</h6>
+                        <p class="small text-muted mb-0">Upload ZKP JSON packages for Zero-Knowledge mathematical
+                            verification.</p>
+                    </div>
+                </div>
+            </section>
 
-                        <div class="alert alert-success mt-3">
-                            <i class="fas fa-users me-2"></i>
-                            <strong>Development Team:</strong><br>
-                            <strong style="color: var(--amber-400);">SHASHI:</strong> Frontend Design, UI Integration, IPFS Handling<br>
-                            <strong style="color: var(--amber-400);">UDAY:</strong> Backend Architecture, Blockchain Logic, Cryptography<br>
-                            <strong style="color: var(--amber-400);">TEJA VARSHITH:</strong> System Analysis, Testing, Documentation
+            <!-- SECTION 6: Troubleshooting -->
+            <section id="trouble" class="training-module">
+                <div class="module-badge">System Debug</div>
+                <h2>Troubleshooting Engine</h2>
+                <div class="accordion" id="faq">
+                    <div class="accordion-item bg-transparent border-slate-700 mb-3">
+                        <button class="accordion-button collapsed bg-dark text-white border border-slate-700"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+                            Activation Link Expired?
+                        </button>
+                        <div id="q1" class="accordion-collapse collapse" data-bs-parent="#faq">
+                            <div class="accordion-body small text-muted">Activation links are valid for 24 hours. If
+                                expired, the Student must visit the portal and click "Resend Activation" using their
+                                registered Roll Number.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-transparent border-slate-700 mb-3">
+                        <button class="accordion-button collapsed bg-dark text-white border border-slate-700"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+                            MFA Key Not Syncing?
+                        </button>
+                        <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faq">
+                            <div class="accordion-body small text-muted">Ensure your phone and computer times match
+                                perfectly. TOTP depends on precise UNIX timestamps. Use "Sync Time" in your
+                                Authenticator settings.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-transparent border-slate-700 mb-3">
+                        <button class="accordion-button collapsed bg-dark text-white border border-slate-700"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+                            Blockchain Connection Error?
+                        </button>
+                        <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faq">
+                            <div class="accordion-body small text-muted">Verify that the Flask server has access to the
+                                <code>blockchain_db/</code> directory. If running in a container, ensure volume
+                                permissions are correct.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item bg-transparent border-slate-700">
+                        <button class="accordion-button collapsed bg-dark text-white border border-slate-700"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#q4">
+                            ZKP Validation Failed?
+                        </button>
+                        <div id="q4" class="accordion-collapse collapse" data-bs-parent="#faq">
+                            <div class="accordion-body small text-muted">This happens if the JSON package is edited
+                                manually. The ZKP package contains mathematical commitments that break if even a single
+                                character is changed.</div>
                         </div>
                     </div>
                 </div>
             </section>
-            
-            <!-- System Setup -->
-            <section id="setup" class="mb-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-cog me-2"></i>System Setup</h3>
-                    </div>
-                    <div class="card-body">
-                        <h5>Prerequisites:</h5>
-                        <ul>
-                            <li><strong>Python 3.10+</strong> (Python 3.11 recommended)</li>
-                            <li>VS Code or any code editor</li>
-                            <li>Git for version control</li>
-                            <li>Internet connection for IPFS (optional - has local fallback)</li>
-                        </ul>
-                        
-                        <h5>Installation Steps:</h5>
-                        <div class="step-container">
-                            <div class="step-item">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <h6>Clone the Repository</h6>
-                                    <pre><code>git clone &lt;repository-url&gt;
-cd blockchain-credentials</code></pre>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <h6>Create Virtual Environment</h6>
-                                    <pre><code>python -m venv venv
 
-# Windows PowerShell
-venv\Scripts\Activate.ps1
+            <!-- SECTION 7: Ownership & Security -->
+            <section id="recovery" class="training-module border-danger shadow-lg">
+                <div class="module-badge text-danger border-danger">Security Core</div>
+                <h2 class="text-danger">Access Recovery & Protection</h2>
 
-# Mac/Linux
-source venv/bin/activate</code></pre>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h6>Install Dependencies</h6>
-                                    <pre><code>pip install -r requirements.txt</code></pre>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">4</div>
-                                <div class="step-content">
-                                    <h6>Initialize Database</h6>
-                                    <pre><code>python -c "from app.models import init_database; from app.app import app; init_database(app)"</code></pre>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">5</div>
-                                <div class="step-content">
-                                    <h6>Create Admin User</h6>
-                                    <pre><code>python scripts/create_admin.py</code></pre>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">6</div>
-                                <div class="step-content">
-                                    <h6>Run the Application</h6>
-                                    <pre><code>python main.py</code></pre>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="alert alert-success mt-3">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <strong>Success!</strong> Application running at <code>http://localhost:5000</code>
-                        </div>
-
-                        <div class="alert alert-info mt-3">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Daily Usage:</strong> Activate venv and run <code>python main.py</code>
-                        </div>
+                <div class="p-4 bg-danger bg-opacity-10 border border-danger mb-4">
+                    <h5 class="text-white"><i class="fas fa-headset me-2"></i>Emergency Support</h5>
+                    <p class="mb-3">In the event of total MFA failure or device loss, direct manual intervention is
+                        required to reset the cryptographic seeds.</p>
+                    <div class="d-flex flex-wrap gap-2 text-center justify-content-center">
+                        <a href="https://www.linkedin.com/in/somapuram-uday/" target="_blank"
+                            class="p-2 border border-danger border-opacity-50 flex-grow-1 text-decoration-none text-white">DM:
+                            <strong>UDAY</strong></a>
+                        <a href="https://www.linkedin.com/in/sashi-kiran-02bb8a255/" target="_blank"
+                            class="p-2 border border-danger border-opacity-50 flex-grow-1 text-decoration-none text-white">DM:
+                            <strong>SHASHI</strong></a>
+                        <a href="https://www.linkedin.com/in/teja-varshith-85b921376/" target="_blank"
+                            class="p-2 border border-danger border-opacity-50 flex-grow-1 text-decoration-none text-white">DM:
+                            <strong>VARSHITH</strong></a>
                     </div>
                 </div>
-            </section>
-            
-            <!-- Issuer Guide -->
-            <section id="issuer-guide" class="mb-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-university me-2"></i>Issuer Guide</h3>
-                    </div>
-                    <div class="card-body">
-                        <h5>Role: Academic Institution</h5>
-                        <p>As an academic institution, you can issue verifiable credentials for student transcripts with full cryptographic security.</p>
-                        
-                        <h5>Step-by-Step Process:</h5>
-                        <div class="step-container">
-                            <div class="step-item">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <h6>Login as Issuer</h6>
-                                    <p>Navigate to the login page and authenticate with your issuer credentials</p>
-                                </div>
-                            </div>
 
-                            <div class="step-item">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <h6>Navigate to Issuer Portal</h6>
-                                    <p>Click on "Issuer" in the navigation menu or visit <code>/issuer</code></p>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h6>Fill Student Information</h6>
-                                    <ul>
-                                        <li><strong>Student Name</strong> (required)</li>
-                                        <li><strong>Roll Number</strong> (required)</li>
-                                        <li><strong>Degree Program</strong> (required)</li>
-                                        <li><strong>University Name</strong> (pre-filled)</li>
-                                        <li><strong>GPA/CGPA</strong> (required, 0-10 scale)</li>
-                                        <li><strong>Graduation Year</strong> (required)</li>
-                                        <li><strong>Semester & Year</strong> (optional)</li>
-                                        <li><strong>Courses</strong> (optional, comma-separated)</li>
-                                        <li><strong>Backlogs & Conduct</strong> (optional)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">4</div>
-                                <div class="step-content">
-                                    <h6>Issue Credential</h6>
-                                    <p>Click "Issue Credential" button. The system will:</p>
-                                    <ul>
-                                        <li>Create a W3C-compliant verifiable credential</li>
-                                        <li>Apply RSA-2048 cryptographic signature</li>
-                                        <li>Store full credential on IPFS network</li>
-                                        <li>Record credential hash on blockchain</li>
-                                        <li>Generate unique Credential ID</li>
-                                        <li>Auto-create student account (if new)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">5</div>
-                                <div class="step-content">
-                                    <h6>Review Credential Details</h6>
-                                    <p>After issuance, you'll receive:</p>
-                                    <ul>
-                                        <li><strong>Credential ID:</strong> Unique identifier</li>
-                                        <li><strong>IPFS CID:</strong> Content identifier for distributed storage</li>
-                                        <li><strong>Blockchain Hash:</strong> Transaction hash on blockchain</li>
-                                        <li><strong>Block Number:</strong> Position in blockchain</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">6</div>
-                                <div class="step-content">
-                                    <h6>Manage Credentials</h6>
-                                    <p>Use the "Manage Credentials" section to:</p>
-                                    <ul>
-                                        <li>View all issued credentials</li>
-                                        <li>Search by student roll number</li>
-                                        <li>Revoke credentials if needed</li>
-                                        <li>Create new versions for updates</li>
-                                        <li>View credential history</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Important:</strong> Once issued, credentials are immutably recorded on the blockchain. 
-                            Ensure all information is accurate before issuing. For corrections, use the "Create New Version" feature.
-                        </div>
-
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Student Access:</strong> Students can login using their roll number as username and password 
-                            (default: roll number). They should change their password after first login.
-                        </div>
-                    </div>
+                <div class="p-4 bg-cyan-900 bg-opacity-20 border border-cyan-400 text-center"
+                    style="box-shadow: 0 0 40px rgba(34, 211, 238, 0.2);">
+                    <h4 class="text-cyan-400 mb-3"><i class="fas fa-copyright me-2"></i>LEGAL CLASSIFICATION</h4>
+                    <p class="lead text-white fw-bold mb-3" style="font-size: 1.1rem; line-height: 1.6;">
+                        © 2026 CREDIFY. This project is the intellectual property of UDAY, SHASHI, and VARSHITH.
+                        Whole and sole we 3 are owning it! All rights reserved.
+                    </p>
+                    <p class="mb-0 text-muted small">
+                        If needed please DM us and we will talk. Unauthorized replication, redistribution, or use of
+                        this codebase for non-authorized institutional purposes may lead to severe legal consequences.
+                    </p>
                 </div>
             </section>
-            <!-- Holder Guide (Student) -->
-            <section id="holder-guide" class="mb-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-user-graduate me-2"></i>Student Guide</h3>
-                    </div>
-                    <div class="card-body">
-                        <h5>Role: Student (Credential Holder)</h5>
-                        <p>As a student, you can view your credentials and create privacy-preserving selective disclosures for sharing with employers.</p>
-                        
-                        <h5>Managing Your Credentials:</h5>
-                        <div class="step-container">
-                            <div class="step-item">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <h6>Login to Student Portal</h6>
-                                    <p>Use your roll number as username and password (change password after first login)</p>
-                                </div>
-                            </div>
 
-                            <div class="step-item">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <h6>View Your Credentials</h6>
-                                    <p>Navigate to "Student" portal to see all your issued credentials with details like:</p>
-                                    <ul>
-                                        <li>Credential ID</li>
-                                        <li>Degree Program</li>
-                                        <li>GPA/CGPA</li>
-                                        <li>Issue Date</li>
-                                        <li>Status (Active/Revoked/Superseded)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h6>View Full Credential Details</h6>
-                                    <p>Click "View" to see complete credential information including:</p>
-                                    <ul>
-                                        <li>All academic details</li>
-                                        <li>Courses completed</li>
-                                        <li>Blockchain verification status</li>
-                                        <li>IPFS storage details</li>
-                                        <li>Cryptographic signature</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="step-item">
-                                <div class="step-number">4</div>
-                                <div class="step-content">
-                                    <h6>Create Selective Disclosure</h6>
-                                    <p>Click "Share" to create a privacy-preserving disclosure:</p>
-                                    <ul>
-                                        <li>Select which fields to share (e.g., only GPA)</li>
-                                        <li>System generates cryptographic proof</li>
-                                        <li>Copy the JSON proof to share with employers</li>
-                                        <li>Hidden fields remain completely private</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">5</div>
-                                <div class="step-content">
-                                    <h6>Generate Zero-Knowledge Proofs</h6>
-                                    <p>Create proofs for:</p>
-                                    <ul>
-                                        <li><strong>Range Proofs:</strong> "My GPA is greater than 7.5" (without revealing exact value)</li>
-                                        <li><strong>Membership Proofs:</strong> "I completed Data Structures" (without revealing all courses)</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">6</div>
-                                <div class="step-content">
-                                    <h6>Download PDF Transcript</h6>
-                                    <p>Download a printable PDF version of your credential with QR code for verification</p>
-                                </div>
-                            </div>
-
-                            <div class="step-item">
-                                <div class="step-number">7</div>
-                                <div class="step-content">
-                                    <h6>Raise Support Tickets</h6>
-                                    <p>If you have issues or need corrections, raise a support ticket directly from your dashboard</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h5>Privacy Benefits:</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card bg-success bg-opacity-10 border-success h-100">
-                                    <div class="card-body">
-                                        <h6 class="text-success">What You Can Share Selectively:</h6>
-                                        <ul class="mb-0">
-                                            <li>GPA/CGPA only</li>
-                                            <li>Degree program only</li>
-                                            <li>Graduation year only</li>
-                                            <li>Specific courses only</li>
-                                            <li>Any custom combination</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card bg-info bg-opacity-10 border-info h-100">
-                                    <div class="card-body">
-                                        <h6 class="text-info">Privacy Protection:</h6>
-                                        <ul class="mb-0">
-                                            <li>Hide personal details</li>
-                                            <li>Share only relevant information</li>
-                                            <li>Maintain full authenticity</li>
-                                            <li>Cryptographic proof included</li>
-                                            <li>Zero-knowledge verification</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-success mt-3">
-                            <i class="fas fa-shield-alt me-2"></i>
-                            <strong>Data Control:</strong> You have complete control over what information you share. 
-                            Employers can only see what you explicitly choose to disclose.
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Verifier Guide (Employer) -->
-            <section id="verifier-guide" class="mb-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-shield-alt me-2"></i>Verifier Guide</h3>
-                    </div>
-                    <div class="card-body">
-                        <h5>Role: Employer/Verifier</h5>
-                        <p>As an employer, you can verify the authenticity of academic credentials and selective disclosure proofs with cryptographic certainty.</p>
-                        
-                        <h5>Verification Methods:</h5>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-4 mb-3">
-                                <div class="card h-100 border-primary">
-                                    <div class="card-header bg-primary text-white">
-                                        <h6 class="mb-0">Method 1: Full Credential</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <ol class="small mb-0">
-                                            <li>Get credential ID from student</li>
-                                            <li>Visit verifier portal (no login required)</li>
-                                            <li>Enter credential ID</li>
-                                            <li>Click "Verify Credential"</li>
-                                            <li>Review complete transcript</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="card h-100 border-success">
-                                    <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0">Method 2: Selective Disclosure</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <ol class="small mb-0">
-                                            <li>Get disclosure proof from student</li>
-                                            <li>Visit verifier portal</li>
-                                            <li>Paste JSON proof</li>
-                                            <li>Click "Verify Proof"</li>
-                                            <li>Review disclosed fields only</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="card h-100" style="border-color: var(--green-500);">
-                                    <div class="card-header" style="background: var(--green-500); color: white;">
-                                        <h6 class="mb-0">Method 3: Zero-Knowledge Proof</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <ol class="small mb-0">
-                                            <li>Get ZKP from student</li>
-                                            <li>Visit verifier portal</li>
-                                            <li>Go to "ZKP Verification" tab</li>
-                                            <li>Paste ZKP JSON</li>
-                                            <li>Verify claims without seeing data</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h5>Verification Checks Performed:</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <ul class="list-group">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Blockchain Integrity
-                                        <span class="badge bg-success">✓</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        RSA-2048 Digital Signature
-                                        <span class="badge bg-success">✓</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        SHA-256 Hash Validation
-                                        <span class="badge bg-success">✓</span>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <ul class="list-group">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Tamper Detection
-                                        <span class="badge bg-success">✓</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Issuer Verification
-                                        <span class="badge bg-success">✓</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Revocation Status Check
-                                        <span class="badge bg-success">✓</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <h5 class="mt-4">Verification Results Include:</h5>
-                        <ul>
-                            <li><strong>Validity Status:</strong> Valid/Invalid/Revoked/Superseded</li>
-                            <li><strong>Student Information:</strong> Name, degree, GPA, etc.</li>
-                            <li><strong>Issuer Details:</strong> University name and credentials</li>
-                            <li><strong>Issue Date:</strong> When credential was created</li>
-                            <li><strong>Blockchain Proof:</strong> Block number and transaction hash</li>
-                            <li><strong>IPFS Storage:</strong> Content ID and accessibility status</li>
-                            <li><strong>Cryptographic Signature:</strong> RSA verification result</li>
-                        </ul>
-                        
-                        <div class="alert alert-info mt-3">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Trust Guarantee:</strong> Selective disclosure proofs are cryptographically verifiable and maintain the same 
-                            level of trust as full credentials while protecting student privacy through zero-knowledge proofs.
-                        </div>
-
-                        <div class="alert alert-success">
-                            <i class="fas fa-shield-alt me-2"></i>
-                            <strong>No Registration Required:</strong> The verifier portal is publicly accessible. 
-                            Anyone can verify credentials without creating an account.
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Technical Details -->
-            <section id="technical" class="mb-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-code me-2"></i>Technical Details</h3>
-                    </div>
-                    <div class="card-body">
-                        <h5>Architecture Overview:</h5>
-                        <div class="row mb-4">
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <div class="tech-component">
-                                    <i class="fas fa-server mb-2" style="color: var(--cyan-500);"></i>
-                                    <h6>Flask Backend</h6>
-                                    <small class="text-muted">Python 3.11 web framework</small>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <div class="tech-component">
-                                    <i class="fas fa-cube mb-2" style="color: var(--green-500);"></i>
-                                    <h6>Blockchain Engine</h6>
-                                    <small class="text-muted">Custom proof-of-work</small>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <div class="tech-component">
-                                    <i class="fas fa-cloud mb-2" style="color: var(--blue-500);"></i>
-                                    <h6>IPFS Storage</h6>
-                                    <small class="text-muted">Distributed file system</small>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
-                                <div class="tech-component">
-                                    <i class="fas fa-lock mb-2" style="color: var(--amber-500);"></i>
-                                    <h6>Cryptography</h6>
-                                    <small class="text-muted">RSA-2048 & SHA-256</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h5>Technology Stack:</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <h6>Backend Technologies:</h6>
-                                <ul>
-                                    <li><strong>Flask 3.0+:</strong> Web framework</li>
-                                    <li><strong>SQLAlchemy:</strong> Database ORM</li>
-                                    <li><strong>Python Cryptography:</strong> RSA-2048 digital signatures</li>
-                                    <li><strong>Hashlib:</strong> SHA-256 hashing</li>
-                                    <li><strong>Requests:</strong> HTTP client for IPFS</li>
-                                    <li><strong>JSON:</strong> Data serialization</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <h6>Frontend Technologies:</h6>
-                                <ul>
-                                    <li><strong>Bootstrap 5.3:</strong> UI framework</li>
-                                    <li><strong>Font Awesome:</strong> Icons</li>
-                                    <li><strong>JavaScript ES6+:</strong> Client-side logic</li>
-                                    <li><strong>Jinja2:</strong> Template engine</li>
-                                    <li><strong>HTML5/CSS3:</strong> Modern web standards</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <h5>Security Features:</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card" style="border-color: var(--amber-500);">
-                                    <div class="card-header" style="background: var(--amber-500); color: var(--slate-900);">
-                                        <h6 class="mb-0">Cryptographic Security</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="small mb-0">
-                                            <li><strong>RSA-2048:</strong> Industry-standard digital signatures</li>
-                                            <li><strong>SHA-256:</strong> Secure hash algorithm</li>
-                                            <li><strong>HMAC:</strong> Message authentication codes</li>
-                                            <li><strong>Salted Passwords:</strong> Werkzeug password hashing</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card" style="border-color: var(--green-500);">
-                                    <div class="card-header" style="background: var(--green-500); color: white;">
-                                        <h6 class="mb-0">Blockchain Security</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="small mb-0">
-                                            <li><strong>Immutability:</strong> Cannot alter past records</li>
-                                            <li><strong>Proof-of-Work:</strong> Mining validation</li>
-                                            <li><strong>Chain Validation:</strong> Continuous integrity checks</li>
-                                            <li><strong>Distributed Ledger:</strong> No single point of failure</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h5>System Components:</h5>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Component</th>
-                                        <th>Technology</th>
-                                        <th>Purpose</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Blockchain</strong></td>
-                                        <td>Custom Python Implementation</td>
-                                        <td>Immutable credential registry</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>IPFS Client</strong></td>
-                                        <td>HTTP API + Local Fallback</td>
-                                        <td>Distributed credential storage</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Crypto Utils</strong></td>
-                                        <td>Python Cryptography Library</td>
-                                        <td>Digital signatures & verification</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Credential Manager</strong></td>
-                                        <td>Custom Service Layer</td>
-                                        <td>Credential lifecycle management</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Database</strong></td>
-                                        <td>SQLite + SQLAlchemy</td>
-                                        <td>User accounts & metadata</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <h5>API Endpoints:</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <h6 style="color: var(--cyan-400);">Issuer APIs:</h6>
-                                <ul class="small">
-                                    <li><code>POST /api/issue_credential</code> - Issue new credential</li>
-                                    <li><code>POST /api/revoke_credential</code> - Revoke credential</li>
-                                    <li><code>POST /api/create_new_version</code> - Update credential</li>
-                                    <li><code>GET /api/issuer/credentials</code> - List all credentials</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 style="color: var(--cyan-400);">Verification APIs:</h6>
-                                <ul class="small">
-                                    <li><code>POST /api/verify_credential</code> - Verify credential</li>
-                                    <li><code>POST /api/verify_zkp</code> - Verify ZK proof</li>
-                                    <li><code>GET /api/blockchain_status</code> - System status</li>
-                                    <li><code>GET /api/credential/{id}</code> - Get credential</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-info">
-                            <i class="fas fa-code me-2"></i>
-                            <strong>Open Source:</strong> This project uses open-source technologies and follows industry best practices 
-                            for academic credential verification systems.
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Troubleshooting -->
-            <section id="troubleshooting" class="mb-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-wrench me-2"></i>Troubleshooting</h3>
-                    </div>
-                    <div class="card-body">
-                        <h5>Common Issues & Solutions:</h5>
-                        
-                        <div class="accordion" id="troubleshootingAccordion">
-                            <!-- Issue 1 -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#issue1">
-                                        <i class="fas fa-database me-2"></i>Database Initialization Failed
-                                    </button>
-                                </h2>
-                                <div id="issue1" class="accordion-collapse collapse show" data-bs-parent="#troubleshootingAccordion">
-                                    <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Error when running database initialization command.</p>
-                                        <p><strong>Solution:</strong></p>
-                                        <ol>
-                                            <li>Ensure virtual environment is activated</li>
-                                            <li>Check if <code>instance/</code> folder exists, create if not</li>
-                                            <li>Delete existing <code>instance/credentials.db</code> if corrupted</li>
-                                            <li>Run: <code>python -c "from app.models import init_database; from app.app import app; init_database(app)"</code></li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Issue 2 -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue2">
-                                        <i class="fas fa-cloud me-2"></i>IPFS Connection Failed
-                                    </button>
-                                </h2>
-                                <div id="issue2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-                                    <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Cannot connect to IPFS network.</p>
-                                        <p><strong>Solution:</strong></p>
-                                        <ul>
-                                            <li><strong>Option 1:</strong> System automatically falls back to local storage</li>
-                                            <li><strong>Option 2:</strong> Install IPFS Desktop from <a href="https://ipfs.io" target="_blank">ipfs.io</a></li>
-                                            <li><strong>Option 3:</strong> Use Infura IPFS endpoint (configure in <code>config.py</code>)</li>
-                                        </ul>
-                                        <p><strong>Note:</strong> Local fallback works perfectly for development and testing.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Issue 3 -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue3">
-                                        <i class="fas fa-key me-2"></i>Login Credentials Not Working
-                                    </button>
-                                </h2>
-                                <div id="issue3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-                                    <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Cannot login with created credentials.</p>
-                                        <p><strong>Solution:</strong></p>
-                                        <ul>
-                                            <li><strong>For Issuers:</strong> Run <code>python scripts/create_admin.py</code> again</li>
-                                            <li><strong>For Students:</strong> Default password is roll number. Contact admin if locked out</li>
-                                            <li>Check if database was properly initialized</li>
-                                            <li>Verify username is correct (roll number for students)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Issue 4 -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue4">
-                                        <i class="fas fa-cube me-2"></i>Blockchain Mining Too Slow
-                                    </button>
-                                </h2>
-                                <div id="issue4" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-                                    <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Credential issuance takes too long.</p>
-                                        <p><strong>Solution:</strong></p>
-                                        <ol>
-                                            <li>Open <code>app/blockchain/blockchain.py</code></li>
-                                            <li>Reduce difficulty level (default: 4 leading zeros)</li>
-                                            <li>Change <code>DIFFICULTY = 4</code> to <code>DIFFICULTY = 2</code></li>
-                                            <li>Restart application</li>
-                                        </ol>
-                                        <p><strong>Note:</strong> Lower difficulty = faster mining but less security (fine for development).</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Issue 5 -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue5">
-                                        <i class="fas fa-code me-2"></i>Module Import Errors
-                                    </button>
-                                </h2>
-                                <div id="issue5" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-                                    <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Python cannot find application modules.</p>
-                                        <p><strong>Solution:</strong></p>
-                                        <pre><code># Reinstall dependencies
-pip install --upgrade pip
-pip uninstall -r requirements.txt -y
-pip install -r requirements.txt
-
-# Or recreate virtual environment
-deactivate
-rm -rf venv  # Windows: rmdir /s venv
-python -m venv venv
-venv\Scripts\activate  # Windows
-pip install -r requirements.txt</code></pre>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Issue 6 -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue6">
-                                        <i class="fas fa-shield-alt me-2"></i>Verification Always Fails
-                                    </button>
-                                </h2>
-                                <div id="issue6" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-                                    <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Valid credentials show as invalid.</p>
-                                        <p><strong>Possible Causes:</strong></p>
-                                        <ul>
-                                            <li><strong>Blockchain corruption:</strong> Delete <code>blockchain_data/</code> and restart</li>
-                                            <li><strong>Key mismatch:</strong> Issuer keys changed after credential issuance</li>
-                                            <li><strong>IPFS storage:</strong> Credential not found on IPFS (check local storage)</li>
-                                            <li><strong>Database sync:</strong> Database and blockchain out of sync</li>
-                                        </ul>
-                                        <p><strong>Fix:</strong> For development, delete all data and restart fresh.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Issue 7 -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue7">
-                                        <i class="fas fa-server me-2"></i>Port 5000 Already in Use
-                                    </button>
-                                </h2>
-                                <div id="issue7" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
-                                    <div class="accordion-body">
-                                        <p><strong>Problem:</strong> Cannot start Flask app on port 5000.</p>
-                                        <p><strong>Solution 1 - Kill Existing Process:</strong></p>
-                                        <pre><code># Windows
-netstat -ano | findstr :5000
-taskkill /PID [process_id] /F
-
-# Mac/Linux
-lsof -ti:5000 | xargs kill -9</code></pre>
-                                        <p><strong>Solution 2 - Use Different Port:</strong></p>
-                                        <pre><code>python main.py --port 5001</code></pre>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-info mt-4">
-                            <i class="fas fa-life-ring me-2"></i>
-                            <strong>Need More Help?</strong> Contact the development team or raise an issue on the GitHub repository.
-                        </div>
-
-                        <h5 class="mt-4">Best Practices:</h5>
-                        <ul>
-                            <li>Always activate virtual environment before running</li>
-                            <li>Keep dependencies updated with <code>pip install --upgrade -r requirements.txt</code></li>
-                            <li>Back up <code>instance/</code> folder before major changes</li>
-                            <li>Use version control (Git) to track changes</li>
-                            <li>Test on development environment before production deployment</li>
-                            <li>Monitor blockchain size and performance</li>
-                        </ul>
-
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <strong>Production Ready:</strong> This system has been thoroughly tested and is ready for academic deployment 
-                            with proper server configuration and security hardening.
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Smooth scrolling for navigation links
-document.addEventListener('DOMContentLoaded', function() {
-    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            
-            if (targetSection) {
-                targetSection.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                
-                // Update active nav link
-                navLinks.forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-            }
-        });
-    });
-    
-    // Update active nav link on scroll
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.id;
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${id}`) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-        });
-    }, { 
-        threshold: 0.1,
-        rootMargin: '-100px 0px -66% 0px'
-    });
-    
-    // Observe all sections
-    document.querySelectorAll('section[id]').forEach(section => {
-        observer.observe(section);
-    });
-});
+    document.addEventListener('DOMContentLoaded', function () {
+        const sections = document.querySelectorAll('section');
+        const navSteps = document.querySelectorAll('.nav-step');
 
-// Easter Egg: Triple-click title for glitch effect
-let clickCount = 0;
-let clickTimer;
+        window.onscroll = () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
 
-function triggerGlitch() {
-    clickCount++;
-    clearTimeout(clickTimer);
-    
-    const title = document.getElementById('pageTitle');
-    
-    if (clickCount >= 3) {
-        title.classList.add('glitch-active');
-        setTimeout(() => {
-            title.classList.remove('glitch-active');
-        }, 500);
-        
-        // Show secret message
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
-        alertDiv.innerHTML = `
-            <i class="fas fa-trophy me-2"></i>
-            <strong>🎉 Easter Egg Unlocked!</strong> You found the tutorial secret!
-            <br><small>Triple-click achievement: Master of Documentation 📚</small>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-        `;
-        
-        title.closest('.card-body').insertBefore(alertDiv, title.closest('.card-body').firstChild);
-        
-        clickCount = 0;
-    }
-    
-    clickTimer = setTimeout(() => clickCount = 0, 500);
-}
-
-// Keyboard shortcut: Press 'T' to scroll to top
-document.addEventListener('keydown', function(e) {
-    if (e.key.toLowerCase() === 't' && !e.ctrlKey && !e.metaKey) {
-        const target = document.querySelector('#overview');
-        if (target && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }
-});
+            navSteps.forEach((step) => {
+                step.classList.remove("active");
+                if (step.getAttribute("href").includes(current)) {
+                    step.classList.add("active");
+                }
+            });
+        };
+    });
 </script>
 {% endblock %}
-

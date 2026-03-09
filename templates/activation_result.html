@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Account Activation - Credify{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header {% if success %}bg-success{% else %}bg-danger{% endif %} text-white py-4">
+                    <i
+                        class="fas {% if success %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} fa-4x mb-3"></i>
+                    <h2 class="mb-0">{% if success %}Security Audit Successful{% else %}Security Alert Flagged{% endif
+                        %}</h2>
+                </div>
+                <div class="card-body p-5">
+                    <p class="lead mb-4">{{ message }}</p>
+
+                    {% if success %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-envelope-open-text me-2"></i>
+                        Next Step: Check your institutional email for the <strong>Setup Access</strong> link.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Our security team has been notified. No further action is required from your side at this time.
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg px-5">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

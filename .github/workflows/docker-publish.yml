@@ -2,7 +2,7 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'feature/*' ]
   pull_request:
     branches: [ main ]
 
@@ -10,7 +10,7 @@ jobs:
   build-and-push:
     name: Build and Push to Docker Hub
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -19,35 +19,35 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Login to Docker Hub
+      # Secrets are NOT available on pull_request events — skip login on PRs
+      if: github.event_name == 'push'
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ secrets.DOCKER_USERNAME }}/credify
-        tags: |
-          type=ref,event=branch
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=raw,value=v2.0,enable={{is_default_branch}}
-        flavor: |
-          latest=auto
-
-    - name: Build and push Docker image
+    - name: Build and push Docker image (push event)
+      # On push: build + push to Docker Hub with clean, valid tags
+      if: github.event_name == 'push'
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/credify:latest
+          ${{ secrets.DOCKER_USERNAME }}/credify:v2.1.0
+          ${{ secrets.DOCKER_USERNAME }}/credify:sha-${{ github.sha }}
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/credify:buildcache
         cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/credify:buildcache,mode=max
 
+    - name: Build only (pull_request validation — no push)
+      # On PR: just validate the image builds cleanly — no login, no push
+      if: github.event_name == 'pull_request'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: credify:pr-validate
+
     - name: Image digest
-      run: echo "✅ Image pushed successfully!"
+      run: echo "✅ Docker build step completed."

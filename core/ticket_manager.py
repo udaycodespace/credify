@@ -15,7 +15,8 @@ class TicketManager:
         """Load tickets from file"""
         if os.path.exists(self.tickets_file):
             with open(self.tickets_file, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                return data if isinstance(data, dict) else {}
         return {}
     
     def _save_tickets(self):
@@ -28,7 +29,8 @@ class TicketManager:
         """Load messages from file"""
         if os.path.exists(self.messages_file):
             with open(self.messages_file, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                return data if isinstance(data, dict) else {}
         return {}
     
     def _save_messages(self):

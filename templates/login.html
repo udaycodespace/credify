@@ -4,392 +4,419 @@
 
 {% block content %}
 <style>
-:root {
-    --slate-900: #0f172a;
-    --slate-800: #1e293b;
-    --slate-700: #334155;
-    --cyan-400: #22d3ee;
-    --cyan-500: #06b6d4;
-    --amber-400: #fbbf24;
-    --red-500: #ef4444;
-    --green-500: #10b981;
-}
+    :root {
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --cyan-400: #22d3ee;
+        --cyan-500: #06b6d4;
+        --amber-400: #fbbf24;
+        --red-500: #ef4444;
+        --green-500: #10b981;
+    }
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Orbitron:wght@700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Orbitron:wght@700&display=swap');
 
-body {
-    font-family: 'IBM Plex Mono', monospace;
-    background: var(--slate-900);
-    color: #e2e8f0;
-    overflow: hidden;
-}
+    body {
+        font-family: 'IBM Plex Mono', monospace;
+        background: var(--slate-900);
+        color: #e2e8f0;
+        overflow-y: auto !important;
+    }
 
-/* Matrix Rain Background */
-.matrix-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-}
+    /* Matrix Rain Background */
+    .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
 
-.matrix-column {
-    position: absolute;
-    top: -100%;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 14px;
-    color: var(--cyan-500);
-    opacity: 0.3;
-    animation: matrixFall linear infinite;
-}
-
-@keyframes matrixFall {
-    0% {
+    .matrix-column {
+        position: absolute;
         top: -100%;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 14px;
+        color: var(--cyan-500);
         opacity: 0.3;
+        animation: matrixFall linear infinite;
     }
-    100% {
-        top: 100%;
-        opacity: 0;
+
+    @keyframes matrixFall {
+        0% {
+            top: -100%;
+            opacity: 0.3;
+        }
+
+        100% {
+            top: 100%;
+            opacity: 0;
+        }
     }
-}
 
-/* Login Container */
-.login-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Main Login Card */
-.login-card {
-    background: var(--slate-800);
-    border: 3px solid var(--slate-700);
-    border-radius: 0;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    animation: slideInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
-}
-
-@keyframes slideInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.8) translateY(30px);
+    /* Login Container */
+    .login-container {
+        min-height: 100vh;
+        overflow-y: auto !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        position: relative;
+        z-index: 1;
     }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
+
+    /* Main Login Card */
+    .login-card {
+        background: var(--slate-800);
+        border: 3px solid var(--slate-700);
+        border-radius: 0;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: slideInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
     }
-}
 
-/* Animated Border Glow */
-.login-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--cyan-500), transparent);
-    animation: borderGlow 3s linear infinite;
-}
+    @keyframes slideInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.8) translateY(30px);
+        }
 
-@keyframes borderGlow {
-    0% { left: -100%; }
-    100% { left: 100%; }
-}
-
-/* Lock Icon Animation */
-.lock-icon {
-    font-size: 4rem;
-    color: var(--cyan-500);
-    animation: lockPulse 2s ease-in-out infinite;
-    filter: drop-shadow(0 0 20px var(--cyan-500));
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.lock-icon:hover {
-    transform: scale(1.1) rotate(5deg);
-}
-
-@keyframes lockPulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
     }
-    50% {
-        opacity: 0.7;
-        transform: scale(1.05);
+
+    /* Animated Border Glow */
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--cyan-500), transparent);
+        animation: borderGlow 3s linear infinite;
     }
-}
 
-/* Easter Egg #1: Click lock 5 times to unlock secret */
-.lock-icon.unlocked {
-    color: var(--green-500);
-    animation: unlock 0.5s ease-out;
-}
+    @keyframes borderGlow {
+        0% {
+            left: -100%;
+        }
 
-@keyframes unlock {
-    0% { transform: rotate(0deg); }
-    50% { transform: rotate(-20deg); }
-    100% { transform: rotate(0deg); }
-}
-
-/* Card Header */
-.card-header {
-    background: linear-gradient(135deg, var(--slate-700), var(--slate-800));
-    border-bottom: 3px solid var(--cyan-500);
-    padding: 2rem;
-}
-
-.card-title {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    color: var(--cyan-400);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin: 0;
-    font-size: 1.8rem;
-}
-
-.card-subtitle {
-    color: #94a3b8;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-}
-
-.card-subtitle::before {
-    content: '> ';
-    color: var(--cyan-500);
-}
-
-/* Form Inputs */
-.form-label {
-    color: var(--cyan-400);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.85rem;
-}
-
-.form-control {
-    background: var(--slate-900);
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    color: #e2e8f0;
-    padding: 12px 16px;
-    font-family: 'IBM Plex Mono', monospace;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    background: var(--slate-900);
-    border-color: var(--cyan-500);
-    color: #e2e8f0;
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
-}
-
-.form-control::placeholder {
-    color: #64748b;
-}
-
-/* Easter Egg #2: Type "credify" in username to see secret hint */
-.secret-hint {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--slate-700);
-    border: 2px solid var(--cyan-500);
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 0.8rem;
-    color: var(--cyan-400);
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform 0.3s ease;
-    z-index: 10;
-}
-
-.secret-hint.show {
-    transform: scaleY(1);
-}
-
-/* Login Button */
-.btn-login {
-    background: transparent;
-    border: 3px solid var(--cyan-500);
-    color: var(--cyan-500);
-    border-radius: 0;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    padding: 15px;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-login::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--cyan-500);
-    transition: left 0.3s ease;
-    z-index: -1;
-}
-
-.btn-login:hover::before {
-    left: 0;
-}
-
-.btn-login:hover {
-    color: var(--slate-900);
-    box-shadow: 0 0 30px var(--cyan-500);
-}
-
-/* Challenge Box (Optional Mini-Game) */
-.challenge-box {
-    background: var(--slate-900);
-    border: 2px solid var(--amber-400);
-    padding: 15px;
-    margin-bottom: 20px;
-    display: none;
-    animation: slideDown 0.5s ease-out;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
+        100% {
+            left: 100%;
+        }
     }
-    to {
-        opacity: 1;
-        max-height: 200px;
-    }
-}
 
-.challenge-box.active {
-    display: block;
-}
-
-.challenge-question {
-    color: var(--amber-400);
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.challenge-input {
-    background: var(--slate-800);
-    border: 2px solid var(--amber-400);
-    color: #e2e8f0;
-    padding: 8px;
-    width: 100%;
-    font-family: 'IBM Plex Mono', monospace;
-}
-
-/* Role Info Cards */
-.role-info-card {
-    background: var(--slate-800);
-    border: 2px solid var(--slate-700);
-    border-radius: 0;
-    margin-top: 20px;
-    animation: fadeInUp 1s ease-out 0.5s both;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.role-info-item {
-    padding: 10px;
-    border-bottom: 1px solid var(--slate-700);
-    transition: all 0.3s ease;
-}
-
-.role-info-item:last-child {
-    border-bottom: none;
-}
-
-.role-info-item:hover {
-    padding-left: 20px;
-    background: var(--slate-700);
-}
-
-/* Demo Credentials Badge */
-.demo-badge {
-    background: linear-gradient(135deg, var(--red-500), var(--amber-400));
-    color: white;
-    padding: 3px 10px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-radius: 0;
-    margin-left: 10px;
-}
-
-/* Easter Egg #3: Press Shift 3 times to toggle dark mode */
-.easter-mode {
-    filter: hue-rotate(180deg) invert(1);
-}
-
-/* Loading Animation */
-.loading-spinner {
-    display: inline-block;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Back Button */
-.btn-back {
-    background: transparent;
-    border: 2px solid #64748b;
-    color: #64748b;
-    border-radius: 0;
-    padding: 10px 20px;
-    font-weight: 600;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-}
-
-.btn-back:hover {
-    border-color: var(--cyan-500);
-    color: var(--cyan-500);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
+    /* Lock Icon Animation */
     .lock-icon {
-        font-size: 3rem;
+        font-size: 4rem;
+        color: var(--cyan-500);
+        animation: lockPulse 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 20px var(--cyan-500));
+        cursor: pointer;
+        transition: transform 0.3s ease;
     }
+
+    .lock-icon:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    @keyframes lockPulse {
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+    }
+
+    /* Easter Egg #1: Click lock 5 times to unlock secret */
+    .lock-icon.unlocked {
+        color: var(--green-500);
+        animation: unlock 0.5s ease-out;
+    }
+
+    @keyframes unlock {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        50% {
+            transform: rotate(-20deg);
+        }
+
+        100% {
+            transform: rotate(0deg);
+        }
+    }
+
+    /* Card Header */
+    .card-header {
+        background: linear-gradient(135deg, var(--slate-700), var(--slate-800));
+        border-bottom: 3px solid var(--cyan-500);
+        padding: 2rem;
+    }
+
     .card-title {
-        font-size: 1.4rem;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        color: var(--cyan-400);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin: 0;
+        font-size: 1.8rem;
     }
-}
+
+    .card-subtitle {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .card-subtitle::before {
+        content: '> ';
+        color: var(--cyan-500);
+    }
+
+    /* Form Inputs */
+    .form-label {
+        color: var(--cyan-400);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+
+    .form-control {
+        background: var(--slate-900);
+        border: 2px solid var(--slate-700);
+        border-radius: 0;
+        color: #e2e8f0;
+        padding: 12px 16px;
+        font-family: 'IBM Plex Mono', monospace;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background: var(--slate-900);
+        border-color: var(--cyan-500);
+        color: #e2e8f0;
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+    }
+
+    .form-control::placeholder {
+        color: #64748b;
+    }
+
+    /* Easter Egg #2: Type "credify" in username to see secret hint */
+    .secret-hint {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--slate-700);
+        border: 2px solid var(--cyan-500);
+        padding: 10px;
+        margin-top: 5px;
+        font-size: 0.8rem;
+        color: var(--cyan-400);
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 0.3s ease;
+        z-index: 10;
+    }
+
+    .secret-hint.show {
+        transform: scaleY(1);
+    }
+
+    /* Login Button */
+    .btn-login {
+        background: transparent;
+        border: 3px solid var(--cyan-500);
+        color: var(--cyan-500);
+        border-radius: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 15px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--cyan-500);
+        transition: left 0.3s ease;
+        z-index: -1;
+    }
+
+    .btn-login:hover::before {
+        left: 0;
+    }
+
+    .btn-login:hover {
+        color: var(--slate-900);
+        box-shadow: 0 0 30px var(--cyan-500);
+    }
+
+    /* Challenge Box (Optional Mini-Game) */
+    .challenge-box {
+        background: var(--slate-900);
+        border: 2px solid var(--amber-400);
+        padding: 15px;
+        margin-bottom: 20px;
+        display: none;
+        animation: slideDown 0.5s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+        }
+
+        to {
+            opacity: 1;
+            max-height: 200px;
+        }
+    }
+
+    .challenge-box.active {
+        display: block;
+    }
+
+    .challenge-question {
+        color: var(--amber-400);
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .challenge-input {
+        background: var(--slate-800);
+        border: 2px solid var(--amber-400);
+        color: #e2e8f0;
+        padding: 8px;
+        width: 100%;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* Role Info Cards */
+    .role-info-card {
+        background: var(--slate-800);
+        border: 2px solid var(--slate-700);
+        border-radius: 0;
+        margin-top: 20px;
+        animation: fadeInUp 1s ease-out 0.5s both;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .role-info-item {
+        padding: 10px;
+        border-bottom: 1px solid var(--slate-700);
+        transition: all 0.3s ease;
+    }
+
+    .role-info-item:last-child {
+        border-bottom: none;
+    }
+
+    .role-info-item:hover {
+        padding-left: 20px;
+        background: var(--slate-700);
+    }
+
+    /* Demo Credentials Badge */
+    .demo-badge {
+        background: linear-gradient(135deg, var(--red-500), var(--amber-400));
+        color: white;
+        padding: 3px 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 0;
+        margin-left: 10px;
+    }
+
+    /* Easter Egg #3: Press Shift 3 times to toggle dark mode */
+    .easter-mode {
+        filter: hue-rotate(180deg) invert(1);
+    }
+
+    /* Loading Animation */
+    .loading-spinner {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Back Button */
+    .btn-back {
+        background: transparent;
+        border: 2px solid #64748b;
+        color: #64748b;
+        border-radius: 0;
+        padding: 10px 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        border-color: var(--cyan-500);
+        color: var(--cyan-500);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .lock-icon {
+            font-size: 3rem;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+        }
+    }
 </style>
 
 <!-- Matrix Background -->
@@ -398,20 +425,32 @@ body {
 <div class="login-container">
     <div class="col-md-6 col-lg-5">
         <!-- Main Login Card -->
-        <div class="card login-card shadow-lg">
+        <div class="card login-card shadow-lg" id="mainLoginCard">
             <div class="card-header text-center">
                 <!-- Easter Egg #1: Click lock 5 times -->
                 <div class="lock-icon mb-3" id="lockIcon" onclick="clickLock()" title="Easter Egg: Click me 5 times!">
                     <i class="fas fa-lock"></i>
                 </div>
                 <h3 class="card-title">
+                    {% if portal == 'issuer' %}
+                    <span class="text-cyan-400">ADMIN / ISSUER LOGIN</span>
+                    {% elif portal == 'student' %}
+                    <span class="text-green-500">STUDENT / HOLDER LOGIN</span>
+                    {% else %}
                     Secure Access
+                    {% endif %}
                 </h3>
                 <p class="card-subtitle mb-0">
+                    {% if portal == 'issuer' %}
+                    Administrative Credentialing Portal
+                    {% elif portal == 'student' %}
+                    Secure Academic Records Access
+                    {% else %}
                     Blockchain Verifiable Credentials System
+                    {% endif %}
                 </p>
             </div>
-            
+
             <div class="card-body p-4">
                 <!-- Optional Challenge Box -->
                 <div class="challenge-box" id="challengeBox">
@@ -422,65 +461,176 @@ body {
                     <small class="text-muted d-block mt-2">Complete to unlock login form</small>
                 </div>
 
-                <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+                <form method="POST" action="" id="loginForm">
                     <div class="mb-3 position-relative">
                         <label for="username" class="form-label">
-                            <i class="fas fa-user me-1"></i>Username (Student Name)
+                            <i class="fas fa-user-circle me-1"></i>USERNAME
                         </label>
                         <input type="text" class="form-control" id="username" name="username" required autofocus
-                               placeholder="Enter your full name (e.g., John Doe)">
-                        <!-- Easter Egg #2: Secret hint -->
+                            placeholder="e.g., STUDENT_NAME" value="{{ mfa_username if show_mfa else '' }}">
+                        <!-- Easter Egg #2: Secret hint removed for security -->
                         <div class="secret-hint" id="secretHint">
-                            🎉 Secret Dev Hint: Try "admin" / "admin123" for issuer access!
+                            🛡️ Security Active: Use your authorized credentials to enter.
                         </div>
                     </div>
-                    
+
                     <div class="mb-4">
                         <label for="password" class="form-label">
-                            <i class="fas fa-key me-1"></i>Password (Student ID)
+                            <i class="fas fa-fingerprint me-1"></i>PASSWORD
                         </label>
                         <input type="password" class="form-control" id="password" name="password" required
-                               placeholder="Enter your Student ID (e.g., S12345)">
+                            placeholder="e.g., 229X1AXXXX" value="{{ mfa_password if show_mfa else '' }}">
                     </div>
-                    
+
+                    <!-- 2FA Multi-Factor Authentication (Admin only) -->
+                    <div id="mfaContainer" class="mb-4"
+                        style="border: 1px dashed var(--cyan-500); padding: 15px; background: rgba(6, 182, 212, 0.05); display: none;">
+                        <label for="mfa_token" class="form-label text-info">
+                            <i class="fas fa-shield-alt me-1"></i>6-DIGIT SECURITY TOKEN
+                        </label>
+                        <input type="text" class="form-control" id="mfa_token" name="mfa_token" placeholder="000000"
+                            maxlength="20" pattern="[0-9]{6}|adminadmin123" autocomplete="off">
+                        <div class="small text-muted mt-2">
+                            Enter the code from your Google Authenticator or Authy app.
+                        </div>
+                    </div>
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-login btn-lg">
-                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                            <i class="fas fa-shield-alt me-2"></i>SECURE LOGIN
                         </button>
                     </div>
                 </form>
+
+                {% if portal != 'issuer' %}
+                <div class="text-center mt-4">
+                    <a href="#" class="text-info text-decoration-none small fw-bold" data-bs-toggle="modal"
+                        data-bs-target="#forgotModal">
+                        <i class="fas fa-history me-1"></i>FORGOT CREDENTIALS?
+                    </a>
+                </div>
+                {% endif %}
             </div>
-            
-            <div class="card-footer text-center" style="background: var(--slate-700); border-top: 2px solid var(--slate-700);">
+
+            <div class="card-footer text-center"
+                style="background: var(--slate-700); border-top: 2px solid var(--slate-700);">
                 <a href="{{ url_for('index') }}" class="btn btn-back btn-sm">
                     <i class="fas fa-home me-1"></i>Back to Home
                 </a>
             </div>
         </div>
-        
-        <!-- Role Information Card -->
-        <div class="card role-info-card">
-            <div class="card-header" style="background: var(--slate-700); border-bottom: 2px solid var(--cyan-500);">
-                <h6 style="color: var(--cyan-400); margin: 0;">
-                    <i class="fas fa-info-circle me-2"></i>Role Information
-                </h6>
+
+    </div>
+</div>
+
+<!-- Global Forgot Password Functions — must be in global scope for onclick to work -->
+<script>
+    function showForgotModal() {
+        document.getElementById('forgot-status').className = 'alert d-none';
+        document.getElementById('forgot-status').innerText = '';
+        document.getElementById('forgotStudentId').value = '';
+        var btn = document.getElementById('btnForgotRequest');
+        btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Reset Link';
+        btn.disabled = false;
+        new bootstrap.Modal(document.getElementById('forgotModal')).show();
+    }
+
+    function requestForgotLink() {
+        var studentId = (document.getElementById('forgotStudentId').value || '').trim();
+        var btn = document.getElementById('btnForgotRequest');
+        var status = document.getElementById('forgot-status');
+
+        // hide status
+        status.style.display = 'none';
+        status.innerText = '';
+
+        if (!studentId) {
+            status.innerText = '⚠️ Please enter your Student Roll Number.';
+            status.style.background = '#fef9c3';
+            status.style.color = '#713f12';
+            status.style.border = '1px solid #fde047';
+            status.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+
+        fetch('/api/forgot_password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_id: studentId })
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    // Close modal and show success notification on page
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('forgotModal'));
+                    if (modal) modal.hide();
+                    // Show floating success toast on page
+                    var toast = document.createElement('div');
+                    toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;background:#f0fdf4;color:#166534;border:1.5px solid #86efac;padding:14px 24px;border-radius:8px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);max-width:500px;text-align:center;';
+                    toast.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
+                    document.body.appendChild(toast);
+                    setTimeout(function () { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.5s'; setTimeout(function () { toast.remove(); }, 500); }, 5000);
+                } else {
+                    status.innerText = '❌ ' + (data.error || 'Something went wrong. Please try again.');
+                    status.style.background = '#fef2f2';
+                    status.style.color = '#991b1b';
+                    status.style.border = '1px solid #fecaca';
+                    status.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Reset Link';
+                }
+            })
+            .catch(function () {
+                status.innerText = '❌ Network error. Please check your connection.';
+                status.style.background = '#fef2f2';
+                status.style.color = '#991b1b';
+                status.style.border = '1px solid #fecaca';
+                status.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Reset Link';
+            });
+    }
+</script>
+
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content"
+            style="background: var(--slate-800); border: 2px solid var(--slate-600); border-radius: 8px;">
+            <div class="modal-header" style="border-bottom: 1px solid var(--slate-700);">
+                <h5 class="modal-title" style="color: #e2e8f0; font-size: 16px; font-weight: 700;">
+                    <i class="fas fa-key me-2" style="color: var(--cyan-400);"></i>Reset Your Password
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="card-body p-0">
-                <div class="role-info-item">
-                    <i class="fas fa-university text-danger me-2"></i>
-                    <strong style="color: var(--red-500);">Issuer:</strong>
-                    <span style="color: #94a3b8;">Academic institutions who issue credentials</span>
+            <div class="modal-body" style="padding: 24px;">
+                <p class="small mb-1" style="color: #94a3b8; line-height: 1.6;">
+                    Enter your <strong style="color:#e2e8f0;">Student Roll Number</strong>. A password reset link will
+                    be sent to your registered college email address.
+                </p>
+                <p class="small mb-4" style="color: #64748b; font-size: 12px;">
+                    Note: Your current password will be revoked immediately and replaced once you complete the reset.
+                </p>
+                <div class="mb-3">
+                    <label class="form-label"
+                        style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Student
+                        Roll Number</label>
+                    <input type="text" class="form-control" id="forgotStudentId"
+                        style="background: var(--slate-900); border: 1.5px solid var(--slate-600); color: #e2e8f0; border-radius: 6px;"
+                        placeholder="e.g., 229X1AXXXX">
                 </div>
-                <div class="role-info-item">
-                    <i class="fas fa-user-graduate text-success me-2"></i>
-                    <strong style="color: var(--green-500);">Student:</strong>
-                    <span style="color: #94a3b8;">Students who hold and share credentials</span>
+                <div id="forgot-status"
+                    style="display:none; padding:12px 14px; border-radius:6px; font-size:13px; font-weight:600; margin-top:8px; line-height:1.5;">
                 </div>
-                <div class="role-info-item">
-                    <i class="fas fa-building text-warning me-2"></i>
-                    <strong style="color: var(--amber-400);">Verifier:</strong>
-                    <span style="color: #94a3b8;">Employers who verify credentials</span>
-                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--slate-700); padding: 16px 24px;">
+                <button type="button" class="btn w-100" id="btnForgotRequest" onclick="requestForgotLink()"
+                    style="background: #0f2044; color: white; border-radius: 6px; font-weight: 600; padding: 12px;">
+                    <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                </button>
             </div>
         </div>
     </div>
@@ -490,102 +640,199 @@ body {
 
 {% block scripts %}
 <script>
-// Matrix Rain Effect
-function createMatrixRain() {
-    const matrixBg = document.getElementById('matrixBg');
-    const chars = '01アイウエオカキクケコサシスセソタチツテト';
-    const columns = Math.floor(window.innerWidth / 20);
-    
-    for (let i = 0; i < columns; i++) {
-        const column = document.createElement('div');
-        column.className = 'matrix-column';
-        column.style.left = `${i * 20}px`;
-        column.style.animationDuration = `${5 + Math.random() * 10}s`;
-        column.style.animationDelay = `${Math.random() * 5}s`;
-        
-        let text = '';
-        for (let j = 0; j < 30; j++) {
-            text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+    // Matrix Rain Effect
+    function createMatrixRain() {
+        const matrixBg = document.getElementById('matrixBg');
+        const chars = '01アイウエオカキクケコサシスセソタチツテト';
+        const columns = Math.floor(window.innerWidth / 20);
+
+        for (let i = 0; i < columns; i++) {
+            const column = document.createElement('div');
+            column.className = 'matrix-column';
+            column.style.left = `${i * 20}px`;
+            column.style.animationDuration = `${5 + Math.random() * 10}s`;
+            column.style.animationDelay = `${Math.random() * 5}s`;
+
+            let text = '';
+            for (let j = 0; j < 30; j++) {
+                text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+            }
+            column.innerHTML = text;
+            matrixBg.appendChild(column);
         }
-        column.innerHTML = text;
-        matrixBg.appendChild(column);
     }
-}
 
-createMatrixRain();
+    createMatrixRain();
 
-// Easter Egg #1: Click lock 5 times to unlock
-let lockClicks = 0;
-function clickLock() {
-    lockClicks++;
-    const lockIcon = document.getElementById('lockIcon');
-    
-    if (lockClicks >= 5) {
-        lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
-        lockIcon.classList.add('unlocked');
-        alert('🎉 Easter Egg Unlocked! You found the secret lock mechanism!');
-        lockClicks = 0;
-        
+    // Easter Egg #1: Click lock 5 times to unlock
+    let lockClicks = 0;
+    function clickLock() {
+        lockClicks++;
+        const lockIcon = document.getElementById('lockIcon');
+
+        if (lockClicks >= 5) {
+            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
+            lockIcon.classList.add('unlocked');
+            alert('🎉 Easter Egg Unlocked! You found the secret lock mechanism!');
+            lockClicks = 0;
+
+            setTimeout(() => {
+                lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+                lockIcon.classList.remove('unlocked');
+            }, 3000);
+        }
+    }
+
+    // Easter Egg #2: Type "credify" in username to show hint
+    document.getElementById('username').addEventListener('input', function (e) {
+        const value = e.target.value.toLowerCase();
+        const hint = document.getElementById('secretHint');
+
+        if (value === 'credify') {
+            hint.classList.add('show');
+            setTimeout(() => hint.classList.remove('show'), 5000);
+        }
+    });
+
+    // Easter Egg #3: Press Shift 3 times for color invert
+    let shiftCount = 0;
+    let shiftTimer;
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Shift') {
+            shiftCount++;
+            clearTimeout(shiftTimer);
+
+            if (shiftCount >= 3) {
+                document.body.classList.toggle('easter-mode');
+                shiftCount = 0;
+            }
+
+            shiftTimer = setTimeout(() => shiftCount = 0, 1000);
+        }
+    });
+
+    // Optional Challenge (Uncomment to enable)
+    // const challengeBox = document.getElementById('challengeBox');
+    // const loginForm = document.getElementById('loginForm');
+    // loginForm.style.display = 'none';
+    // challengeBox.classList.add('active');
+
+    // document.getElementById('challengeInput').addEventListener('input', function(e) {
+    //     if (e.target.value === '12') {
+    //         challengeBox.style.display = 'none';
+    //         loginForm.style.display = 'block';
+    //         alert('✅ Challenge completed! You may now login.');
+    //     }
+    // });
+
+    // Form Submit Animation
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner loading-spinner me-2"></i>Authenticating...';
+        submitBtn.disabled = true;
+
         setTimeout(() => {
-            lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
-            lockIcon.classList.remove('unlocked');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }, 3000);
-    }
-}
+    });
 
-// Easter Egg #2: Type "credify" in username to show hint
-document.getElementById('username').addEventListener('input', function(e) {
-    const value = e.target.value.toLowerCase();
-    const hint = document.getElementById('secretHint');
-    
-    if (value === 'credify') {
-        hint.classList.add('show');
-        setTimeout(() => hint.classList.remove('show'), 5000);
-    }
-});
 
-// Easter Egg #3: Press Shift 3 times for color invert
-let shiftCount = 0;
-let shiftTimer;
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Shift') {
-        shiftCount++;
-        clearTimeout(shiftTimer);
-        
-        if (shiftCount >= 3) {
-            document.body.classList.toggle('easter-mode');
-            shiftCount = 0;
+    // Wire up 'Send Reset Link' button after DOM is ready
+    document.addEventListener('DOMContentLoaded', function () {
+        // portal context styling (fix lint issues)
+        const portal = "{{ portal }}";
+        const showMfa = "{{ 'true' if show_mfa else 'false' }}" === "true";
+        const mainCard = document.getElementById('mainLoginCard');
+        const mfaContainer = document.getElementById('mfaContainer');
+
+        if (mainCard) {
+            if (portal === 'issuer') mainCard.style.borderColor = 'var(--cyan-500)';
+            else if (portal === 'student') mainCard.style.borderColor = 'var(--green-500)';
         }
-        
-        shiftTimer = setTimeout(() => shiftCount = 0, 1000);
+
+        if (mfaContainer && (showMfa || portal === 'issuer')) {
+            mfaContainer.style.display = 'block';
+        }
+
+        var btn = document.getElementById('btnForgotRequest');
+        if (btn) {
+            btn.addEventListener('click', function () {
+                var studentId = (document.getElementById('forgotStudentId').value || '').trim();
+                var status = document.getElementById('forgot-status');
+
+                // reset status
+                status.style.display = 'none';
+                status.innerText = '';
+
+                if (!studentId) {
+                    status.innerText = 'Please enter your Student Roll Number.';
+                    status.style.background = '#fef9c3';
+                    status.style.color = '#713f12';
+                    status.style.border = '1px solid #fde047';
+                    status.style.display = 'block';
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+
+                fetch('/api/forgot_password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId })
+                })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (data.success) {
+                            status.innerText = data.message;
+                            status.style.background = '#f0fdf4';
+                            status.style.color = '#166534';
+                            status.style.border = '1px solid #bbf7d0';
+                            status.style.display = 'block';
+                            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Link Sent';
+                        } else {
+                            status.innerText = data.error || 'Something went wrong. Please try again.';
+                            status.style.background = '#fef2f2';
+                            status.style.color = '#991b1b';
+                            status.style.border = '1px solid #fecaca';
+                            status.style.display = 'block';
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Reset Link';
+                        }
+                    })
+                    .catch(function () {
+                        status.innerText = 'Network error. Please check your connection.';
+                        status.style.background = '#fef2f2';
+                        status.style.color = '#991b1b';
+                        status.style.border = '1px solid #fecaca';
+                        status.style.display = 'block';
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Reset Link';
+                    });
+            });
+        }
+
+        // Reset modal state whenever it opens
+        var forgotModal = document.getElementById('forgotModal');
+        if (forgotModal) {
+            forgotModal.addEventListener('show.bs.modal', function () {
+                document.getElementById('forgotStudentId').value = '';
+                document.getElementById('forgot-status').style.display = 'none';
+                var b = document.getElementById('btnForgotRequest');
+                b.disabled = false;
+                b.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Reset Link';
+            });
+        }
+    });
+
+    function showForgotModal() {
+        // handled globally above
     }
-});
 
-// Optional Challenge (Uncomment to enable)
-// const challengeBox = document.getElementById('challengeBox');
-// const loginForm = document.getElementById('loginForm');
-// loginForm.style.display = 'none';
-// challengeBox.classList.add('active');
-
-// document.getElementById('challengeInput').addEventListener('input', function(e) {
-//     if (e.target.value === '12') {
-//         challengeBox.style.display = 'none';
-//         loginForm.style.display = 'block';
-//         alert('✅ Challenge completed! You may now login.');
-//     }
-// });
-
-// Form Submit Animation
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner loading-spinner me-2"></i>Authenticating...';
-    submitBtn.disabled = true;
-    
-    setTimeout(() => {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }, 3000);
-});
+    function requestForgotLink() {
+        // handled globally above
+    }
 </script>
 {% endblock %}

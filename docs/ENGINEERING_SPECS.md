@@ -1,7 +1,7 @@
 # Project Overview
 This system is a **centralized, blockchain-simulated credential verification platform**. It is designed to issue, store, and verify academic credentials using cryptographic primitives (SHA-256, RSA-2048) and a linked-data structure.
 
-While it markets itself as a "blockchain," it strictly operates as a **single-node ledger** running on a Python Flask backend. It solves the problem of digital credential tampering by transforming a standard database into an append-only, cryptographically linked list. It is currently a **Proof-of-Concept (PoC)** for a private, permissioned authority system.
+While it markets itself as a "blockchain," it strictly operates as a **single-node ledger** running on a Python Flask backend. It solves the problem of digital credential tampering by transforming a standard database into an append-only, cryptographically linked list. It is currently a **v2.1 Private Authority System** with an **Elite UI/UX Layer** and **10/10 PDF Generation**.
 
 # Architectural Philosophy
 *   **Centralized Authority**: The system relies entirely on a single trusted Issuer (the University/Server). There is no distributed consensus. Trust is placed in the server administrator and the integrity of the file system.
@@ -22,10 +22,16 @@ While it markets itself as a "blockchain," it strictly operates as a **single-no
 *   **Interactions**: orchestrates `CredentialManager`, `Blockchain`, and `IPFSClient`. It is the write-head for the ledger.
 *   **Architectural Role**: The "Node" software. In a real blockchain, this would be the client; here, it is the entire network.
 
-## `core/credential_manager.py` (Inferred)
+## `core/credential_manager.py`
 **Purpose**: The Business Logic Layer.
 *   **Logic**: Formats transcript data, handles selective disclosure logic, and interfaces between the raw "chain" and the user-facing data.
 *   **Architectural Role**: The application layer on top of the "Layer 1" blockchain.
+
+## `Presentation Layer (PDF/Web)` (New March 2026)
+**Purpose**: High-Fidelity Verification View.
+*   **Logic**: Uses Jinja2 for "Hero" student views and **ReportLab** for professional academic transcripts.
+*   **Institutional Branding**: Implements senior UI/UX principles (visual hierarchy, digital authority signatures, subtle watermarking).
+*   **Verification Bridge**: Integrates On-Chain hashes and QR codes directly into the document view for instant verification.
 
 ## `data/*.json`
 **Purpose**: The Persistence Layer.
@@ -108,3 +114,14 @@ In addition to the Private steps:
 *   **Strong Foundation**: The `Block` class and hashing logic are correctly implemented according to fundamental theory. The data structure is sound.
 *   **Rewrite Required**: The storage mechanism (JSON dump) is a toy implementation and must be replaced with a database.
 *   **Production Logic**: The "Mining" mechanism in its current form serves no security purpose in a centralized app and serves only to slow down the server. It should be removed unless the system moves to a multi-node architecture.
+
+***
+
+> [!NOTE]
+> **📓 ENGINEER'S NOTES: UPDATED**
+> 
+> **System Version:** 2.1.0 (Elite Edition)
+> **Institution:** G. Pulla Reddy Engineering College
+> **Guidance:** Dr. B. Thimma Reddy Sir, Dr. G. Rajeswarappa Sir and Shri Shri K Bala Chowdappa Sir
+> 
+> **Current Edited Date:** `2026-03-08`

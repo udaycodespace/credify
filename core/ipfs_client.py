@@ -226,3 +226,10 @@ class IPFSClient:
         except Exception as e:
             logging.debug(f"Could not get IPFS stats: {str(e)}")
         return None
+
+    # Aliases for consistent API usage in tests/app
+    def add_data(self, data):
+        return self.add_json(data)
+    
+    def get_data(self, cid):
+        return self.get_json(cid)

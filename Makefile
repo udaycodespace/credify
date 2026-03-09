@@ -18,7 +18,6 @@ help:  ## Show this help message
 install:  ## Install dependencies
 	@echo "$(BLUE)Installing dependencies...$(NC)"
 	pip install -r requirements.txt
-	pip install -r requirements-dev.txt
 	@echo "$(GREEN)✅ Dependencies installed!$(NC)"
 
 install-prod:  ## Install production dependencies only
@@ -76,19 +75,18 @@ create-admin:  ## Create admin user
 
 docker-build:  ## Build Docker image
 	@echo "$(BLUE)Building Docker image...$(NC)"
-	docker build -t credify:latest .
+	docker build -t udaycodespace/credify:latest .
 	@echo "$(GREEN)✅ Docker image built!$(NC)"
 
-docker-run:  ## Run Docker container
-	@echo "$(BLUE)Running Docker container...$(NC)"
-	docker run -d -p 5000:5000 --name credify credify:latest
-	@echo "$(GREEN)✅ Container running at http://localhost:5000$(NC)"
+docker-run:  ## Run 3-Node Private Blockchain Cluster
+	@echo "$(BLUE)Running 3-Node Docker Cluster...$(NC)"
+	docker-compose up -d
+	@echo "$(GREEN)✅ Network running securely on isolated bridge!$(NC)"
 
-docker-stop:  ## Stop Docker container
-	@echo "$(BLUE)Stopping Docker container...$(NC)"
-	docker stop credify
-	docker rm credify
-	@echo "$(GREEN)✅ Container stopped!$(NC)"
+docker-stop:  ## Stop Docker Cluster
+	@echo "$(BLUE)Stopping Docker network...$(NC)"
+	docker-compose down
+	@echo "$(GREEN)✅ Network terminated securely!$(NC)"
 
 docker-logs:  ## View Docker logs
 	docker logs -f credify

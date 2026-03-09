@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Authenticator Setup | Credify{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0"
+                style="background: var(--slate-800); border-top: 4px solid var(--cyan-500) !important;">
+                <div class="card-header bg-transparent text-center py-4">
+                    <h3 class="text-cyan-400 font-bold mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>SECURE YOUR ACCOUNT
+                    </h3>
+                    <p class="text-slate-400 small mt-2">Link an Authenticator App to enable 2-Factor Authentication</p>
+                </div>
+
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <p class="text-white small mb-3">
+                            1. Open your Authenticator app (Google Authenticator, Authy, etc.)<br>
+                            2. Scan the QR code below or enter the manual key.
+                        </p>
+                    </div>
+
+                    <!-- QR Code -->
+                    <div class="bg-white p-3 d-inline-block rounded mb-4"
+                        style="box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);">
+                        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="img-fluid"
+                            style="width: 200px; height: 200px;">
+                    </div>
+
+                    <!-- Secret Key (Manual Entry) -->
+                    <div class="mb-4">
+                        <label class="small text-slate-400 text-uppercase d-block mb-2">Secret Key (Manual
+                            Entry)</label>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <code class="bg-slate-900 text-cyan-400 p-2 rounded me-2" id="secretKey">{{ secret }}</code>
+                            <button class="btn btn-sm btn-outline-info" onclick="copySecret()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-700 my-4">
+
+                    <!-- Verification Step -->
+                    <div class="mt-4">
+                        <p class="text-white small mb-3">3. Enter the 6-digit code from your app to verify.</p>
+                        <div class="d-flex justify-content-center">
+                            <input type="text" id="mfaToken"
+                                class="form-control text-center bg-slate-900 text-white border-slate-700"
+                                placeholder="000 000" style="max-width: 200px; font-size: 1.5rem; letter-spacing: 5px;"
+                                maxlength="6" autocomplete="off">
+                        </div>
+                        <button id="verifyBtn" class="btn btn-cyan btn-lg w-100 mt-4 font-bold text-uppercase">
+                            Verify and Activate
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent text-center py-3">
+                    <a href="{{ url_for('issuer') }}" class="text-slate-400 small text-decoration-none">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-cyan-400 {
+        color: var(--cyan-400);
+    }
+
+    .bg-slate-800 {
+        background-color: var(--slate-800);
+    }
+
+    .bg-slate-900 {
+        background-color: var(--slate-900);
+    }
+
+    .border-slate-700 {
+        border-color: var(--slate-700);
+    }
+
+    .btn-cyan {
+        background-color: var(--cyan-500);
+        color: var(--slate-900);
+        border: none;
+    }
+
+    .btn-cyan:hover {
+        background-color: var(--cyan-400);
+        box-shadow: 0 0 15px var(--cyan-500);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function copySecret() {
+        const secret = document.getElementById('secretKey').innerText;
+        navigator.clipboard.writeText(secret).then(() => {
+            alert('Secret key copied to clipboard!');
+        });
+    }
+
+    document.getElementById('verifyBtn').addEventListener('click', function () {
+        const token = document.getElementById('mfaToken').value.replace(/\s/g, '');
+        if (token.length !== 6) {
+            alert('Please enter a valid 6-digit code.');
+            return;
+        }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying...';
+
+        fetch('/api/verify-mfa-setup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: token })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    window.location.href = '/issuer';
+                } else {
+                    alert('❌ ' + data.error);
+                    btn.disabled = false;
+                    btn.innerHTML = 'Verify and Activate';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during verification.');
+                btn.disabled = false;
+                btn.innerHTML = 'Verify and Activate';
+            });
+    });
+</script>
+{% endblock %}

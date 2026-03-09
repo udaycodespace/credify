@@ -116,37 +116,31 @@ python scripts/reset_password.py
 ```
 
 
-#### B. Session Expired
-
-**Problem:** Session timeout or cookie cleared
-
-**Solution:**
-
-1. Log out completely
-2. Close browser
-3. Reopen and log in again
-
-#### C. Missing SECRET_KEY
-
-**Problem:** No session secret configured
-
-**Error Message:**
-
-```
-RuntimeError: The session is unavailable because no secret key was set.
-```
+#### B. MFA / 2FA Failures
+**Problem:** "Invalid Security Token" or "Authenticator Desync"
 
 **Solution:**
+1. **Clock Sync**: Ensure your phone's clock (Authenticator app) is synchronized with the server time. TOTP codes are time-dependent.
+2. **Fresh Tokens**: Only enter the code while it is still "active" (spinning animation in your app).
+3. **Emergency Bypass**: If you have lost your device, use the master emergency token in the 6-digit field: `adminadmin123`.
 
-Create or update `.env` file:
+#### C. Session Expired
+**Problem**: Session timeout or portal redirect
 
+**Solution**:
+1. Log out completely from the current hub.
+2. Ensure you are at the correct portal: [`/issuer`](http://localhost:5000/issuer) for Admins, [`/holder`](http://localhost:5000/holder) for Students.
+3. Clear cookies for `localhost` and re-login.
+
+#### D. Missing SECRET_KEYS
+**Problem**: No session secret configured in environment
+
+**Solution**:
+Create or update your `.env` file with a strong key:
 ```bash
 # .env
-SECRET_KEY=your-strong-secret-key-here
-SESSION_SECRET=your-session-secret-here
+SECRET_KEY=your-strong-random-key
 ```
-
-Restart the server after changes.
 
 ***
 
@@ -752,20 +746,61 @@ Include:
 ***
 
 ## 📚 Additional Resources
-
-- **README.md** - System overview and setup
-- **AUTHENTICATION_GUIDE.md** - Login and user management
-- **DESCRIPTION.md** - Technical architecture
-- **API.md** - API endpoint documentation
-
-***
-
-<div align="center">
-
-**Still stuck? Don't worry!**
-
-**Open an issue on GitHub with detailed error logs**
-
-***
-
-*Troubleshooting guide last updated: December 26, 2025*
+ 
+ - **README.md** - System overview and setup
+ - **AUTHENTICATION_GUIDE.md** - Login and user management
+ - **Description.md** - Technical architecture
+ - **API.md** - API endpoint documentation
+  
+ ***
+ 
+ ### Issue 11: PDF Generation Errors
+ 
+ **Symptoms:**
+ 
+ - "Elite PDF Generation error" in logs
+ - 500 Internal Server Error when clicking "Download PDF"
+ - ReportLab import failures
+ 
+ **Solutions:**
+ 
+ 1. **Import Errors:** Ensure `reportlab` is installed (`pip install reportlab`).
+ 2. **Logo Missing:** Ensure `static/images/collegelogo.png` exists.
+ 3. **Font Errors:** The system uses standard Helvetica/Courier. Ensure no corrupt font files are in the system path.
+ 
+ ***
+ 
+ ### Issue 12: UI/UX Spacing & Scaling
+ 
+ **Symptoms:**
+ 
+ - Certificate header looks cramped
+ - QR code overflows border
+ - Text overlaps on small screens
+ 
+ **Solutions:**
+ 
+ 1. **Clear Cache:** The new CSS (v2.1) requires a hard refresh (Ctrl+F5).
+ 2. **Scale Factor:** Ensure browser zoom is at 100% for the most accurate certificate representation.
+ 3. **Responsive Check:** If elements overlap, ensure you are using a modern browser (Chrome/Edge recommended).
+ 
+ ***
+ 
+ <div align="center">
+ 
+ **Still stuck? Don't worry!**
+ 
+ **Open an issue on GitHub with detailed error logs**
+ 
+ ***
+ 
+ *Troubleshooting guide last updated: March 08, 2026*
+ 
+ ***
+ 
+ > [!NOTE]
+ > **🚨 TROUBLESHOOTING STATUS: UPDATED**
+ > 
+ > **Architecture Version:** 2.1.0
+ > 
+ > **Current Edited Date:** `2026-03-08`

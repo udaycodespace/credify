@@ -24,7 +24,11 @@ def role_required(role):
         def decorated_function(*args, **kwargs):
             # Check if user is logged in
             if 'user_id' not in session:
-                flash('Please login to access this page', 'warning')
+                flash(f'Please login as {role.title()} to access this portal.', 'warning')
+                if role == 'issuer':
+                    return redirect(url_for('issuer'))
+                elif role == 'student':
+                    return redirect(url_for('holder'))
                 return redirect(url_for('login'))
             
             # Check user role

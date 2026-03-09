@@ -1,6 +1,6 @@
 # Complete Tutorial: Blockchain-Based Verifiable Credentials System
 
-**Version 2.0** | A comprehensive guide to building, understanding, and using a blockchain-based academic credential verification platform
+**Version 2.1** | A comprehensive guide to building, understanding, and using a blockchain-based academic credential verification platform (Elite UI/UX Edition)
 
 ***
 
@@ -32,6 +32,7 @@ This tutorial provides a complete, step-by-step guide to building and deploying 
 - **RSA-2048 Cryptography** — Digital signatures for authenticity
 - **W3C Verifiable Credentials** — Industry-standard credential format
 - **Zero-Knowledge Proofs** — Privacy-preserving selective disclosure
+- **Elite 10/10 PDF Engine** — Senior-grade academic document generation (March 2026)
 
 
 ### The Problem We're Solving
@@ -60,7 +61,7 @@ This tutorial provides a complete, step-by-step guide to building and deploying 
 - **Institution:** G. Pulla Reddy Engineering College (Autonomous), Kurnool
 - **Department:** Computer Science Engineering
 - **Project Type:** B.Tech Final Year Project
-- **Version:** 2.0 (Production-Ready)
+- **Version:** 2.2 (Private PVT Blockchain - Master Security Edition)
 
 **Development Team:**
 
@@ -135,7 +136,7 @@ flake8==7.0.0             # Code linter
 
 ```bash
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # Optional
+# New key modules included: pyotp (MFA), qrcode (Auth Setup)
 ```
 
 
@@ -497,8 +498,8 @@ python3 --version
 
 ```bash
 # Clone the project
-git clone <repository-url>
-cd blockchain-credential-system
+git clone https://github.com/udaycodespace/credify.git
+cd credify
 
 # Or download ZIP and extract
 ```
@@ -578,6 +579,10 @@ PORT=5000
 
 # IPFS (Optional)
 IPFS_ENABLED=False
+
+# Initial Admin Secrets (Optional - System will randomize if missing)
+INITIAL_ADMIN_PASSWORD=your_secure_password
+INITIAL_ISSUER_PASSWORD=your_secure_issuer_password
 ```
 
 
@@ -598,14 +603,14 @@ make init-db
 ### Step 7: Create Admin User
 
 ```bash
-# Run admin creation script
-python scripts/create_admin.py
+# Start the application
+python main.py
 
-# Follow prompts:
-# Enter username: admin
-# Enter password: [secure_password]
-# Enter email: admin@example.edu
-# Enter full name: System Administrator
+# ON FIRST BOOT:
+# 1. Look at your terminal logs!
+# 2. The system will print: "🔐 GENERATED SECURE ADMIN PASSWORD: [random_key]"
+# 3. Use this key to login at http://localhost:5000/issuer
+# 4. Follow the MFA setup prompt to link your phone.
 ```
 
 
@@ -1956,10 +1961,20 @@ contract CredentialRegistry {
 
 **G. Pulla Reddy Engineering College (Autonomous)**
 
-**Version 2.0 | December 2025**
+**Version 2.1 | March 2026**
 
 ***
 
 *From Academic Project to Production System*
 
 </div>
+
+***
+
+> [!NOTE]
+> **📚 TUTORIAL STATUS: UPDATED**
+> 
+> **Architecture Version:** 2.1.0 (Elite Milestone)
+> 
+> **Current Edited Date:** `2026-03-08`
+

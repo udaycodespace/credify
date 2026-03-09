@@ -25,15 +25,30 @@
         color: #e2e8f0;
     }
 
-    /* Page Header */
     h2 {
         font-family: 'Orbitron', sans-serif;
         color: var(--amber-400);
         text-transform: uppercase;
         letter-spacing: 2px;
         border-bottom: 3px solid var(--amber-500);
-        padding-bottom: 10px;
-        animation: slideInLeft 0.6s ease-out;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .content-section {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @keyframes slideInLeft {

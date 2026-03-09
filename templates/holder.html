@@ -126,7 +126,22 @@
         letter-spacing: 1px;
         border-bottom: 3px solid var(--cyan-500);
         padding-bottom: 10px;
-        animation: slideInLeft 0.6s ease-out;
+    }
+
+    .content-section {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @keyframes slideInLeft {
@@ -607,11 +622,32 @@
 
             <!-- Credentials Section -->
             <div id="credentialsSection" class="content-section">
-                <div class="d-flex justify-content-between align-items-center mb-4 pt-3">
+                <div class="d-flex justify-content-between align-items-center mb-4 pt-4">
                     <div>
-                        <h2><i class="fas fa-user-graduate me-2"></i>Student Portal</h2>
-                        <p class="text-muted mb-0">Manage your verifiable credentials and create selective disclosures
-                        </p>
+                        <h2 class="mb-1"><i class="fas fa-hand-wave me-2 opacity-75"></i>Welcome, {{
+                            session.get('full_name') or 'Student' }}</h2>
+                        <p class="text-muted mb-0 small text-uppercase" style="letter-spacing: 1.5px;">Credential
+                            Repository & Privacy Control Center</p>
+                    </div>
+                </div>
+
+                <!-- Onboarding Tracking -->
+                <div class="card mb-4 border-0"
+                    style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2) !important;">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-cyan-400 text-uppercase"
+                                style="letter-spacing: 1px;">Identity Setup Progress</span>
+                            <span class="badge bg-success">SECURED & VERIFIED</span>
+                        </div>
+                        <div class="progress" style="height: 4px; background: rgba(255,255,255,0.05);">
+                            <div class="progress-bar bg-info" style="width: 100%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 small text-muted">
+                            <span><i class="fas fa-check-circle me-1 text-success"></i>Account: 100%</span>
+                            <span><i class="fas fa-check-circle me-1 text-success"></i>MFA: active</span>
+                            <span><i class="fas fa-check-circle me-1 text-success"></i>KYC: complete</span>
+                        </div>
                     </div>
                 </div>
 

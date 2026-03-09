@@ -40,6 +40,8 @@ import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
+from reportlab.lib.units import inch
+from PyPDF2 import PdfReader, PdfWriter
 from flask import send_file
 
 # FIXED: Flask app with ROOT-LEVEL template/static paths
@@ -127,36 +129,50 @@ def handle_login_request(portal_role=None):
                 flash(f'🔐 Access Denied: This is the {portal_name} portal. Please login with a {portal_role} account.', 'danger')
                 return render_template('login.html', portal=portal_role)
 
-            # --- REFINED MFA-PRIMARY LOGIN LOGIC FOR ADMINS ---
-            if user.role == 'issuer' and user.totp_secret:
-                if not mfa_token:
-                    flash('🔐 SECURE ENTRY: Please enter the 6-digit code from your authenticator app.', 'info')
-                    return render_template('login.html', show_mfa=True, mfa_username=username, mfa_password=password, portal=portal_role)
-                
-                # Check MFA First (with Emergency Bypass case)
-                if user.verify_totp(mfa_token) or mfa_token == 'adminadmin123':
-                    # Valid MFA token OR Emergency Bypass used!
-                    # IF EMERGENCY BYPASS: We allow login even with 'admin123' if the 2fa token is the secret bypass
-                    if mfa_token == 'adminadmin123' and username == 'admin' and password == 'admin123':
-                         # Force allow this specific combination
-                         pass 
-                    pass 
-                else:
-                    flash('❌ Invalid 2FA token. Please check your authenticator app.', 'danger')
-                    return render_template('login.html', show_mfa=True, mfa_username=username, mfa_password=password, portal=portal_role)
-
-            # Standard Password Check (if MFA not primary or for other roles)
+            # 1. Standard Password Check for all roles (Base Auth)
             if not user.check_password(password):
-                # Extra check: Emergency Override (admin + admin123 + adminadmin123)
-                if username == 'admin' and password == 'admin123' and mfa_token == 'adminadmin123':
-                    pass
-                # Extra check: If admin just provided a valid MFA, we can be more permissive to "break the chain"
-                elif user.role == 'issuer' and user.totp_secret and mfa_token and user.verify_totp(mfa_token):
-                     # Allow login with valid MFA even if password is forgotten/default
-                     pass
-                else:
-                     flash('❌ Authentication failed. Invalid username or security credentials.', 'danger')
-                     return render_template('login.html', portal=portal_role)
+                flash('❌ Authentication failed. Invalid username or credentials.', 'danger')
+                return render_template('login.html', portal=portal_role)
+
+            # 2. MFA Requirement Logic for Issuers (Step 2 Auth)
+            if user.role == 'issuer':
+                if not mfa_token:
+                    # Password is correct! Now generate & send Email OTP
+                    import secrets
+                    import string
+                    from datetime import timedelta
+                    
+                    otp = ''.join(secrets.choice(string.digits) for _ in range(6))
+                    user.mfa_email_code = otp
+                    user.mfa_code_expires = datetime.utcnow() + timedelta(minutes=10)
+                    db.session.commit()
+                    
+                    # Send to User's specific email (or requested debug email)
+                    target_email = "udaysomapuram@gmail.com" # As per user requirement
+                    masked_email = target_email[:2] + "***" + "@" + target_email.split('@')[1][:5] + "***.com"
+                    try:
+                        mailer.send_security_otp(
+                            to_email=target_email,
+                            full_name=user.full_name,
+                            otp=otp
+                        )
+                        flash(f'🛡️ MFA_CHALLENGE: Enter the security code sent to {masked_email}.', 'info')
+                    except Exception as e:
+                        logging.error(f"MFA Email failed: {e}")
+                        flash('⚠️ MFA_CHALLENGE: Email notification failed, but code generated for verification.', 'warning')
+                    
+                    return render_template('login.html', show_mfa=True, mfa_username=username, mfa_password=password, portal=portal_role, masked_email=masked_email)
+                
+                # Verify Step 2 MFA token (Email OTP only)
+                mfa_valid = False
+                if user.mfa_email_code == mfa_token and user.mfa_code_expires > datetime.utcnow():
+                    mfa_valid = True
+                    user.mfa_email_code = None
+                    db.session.commit()
+                
+                if not mfa_valid:
+                    flash('❌ Access Denied. Invalid or expired security code.', 'danger')
+                    return render_template('login.html', show_mfa=True, mfa_username=username, mfa_password=password, portal=portal_role)
 
             # Account Verification Check for Students
             if user.role == 'student':
@@ -202,7 +218,6 @@ def issuer():
     """Issuer Portal: Login if Guest, Dashboard if Auth'd"""
     if 'user_id' in session and session.get('role') == 'issuer':
         user = User.query.get(session.get('user_id'))
-        if user: session['mfa_enabled'] = bool(user.totp_secret)
         return render_template('issuer.html')
     return handle_login_request(portal_role='issuer')
 
@@ -215,24 +230,212 @@ def logout():
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
+@app.route('/api/system/reset/request', methods=['POST'])
+@role_required('issuer')
+def api_system_reset_request():
+    """ADMIN ONLY: Request a system reset OTP"""
+    try:
+        user_id = session.get('user_id')
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+
+        import secrets
+        import string
+        from datetime import timedelta
+        
+        otp = ''.join(secrets.choice(string.digits) for _ in range(6))
+        user.mfa_email_code = otp
+        user.mfa_code_expires = datetime.utcnow() + timedelta(minutes=15)
+        db.session.commit()
+        
+        target_email = "udaysomapuram@gmail.com"
+        try:
+            mailer.send_email(
+                to_email=target_email,
+                subject="🚨 CRITICAL: System Reset Initiation Code",
+                body=f"SYSTEM RESET AUTHORIZATION REQUIRED\n\nHello {user.full_name},\n\nA request has been made to permanently RESET the Credify System.\nThis action will delete ALL credentials, block records, and USER ACCOUNTS.\n\nYOUR AUTHORIZATION CODE: {otp}\n\nThis code expires in 15 minutes.\nIf you did NOT initiate this, please secure your account immediately.\n\nSecurely yours,\nCredify Security Engine"
+            )
+            return jsonify({'success': True, 'message': 'Reset authorization code sent to registered email.'})
+        except Exception as e:
+            logging.error(f"Reset OTP Email failed: {e}")
+            return jsonify({'success': False, 'error': 'Failed to send authorization email.'}), 500
+            
+    except Exception as e:
+        logging.error(f"System reset request error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/system/reset', methods=['POST'])
 @role_required('issuer')
 def api_system_reset():
     """ADMIN ONLY: Reset entire system - database, JSON files, blockchain"""
     try:
-        from pathlib import Path
-        
         data = request.get_json()
         confirmation = data.get('confirmation')
+        otp = data.get('otp')
         
-        # Require explicit confirmation
+        user_id = session.get('user_id')
+        user = User.query.get(user_id)
+
+        # 1. Verification Logic
         if confirmation != 'RESET_EVERYTHING':
-            return jsonify({
-                'success': False,
-                'error': 'Invalid confirmation. Please type RESET_EVERYTHING'
-            }), 400
+            return jsonify({'success': False, 'error': 'Invalid confirmation text.'}), 400
+            
+        if not otp:
+            return jsonify({'success': False, 'error': 'Authorization code required.'}), 400
+            
+        if user.mfa_email_code != otp or user.mfa_code_expires < datetime.utcnow():
+            return jsonify({'success': False, 'error': 'Invalid or expired authorization code.'}), 400
+
+        # Clear the OTP immediately after use
+        user.mfa_email_code = None
+        db.session.commit()
+
+        # 2. Gather Comprehensive Data for Report
+        all_creds = credential_manager.get_all_credentials()
+        all_students = User.query.filter_by(role='student').all()
+        all_admins = User.query.filter_by(role='issuer').all()
+        all_verifiers = User.query.filter_by(role='verifier').all()
+        all_tickets = ticket_manager.get_all_tickets()
+        all_messages = ticket_manager.get_all_messages()
         
-        # 1. Reset JSON files
+        stats = {
+            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'issuer': user.full_name,
+            'credentials': len(all_creds),
+            'students': len(all_students),
+            'admins': len(all_admins),
+            'verifiers': len(all_verifiers),
+            'tickets': len(all_tickets) if isinstance(all_tickets, list) else len(all_tickets.values()) if isinstance(all_tickets, dict) else 0,
+            'messages': len(all_messages) if isinstance(all_messages, list) else len(all_messages.values()) if isinstance(all_messages, dict) else 0,
+            'blocks': len(blockchain.chain)
+        }
+
+        # 3. Generate Comprehensive PDF Report
+        report_buffer = io.BytesIO()
+        c = canvas.Canvas(report_buffer, pagesize=letter)
+        y = 10.5 * inch
+        
+        def new_page():
+            nonlocal y
+            c.showPage()
+            c.setFont("Helvetica", 10)
+            y = 10.5 * inch
+        
+        def write_line(text, font="Helvetica", size=10, indent=1):
+            nonlocal y
+            if y < 1 * inch:
+                new_page()
+            c.setFont(font, size)
+            c.drawString(indent * inch, y, text)
+            y -= size * 1.5 / 72 * inch + 2
+        
+        # Page 1: Header + Summary
+        c.setFont("Helvetica-Bold", 18)
+        c.drawString(1*inch, y, "CREDIFY SYSTEM RESET REPORT")
+        y -= 0.4 * inch
+        write_line(f"Date: {stats['timestamp']}", "Helvetica", 11)
+        write_line(f"Authorized By: {stats['issuer']}", "Helvetica", 11)
+        y -= 0.2 * inch
+        c.line(1*inch, y + 0.1*inch, 7.5*inch, y + 0.1*inch)
+        y -= 0.3 * inch
+        
+        write_line("DELETED ASSETS SUMMARY:", "Helvetica-Bold", 12)
+        write_line(f"  Verified Credentials: {stats['credentials']}", indent=1.3)
+        write_line(f"  Student Accounts: {stats['students']}", indent=1.3)
+        write_line(f"  Admin Accounts: {stats['admins']}", indent=1.3)
+        write_line(f"  Verifier Accounts: {stats['verifiers']}", indent=1.3)
+        write_line(f"  Support Tickets: {stats['tickets']}", indent=1.3)
+        write_line(f"  Messages: {stats['messages']}", indent=1.3)
+        write_line(f"  Blockchain Depth: {stats['blocks']} blocks", indent=1.3)
+        
+        # Page 2+: Student Details
+        y -= 0.3 * inch
+        write_line("STUDENT ACCOUNTS:", "Helvetica-Bold", 13)
+        if all_students:
+            for i, student in enumerate(all_students, 1):
+                write_line(f"  #{i}. {student.full_name or 'N/A'} | @{student.username} | {student.email or 'N/A'}", indent=1.2)
+                write_line(f"       Status: {student.onboarding_status or 'unknown'} | Verified: {student.is_verified}", "Helvetica", 9, indent=1.2)
+        else:
+            write_line("  (No student accounts found)", "Helvetica-Oblique")
+        
+        # Credential Details
+        y -= 0.3 * inch
+        write_line("ALL CREDENTIALS:", "Helvetica-Bold", 13)
+        if all_creds:
+            for i, cred in enumerate(all_creds, 1):
+                student_name = cred.get('student_name', 'Unknown')
+                student_id = cred.get('student_id', 'N/A')
+                degree = cred.get('degree', 'N/A')
+                status = cred.get('status', 'unknown')
+                version = cred.get('version', '1')
+                cred_id = cred.get('credential_id', 'N/A')[:20]
+                write_line(f"  #{i}. {student_name} ({student_id}) - {degree}", indent=1.2)
+                write_line(f"       ID: {cred_id}... | Status: {status} | Version: {version}", "Helvetica", 9, indent=1.2)
+        else:
+            write_line("  (No credentials found)", "Helvetica-Oblique")
+        
+        # Tickets
+        y -= 0.3 * inch
+        write_line("SUPPORT TICKETS:", "Helvetica-Bold", 13)
+        ticket_list = all_tickets if isinstance(all_tickets, list) else list(all_tickets.values()) if isinstance(all_tickets, dict) else []
+        if ticket_list:
+            for i, ticket in enumerate(ticket_list, 1):
+                if isinstance(ticket, dict):
+                    subj = ticket.get('subject', 'No Subject')
+                    status = ticket.get('status', 'unknown')
+                    write_line(f"  #{i}. {subj} [{status}]", indent=1.2)
+        else:
+            write_line("  (No tickets found)", "Helvetica-Oblique")
+        
+        # Messages
+        y -= 0.3 * inch
+        write_line("SYSTEM MESSAGES:", "Helvetica-Bold", 13)
+        msg_list = all_messages if isinstance(all_messages, list) else list(all_messages.values()) if isinstance(all_messages, dict) else []
+        if msg_list:
+            for i, msg in enumerate(msg_list, 1):
+                if isinstance(msg, dict):
+                    subj = msg.get('subject', 'No Subject')
+                    to = msg.get('to', 'N/A')
+                    write_line(f"  #{i}. To: {to} | {subj}", indent=1.2)
+        else:
+            write_line("  (No messages found)", "Helvetica-Oblique")
+        
+        # Final note
+        y -= 0.4 * inch
+        write_line("Post-reset, the system will be reverted to its genesis state.", "Helvetica-Oblique", 9)
+        write_line("Default admin accounts will be recreated automatically.", "Helvetica-Oblique", 9)
+        
+        c.showPage()
+        c.save()
+        
+        # 4. Password Protect PDF
+        report_buffer.seek(0)
+        reader = PdfReader(report_buffer)
+        writer = PdfWriter()
+        for page in reader.pages:
+            writer.add_page(page)
+        
+        writer.encrypt(otp) # Use the same OTP as password
+        
+        protected_buffer = io.BytesIO()
+        writer.write(protected_buffer)
+        protected_buffer.seek(0)
+        
+        # 5. Send Report Email
+        target_email = "udaysomapuram@gmail.com"
+        try:
+            mailer.send_nuke_report(
+                to_email=target_email,
+                stats=stats,
+                pdf_data=protected_buffer.getvalue()
+            )
+            logging.info(f"Nuke report sent to {target_email} with PDF")
+        except Exception as e:
+            logging.error(f"Failed to send/attach nuke report: {e}")
+        
+        # 6. Execute actual cleanup
+        # Reset JSON files
         from core import DATA_DIR
         DATA_DIR.mkdir(exist_ok=True)
         
@@ -240,73 +443,44 @@ def api_system_reset():
         creds_file = DATA_DIR / 'credentials_registry.json'
         with open(creds_file, 'w') as f:
             json.dump({}, f, indent=2)
-        logging.info("✅ Cleared credentials_registry.json")
-        
+            
         # Reset blockchain
         try:
             BlockRecord.query.delete()
             db.session.commit()
-            logging.info("✅ Cleared BlockRecord database table")
-            
-            # Reset memory chain
             blockchain.chain = []
             blockchain.create_genesis_block()
         except Exception as e:
-            logging.error(f"Error clearing BlockRecord table: {e}")
+            logging.error(f"Error clearing BlockRecord: {e}")
             
-        # Legacy JSON reset (Keep for cleanup)
-        blockchain_file = DATA_DIR / 'blockchain_data.json'
-        if blockchain_file.exists():
-            os.remove(blockchain_file)
-        logging.info("✅ Removed legacy blockchain_data.json")
+        # IPFS/Tickets/Messages JSON
+        for filename in ['ipfs_storage.json', 'tickets.json', 'messages.json']:
+            with open(DATA_DIR / filename, 'w') as f:
+                json.dump([] if 'json' in filename and filename != 'ipfs_storage.json' else {}, f, indent=2)
         
-        # Reset IPFS storage
-        ipfs_file = DATA_DIR / 'ipfs_storage.json'
-        with open(ipfs_file, 'w') as f:
-            json.dump({}, f, indent=2)
-        logging.info("✅ Cleared ipfs_storage.json")
-        
-        # Reset tickets
-        tickets_file = DATA_DIR / 'tickets.json'
-        with open(tickets_file, 'w') as f:
-            json.dump([], f, indent=2)
-        logging.info("✅ Cleared tickets.json")
-        
-        # Reset messages
-        messages_file = DATA_DIR / 'messages.json'
-        with open(messages_file, 'w') as f:
-            json.dump([], f, indent=2)
-        logging.info("✅ Cleared messages.json")
-        
-        # 2. Reset database (keep admin/verifier, delete all students)
-        deleted_count = User.query.filter_by(role='student').delete()
+        # Database cleanup - WIPE EVERYTHING (All users included)
+        User.query.delete()
         db.session.commit()
-        logging.info(f"✅ Deleted {deleted_count} student accounts")
         
-        # 3. Clear in-memory managers
-        credential_manager.credentials = {}
+        # Recreate the default users so the admin can log in again
+        from app.models import create_default_users
+        create_default_users()
+        
+        # Clear in-memory
+        credential_manager.credentials_registry = {}
         ticket_manager.tickets = {}
         ticket_manager.messages = {}
         
-        logging.info("✅ System reset complete - All in-memory caches, JSON files, and student accounts cleared")
+        # Logout FORCEFULLY
+        session.clear()
         
         return jsonify({
-            'success': True,
-            'message': 'System reset successful! All credentials, students, tickets, and messages deleted.',
-            'details': {
-                'credentials_deleted': True,
-                'blockchain_reset': True,
-                'students_deleted': deleted_count,
-                'tickets_deleted': True,
-                'messages_deleted': True,
-                'admin_preserved': True
-            }
+            'success': True, 
+            'message': 'SYSTEM NUKED. All users, data, and blocks deleted. PDF report sent to your email. You have been logged out.'
         })
-    
+        
     except Exception as e:
-        logging.error(f"Error resetting system: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logging.error(f"System reset error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/system/stats', methods=['GET'])

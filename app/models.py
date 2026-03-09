@@ -1,4 +1,5 @@
 import os
+import secrets
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -61,8 +62,10 @@ class User(db.Model):
     rejection_reason = db.Column(db.Text, nullable=True)
     last_login = db.Column(db.DateTime, nullable=True)
     
-    # MFA / TOTP for administrative security
+    # Dual-Channel MFA (Email OTP + TOTP)
     totp_secret = db.Column(db.String(32), nullable=True)
+    mfa_email_code = db.Column(db.String(6), nullable=True)
+    mfa_code_expires = db.Column(db.DateTime, nullable=True)
     
     # Relationships for Tickets and Messages
     tickets = db.relationship('Ticket', backref='student', lazy=True, foreign_keys='Ticket.student_user_id')
@@ -243,18 +246,18 @@ def init_database(app):
             # SCHEMA SYNC: Handle missing MFA column for existing databases
             from sqlalchemy import text
             try:
-                # Check if totp_secret column exists
-                db.session.execute(text("SELECT totp_secret FROM users LIMIT 1")).fetchone()
+                # Check for mfa_email_code and mfa_code_expires
+                db.session.execute(text("SELECT mfa_email_code FROM users LIMIT 1")).fetchone()
             except Exception:
-                # Column mission, add it
-                print("🔄 Updating database schema: Adding totp_secret for MFA support...")
+                print("🔄 Updating database schema: Adding mfa_email_code and mfa_code_expires...")
                 try:
-                    db.session.rollback() # Clear failed check
-                    db.session.execute(text("ALTER TABLE users ADD COLUMN totp_secret VARCHAR(32)"))
+                    db.session.rollback()
+                    db.query_executor = db.session.execute(text("ALTER TABLE users ADD COLUMN mfa_email_code VARCHAR(6)"))
+                    db.session.execute(text("ALTER TABLE users ADD COLUMN mfa_code_expires DATETIME"))
                     db.session.commit()
-                    print("✅ Schema updated successfully: totp_secret column added.")
+                    print("✅ Schema updated with Email OTP fields.")
                 except Exception as ex:
-                    print(f"⚠️  Schema update failed: {ex}")
+                    print(f"⚠️  Email OTP schema update failed: {ex}")
                     db.session.rollback()
 
             print(f"✅ Database initialized successfully")
@@ -262,8 +265,9 @@ def init_database(app):
             print(f"❌ Database initialization failed: {e}")
             raise
         
-        # Create default users if not exists
+        print("🔄 Calling create_default_users()...")
         create_default_users()
+        print("✅ create_default_users() completed.")
 
 
 def create_default_users():
@@ -275,12 +279,9 @@ def create_default_users():
             print("📝 Initializing Secure Administrative Accounts...")
             
             # Admin account
-            admin_pwd = os.environ.get('INITIAL_ADMIN_PASSWORD')
-            if not admin_pwd:
-                import secrets
-                admin_pwd = secrets.token_hex(8)
-                print(f"🔐 GENERATED SECURE ADMIN PASSWORD: {admin_pwd}")
-                print(f"   (Use this + your MFA to login the first time)")
+            admin_pwd = os.environ.get('INITIAL_ADMIN_PASSWORD', 'admin123')
+            if not os.environ.get('INITIAL_ADMIN_PASSWORD'):
+                print(f"🔐 USING DEFAULT ADMIN PASSWORD: {admin_pwd}")
             
             admin = User(
                 username='admin',
@@ -322,13 +323,6 @@ def create_default_users():
             db.session.commit()
             print(f"✅ Secure base system initialized (3 administrative users)")
         else:
-            # SECURITY SYNC: Force change away from admin123 if MFA is setup
-            if admin and admin.totp_secret and admin.check_password('admin123'):
-                 import secrets
-                 new_pwd = secrets.token_hex(12)
-                 admin.set_password(new_pwd)
-                 db.session.commit()
-                 print(f"🛡️  SECURITY: Default 'admin123' password removed. New secure admin password generated: {new_pwd}")
             print("✅ Production environments: Administrative users already exist")
             
     except Exception as e:

@@ -31,6 +31,56 @@
     main {
         overflow-y: visible !important;
     }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .premium-stat-card {
+        border-radius: 12px !important;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .premium-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .pulse-green-small {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+        animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
 </style>
 <div class="container-fluid">
     <div class="row">
@@ -77,12 +127,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="showSection('system'); return false;">
-                            <i class="fas fa-list me-2"></i>System Management
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('mfa_setup') }}">
-                            <i class="fas fa-shield-alt me-2 text-info"></i>2FA Security Setup
+                            <i class="fas fa-cogs me-2"></i>System Management
                         </a>
                     </li>
                 </ul>
@@ -106,32 +151,7 @@
         </nav>
 
         <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <!-- Security Alert: MFA Setup Required -->
-            {% if not session.get('mfa_enabled') %}
-            <div
-                class="alert alert-warning border-2 border-warning shadow-sm mt-3 d-flex align-items-center justify-content-between">
-                <div>
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>SECURITY ALERT:</strong> Your account is currently not protected by 2-Factor Authentication
-                    (MFA).
-                    Please secure your account to prevent unauthorized access.
-                </div>
-                <a href="{{ url_for('mfa_setup') }}" class="btn btn-warning btn-sm font-bold">
-                    <i class="fas fa-shield-alt me-1"></i>Enable 2FA Now
-                </a>
-            </div>
-            {% endif %}
-
-            <div
-                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h2 id="sectionTitle"><i class="fas fa-plus-circle text-primary me-2"></i>Issue New Credential</h2>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadDashboardData()">
-                        <i class="fas fa-sync-alt me-1"></i>Refresh
-                    </button>
-                </div>
-            </div>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-3">
 
             <!-- SECTION 1: Issue Credential (UNCHANGED) -->
             <div id="issueSection" class="content-section">
@@ -543,17 +563,22 @@
                                     <li>All messages</li>
                                     <li>All JSON data files</li>
                                 </ul>
-                                <p class="text-muted mb-3"><strong>Note:</strong> Admin and verifier accounts will be
-                                    preserved.</p>
+                                <p class="text-muted mb-3 text-warning"><strong>CRITICAL:</strong> This will also WIPE
+                                    all Administrative and Verifier accounts. The system will be reset to its default
+                                    initialized state.</p>
 
                                 <div class="alert alert-warning">
                                     <i class="fas fa-exclamation-circle me-2"></i>
                                     <strong>Warning:</strong> This action cannot be undone!
                                 </div>
 
-                                <button class="btn btn-danger btn-lg" onclick="confirmSystemReset()">
-                                    <i class="fas fa-trash-alt me-2"></i>Reset Entire System
-                                </button>
+                                <div class="text-center mt-4">
+                                    <button class="btn btn-outline-danger btn-lg px-5 py-3 shadow-lg"
+                                        onclick="confirmSystemReset()"
+                                        style="position: relative; z-index: 10; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-width: 3px;">
+                                        <i class="fas fa-biohazard me-2"></i>EXECUTE FULL SYSTEM PURGE
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -648,31 +673,37 @@
 
 {% block scripts %}
 <script>
-    // ==================== SECTION NAVIGATION (UNCHANGED) ====================
+    // ==================== SECTION NAVIGATION ====================
     function showSection(section) {
         document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        // Reset sidebar nav links
+        document.querySelectorAll('#sidebar .nav-link').forEach(l => l.classList.remove('active'));
 
         const sectionMap = {
-            'issue': { id: 'issueSection', title: 'Issue New Credential', icon: 'fa-plus-circle' },
-            'manage': { id: 'manageSection', title: 'Manage Credentials', icon: 'fa-list' },
-            'search': { id: 'searchSection', title: 'Search Student', icon: 'fa-search' },
-            'tickets': { id: 'ticketsSection', title: 'Student Tickets', icon: 'fa-ticket-alt' },
-            'messages': { id: 'messagesSection', title: 'Messages', icon: 'fa-envelope' },
-            'onboarding': { id: 'onboardingSection', title: 'Onboarding Status', icon: 'fa-user-shield' },
-            'system': { id: 'systemSection', title: 'System Management', icon: 'fa-cogs' }
+            'issue': { id: 'issueSection' },
+            'manage': { id: 'manageSection' },
+            'search': { id: 'searchSection' },
+            'tickets': { id: 'ticketsSection' },
+            'messages': { id: 'messagesSection' },
+            'onboarding': { id: 'onboardingSection' },
+            'system': { id: 'systemSection' }
         };
 
         const selected = sectionMap[section];
         if (!selected) return;
 
-        document.getElementById(selected.id).style.display = 'block';
-        document.getElementById('sectionTitle').innerHTML = `<i class="fas ${selected.icon} text-primary me-2"></i>${selected.title}`;
+        const el = document.getElementById(selected.id);
+        el.style.display = 'block';
+        el.style.animation = 'fadeIn 0.3s ease-out';
 
+        // Mark clicked sidebar link active
         if (window.event && window.event.target) {
             const target = window.event.target.closest('.nav-link') || window.event.target;
             if (target && target.classList) target.classList.add('active');
         }
+
+        // Scroll to top smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         if (section === 'manage') loadCredentials();
         if (section === 'tickets') loadAdminTickets();
@@ -1637,17 +1668,61 @@
     // ==================== SYSTEM MANAGEMENT FUNCTIONS ====================
     let currentStats = null;
 
+    function loadOnboardingData() {
+        const tableBody = document.getElementById('onboardingTableBody');
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin me-1"></i>Scanning accounts...</td></tr>';
+
+        fetch('/api/system/stats') // Re-use stats to get basic user info or we can have a specific endpoint
+            .then(response => response.json())
+            .then(data => {
+                // Since our current stats don't return ALL student details, we'll try to get them
+                // For now, we'll use the stats summary. Actually, let's fetch a proper list if available.
+                // Assuming we have /api/students
+                fetch('/api/search_student?query=')
+                    .then(r => r.json())
+                    .then(students => {
+                        tableBody.innerHTML = '';
+                        if (students.results && students.results.length > 0) {
+                            students.results.forEach(student => {
+                                const statusClass = student.is_verified ? 'success' : 'warning';
+                                const statusText = student.is_verified ? 'VERIFIED' : 'PENDING';
+                                const row = `
+                                <tr>
+                                    <td><div class="d-flex align-items-center"><div class="avatar-sm bg-light text-primary rounded-circle p-2 me-2"><i class="fas fa-user"></i></div>${student.full_name}</div></td>
+                                    <td><code>${student.username}</code></td>
+                                    <td><small>${student.email || 'N/A'}</small></td>
+                                    <td><span class="badge bg-${statusClass}">${statusText}</span></td>
+                                    <td><small class="text-muted">${student.last_login || 'Never'}</small></td>
+                                    <td><div class="progress" style="height: 6px;"><div class="progress-bar bg-info" role="progressbar" style="width: ${student.onboarding_status === 'completed' ? '100%' : '40%'}"></div></div></td>
+                                    <td><button class="btn btn-sm btn-outline-primary" onclick="window.location.href='/issuer?search=${student.username}'"><i class="fas fa-eye"></i></button></td>
+                                </tr>
+                            `;
+                                tableBody.innerHTML += row;
+                            });
+                        } else {
+                            tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No students found in registry.</td></tr>';
+                        }
+                    });
+            })
+            .catch(err => {
+                tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Audit failed: ' + err + '</td></tr>';
+            });
+    }
+
     function loadSystemStats() {
+        const container = document.getElementById('systemStats');
+        container.style.opacity = '0.5';
+
         fetch('/api/system/stats')
             .then(response => response.json())
             .then(data => {
+                container.style.opacity = '1';
                 if (data.success) {
                     currentStats = data.stats;
                     displaySystemStats(data.stats);
-                    loadBlockchainExplorer(); // Also load explorer
+                    loadBlockchainExplorer();
                 } else {
-                    document.getElementById('systemStats').innerHTML =
-                        '<div class="alert alert-danger">Error loading stats</div>';
+                    container.innerHTML = '<div class="alert alert-danger">Internal system error</div>';
                 }
             })
             .catch(error => {
@@ -1700,64 +1775,81 @@
 
     function displaySystemStats(stats) {
         const statsHtml = `
-        <div class="row">
+        <div class="row g-3">
             <div class="col-md-3">
-                <div class="card bg-primary text-white mb-3 shadow-sm border-0">
-                    <div class="card-body text-center p-3">
-                        <h2 class="mb-0 fw-bold">${stats.credentials.total}</h2>
-                        <div class="small fw-bold text-uppercase" style="letter-spacing: 1px;">Total Credentials</div>
-                        <small class="opacity-75">${stats.credentials.active} active | ${stats.credentials.revoked} revoked</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white mb-3 shadow-sm border-0">
-                    <div class="card-body text-center p-3">
-                        <h2 class="mb-0 fw-bold">${stats.users.students}</h2>
-                        <div class="small fw-bold text-uppercase" style="letter-spacing: 1px;">Student Accounts</div>
-                        <small class="opacity-75">${stats.users.admins} admins | ${stats.users.verifiers} verifiers</small>
+                <div class="card bg-primary text-white h-100 shadow-sm border-0 premium-stat-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="mb-0 fw-bold">${stats.credentials.total}</h2>
+                            <i class="fas fa-certificate fa-2x opacity-50"></i>
+                        </div>
+                        <div class="small fw-bold text-uppercase opacity-75" style="letter-spacing: 1px;">Total Credentials</div>
+                        <div class="mt-2 py-1 px-2 rounded bg-white bg-opacity-25 d-inline-block small">
+                            ${stats.credentials.active} active | ${stats.credentials.revoked} revoked
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card bg-dark text-white mb-3 shadow-sm border-0">
-                    <div class="card-body text-center p-3">
-                        <h2 class="mb-0 fw-bold">${stats.blockchain.blocks}</h2>
-                        <div class="small fw-bold text-success text-uppercase" style="letter-spacing: 1px;">Blockchain Blocks</div>
-                        <small class="text-muted small">Node: ${stats.blockchain.node_name} | ${stats.blockchain.peers} Peers</small>
+                <div class="card bg-success text-white h-100 shadow-sm border-0 premium-stat-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="mb-0 fw-bold">${stats.users ? (stats.users.students + stats.users.admins + stats.users.verifiers) : stats.users.students}</h2>
+                            <i class="fas fa-users fa-2x opacity-50"></i>
+                        </div>
+                        <div class="small fw-bold text-uppercase opacity-75" style="letter-spacing: 1px;">Registered Nodes</div>
+                        <div class="mt-2 py-1 px-2 rounded bg-white bg-opacity-25 d-inline-block small">
+                            ${stats.users ? stats.users.admins : 0} Admins | ${stats.users ? stats.users.verifiers : 0} Verifiers
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
             <div class="col-md-3">
-                <div class="card bg-warning text-dark mb-3 shadow-sm border-0">
-                    <div class="card-body text-center p-3">
-                        <h2 class="mb-0 fw-bold">${stats.tickets.total}</h2>
-                        <div class="small fw-bold text-uppercase" style="letter-spacing: 1px;">Support Tickets</div>
-                        <small class="text-muted small">${stats.tickets.open} open | ${stats.tickets.resolved} resolved</small>
+                <div class="card bg-dark text-white h-100 shadow-sm border-0 premium-stat-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="mb-0 fw-bold text-success" id="blockDepthCounter">${stats.blockchain.blocks}</h2>
+                            <i class="fas fa-cubes fa-2x text-success opacity-50"></i>
+                        </div>
+                        <div class="small fw-bold text-uppercase text-muted" style="letter-spacing: 1px;">Ledger Intensity</div>
+                        <div class="mt-2 d-flex align-items-center">
+                            <span class="pulse-green-small me-2"></span>
+                            <small class="text-success fw-bold">${stats.blockchain.node_name}</small>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card bg-info text-white mb-3 shadow-sm border-0" style="background: linear-gradient(135deg, #0dcaf0, #007bff) !important;">
-                    <div class="card-body text-center p-3">
-                        <div class="small fw-bold opacity-50 mb-1 text-uppercase">Communication Hub</div>
-                        <h2 class="mb-0 fw-bold">${stats.messages ? stats.messages.total : 0}</h2>
-                        <div class="mt-1">Total System Messages</div>
-                        <div class="mt-1 small">
-                            <span class="badge bg-light text-dark">${stats.messages ? stats.messages.broadcast : 0} broadcast</span>
-                            <span class="badge bg-light text-dark">${stats.messages ? stats.messages.direct : 0} direct</span>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark h-100 shadow-sm border-0 premium-stat-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="mb-0 fw-bold">${stats.tickets.total}</h2>
+                            <i class="fas fa-life-ring fa-2x opacity-50"></i>
+                        </div>
+                        <div class="small fw-bold text-uppercase opacity-75" style="letter-spacing: 1px;">Support Load</div>
+                        <div class="mt-2 py-1 px-2 rounded bg-dark bg-opacity-10 d-inline-block small fw-bold">
+                            ${stats.tickets.open} critical | ${stats.tickets.resolved} handled
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    `;
-
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="card bg-info text-white shadow-sm border-0" style="background: linear-gradient(135deg, #0dcaf0, #007bff) !important;">
+                    <div class="card-body text-center p-3">
+                        <div class="small fw-bold opacity-75 mb-1 text-uppercase">Communication Hub</div>
+                        <h2 class="mb-0 fw-bold">${stats.messages ? stats.messages.total : 0}</h2>
+                        <div class="mt-1">Total System Messages Generated</div>
+                        <div class="mt-2 d-flex justify-content-center gap-2">
+                             <span class="badge bg-light text-dark">${stats.messages ? stats.messages.broadcast : 0} Broadcasts</span>
+                             <span class="badge bg-light text-dark">${stats.messages ? stats.messages.direct : 0} Direct Messages</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
         document.getElementById('systemStats').innerHTML = statsHtml;
     }
 
@@ -1802,100 +1894,133 @@
             return;
         }
 
-        const modal = `
-        <div class="modal fade" id="resetConfirmModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Confirm System Reset
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-danger">
-                            <h5 class="text-danger"><i class="fas fa-skull-crossbones me-2"></i>EXTREME DANGER</h5>
-                            <p class="mb-0">This will <strong>PERMANENTLY DELETE ALL DATA</strong> from the system!</p>
-                        </div>
-                        
-                        <p class="mb-3">To confirm, please type <strong class="text-danger">RESET_EVERYTHING</strong> in the box below:</p>
-                        
-                        <input type="text" 
-                               class="form-control form-control-lg text-center" 
-                               id="resetConfirmation" 
-                               placeholder="Type RESET_EVERYTHING"
-                               style="font-weight: bold; letter-spacing: 2px;">
-                        
-                        <div class="mt-3">
-                            <p class="text-muted small mb-1"><strong>What will be deleted:</strong></p>
-                            <ul class="text-danger small">
-                                <li>All ${currentStats.credentials.total} credentials</li>
-                                <li>All ${currentStats.users.students} student accounts</li>
-                                <li>All ${currentStats.tickets.total} support tickets</li>
-                                <li>All ${currentStats.messages.total} messages</li>
-                                <li>Entire blockchain (reset to genesis)</li>
-                                <li>All JSON data files</li>
-                            </ul>
-                            <p class="text-success small mb-0"><strong>What will be preserved:</strong></p>
-                            <ul class="text-success small">
-                                <li>Admin accounts (${currentStats.users.admins})</li>
-                                <li>Verifier accounts (${currentStats.users.verifiers})</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-1"></i>Cancel
-                        </button>
-                        <button type="button" class="btn btn-danger btn-lg" onclick="executeSystemReset()">
-                            <i class="fas fa-trash-alt me-1"></i>RESET SYSTEM NOW
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+        // Check if system is already empty
+        const totalData = (currentStats.credentials?.total || 0) +
+            (currentStats.users?.students || 0) +
+            (currentStats.tickets?.total || 0) +
+            (currentStats.messages?.total || 0);
 
-        document.querySelectorAll('#resetConfirmModal').forEach(el => el.remove());
-        document.body.insertAdjacentHTML('beforeend', modal);
-        const modalEl = document.getElementById('resetConfirmModal');
-        const bsModal = new bootstrap.Modal(modalEl);
-        bsModal.show();
+        if (totalData === 0 && (currentStats.blockchain?.blocks || 0) <= 1) {
+            Swal.fire({
+                title: 'System Already Empty',
+                html: '<p>There is <strong>no data</strong> to purge.</p><p class="text-muted small">The system is already at its default initialized state with only the genesis block and admin accounts.</p>',
+                icon: 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#06b6d4'
+            });
+            return;
+        }
+
+        // Step 1: Confirm intent
+        Swal.fire({
+            title: '⚠️ System Nuke Requested',
+            html: `<p>You are about to <strong class="text-danger">permanently destroy</strong> all system data.</p>
+                   <div class="text-start mt-3 small">
+                       <div>📄 ${currentStats.credentials?.total || 0} Credentials</div>
+                       <div>👤 ${currentStats.users?.students || 0} Student Accounts</div>
+                       <div>🎫 ${currentStats.tickets?.total || 0} Support Tickets</div>
+                       <div>💬 ${currentStats.messages?.total || 0} Messages</div>
+                       <div>⛓️ ${currentStats.blockchain?.blocks || 0} Blockchain Blocks</div>
+                   </div>
+                   <p class="mt-3 small text-muted">A password-protected PDF report will be emailed before deletion.</p>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Send Authorization Code',
+            confirmButtonColor: '#ef4444',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Step 2: Request OTP from server
+                showAlert('Sending authorization code to your registered email...', 'info');
+                fetch('/api/system/reset/request', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showResetOTPModal();
+                        } else {
+                            showAlert('Error: ' + data.error, 'danger');
+                        }
+                    })
+                    .catch(err => {
+                        showAlert('Network error sending code.', 'danger');
+                    });
+            }
+        });
     }
 
-    function executeSystemReset() {
-        const confirmation = document.getElementById('resetConfirmation').value;
+    function showResetOTPModal() {
+        // Step 3: Show OTP input modal
+        Swal.fire({
+            title: '🔐 Enter Authorization Code',
+            html: `<p class="small text-muted mb-3">A 6-digit code has been sent to your registered email.<br>This code is also the password to unlock the PDF report.</p>
+                   <input type="text" id="swalResetOTP" class="swal2-input" maxlength="6" placeholder="· · · · · ·" 
+                          style="font-size: 1.8rem; letter-spacing: 10px; text-align: center; font-weight: 800; max-width: 250px;">
+                   <p class="small text-danger mt-3 mb-0"><strong>Type NUKE to confirm destruction:</strong></p>
+                   <input type="text" id="swalResetConfirm" class="swal2-input" placeholder="Type NUKE" 
+                          style="font-size: 1rem; text-align: center; max-width: 200px;">`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-fire me-1"></i> EXECUTE NUKE',
+            confirmButtonColor: '#ef4444',
+            cancelButtonText: 'Abort',
+            preConfirm: () => {
+                const otp = document.getElementById('swalResetOTP').value;
+                const confirm = document.getElementById('swalResetConfirm').value;
+                if (!otp || otp.length < 6) {
+                    Swal.showValidationMessage('Enter the 6-digit authorization code');
+                    return false;
+                }
+                if (confirm !== 'NUKE') {
+                    Swal.showValidationMessage('Type NUKE to confirm');
+                    return false;
+                }
+                return { otp, confirm };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                executeSystemReset(result.value.otp);
+            }
+        });
+    }
 
-        if (confirmation !== 'RESET_EVERYTHING') {
-            showAlert('Invalid confirmation! Please type RESET_EVERYTHING exactly.', 'danger');
-            return;
-        }
-
-        if (!confirm('FINAL WARNING: Are you ABSOLUTELY SURE you want to reset the entire system?')) {
-            return;
-        }
-
-        showAlert('Resetting system... Please wait...', 'warning');
+    function executeSystemReset(otp) {
+        // Show loading
+        Swal.fire({
+            title: 'Nuking System...',
+            html: '<p>Generating PDF report, sending email, and purging all data...</p><i class="fas fa-spinner fa-spin fa-2x text-danger mt-2"></i>',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        });
 
         fetch('/api/system/reset', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ confirmation: confirmation })
+            body: JSON.stringify({
+                confirmation: 'RESET_EVERYTHING',
+                otp: otp
+            })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('✅ System reset successful! Page will reload in 3 seconds...', 'success');
-                    bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal')).hide();
-                    setTimeout(() => location.reload(), 3000);
+                    Swal.fire({
+                        title: '💥 System Nuked',
+                        html: '<p>All data has been destroyed.</p><p class="small text-muted">A password-protected PDF report has been emailed. The PDF password is the authorization code you entered.</p><p class="text-warning fw-bold mt-2">You will now be logged out.</p>',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        confirmButtonColor: '#06b6d4'
+                    }).then(() => {
+                        window.location.href = '/logout';
+                    });
                 } else {
-                    showAlert('Error: ' + data.error, 'danger');
+                    Swal.fire('Error', data.error, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('Network error occurred', 'danger');
+                Swal.fire('Network Error', 'Failed to communicate with the server.', 'error');
             });
     }
 </script>

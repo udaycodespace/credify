@@ -674,9 +674,11 @@
                                                     credential.department }}{% endif %}
                                                 </p>
                                                 <p class="text-muted small mb-1">Student ID: {{ credential.student_id }}
+                                                    | Section: {{ credential.section or 'N/A' }}
                                                 </p>
                                                 <p class="text-muted small mb-1">CGPA: {{ credential.cgpa if
-                                                    credential.cgpa else credential.gpa }}</p>
+                                                    credential.cgpa else credential.gpa }} | Conduct: {{
+                                                    credential.conduct or 'N/A' }}</p>
                                                 <small class="text-muted">
                                                     Issued: {{ credential.issue_date[:10] }}
                                                     {% if credential.status == 'active' %}
@@ -1043,33 +1045,36 @@
                                 <option value="gpa">GPA</option>
                             </select>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">Min Threshold</label>
-                                <input type="number" step="0.01" class="form-control" id="zkpMinThreshold"
-                                    placeholder="e.g., 7.5">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Max Threshold (optional)</label>
-                                <input type="number" step="0.01" class="form-control" id="zkpMaxThreshold"
-                                    placeholder="e.g., 10.0">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Prove value is above</label>
+                            <input type="number" step="0.01" class="form-control" id="zkpMinThreshold"
+                                placeholder="e.g., 7.5">
+                            <div class="form-text small text-muted">Example: Enter 7.5 to prove "CGPA ≥ 7.5" without
+                                revealing your actual CGPA</div>
                         </div>
-                        <button class="btn btn-success mt-3" onclick="generateRangeProof()">
+                        <button class="btn btn-success mt-2" onclick="generateRangeProof()">
                             <i class="fas fa-key me-1"></i>Generate Range Proof
                         </button>
                     </div>
 
                     <!-- Membership Proof Tab -->
                     <div class="tab-pane fade" id="membershipProof" role="tabpanel">
-                        <h6 style="color: var(--cyan-400);">Prove Course Membership</h6>
-                        <p class="small text-muted">Example: Prove you completed "Data Structures" without showing all
-                            courses</p>
+                        <h6 style="color: var(--cyan-400);">Prove Course / Backlog Status</h6>
+                        <p class="small text-muted">Prove you pursued a subject, or prove whether you have a backlog in
+                            a specific subject — without revealing your full record.</p>
 
                         <div class="mb-3">
-                            <label class="form-label">Claim Course</label>
+                            <label class="form-label">Subject / Course Name</label>
                             <input type="text" class="form-control" id="zkpClaimedCourse"
                                 placeholder="e.g., Data Structures">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">What do you want to prove?</label>
+                            <select class="form-select" id="zkpMembershipType">
+                                <option value="completed">I completed this course</option>
+                                <option value="no_backlog">I do NOT have a backlog in this subject</option>
+                                <option value="has_backlog">I have a backlog in this subject</option>
+                            </select>
                         </div>
                         <button class="btn btn-success" onclick="generateMembershipProof()">
                             <i class="fas fa-key me-1"></i>Generate Membership Proof
@@ -1269,6 +1274,14 @@
                     <td><strong style="color: var(--green-500);">${subject.cgpa || subject.gpa}</strong></td>
                 </tr>
                 <tr>
+                    <td><strong>Conduct</strong></td>
+                    <td class="text-success fw-bold">${subject.conduct || 'N/A'}</td>
+                </tr>
+                <tr>
+                    <td><strong>Backlogs</strong></td>
+                    <td>${subject.backlogCount || subject.backlog_count || 0}</td>
+                </tr>
+                <tr>
                     <td><strong>Graduation Year</strong></td>
                     <td>${subject.graduationYear || 'N/A'}</td>
                 </tr>
@@ -1363,27 +1376,35 @@
         const fieldSelection = document.getElementById('fieldSelection');
 
         let fieldsHtml = '<div class="row">';
-
-        // 🔧 DYNAMIC FIELD DISCOVERY: Iterate over all subject fields
         const skipFields = ['id', 'type'];
         const fields = Object.entries(subject).filter(([key]) => !skipFields.includes(key));
 
         fields.forEach(([key, value], index) => {
-            // Split into two columns
             if (index > 0 && index % 2 === 0) {
                 fieldsHtml += '</div><div class="row">';
             }
 
-            const displayValue = Array.isArray(value) ? `${value.length} items` : value;
+            let displayValue = value;
+            let subItemsHtml = '';
+
+            if (Array.isArray(value)) {
+                displayValue = `${value.length} items`;
+                subItemsHtml = `<div class="mt-1 small" id="subfields_${key}" style="display:none; padding-left: 20px; color: #94a3b8;">
+                    ${value.map(v => `<i class="fas fa-check-circle me-1" style="color: var(--green-500);"></i>${v}`).join('<br>')}
+                </div>`;
+            }
+
             const displayName = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
 
             fieldsHtml += `
-                <div class="col-md-6">
-                    <div class="form-check mb-2">
-                        <input class="form-check-input disclosure-checkbox" type="checkbox" id="field_${key}" value="${key}">
-                        <label class="form-check-label" for="field_${key}" style="color: #cbd5e1; text-transform: none;">
+                <div class="col-md-6 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input disclosure-checkbox" type="checkbox" id="field_${key}" value="${key}" onchange="toggleDisclosureFeedback('${key}')">
+                        <label class="form-check-label" for="field_${key}" style="color: #e2e8f0; text-transform: none;">
                             ${displayName}: <strong style="color: var(--cyan-400);">${displayValue}</strong>
+                            <span id="feedback_${key}" class="ms-1" style="display:none; color: var(--green-500); font-weight: bold;">Valid ✓</span>
                         </label>
+                        ${subItemsHtml}
                     </div>
                 </div>
             `;
@@ -1394,6 +1415,20 @@
 
         const modal = new bootstrap.Modal(document.getElementById('selectiveDisclosureModal'));
         modal.show();
+    }
+
+    function toggleDisclosureFeedback(key) {
+        const cb = document.getElementById(`field_${key}`);
+        const feedback = document.getElementById(`feedback_${key}`);
+        const subfields = document.getElementById(`subfields_${key}`);
+
+        if (cb.checked) {
+            feedback.style.display = 'inline';
+            if (subfields) subfields.style.display = 'block';
+        } else {
+            feedback.style.display = 'none';
+            if (subfields) subfields.style.display = 'none';
+        }
     }
 
     function generateProof() {
@@ -1486,10 +1521,9 @@
     function generateRangeProof() {
         const field = document.getElementById('zkpRangeField').value;
         const minThreshold = parseFloat(document.getElementById('zkpMinThreshold').value);
-        const maxThreshold = document.getElementById('zkpMaxThreshold').value ? parseFloat(document.getElementById('zkpMaxThreshold').value) : null;
 
-        if (!minThreshold && minThreshold !== 0) {
-            showAlert('Please enter a minimum threshold', 'warning');
+        if (isNaN(minThreshold)) {
+            showAlert('Please enter a threshold value', 'warning');
             return;
         }
 
@@ -1499,16 +1533,17 @@
         }
 
         const subject = currentZKPCredential.full_credential.credentialSubject;
-        // 🔧 FIX: Handle dynamic field selection
         const actualValue = parseFloat(subject[field] || 0);
+        const verified = actualValue >= minThreshold;
 
         const proof = {
             type: 'RangeProof',
             field: field,
-            claim: maxThreshold ? `${minThreshold} ≤ ${field} ≤ ${maxThreshold}` : `${field} ≥ ${minThreshold}`,
-            verified: maxThreshold ? (actualValue >= minThreshold && actualValue <= maxThreshold) : (actualValue >= minThreshold),
+            claim: `${field.toUpperCase()} is certified above ${minThreshold}`,
+            verified: verified,
             commitment: btoa(Math.random().toString()).substring(0, 32),
-            credentialId: currentZKPCredential.credential_id,
+            // Privacy fix: Mask credential ID
+            maskedCredentialId: `*****${currentZKPCredential.credential_id.substring(4)}`,
             timestamp: new Date().toISOString(),
             signature: btoa(`zkp-range-signed-${Date.now()}`).substring(0, 32)
         };
@@ -1520,9 +1555,10 @@
 
     function generateMembershipProof() {
         const claimedItem = document.getElementById('zkpClaimedCourse').value.trim();
+        const proofType = document.getElementById('zkpMembershipType').value;
 
         if (!claimedItem) {
-            showAlert('Please enter a course name', 'warning');
+            showAlert('Please enter a subject/course name', 'warning');
             return;
         }
 
@@ -1532,15 +1568,30 @@
         }
 
         const subject = currentZKPCredential.full_credential.credentialSubject;
-        // 🔧 FIX: Check both courses and backlogs
-        const allItems = [...(subject.courses || []), ...(subject.backlogs || [])];
-        const isMember = allItems.some(item => item.toLowerCase() === claimedItem.toLowerCase());
+        const courses = (subject.courses || []).map(c => c.toLowerCase());
+        const backlogs = (subject.backlogs || []).map(b => b.toLowerCase());
+        const claimLower = claimedItem.toLowerCase();
+
+        let verified = false;
+        let claimText = '';
+
+        if (proofType === 'completed') {
+            verified = courses.includes(claimLower);
+            claimText = `Completed course: "${claimedItem}"`;
+        } else if (proofType === 'no_backlog') {
+            verified = !backlogs.includes(claimLower);
+            claimText = `No backlog in: "${claimedItem}"`;
+        } else if (proofType === 'has_backlog') {
+            verified = backlogs.includes(claimLower);
+            claimText = `Has backlog in: "${claimedItem}"`;
+        }
 
         const proof = {
             type: 'MembershipProof',
-            field: isMember ? (subject.courses.includes(claimedItem) ? 'courses' : 'backlogs') : 'courses',
-            claim: claimedItem,
-            verified: isMember,
+            proofCategory: proofType,
+            claim: claimText,
+            subject: claimedItem,
+            verified: verified,
             commitment: btoa(Math.random().toString()).substring(0, 32),
             credentialId: currentZKPCredential.credential_id,
             timestamp: new Date().toISOString(),
@@ -1549,7 +1600,7 @@
 
         document.getElementById('zkpOutput').value = JSON.stringify(proof, null, 2);
         document.getElementById('zkpResult').style.display = 'block';
-        showAlert(isMember ? 'Membership proof generated: CLAIM VERIFIED ✓' : 'Membership proof generated: CLAIM FAILED ✗', isMember ? 'success' : 'danger');
+        showAlert(verified ? `Membership proof: CLAIM VERIFIED ✓ — ${claimText}` : `Membership proof: CLAIM FAILED ✗ — ${claimText}`, verified ? 'success' : 'danger');
     }
 
     function copyZKPProof() {

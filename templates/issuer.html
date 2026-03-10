@@ -380,13 +380,10 @@
                                         });
 
                                         document.getElementById('backlogs').addEventListener('input', function (e) {
-                                            const vals = e.target.value.split(',').filter(v => v.trim());
-                                            if (vals.length > 0) {
-                                                const countInput = document.getElementById('backlogCount');
-                                                if (parseInt(countInput.value || 0) <= 0) {
-                                                    countInput.value = vals.length;
-                                                }
-                                            }
+                                            const ignore = ['n/a', 'nil', 'nill', 'none', ''];
+                                            const vals = e.target.value.split(',').map(v => v.trim()).filter(v => v && !ignore.includes(v.toLowerCase()));
+                                            const countInput = document.getElementById('backlogCount');
+                                            countInput.value = vals.length;
                                         });
 
                                         document.getElementById('graduationYear').addEventListener('change', function (e) {
@@ -952,23 +949,28 @@
         issueBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Issuing...';
         issueBtn.disabled = true;
 
-        const status = document.getElementById('studentStatus').value;
-        const formData = {
+        const statusLabel = document.getElementById('studentStatus').value;
+        const statusValue = statusLabel === 'Passed Out' ? 'graduated' : 'pursuing';
+
+        const payload = {
             student_name: document.getElementById('studentName').value,
-            student_id: document.getElementById('studentId').value,
+            student_id: document.getElementById('studentId').value.toUpperCase(),
             email: document.getElementById('studentEmail').value,
             degree: document.getElementById('degree').value,
             department: document.getElementById('department').value,
-            student_status: status,
-            semester: status === 'pursuing' && document.getElementById('semester').value ? parseInt(document.getElementById('semester').value) : null,
-            year: status === 'pursuing' ? document.getElementById('year').value : null,
-            graduation_year: status === 'graduated' && document.getElementById('graduationYear').value ? parseInt(document.getElementById('graduationYear').value) : null,
-            batch: document.getElementById('batch').value || null,
-            section: document.getElementById('section').value || null,
+            section: document.getElementById('section').value,
+            student_status: statusValue,
+            semester: statusValue === 'pursuing' && document.getElementById('semester').value ? parseInt(document.getElementById('semester').value) : null,
+            year: statusValue === 'pursuing' ? document.getElementById('year').value : null,
+            graduation_year: statusValue === 'graduated' && document.getElementById('graduationYear').value ? parseInt(document.getElementById('graduationYear').value) : null,
+            batch: document.getElementById('batch').value,
             college: document.getElementById('college').value,
             university: document.getElementById('university').value,
-            cgpa: document.getElementById('cgpa').value ? parseFloat(document.getElementById('cgpa').value) : null,
-            courses: document.getElementById('courses').value ? document.getElementById('courses').value.split(',').map(c => c.trim()).filter(c => c) : [],
+            cgpa: document.getElementById('gpa').value,
+            conduct: document.getElementById('conduct').value,
+            backlog_count: parseInt(document.getElementById('backlogCount').value || 0),
+            courses: document.getElementById('courses').value.split(',').map(c => c.trim()).filter(c => c !== ''),
+            backlogs: document.getElementById('backlogs').value.split(',').map(c => c.trim()).filter(c => c !== ''),
             issued_by: document.getElementById('issuedBy').value,
             issue_date: document.getElementById('issueDate').value
         };
@@ -976,14 +978,14 @@
         fetch('/api/issue_credential', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(payload)
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     showSuccessModal(data);
                     clearForm();
-                    loadDashboardData();
+                    if (typeof loadDashboardData === 'function') loadDashboardData();
                 } else {
                     showAlert('Error: ' + data.error, 'danger');
                 }
@@ -1112,10 +1114,40 @@
 
 
     function clearForm() {
-        document.getElementById('issueCredentialForm').reset();
+        const form = document.getElementById('issueCredentialForm');
+        form.reset();
+
+        // Remove validation classes and feedbacks
+        const inputs = form.querySelectorAll('.form-control, .form-select');
+        inputs.forEach(input => {
+            input.classList.remove('is-valid', 'is-invalid');
+        });
+
+        const feedbacks = form.querySelectorAll('.valid-feedback, .invalid-feedback, .badge');
+        feedbacks.forEach(f => {
+            if (f.textContent === 'Valid') f.remove();
+        });
+
         document.getElementById('university').value = 'Jawaharlal Nehru Technological University Anantapur';
-        document.getElementById('college').value = 'G. Pulla Reddy Engineering College (Autonomous)';
+        document.getElementById('college').value = 'G. Pulla Reddy Engineering College';
         toggleStudentStatus();
+    }
+
+    function toggleStudentStatus() {
+        const val = document.getElementById('studentStatus').value;
+        const gradYearDiv = document.getElementById('graduationYearDiv');
+        const studyingFields = document.getElementById('studyingFields');
+
+        if (val === 'Passed Out') {
+            if (gradYearDiv) gradYearDiv.style.display = 'block';
+            if (studyingFields) studyingFields.style.display = 'none';
+        } else if (val === 'Currently Studying') {
+            if (gradYearDiv) gradYearDiv.style.display = 'none';
+            if (studyingFields) studyingFields.style.display = 'flex';
+        } else {
+            if (gradYearDiv) gradYearDiv.style.display = 'none';
+            if (studyingFields) studyingFields.style.display = 'none';
+        }
     }
 
     function issueAnother() {
@@ -1152,7 +1184,7 @@
                         <tr>
                             <td>
                                 <div>
-                                    <div class="fw-bold text-uppercase" style="letter-spacing: 0.5px; color: var(--slate-900);">${u.full_name || 'Anonymous Student'}</div>
+                                    <div class="fw-bold text-uppercase" style="letter-spacing: 0.5px; color: #fff;">${u.full_name || 'Anonymous Student'}</div>
                                     <div class="small text-muted">@${u.username}</div>
                                 </div>
                             </td>
@@ -1302,19 +1334,19 @@
 
     // ==================== SEARCH (UNCHANGED) ====================
     function searchCredentials() {
-        const searchInput = document.getElementById('searchInput').value.trim();
-        const statusFilterInput = document.querySelector('input[name="searchStatus"]:checked');
-        const statusFilter = statusFilterInput ? statusFilterInput.value : 'all';
+        const query = document.getElementById('searchStudentId').value.trim();
+        const statusFilterInput = document.querySelector('input[name="statusFilter"]:checked');
+        const statusFilter = statusFilterInput ? statusFilterInput.value.toLowerCase() : 'all';
 
-        if (!searchInput) {
-            showAlert('Please enter a search query', 'warning');
+        if (!query) {
+            showAlert('Please enter a name, roll number, or credential ID', 'warning');
             return;
         }
 
         const resultsDiv = document.getElementById('searchResults');
-        resultsDiv.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Searching...</p>';
+        resultsDiv.innerHTML = '<p class="text-white"><i class="fas fa-spinner fa-spin me-2"></i>Searching decentralized registry...</p>';
 
-        fetch(`/api/credential_history/${searchInput}`)
+        fetch(`/api/credential_history/${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.credentials.length > 0) {
@@ -1336,6 +1368,8 @@
                                 <tr>
                                     <th>Version</th>
                                     <th>Status</th>
+                                    <th>Name</th>
+                                    <th>Roll No</th>
                                     <th>Program</th>
                                     <th>CGPA</th>
                                     <th>Sem/Yr</th>
@@ -1358,6 +1392,8 @@
                         <tr>
                             <td><span class="badge bg-primary">v${c.version}</span></td>
                             <td>${statusBadge}</td>
+                            <td><span class="small fw-bold">${c.student_name || 'N/A'}</span></td>
+                            <td><code class="small text-dark">${c.student_id || 'N/A'}</code></td>
                             <td><span class="small">${programString || '-'}</span></td>
                             <td>${c.cgpa ? c.cgpa.toFixed(2) : (c.gpa ? c.gpa.toFixed(2) : '-')}</td>
                             <td>${semYear}</td>
@@ -1919,47 +1955,6 @@
     }
     // ==================== SYSTEM MANAGEMENT FUNCTIONS ====================
     let currentStats = null;
-
-    function loadOnboardingData() {
-        const tableBody = document.getElementById('onboardingTableBody');
-        tableBody.innerHTML = '<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin me-1"></i>Scanning accounts...</td></tr>';
-
-        fetch('/api/system/stats') // Re-use stats to get basic user info or we can have a specific endpoint
-            .then(response => response.json())
-            .then(data => {
-                // Since our current stats don't return ALL student details, we'll try to get them
-                // For now, we'll use the stats summary. Actually, let's fetch a proper list if available.
-                // Assuming we have /api/students
-                fetch('/api/search_student?query=')
-                    .then(r => r.json())
-                    .then(students => {
-                        tableBody.innerHTML = '';
-                        if (students.results && students.results.length > 0) {
-                            students.results.forEach(student => {
-                                const statusClass = student.is_verified ? 'success' : 'warning';
-                                const statusText = student.is_verified ? 'VERIFIED' : 'PENDING';
-                                const row = `
-                                <tr>
-                                    <td><div class="d-flex align-items-center"><div class="avatar-sm bg-light text-primary rounded-circle p-2 me-2"><i class="fas fa-user"></i></div>${student.full_name}</div></td>
-                                    <td><code>${student.username}</code></td>
-                                    <td><small>${student.email || 'N/A'}</small></td>
-                                    <td><span class="badge bg-${statusClass}">${statusText}</span></td>
-                                    <td><small class="text-muted">${student.last_login || 'Never'}</small></td>
-                                    <td><div class="progress" style="height: 6px;"><div class="progress-bar bg-info" role="progressbar" style="width: ${student.onboarding_status === 'completed' ? '100%' : '40%'}"></div></div></td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="window.location.href='/issuer?search=${student.username}'"><i class="fas fa-eye"></i></button></td>
-                                </tr>
-                            `;
-                                tableBody.innerHTML += row;
-                            });
-                        } else {
-                            tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No students found in registry.</td></tr>';
-                        }
-                    });
-            })
-            .catch(err => {
-                tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Audit failed: ' + err + '</td></tr>';
-            });
-    }
 
     function loadSystemStats() {
         fetch('/api/system/stats')

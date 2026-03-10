@@ -131,7 +131,10 @@ class CredentialManager:
                     'gpa': transcript_data.get('gpa'),
                     'graduationYear': transcript_data.get('graduation_year'),
                     'batch': transcript_data.get('batch'),
+                    'conduct': transcript_data.get('conduct'),
+                    'backlogCount': transcript_data.get('backlog_count'),
                     'courses': transcript_data.get('courses', []),
+                    'backlogs': transcript_data.get('backlogs', []),
                     'issueDate': transcript_data['issue_date'],
                     'semester': transcript_data.get('semester'),
                     'year': transcript_data.get('year'),
@@ -228,6 +231,10 @@ class CredentialManager:
                 'gpa': transcript_data.get('gpa'),
                 'graduation_year': transcript_data.get('graduation_year'),
                 'batch': transcript_data.get('batch'),
+                'conduct': transcript_data.get('conduct'),
+                'backlog_count': transcript_data.get('backlog_count'),
+                'courses': transcript_data.get('courses', []),
+                'backlogs': transcript_data.get('backlogs', []),
                 'issue_date': issued_at,
                 'semester': transcript_data.get('semester'),
                 'year': transcript_data.get('year'),
@@ -597,13 +604,24 @@ class CredentialManager:
         credentials.sort(key=lambda x: x.get('version', 1), reverse=True)
         return credentials
     
-    def get_credential_history(self, student_id):
-        """Get complete credential history for a student (all versions)"""
+    def get_credential_history(self, search_query):
+        """Get complete credential history for a student or by search query (all versions)"""
         try:
             history = []
+            search_upper = str(search_query).strip().upper()
             
             for cred_id, registry_entry in self.credentials_registry.items():
-                if registry_entry.get('student_id') == student_id:
+                match = False
+                c_id = str(cred_id).upper()
+                s_id = str(registry_entry.get('student_id', '')).upper()
+                s_name = str(registry_entry.get('student_name', '')).upper()
+                deg = str(registry_entry.get('degree', '')).upper()
+                dep = str(registry_entry.get('department', '')).upper()
+                
+                if search_upper in s_id or search_upper in s_name or search_upper in c_id or search_upper in deg or search_upper in dep:
+                    match = True
+                    
+                if match:
                     history.append(registry_entry)
             
             history.sort(key=lambda x: x.get('version', 1))

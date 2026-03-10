@@ -874,23 +874,35 @@ def api_issue_credential():
             except ValueError:
                 return jsonify({'error': 'CGPA must be a valid number'}), 400
         
+        raw_backlogs = data.get('backlogs', [])
+        clean_backlogs = [c for c in raw_backlogs if str(c).strip().upper() not in ['N/A', 'NILL', 'NIL', 'NONE', '']]
+        raw_courses = data.get('courses', [])
+        clean_courses = [c for c in raw_courses if str(c).strip().upper() not in ['N/A', 'NILL', 'NIL', 'NONE', '']]
+        
+        grad_year = data.get('graduation_year')
+        if not grad_year and data.get('batch') and '-' in data.get('batch'):
+            grad_year = data.get('batch').split('-')[1].strip()
+            
         # Build extended transcript data
         transcript_data = {
-            'student_name': data['student_name'],
-            'student_id': data['student_id'],
+            'student_name': data['student_name'].strip(),
+            'student_id': data['student_id'].strip().upper(),
             'degree': data['degree'],
             'department': data['department'],
             'student_status': data['student_status'],
             'semester': data.get('semester'),
             'year': data.get('year'),
-            'graduation_year': data.get('graduation_year'),
+            'graduation_year': grad_year,
             'batch': data.get('batch'),
             'section': data.get('section'),
             'college': data.get('college'),
             'university': data.get('university'),
             'cgpa': cgpa,
             'gpa': cgpa,  # Backward compatibility
-            'courses': data.get('courses', []),
+            'conduct': data.get('conduct', 'N/A'),
+            'backlog_count': len(clean_backlogs) if clean_backlogs else int(data.get('backlog_count') or 0),
+            'courses': clean_courses,
+            'backlogs': clean_backlogs,
             'issued_by': data.get('issued_by', 'G. Pulla Reddy Engineering College'),
             'issue_date': data['issue_date'],
             'issuer': data.get('issued_by', 'G. Pulla Reddy Engineering College') # Backward compatibility
@@ -932,17 +944,25 @@ def api_issue_credential():
                     db.session.add(new_student)
                     db.session.commit()
                 
-                # TRIGGER FIRST ONBOARDING EMAIL WITH FULL DETAILS
+                # TRIGGER FIRST ONBOARDING EMAIL WITH FULL DETAILS (ASYNCHRONOUS)
                 if student_email:
-                    mailer.send_onboarding_mail(
-                        student_email, 
-                        student_name, 
-                        activation_token,
-                        transcript_data['degree'],
-                        transcript_data.get('cgpa'),
-                        transcript_data.get('graduation_year', 'N/A')
-                    )
-                    logging.info(f" Detailed onboarding mail sent to {student_email}")
+                    import threading
+                    def send_async():
+                        with app.app_context():
+                            try:
+                                mailer.send_onboarding_mail(
+                                    student_email, 
+                                    student_name, 
+                                    activation_token,
+                                    transcript_data['degree'],
+                                    transcript_data.get('cgpa'),
+                                    transcript_data.get('graduation_year', 'N/A')
+                                )
+                                logging.info(f" Detailed onboarding mail sent to {student_email}")
+                            except Exception as em:
+                                logging.error(f"Async mail error: {em}")
+                    
+                    threading.Thread(target=send_async, daemon=True).start()
                 
             except Exception as e:
                 logging.error(f"Error in onboarding workflow: {str(e)}")
@@ -1106,21 +1126,38 @@ def api_credential_pdf(credential_id):
         p.setFillColor(gold)
         p.drawCentredString(width/2, height - 280, "RECORD OF ACADEMIC ACHIEVEMENT")
         
+        # Build combined degree string - following institutional standard
+        # Example: B.TECH CST - CSE (SECTION A)
+        degree_raw = str(subject.get('degree') or cred.get('degree', 'N/A')).upper()
+        dept_raw = str(subject.get('department') or '').upper()
+        section_raw = str(subject.get('section') or '').upper()
+        
+        full_program = degree_raw
+        if dept_raw:
+            full_program += f" {dept_raw}"
+        if section_raw:
+            full_program += f" ({section_raw})"
+        
+        # Graduation year - fix 'None' display
+        grad_year_raw = subject.get('graduationYear') or cred.get('graduation_year')
+        grad_year = str(grad_year_raw) if grad_year_raw and str(grad_year_raw) != 'None' else 'N/A'
+        
         col1_fields = [
             ("ROLL NUMBER", str(subject.get('studentId') or cred.get('student_id', 'N/A'))),
-            ("DEGREE", str(subject.get('degree') or cred.get('degree', 'N/A')).upper()),
-            ("DEPARTMENT", str(subject.get('department') or 'N/A').upper()),
-            ("GPA/CGPA", f"{subject.get('cgpa') or subject.get('gpa') or cred.get('gpa', '0.00')} / 10.00"),
+            ("DEGREE / PROGRAM", full_program),
+            ("CGPA", f"{subject.get('cgpa') or subject.get('gpa') or cred.get('gpa', '0.00')} / 10.00"),
+            ("CONDUCT", str(subject.get('conduct') or 'N/A').upper()),
         ]
         col2_fields = [
-            ("GRADUATION YEAR", str(subject.get('graduationYear') or cred.get('graduation_year', 'N/A'))),
-            ("SEMESTER / YEAR", f"{subject.get('semester') or 'N/A'} / {subject.get('year') or 'N/A'}"),
+            ("GRADUATION YEAR", grad_year),
+            ("CURRENT SEM & YEAR", f"{subject.get('semester') or 'N/A'} / {subject.get('year') or 'N/A'}"),
             ("BATCH", str(subject.get('batch') or 'N/A')),
+            ("BACKLOG COUNT", str(subject.get('backlogCount') or '0')),
             ("STATUS", "CERTIFIED AUTHENTIC"),
         ]
         
         y_start = height - 310
-        for i in range(4):
+        for i in range(5):
             y = y_start - (i * 35)
             # Column 1
             if i < len(col1_fields):
@@ -1145,10 +1182,10 @@ def api_credential_pdf(credential_id):
         # Section Divider
         p.setLineWidth(0.5)
         p.setStrokeColor(colors.lightgrey)
-        p.line(60, y_start - 135, width - 60, y_start - 135)
+        p.line(60, y_start - 170, width - 60, y_start - 170)
         
         # 5.5 DETAILED COURSEWORK (If present)
-        y_courses = y_start - 155
+        y_courses = y_start - 190
         courses = subject.get('courses')
         if courses and isinstance(courses, list):
             p.setFont("Helvetica-Bold", 8)
@@ -1185,8 +1222,8 @@ def api_credential_pdf(credential_id):
             
             y_courses -= 40
         
-        # 6. REFINED BLOCKCHAIN PROOF BOX
-        y_box = 320
+        # 6. REFINED BLOCKCHAIN PROOF BOX (Dynamic Position)
+        y_box = min(320, y_courses - 20)
         p.setFillColor(colors.HexColor("#FAFAFA"))
         p.setStrokeColor(gold)
         p.setLineWidth(1)

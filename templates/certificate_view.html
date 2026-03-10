@@ -396,27 +396,30 @@
                         <span class="grid-value">{{ subject.studentId or credential.student_id or 'N/A' }}</span>
                     </div>
                     <div class="grid-item">
-                        <span class="grid-label">Degree</span>
+                        <span class="grid-label">Degree / Program</span>
                         <span class="grid-value" style="font-size: 13px;">{{ subject.degree or credential.degree or
-                            'N/A' }}</span>
-                    </div>
-                    <div class="grid-item">
-                        <span class="grid-label">Department</span>
-                        <span class="grid-value" style="font-size: 13px;">{{ subject.department or credential.department
-                            or 'N/A' }}</span>
+                            'N/A' }}{% if subject.department or credential.department %} - {{ subject.department or
+                            credential.department }}{% endif %}{% if subject.section or credential.section %} ({{
+                            subject.section or credential.section }}){% endif %}</span>
                     </div>
                     <div class="grid-item">
                         <span class="grid-label">GPA/CGPA</span>
                         <span class="grid-value">{{ subject.cgpa or subject.gpa or credential.gpa or '0.00' }} /
                             10.00</span>
                     </div>
+                    <div class="grid-item">
+                        <span class="grid-label">Conduct</span>
+                        <span class="grid-value" style="color: #059669; font-weight: bold;">{{ subject.conduct or
+                            credential.conduct or 'N/A' }}</span>
+                    </div>
                 </div>
                 <!-- Column 2 -->
                 <div class="grid-col">
                     <div class="grid-item">
                         <span class="grid-label">Graduation Year</span>
-                        <span class="grid-value">{{ subject.graduationYear or credential.graduation_year or 'N/A'
-                            }}</span>
+                        <span class="grid-value">{% if subject.graduationYear and subject.graduationYear != None %}{{
+                            subject.graduationYear }}{% elif credential.graduation_year and credential.graduation_year
+                            != None %}{{ credential.graduation_year }}{% else %}N/A{% endif %}</span>
                     </div>
                     <div class="grid-item">
                         <span class="grid-label">Semester / Year</span>
@@ -429,8 +432,8 @@
                         <span class="grid-value">{{ subject.batch or credential.batch or 'N/A' }}</span>
                     </div>
                     <div class="grid-item">
-                        <span class="grid-label">Status</span>
-                        <span class="grid-value" style="color: #059669; font-size: 11px;">CERTIFIED AUTHENTIC</span>
+                        <span class="grid-label">Backlog Count</span>
+                        <span class="grid-value">{{ subject.backlogCount or credential.backlog_count or '0' }}</span>
                     </div>
                 </div>
             </div>
@@ -446,7 +449,12 @@
             <div class="proof-content">
                 <div class="proof-details">
                     <div class="proof-field">
-                        <div class="field-label">Credential ID</div>
+                        <div class="field-label">Credential</div>
+                        <p class="text-muted small mb-1">Student ID: {{ credential.student_id }} | Section: {{
+                            credential.section or 'N/A' }}
+                        </p>
+                        <p class="text-muted small mb-1">CGPA: {{ credential.cgpa if
+                            credential.cgpa else credential.gpa }} | Conduct: {{ credential.conduct or 'N/A' }}</p>
                         <div class="field-value">{{ credential.id }}</div>
                     </div>
                     <div class="proof-field">

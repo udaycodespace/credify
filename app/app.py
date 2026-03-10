@@ -5,6 +5,7 @@ import re
 import hmac
 import hashlib
 import gzip
+from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 # Optionally load environment variables from a .env file
 try:
@@ -187,9 +188,30 @@ def _build_verify_url(credential_id):
     """Build the canonical verify URL used by all QR generation paths."""
     qr_data = _generate_qr_hidden_payload(credential_id)
     qr_token = _generate_qr_secret_token(credential_id, _hash_qr_hidden_payload(qr_data))
-    verify_url = url_for('public_verify', _external=True) + f'?id={credential_id}&qk={qr_token}'
+    verifier_base_url = (
+        os.environ.get("QR_VERIFIER_BASE_URL")
+        or "https://udaycodespace.github.io/credify-verify/"
+    ).strip()
+
+    if not verifier_base_url:
+        verifier_base_url = url_for('public_verify', _external=True)
+
+    parsed = urlsplit(verifier_base_url)
+    existing_query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    existing_query.update({
+        "id": credential_id,
+        "qk": qr_token,
+    })
     if qr_data:
-        verify_url += f'&qd={qr_data}'
+        existing_query["qd"] = qr_data
+
+    verify_url = urlunsplit((
+        parsed.scheme,
+        parsed.netloc,
+        parsed.path or "/",
+        urlencode(existing_query),
+        parsed.fragment,
+    ))
     return {
         'verify_url': verify_url,
         'qr_token': qr_token,
@@ -1437,7 +1459,7 @@ def api_credential_pdf(credential_id):
         qr.save(qr_buffer, format='PNG')
         qr_buffer.seek(0)
         from reportlab.lib.utils import ImageReader
-        p.drawImage(ImageReader(qr_buffer), width-145, y_box-82, width=65, height=65)
+        p.drawImage(ImageReader(qr_buffer), width-176, y_box-86, width=96, height=96)
         
         # Mini Badge (15% Smaller)
         p.setFillColor(gold)

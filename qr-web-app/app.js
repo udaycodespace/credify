@@ -302,6 +302,48 @@ async function processPayload(payload, sourceTag) {
   }
 }
 
+// Keep repeat scans valid on the same device; local storage is only a warning, not proof of fraud.
+processPayload = async function processPayloadOverride(payload, sourceTag) {
+  const parsed = parseQrPayload(payload);
+  if (!parsed.ok) {
+    setStatus('fake', 'INVALID QR');
+    renderCardHtml(`<div class="fail">Credential Invalid âŒ</div><div>${escapeHtml(parsed.reason)}</div>`);
+    return;
+  }
+
+  try {
+    const alreadyConsumed = await isQrAlreadyConsumed(parsed.qk);
+    const decodedQd = await decodeQdPayload(parsed.qd);
+    const decoded = decodedQd.parsed;
+    const offlineCheck = await verifyJwsToken(parsed.qk, decodedQd.payloadText, parsed.credentialId);
+
+    if (offlineCheck && offlineCheck.ok && !alreadyConsumed) {
+      await markQrConsumed(parsed.qk, parsed.credentialId);
+    }
+
+    const offlineReason = String(offlineCheck?.reason || '');
+    const repeatedScanReason = alreadyConsumed
+      ? `${offlineReason}${offlineReason ? '. ' : ''}This QR was already scanned on this device earlier.`
+      : offlineReason;
+
+    renderDecodedSecret(decoded, sourceTag, {
+      ...offlineCheck,
+      reason: repeatedScanReason
+    });
+  } catch (e) {
+    setStatus('fake', 'INVALID');
+    renderCardHtml(`<div class="fail">Credential Invalid âŒ</div><div>${escapeHtml(String(e))}</div>`);
+  }
+}
+
+function getLandingPayloadFromPageUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.get('id') || !params.get('qk') || !params.get('qd')) {
+    return null;
+  }
+  return window.location.href;
+}
+
 async function startCameraScan() {
   if (activeVideoTrack) return;
 
@@ -401,4 +443,21 @@ qrFile.addEventListener('change', async (e) => {
       renderCardHtml('<div class="fail">Verifier not configured ❌</div><div>trusted_issuers.json is missing, so signature validation cannot run.</div>');
     }
   });
+})();
+
+(async function autoVerifyLandingUrl() {
+  const landingPayload = getLandingPayloadFromPageUrl();
+  if (!landingPayload) {
+    return;
+  }
+
+  const ok = await loadIssuerRegistry();
+  if (!ok) {
+    return;
+  }
+
+  qrLinkInput.value = landingPayload;
+  setStatus('pending', 'VERIFYING');
+  renderCardHtml('<div>QR payload detected in page URL. Verifying now...</div>');
+  processPayload(landingPayload, 'landing-url');
 })();

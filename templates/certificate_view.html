@@ -558,7 +558,7 @@
         document.getElementById('certVerifyUrl').value = certVerifyURL;
 
         QRCode.toCanvas(document.createElement('canvas'), certVerifyURL, {
-            width: 140,
+            width: 180,
             margin: 2
         }, function (error, canvas) {
             if (error) console.error(error);

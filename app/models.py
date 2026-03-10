@@ -235,7 +235,7 @@ def init_database(app):
             db_dir = Path(db_path).parent
             db_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            print(f"⚠️  Warning: Could not create database directory: {e}")
+            print(f"  Warning: Could not create database directory: {e}")
     
     db.init_app(app)
     
@@ -249,25 +249,25 @@ def init_database(app):
                 # Check for mfa_email_code and mfa_code_expires
                 db.session.execute(text("SELECT mfa_email_code FROM users LIMIT 1")).fetchone()
             except Exception:
-                print("🔄 Updating database schema: Adding mfa_email_code and mfa_code_expires...")
+                print("[INFO] Updating database schema: Adding mfa_email_code and mfa_code_expires...")
                 try:
                     db.session.rollback()
                     db.query_executor = db.session.execute(text("ALTER TABLE users ADD COLUMN mfa_email_code VARCHAR(6)"))
                     db.session.execute(text("ALTER TABLE users ADD COLUMN mfa_code_expires DATETIME"))
                     db.session.commit()
-                    print("✅ Schema updated with Email OTP fields.")
+                    print("[SUCCESS] Schema updated with Email OTP fields.")
                 except Exception as ex:
-                    print(f"⚠️  Email OTP schema update failed: {ex}")
+                    print(f"[WARNING] Email OTP schema update failed: {ex}")
                     db.session.rollback()
 
-            print(f"✅ Database initialized successfully")
+            print(f"[SUCCESS] Database initialized successfully")
         except Exception as e:
-            print(f"❌ Database initialization failed: {e}")
+            print(f"[ERROR] Database initialization failed: {e}")
             raise
         
-        print("🔄 Calling create_default_users()...")
+        print("[INFO] Calling create_default_users()...")
         create_default_users()
-        print("✅ create_default_users() completed.")
+        print("[SUCCESS] create_default_users() completed.")
 
 
 def create_default_users():
@@ -276,12 +276,12 @@ def create_default_users():
         # Create default admin/issuer account if not exists
         admin = User.query.filter_by(username='admin').first()
         if not admin:
-            print("📝 Initializing Secure Administrative Accounts...")
+            print(" Initializing Secure Administrative Accounts...")
             
             # Admin account
             admin_pwd = os.environ.get('INITIAL_ADMIN_PASSWORD', 'admin123')
             if not os.environ.get('INITIAL_ADMIN_PASSWORD'):
-                print(f"🔐 USING DEFAULT ADMIN PASSWORD: {admin_pwd}")
+                print(f" USING DEFAULT ADMIN PASSWORD: {admin_pwd}")
             
             admin = User(
                 username='admin',
@@ -321,10 +321,10 @@ def create_default_users():
             db.session.add(verifier)
             
             db.session.commit()
-            print(f"✅ Secure base system initialized (3 administrative users)")
+            print(f" Secure base system initialized (3 administrative users)")
         else:
-            print("✅ Production environments: Administrative users already exist")
+            print(" Production environments: Administrative users already exist")
             
     except Exception as e:
-        print(f"⚠️  Warning: Could not initialize secure users: {e}")
+        print(f"  Warning: Could not initialize secure users: {e}")
         db.session.rollback()

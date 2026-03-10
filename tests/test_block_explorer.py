@@ -37,14 +37,17 @@ def test_explorer_sorting(client):
     assert blocks[1]['index'] == index1
     assert blocks[-1]['index'] == 0
 
-def test_explorer_empty_chain_safety(client, auth_client):
-    """Test explorer safety when system is reset"""
-    # 1. Reset
-    auth_client.post('/api/system/reset', data=json.dumps({'confirmation': 'RESET_EVERYTHING'}), content_type='application/json')
+def test_explorer_empty_chain_safety(client, app):
+    """Test explorer safety when blockchain is reset to genesis-only state"""
+    from app.app import blockchain as app_blockchain
     
-    # 2. Check blocks
+    # Directly reset the in-memory blockchain (avoids system/reset API side-effects)
+    app_blockchain.chain = []
+    app_blockchain.create_genesis_block()
+    
+    # Check blocks
     response = client.get('/api/blockchain/blocks')
     data = json.loads(response.data)
     
-    assert len(data['blocks']) == 1 # Only Genesis remains
+    assert len(data['blocks']) == 1  # Only Genesis remains
     assert data['blocks'][0]['index'] == 0

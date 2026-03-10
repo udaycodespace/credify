@@ -19,6 +19,33 @@ from core.ipfs_client import IPFSClient
 from core.credential_manager import CredentialManager
 from core.ticket_manager import TicketManager
 from core.zkp_manager import ZKPManager
+import core
+
+@pytest.fixture(autouse=True)
+def temp_data_dir(tmp_path):
+    """Provides a temporary data directory and patches core modules to use it."""
+    # Create temp directories
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    
+    # Patch the global DATA_DIR in various modules
+    import core.credential_manager
+    import core.ipfs_client
+    import core.blockchain
+    
+    original_data_dir = core.DATA_DIR
+    core.DATA_DIR = data_dir
+    core.credential_manager.DATA_DIR = data_dir
+    core.ipfs_client.DATA_DIR = data_dir
+    core.blockchain.DATA_DIR = data_dir
+    
+    yield data_dir
+    
+    # Restore (optional, as processes usually exit after tests)
+    core.DATA_DIR = original_data_dir
+    core.credential_manager.DATA_DIR = original_data_dir
+    core.ipfs_client.DATA_DIR = original_data_dir
+    core.blockchain.DATA_DIR = original_data_dir
 
 
 @pytest.fixture

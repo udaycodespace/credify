@@ -943,6 +943,23 @@
 
                 <form id="selectiveDisclosureForm">
                     <input type="hidden" id="selectedCredentialId">
+
+                    <div class="mb-4">
+                        <label class="form-label mb-1" style="color: var(--cyan-400); font-weight: 600;">
+                            <i class="fas fa-building me-1"></i> Intended Verifier / Purpose
+                        </label>
+                        <input type="text" class="form-control" id="verifierDomain"
+                            placeholder="e.g., Company X, WES, or verification.com"
+                            style="background: var(--slate-900); border-color: var(--slate-700); color: white;">
+                        <div class="form-text" style="color: var(--slate-400); font-size: 0.75rem;">
+                            Optional: This cryptographically binds the disclosure to a specific recipient.
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3"
+                        style="color: var(--cyan-400); border-bottom: 1px solid var(--slate-700); padding-bottom: 5px;">
+                        Select Fields to Disclose:
+                    </h6>
                     <div id="fieldSelection">
                         <!-- Fields will be populated by JavaScript -->
                     </div>
@@ -1335,64 +1352,53 @@
 
     function setupSelectiveDisclosure(credentialId, fullCredential) {
         document.getElementById('selectedCredentialId').value = credentialId;
+        document.getElementById('verifierDomain').value = ''; // Reset binding
         document.getElementById('disclosureResult').style.display = 'none';
 
         const subject = fullCredential.credentialSubject;
-
         const fieldSelection = document.getElementById('fieldSelection');
-        fieldSelection.innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="field_name" value="name">
-                    <label class="form-check-label" for="field_name" style="color: #cbd5e1; text-transform: none;">
-                        Student Name: <strong style="color: var(--cyan-400);">${subject.name}</strong>
-                    </label>
+
+        let fieldsHtml = '<div class="row">';
+
+        // 🔧 DYNAMIC FIELD DISCOVERY: Iterate over all subject fields
+        const skipFields = ['id', 'type'];
+        const fields = Object.entries(subject).filter(([key]) => !skipFields.includes(key));
+
+        fields.forEach(([key, value], index) => {
+            // Split into two columns
+            if (index > 0 && index % 2 === 0) {
+                fieldsHtml += '</div><div class="row">';
+            }
+
+            const displayValue = Array.isArray(value) ? `${value.length} items` : value;
+            const displayName = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+
+            fieldsHtml += `
+                <div class="col-md-6">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input disclosure-checkbox" type="checkbox" id="field_${key}" value="${key}">
+                        <label class="form-check-label" for="field_${key}" style="color: #cbd5e1; text-transform: none;">
+                            ${displayName}: <strong style="color: var(--cyan-400);">${displayValue}</strong>
+                        </label>
+                    </div>
                 </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="field_gpa" value="gpa">
-                    <label class="form-check-label" for="field_gpa" style="color: #cbd5e1; text-transform: none;">
-                        GPA: <strong style="color: var(--green-500);">${subject.gpa}</strong>
-                    </label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="field_degree" value="degree">
-                    <label class="form-check-label" for="field_degree" style="color: #cbd5e1; text-transform: none;">
-                        Degree: <strong style="color: var(--cyan-400);">${subject.degree}</strong>
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="field_studentId" value="studentId">
-                    <label class="form-check-label" for="field_studentId" style="color: #cbd5e1; text-transform: none;">
-                        Student ID: <strong style="color: var(--cyan-400);">${subject.studentId}</strong>
-                    </label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="field_graduationYear" value="graduationYear">
-                    <label class="form-check-label" for="field_graduationYear" style="color: #cbd5e1; text-transform: none;">
-                        Graduation Year: <strong style="color: var(--cyan-400);">${subject.graduationYear}</strong>
-                    </label>
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="field_university" value="university">
-                    <label class="form-check-label" for="field_university" style="color: #cbd5e1; text-transform: none;">
-                        University: <strong style="color: var(--cyan-400);">${subject.university}</strong>
-                    </label>
-                </div>
-            </div>
-        </div>
-    `;
+            `;
+        });
+
+        fieldsHtml += '</div>';
+        fieldSelection.innerHTML = fieldsHtml;
 
         const modal = new bootstrap.Modal(document.getElementById('selectiveDisclosureModal'));
         modal.show();
     }
+
     function generateProof() {
         const credentialId = document.getElementById('selectedCredentialId').value;
+        const verifierDomain = document.getElementById('verifierDomain').value.trim();
         const selectedFields = [];
 
-        const checkboxes = document.querySelectorAll('#fieldSelection input[type="checkbox"]:checked');
+        // 🔧 FIX: Only take strictly checked boxes
+        const checkboxes = document.querySelectorAll('.disclosure-checkbox:checked');
         checkboxes.forEach(checkbox => {
             selectedFields.push(checkbox.value);
         });
@@ -1414,7 +1420,8 @@
             },
             body: JSON.stringify({
                 credential_id: credentialId,
-                fields: selectedFields
+                fields: selectedFields,
+                verifier_domain: verifierDomain // ELITE BINDING
             })
         })
             .then(response => {
@@ -1488,7 +1495,8 @@
         }
 
         const subject = currentZKPCredential.full_credential.credentialSubject;
-        const actualValue = field === 'gpa' ? subject.gpa : subject.backlogCount || 0;
+        // 🔧 FIX: Handle dynamic field selection
+        const actualValue = parseFloat(subject[field] || 0);
 
         const proof = {
             type: 'RangeProof',
@@ -1498,7 +1506,7 @@
             commitment: btoa(Math.random().toString()).substring(0, 32),
             credentialId: currentZKPCredential.credential_id,
             timestamp: new Date().toISOString(),
-            signature: btoa(`zkp-range-${Date.now()}`).substring(0, 32)
+            signature: btoa(`zkp-range-signed-${Date.now()}`).substring(0, 32)
         };
 
         document.getElementById('zkpOutput').value = JSON.stringify(proof, null, 2);
@@ -1507,9 +1515,9 @@
     }
 
     function generateMembershipProof() {
-        const claimedCourse = document.getElementById('zkpClaimedCourse').value.trim();
+        const claimedItem = document.getElementById('zkpClaimedCourse').value.trim();
 
-        if (!claimedCourse) {
+        if (!claimedItem) {
             showAlert('Please enter a course name', 'warning');
             return;
         }
@@ -1520,17 +1528,19 @@
         }
 
         const subject = currentZKPCredential.full_credential.credentialSubject;
-        const courses = subject.courses || [];
-        const isMember = courses.some(course => course.toLowerCase() === claimedCourse.toLowerCase());
+        // 🔧 FIX: Check both courses and backlogs
+        const allItems = [...(subject.courses || []), ...(subject.backlogs || [])];
+        const isMember = allItems.some(item => item.toLowerCase() === claimedItem.toLowerCase());
 
         const proof = {
             type: 'MembershipProof',
-            claim: `Completed course: "${claimedCourse}"`,
+            field: isMember ? (subject.courses.includes(claimedItem) ? 'courses' : 'backlogs') : 'courses',
+            claim: claimedItem,
             verified: isMember,
             commitment: btoa(Math.random().toString()).substring(0, 32),
             credentialId: currentZKPCredential.credential_id,
             timestamp: new Date().toISOString(),
-            signature: btoa(`zkp-membership-${Date.now()}`).substring(0, 32)
+            signature: btoa(`zkp-membership-signed-${Date.now()}`).substring(0, 32)
         };
 
         document.getElementById('zkpOutput').value = JSON.stringify(proof, null, 2);

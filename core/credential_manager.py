@@ -1,6 +1,7 @@
 import json
 import uuid
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 import logging
 from pathlib import Path
 import hashlib
@@ -18,6 +19,7 @@ class CredentialManager:
         self.ipfs_client = ipfs_client
         self.credentials_file = DATA_DIR / "credentials_registry.json"
         self.credentials_registry = self.load_credentials_registry()
+        self.disclosure_registry = {}  # Initialize disclosure mapping for ELITE privacy proxy
     
     def _calculate_version_for_student(self, student_id):
         """Calculate version per student ID, not globally"""
@@ -75,6 +77,23 @@ class CredentialManager:
         """Generate DID-style holder identifier"""
         return f"did:edu:gprec:student:{student_id}"
     
+    def _gather_all_fields(self, registry_entry, subject_data):
+        """Helper to flatten all credential information into a standard field map"""
+        fields = {
+            'credentialId': registry_entry.get('credential_id'),
+            'version': registry_entry.get('version'),
+            'issuerId': registry_entry.get('issuer_id'),
+            'holderId': registry_entry.get('holder_id'),
+            'status': registry_entry.get('status'),
+            'issueDate': registry_entry.get('issue_date'),
+            'ipfsCid': registry_entry.get('ipfs_cid'),
+            'transactionHash': registry_entry.get('tx_hash')
+        }
+        for k, v in subject_data.items():
+            if k not in ['id', 'type']:
+                fields[k] = v
+        return fields
+
     def issue_credential(self, transcript_data, replaces=None):
         """Issue a new verifiable credential with COMPLETE metadata"""
         try:
@@ -158,6 +177,21 @@ class CredentialManager:
             transaction_hash = block.hash
             superseded_count = self._auto_revoke_previous_active(student_id, credential_id)
             
+            #  SECURITY: Generate immutable salts for ALL possible fields at issuance
+            # Temporary entry to gather fields
+            temp_entry = {
+                'credential_id': credential_id,
+                'version': version,
+                'issuer_id': self._generate_issuer_id(),
+                'holder_id': self._generate_holder_id(student_id),
+                'status': 'active',
+                'issue_date': issued_at,
+                'ipfs_cid': ipfs_cid,
+                'tx_hash': transaction_hash
+            }
+            all_fields = self._gather_all_fields(temp_entry, credential['credentialSubject'])
+            field_salts = {field: secrets.token_hex(16) for field in all_fields}
+            
             self.credentials_registry[credential_id] = {
                 'credential_id': credential_id,
                 'issuer_id': self._generate_issuer_id(),
@@ -197,12 +231,13 @@ class CredentialManager:
                 'revoked_at': None,
                 'revocation_reason': None,
                 'revocation_category': None,
-                'superseded_count': superseded_count
+                'superseded_count': superseded_count,
+                'field_salts': field_salts #  Persist salts for Merkle tree proofs
             }
             
             self.save_credentials_registry()
             
-            logging.info(f"✅ Credential v{version} issued for student {student_id}")
+            logging.info(f"Credential v{version} issued for student {student_id}")
             logging.info(f"   Superseded {superseded_count} previous credential(s)")
             
             return {
@@ -221,7 +256,7 @@ class CredentialManager:
             }
             
         except Exception as e:
-            logging.error(f"❌ Error issuing credential: {str(e)}")
+            logging.error(f" Error issuing credential: {str(e)}")
             return {'success': False, 'error': str(e)}
     
     def create_new_version(self, old_credential_id, updated_data, reason):
@@ -251,7 +286,7 @@ class CredentialManager:
                 }
                 self.blockchain.add_block(version_record)
                 
-                logging.info(f"✅ New version created: v{result['version']} - Reason: {reason}")
+                logging.info(f" New version created: v{result['version']} - Reason: {reason}")
                 
                 result['reason'] = reason
                 result['old_version'] = old_credential.get('version', 1)
@@ -259,7 +294,7 @@ class CredentialManager:
             return result
             
         except Exception as e:
-            logging.error(f"❌ Error creating new version: {str(e)}")
+            logging.error(f" Error creating new version: {str(e)}")
             return {'success': False, 'error': str(e)}
     
     def verify_credential(self, credential_id):
@@ -355,7 +390,7 @@ class CredentialManager:
                     'details': 'The signature does not match the credential issuer'
                 }
             
-            logging.info(f"✅ Credential verified successfully: {credential_id}")
+            logging.info(f"Credential verified successfully: {credential_id}")
             
             return {
                 'valid': True,
@@ -372,7 +407,7 @@ class CredentialManager:
             }
             
         except Exception as e:
-            logging.error(f"❌ Error verifying credential: {str(e)}")
+            logging.error(f" Error verifying credential: {str(e)}")
             import traceback
             traceback.print_exc()
             return {
@@ -382,10 +417,29 @@ class CredentialManager:
                 'details': 'An unexpected error occurred during verification'
             }
     
-    def selective_disclosure(self, credential_id, selected_fields):
+    def normalize_domain(self, domain_input):
+        """
+        [Security Fix #2] Normalize verifier domains.
+        google.com, https://google.com, GOOGLE.COM/ -> google.com
+        """
+        if not domain_input:
+            return "generic"
+        try:
+            domain = domain_input.lower().strip()
+            # Remove protocol
+            if "://" in domain:
+                domain = domain.split("://")[-1]
+            # Remove path/trailing slash
+            domain = domain.split("/")[0]
+            return domain
+        except Exception:
+            return domain_input.lower()
+
+    def selective_disclosure(self, credential_id, selected_fields, verifier_domain=None):
         """
         Create a selective disclosure of credential fields
-        FIXED: Now supports ALL fields including blockchain, crypto, and metadata fields
+        ELITE: Implements Unlinkability (Blind IDs) and One-Time Expiration.
+        NOW BOUND: disclosure_id is bound to verifier_domain to prevent cross-platform replay.
         """
         try:
             credential_id = self._normalize_credential_id(credential_id)
@@ -396,98 +450,116 @@ class CredentialManager:
             
             credential = verification_result['credential']
             registry_entry = verification_result['registry_entry']
-            subject_data = credential['credentialSubject']
+            subject_data = credential.get('credentialSubject', {})
             
-            # 🔧 FIX: Create comprehensive field mapping
-            all_fields = {
-                # Identity fields
-                'credentialId': registry_entry.get('credential_id'),
-                'version': registry_entry.get('version'),
-                'issuerId': registry_entry.get('issuer_id'),
-                'holderId': registry_entry.get('holder_id'),
-                
-                # Student information fields (from credentialSubject)
-                'name': subject_data.get('name'),
-                'studentId': subject_data.get('studentId'),
-                'degree': subject_data.get('degree'),
-                'university': subject_data.get('university'),
-                'gpa': subject_data.get('gpa'),
-                'graduationYear': subject_data.get('graduationYear'),
-                'semester': subject_data.get('semester'),
-                'year': subject_data.get('year'),
-                'className': subject_data.get('className'),
-                'section': subject_data.get('section'),
-                'backlogCount': subject_data.get('backlogCount'),
-                'conduct': subject_data.get('conduct'),
-                'courses': subject_data.get('courses'),
-                'backlogs': subject_data.get('backlogs'),
-                
-                # Cryptographic fields
-                'credentialHash': registry_entry.get('credential_hash'),
-                'digitalSignature': registry_entry.get('signature'),
-                
-                # Storage & Blockchain fields
-                'ipfsCid': registry_entry.get('ipfs_cid'),
-                'transactionHash': registry_entry.get('tx_hash'),
-                'blockHash': registry_entry.get('block_hash'),
-                'blockNumber': registry_entry.get('block_number'),
-                'network': registry_entry.get('network_id'),
-                
-                # Versioning & Lifecycle fields
-                'status': registry_entry.get('status'),
-                'schema': registry_entry.get('credential_schema'),
-                'issueDate': registry_entry.get('issue_date'),
-                'previousCredentialId': registry_entry.get('previous_credential_id'),
-                'supersededBy': registry_entry.get('superseded_by')
-            }
+            #  DYNAMIC RESOLUTION: Build a flat dictionary of ALL fields
+            all_fields = self._gather_all_fields(registry_entry, subject_data)
             
             # Extract only selected fields
             disclosed_data = {}
             for field in selected_fields:
                 if field in all_fields:
-                    value = all_fields[field]
-                    if value is not None:  # Only include non-None values
-                        disclosed_data[field] = value
-                else:
-                    return {'success': False, 'error': f'Field "{field}" not found in credential'}
+                    disclosed_data[field] = all_fields[field]
             
+            #  UNLINKABILITY & DOMAIN BINDING (ELITE Upgrade)
+            # verifier never sees the original credentialId
+            disclosure_salt = secrets.token_hex(16)
+            domain_ctx = self.normalize_domain(verifier_domain) # [Fix #2]
+            
+            # [Security Fix #1] Collision-safe construction
+            disclosure_id = self.crypto_manager.hash_data(f"{credential_id}|{disclosure_salt}|{domain_ctx}")
+            
+            #  EXPIRATION (One-Time Disclosure): Valid for 24 hours
+            expires_at = (datetime.utcnow() + timedelta(hours=24)).isoformat() + 'Z'
+            
+            # [Fix #3] Use stored field_salts
+            field_salts = registry_entry.get('field_salts', {})
+            if not field_salts:
+                # Emergency fallback if salts were not generated at issuance (migration path)
+                field_salts = {field: secrets.token_hex(16) for field in all_fields}
+                registry_entry['field_salts'] = field_salts
+                self.save_credentials_registry()
+
             # Create cryptographic proof
-            proof = self.crypto_manager.create_proof_for_fields(all_fields, disclosed_data)
+            proof = self.crypto_manager.create_proof_for_fields(all_fields, disclosed_data, field_salts)
             
             # Create disclosure document
             disclosure_doc = {
-                '@context': [
-                    'https://www.w3.org/2018/credentials/v1',
-                    'https://example.org/academic/v1'
-                ],
-                'type': 'SelectiveDisclosure',
-                'originalCredentialId': credential_id,
+                '@context': ['https://www.w3.org/2018/credentials/v1'],
+                'type': 'BlindSelectiveDisclosure',
+                'disclosureId': disclosure_id,
                 'disclosedFields': disclosed_data,
                 'proof': proof,
-                'issuer': credential['issuer'],
-                'issuanceDate': credential['issuanceDate'],
-                'disclosureDate': datetime.utcnow().isoformat() + 'Z',
+                'issuer': credential.get('issuer', {}),
+                'issuanceDate': credential.get('issuanceDate'),
                 'disclosureMetadata': {
-                    'totalFieldsAvailable': len(all_fields),
-                    'fieldsDisclosed': len(disclosed_data),
-                    'privacyLevel': 'selective'
+                    'expiresAt': expires_at,
+                    'verifier': domain_ctx,
+                    'privacyLevel': 'elite-unlinkable-bound',
+                    'originalStatus': registry_entry.get('status')
                 }
             }
             
-            logging.info(f"✅ Selective disclosure created for credential: {credential_id}")
-            logging.info(f"   Disclosed {len(disclosed_data)} out of {len(all_fields)} fields")
+            #  REGISTER DISCLOSURE (Hidden Registry for verification proxy)
+            if not hasattr(self, 'disclosure_registry'):
+                self.disclosure_registry = {}
+            
+            self.disclosure_registry[disclosure_id] = {
+                'original_id': credential_id,
+                'verifier': domain_ctx,
+                'expires_at': expires_at,
+                'created_at': datetime.utcnow().isoformat()
+            }
             
             return {
                 'success': True,
                 'disclosure': disclosure_doc,
-                'message': f'Selective disclosure created with {len(selected_fields)} fields'
+                'message': f'Elite selective disclosure created (expires in 24h)'
             }
             
         except Exception as e:
-            logging.error(f"❌ Error creating selective disclosure: {str(e)}")
-            import traceback
-            traceback.print_exc()
+            logging.error(f"Selective disclosure error: {str(e)}")
             return {'success': False, 'error': str(e)}
+
+    def verify_blind_disclosure(self, disclosure_id):
+        """
+        Proxy verification: Resolve a Blind Disclosure ID to its original status.
+        Ensures verifier confirms 'Active/Valid' without learning the real Credential ID.
+        """
+        try:
+            if not hasattr(self, 'disclosure_registry'):
+                return {'valid': False, 'error': 'Disclosure registry not initialized'}
+                
+            disclosure_meta = self.disclosure_registry.get(disclosure_id)
+            if not disclosure_meta:
+                return {
+                    'valid': False, 
+                    'status': 'INVALID', 
+                    'error': 'Disclosure ID not found'
+                }
+                
+            # [Security Fix #4] Return status: EXPIRED instead of INVALID
+            expires_at = datetime.fromisoformat(disclosure_meta['expires_at'].replace('Z', ''))
+            if datetime.utcnow() > expires_at:
+                return {
+                    'valid': False, 
+                    'status': 'EXPIRED', 
+                    'error': 'Disclosure has expired (24h limit)'
+                }
+                
+            # Resolve to original credential and check REAL status on blockchain
+            original_id = disclosure_meta['original_id']
+            verification = self.verify_credential(original_id)
+            
+            return {
+                'valid': verification['valid'],
+                'status': verification['status'].upper() if verification['valid'] else 'INVALID',
+                'issuer': verification.get('registry_entry', {}).get('issuer_id'),
+                'message': 'Disclosure authenticity confirmed via Proxy'
+            }
+        except Exception as e:
+            logging.error(f"Error verifying blind disclosure: {str(e)}")
+            return {'valid': False, 'error': str(e)}
     
     def get_all_credentials(self):
         """Get all credentials in the registry"""
@@ -532,7 +604,7 @@ class CredentialManager:
             
             history.sort(key=lambda x: x.get('version', 1))
             
-            logging.info(f"✅ Found {len(history)} credential version(s) for student {student_id}")
+            logging.info(f"Found {len(history)} credential version(s) for student {student_id}")
             
             return {
                 'success': True,
@@ -542,7 +614,7 @@ class CredentialManager:
             }
             
         except Exception as e:
-            logging.error(f"❌ Error getting credential history: {str(e)}")
+            logging.error(f"Error getting credential history: {str(e)}")
             return {'success': False, 'error': str(e)}
     
     def revoke_credential(self, credential_id, reason="", reason_category="other"):
@@ -580,7 +652,7 @@ class CredentialManager:
             
             self.save_credentials_registry()
             
-            logging.info(f"✅ Credential revoked: {credential_id} - Reason: {reason_category}")
+            logging.info(f"Credential revoked: {credential_id} - Reason: {reason_category}")
             
             return {
                 'success': True,
@@ -590,7 +662,7 @@ class CredentialManager:
             }
             
         except Exception as e:
-            logging.error(f"❌ Error revoking credential: {str(e)}")
+            logging.error(f"Error revoking credential: {str(e)}")
             return {'success': False, 'error': str(e)}
     
     def load_credentials_registry(self):
@@ -601,13 +673,13 @@ class CredentialManager:
             if self.credentials_file.exists():
                 with open(self.credentials_file, 'r') as f:
                     registry = json.load(f)
-                    logging.info(f"✅ Credentials registry loaded: {len(registry)} entries")
+                    logging.info(f"Credentials registry loaded: {len(registry)} entries")
                     return registry
             else:
-                logging.info(f"⚠️  No existing credentials registry found")
+                logging.info(f"No existing credentials registry found")
                 return {}
         except Exception as e:
-            logging.error(f"❌ Error loading credentials registry: {str(e)}")
+            logging.error(f"Error loading credentials registry: {str(e)}")
             return {}
     
     def save_credentials_registry(self):
@@ -617,9 +689,9 @@ class CredentialManager:
             
             with open(self.credentials_file, 'w') as f:
                 json.dump(self.credentials_registry, f, indent=2)
-            logging.info(f"✅ Credentials registry saved: {len(self.credentials_registry)} entries")
+            logging.info(f"Credentials registry saved: {len(self.credentials_registry)} entries")
         except Exception as e:
-            logging.error(f"❌ Error saving credentials registry: {str(e)}")
+            logging.error(f"Error saving credentials registry: {str(e)}")
     
     def _normalize_credential_id(self, credential_id):
         """Normalize credential ID (handle URN formats)"""

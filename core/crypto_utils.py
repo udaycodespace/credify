@@ -221,38 +221,60 @@ class CryptoManager:
         )
         return public_pem.decode('utf-8')
     
-    def create_merkle_root(self, data_list):
-        """Create Merkle root for selective disclosure"""
-        if not data_list:
+    def create_merkle_root(self, leaf_hashes):
+        """
+        Create Merkle root from a list of hashes.
+        Leaf hashes should be pre-computed.
+        """
+        if not leaf_hashes:
             return None
         
-        # Hash each piece of data
-        hashes = [self.hash_data(item) for item in data_list]
+        current_hashes = sorted(leaf_hashes) # Sort for consistency
         
-        # Build Merkle tree
-        while len(hashes) > 1:
+        while len(current_hashes) > 1:
             next_level = []
-            for i in range(0, len(hashes), 2):
-                if i + 1 < len(hashes):
-                    combined = hashes[i] + hashes[i + 1]
+            for i in range(0, len(current_hashes), 2):
+                if i + 1 < len(current_hashes):
+                    combined = current_hashes[i] + current_hashes[i + 1]
                 else:
-                    combined = hashes[i] + hashes[i]  # Duplicate if odd number
+                    combined = current_hashes[i] + current_hashes[i]  # Duplicate if odd number
                 next_level.append(self.hash_data(combined))
-            hashes = next_level
+            current_hashes = next_level
         
-        return hashes[0]
+        return current_hashes[0]
     
-    def create_proof_for_fields(self, all_fields, selected_fields):
-        """Create a proof that selected fields belong to the original credential"""
-        # This is a simplified version - in production, use proper ZKP libraries
+    def create_proof_for_fields(self, all_fields, selected_fields, field_salts):
+        """
+        Create a ELITE salted Merkle proof for selective disclosure using PRE-STORED salts.
+        Collision-safe construction: hash(salt + "|" + field + "|" + value)
+        """
+        import secrets
+        
+        # 1. Compute salted hashes for all fields (The Leaves) using provided salts
+        leaf_hashes = []
+        for field, value in all_fields.items():
+            salt = field_salts.get(field)
+            if not salt:
+                # Fallback purely for safety, shouldn't happen with stored salts
+                salt = secrets.token_hex(16)
+                
+            # COLLISION-SAFE Construction [Security Fix #1]
+            leaf_content = f"{salt}|{field}|{value}"
+            leaf_hashes.append(self.hash_data(leaf_content))
+            
+        # 2. Create Merkle root of all (blinded) fields
+        merkle_root = self.create_merkle_root(leaf_hashes)
+        
+        # 3. Construct the disclosure proof
         proof = {
-            'selected_fields': list(selected_fields.keys()),
-            'field_hashes': {field: self.hash_data(str(selected_fields[field])) 
-                           for field in selected_fields},
-            'merkle_root': self.create_merkle_root(list(all_fields.values())),
-            'timestamp': datetime.now().isoformat()  # Add import at top
+            'type': 'MerkleStoreDisclosure',
+            'merkle_root': merkle_root,
+            'disclosed_salts': {field: field_salts[field] for field in selected_fields},
+            'timestamp': datetime.utcnow().isoformat() + 'Z',
+            'nonce': secrets.token_hex(8)
         }
         
-        # Sign the proof
+        # 4. Sign the whole proof structure
         proof['signature'] = self.sign_data(proof)
+        
         return proof

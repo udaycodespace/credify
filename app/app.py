@@ -1,6 +1,10 @@
 import os
 import logging
 import base64
+import re
+import hmac
+import hashlib
+import gzip
 
 # Optionally load environment variables from a .env file
 try:
@@ -11,6 +15,7 @@ except Exception:
     logging.debug('python-dotenv not available; skipping .env load')
 
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session, make_response
+from flask_cors import CORS
 from datetime import datetime
 from core import DATA_DIR as DATADIR
 from pathlib import Path
@@ -36,6 +41,7 @@ import uuid
 from .config import Config
 
 import qrcode
+from qrcode.constants import ERROR_CORRECT_L
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -49,6 +55,146 @@ app = Flask(__name__,
             template_folder='../templates',
             static_folder='../static')
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+
+# Allow external verifier frontends (e.g., GitHub Pages/mobile web apps) to call public APIs.
+cors_origins = os.environ.get("CORS_ORIGINS", "*")
+CORS(app, resources={r"/api/*": {"origins": cors_origins}}, supports_credentials=False)
+
+
+def _qr_signing_key():
+    """Derive a stable signing key for QR secret payloads."""
+    return (os.environ.get("QR_SECRET_KEY") or app.secret_key or "credify-qr-secret").encode("utf-8")
+
+
+def _generate_qr_secret_token(credential_id, payload_hash=None):
+    """Create tamper-evident token embedded inside QR URLs for qr-web-app use."""
+    issued_ts = int(datetime.utcnow().timestamp())
+    payload = {
+        "cid": credential_id,
+        "ts": issued_ts,
+        "v": 2,
+        "iss": "did:edu:gprec",
+    }
+    if payload_hash:
+        payload["pd"] = payload_hash
+
+    # Primary format: JWS (offline verifiable using issuer public key).
+    signed_jws = crypto_manager.sign_jws(payload)
+    if signed_jws:
+        return signed_jws
+
+    # Legacy fallback (kept for resiliency if signing fails unexpectedly).
+    payload_json = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+    payload_b64 = base64.urlsafe_b64encode(payload_json.encode("utf-8")).decode("utf-8").rstrip("=")
+    sig = hmac.new(_qr_signing_key(), payload_json.encode("utf-8"), digestmod="sha256").hexdigest()
+    return f"{payload_b64}.{sig}"
+
+
+def _verify_qr_secret_token(token, expected_cid=None, expected_qd=None):
+    """Validate token integrity and return parsed payload for trusted QR disclosures."""
+    try:
+        if not token or "." not in token:
+            return None
+
+        payload = None
+        # New format: JWS compact token header.payload.signature
+        if token.count(".") == 2:
+            valid, parsed_payload = crypto_manager.verify_jws(token)
+            if valid and isinstance(parsed_payload, dict):
+                payload = parsed_payload
+        else:
+            # Legacy format: payload.signature (HMAC)
+            payload_b64, provided_sig = token.split(".", 1)
+            padded = payload_b64 + "=" * (-len(payload_b64) % 4)
+            payload_json = base64.urlsafe_b64decode(padded.encode("utf-8")).decode("utf-8")
+            expected_sig = hmac.new(_qr_signing_key(), payload_json.encode("utf-8"), digestmod="sha256").hexdigest()
+            if hmac.compare_digest(expected_sig, provided_sig):
+                payload = json.loads(payload_json)
+
+        if not payload or not payload.get("cid"):
+            return None
+
+        if expected_cid and str(payload.get("cid")) != str(expected_cid):
+            return None
+
+        # If qd is provided, bind token to payload digest (for v2 tokens).
+        if expected_qd and payload.get("pd"):
+            qd_hash = _hash_qr_hidden_payload(expected_qd)
+            if not qd_hash or qd_hash != payload.get("pd"):
+                return None
+
+        return payload
+    except Exception:
+        return None
+
+
+def _generate_qr_hidden_payload(credential_id):
+    """Create an offline-decodable QR payload with credential details for qr-web-app."""
+    cred = credential_manager.get_credential(credential_id)
+    if not cred:
+        return None
+
+    full_cred = cred.get('full_credential') or {}
+    subject = full_cred.get('credentialSubject') or {}
+
+    payload = {
+        'v': 1,
+        'cid': credential_id,
+        'name': subject.get('name'),
+        'studentId': subject.get('studentId'),
+        'degree': subject.get('degree'),
+        'department': subject.get('department'),
+        'studentStatus': subject.get('studentStatus'),
+        'college': subject.get('college'),
+        'university': subject.get('university'),
+        'cgpa': subject.get('cgpa') or subject.get('gpa'),
+        'graduationYear': subject.get('graduationYear'),
+        'batch': subject.get('batch'),
+        'conduct': subject.get('conduct'),
+        'backlogCount': subject.get('backlogCount'),
+        'courses': subject.get('courses') or [],
+        'backlogs': subject.get('backlogs') or [],
+        'issueDate': subject.get('issueDate'),
+        'semester': subject.get('semester'),
+        'year': subject.get('year'),
+        'section': subject.get('section'),
+        'ipfsCid': cred.get('ipfs_cid'),
+    }
+
+    payload_json = json.dumps(payload, separators=(',', ':'), sort_keys=True)
+    # Compress payload to reduce QR density and improve phone scan reliability.
+    payload_bytes = gzip.compress(payload_json.encode('utf-8'), compresslevel=9)
+    return base64.urlsafe_b64encode(payload_bytes).decode('utf-8').rstrip('=')
+
+
+def _hash_qr_hidden_payload(qr_data):
+    """Hash base64url-decoded hidden payload for token-payload binding."""
+    if not qr_data:
+        return None
+    padded = qr_data + "=" * (-len(qr_data) % 4)
+    payload_bytes = base64.urlsafe_b64decode(padded.encode("utf-8"))
+
+    # Backward-compatible decode: old QR stored raw JSON; new QR stores gzip-compressed JSON.
+    if payload_bytes[:2] == b"\x1f\x8b":
+        payload_json = gzip.decompress(payload_bytes).decode("utf-8")
+    else:
+        payload_json = payload_bytes.decode("utf-8")
+
+    return hashlib.sha256(payload_json.encode("utf-8")).hexdigest()
+
+
+def _build_verify_url(credential_id):
+    """Build the canonical verify URL used by all QR generation paths."""
+    qr_data = _generate_qr_hidden_payload(credential_id)
+    qr_token = _generate_qr_secret_token(credential_id, _hash_qr_hidden_payload(qr_data))
+    verify_url = url_for('public_verify', _external=True) + f'?id={credential_id}&qk={qr_token}'
+    if qr_data:
+        verify_url += f'&qd={qr_data}'
+    return {
+        'verify_url': verify_url,
+        'qr_token': qr_token,
+        'qr_data': qr_data,
+    }
 
 # Database config
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///credentials.db")
@@ -856,6 +1002,20 @@ def verify_mfa_setup():
 def api_issue_credential():
     try:
         data = request.get_json()
+
+        def _split_list(value):
+            """Normalize comma/newline separated values into a clean list."""
+            if value is None:
+                return []
+            if isinstance(value, list):
+                items = value
+            else:
+                text = str(value).replace('\n', ',')
+                items = text.split(',')
+            return [str(item).strip() for item in items if str(item).strip()]
+
+        def _is_empty_backlog_token(token):
+            return token.strip().upper() in {'N/A', 'NIL', 'NILL', 'NONE', '0', 'O', ''}
         
         # Core required fields
         required_fields = ['student_name', 'student_id', 'degree', 'department', 'student_status', 'college', 'university', 'issue_date']
@@ -873,14 +1033,26 @@ def api_issue_credential():
                 cgpa = float(cgpa)
             except ValueError:
                 return jsonify({'error': 'CGPA must be a valid number'}), 400
+            if cgpa < 0 or cgpa > 10:
+                return jsonify({'error': 'CGPA must be between 0.00 and 10.00'}), 400
         
-        raw_backlogs = data.get('backlogs', [])
-        clean_backlogs = [c for c in raw_backlogs if str(c).strip().upper() not in ['N/A', 'NILL', 'NIL', 'NONE', '']]
-        raw_courses = data.get('courses', [])
+        raw_backlogs = _split_list(data.get('backlogs', []))
+        clean_backlogs = [c for c in raw_backlogs if not _is_empty_backlog_token(c)]
+        raw_courses = _split_list(data.get('courses', []))
         clean_courses = [c for c in raw_courses if str(c).strip().upper() not in ['N/A', 'NILL', 'NIL', 'NONE', '']]
+
+        backlog_count_val = int(data.get('backlog_count') or 0)
+        if backlog_count_val < 0:
+            backlog_count_val = 0
+        if clean_backlogs:
+            backlog_count_val = len(clean_backlogs)
         
         grad_year = data.get('graduation_year')
         if not grad_year and data.get('batch') and '-' in data.get('batch'):
+            grad_year = data.get('batch').split('-')[1].strip()
+
+        # For pursuing students, derive expected graduation year from batch to avoid null/N/A in certificates.
+        if data.get('student_status') == 'pursuing' and not grad_year and data.get('batch') and '-' in data.get('batch'):
             grad_year = data.get('batch').split('-')[1].strip()
             
         # Build extended transcript data
@@ -900,7 +1072,7 @@ def api_issue_credential():
             'cgpa': cgpa,
             'gpa': cgpa,  # Backward compatibility
             'conduct': data.get('conduct', 'N/A'),
-            'backlog_count': len(clean_backlogs) if clean_backlogs else int(data.get('backlog_count') or 0),
+            'backlog_count': backlog_count_val,
             'courses': clean_courses,
             'backlogs': clean_backlogs,
             'issued_by': data.get('issued_by', 'G. Pulla Reddy Engineering College'),
@@ -1037,9 +1209,13 @@ def view_certificate_portal(credential_id):
         full_cred = cred.get('full_credential', {})
         subject = full_cred.get('credentialSubject', {})
         
+        qr_payload = _build_verify_url(credential_id)
         return render_template('certificate_view.html', 
-                             credential=full_cred, 
-                             subject=subject)
+                     credential=full_cred, 
+                     subject=subject,
+                 qr_token=qr_payload['qr_token'],
+                 qr_data=qr_payload['qr_data'],
+                 verify_url=qr_payload['verify_url'])
     except Exception as e:
         logging.error(f"Certificate View error: {e}")
         return str(e), 500
@@ -1090,17 +1266,17 @@ def api_credential_pdf(credential_id):
         if os.path.exists(logo_path):
             p.drawImage(logo_path, width/2 - 25, height - 90, width=50, height=50, mask='auto')
 
-        p.setFont("Helvetica-Bold", 17)
+        p.setFont("Helvetica-Bold", 15)
         p.setFillColor(navy)
-        p.drawCentredString(width/2, height - 110, "G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)")
+        p.drawCentredString(width/2, height - 112, "G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)")
         
         # Elegant Underlined Title
-        p.setFont("Helvetica-Bold", 22)
+        p.setFont("Helvetica-Bold", 19)
         title_text = "OFFICIAL DIGITAL ACADEMIC RECORD"
-        p.drawCentredString(width/2, height - 145, title_text)
+        p.drawCentredString(width/2, height - 144, title_text)
         p.setLineWidth(1.5)
         p.setStrokeColor(gold)
-        p.line(width/2 - 140, height - 150, width/2 + 140, height - 150)
+        p.line(width/2 - 125, height - 149, width/2 + 125, height - 149)
         
         p.setFont("Helvetica-Oblique", 9)
         p.setFillColor(text_muted)
@@ -1126,17 +1302,10 @@ def api_credential_pdf(credential_id):
         p.setFillColor(gold)
         p.drawCentredString(width/2, height - 280, "RECORD OF ACADEMIC ACHIEVEMENT")
         
-        # Build combined degree string - following institutional standard
-        # Example: B.TECH CST - CSE (SECTION A)
+        # Degree/program should remain exactly as issued; department is shown separately.
         degree_raw = str(subject.get('degree') or cred.get('degree', 'N/A')).upper()
         dept_raw = str(subject.get('department') or '').upper()
-        section_raw = str(subject.get('section') or '').upper()
-        
         full_program = degree_raw
-        if dept_raw:
-            full_program += f" {dept_raw}"
-        if section_raw:
-            full_program += f" ({section_raw})"
         
         # Graduation year - fix 'None' display
         grad_year_raw = subject.get('graduationYear') or cred.get('graduation_year')
@@ -1145,12 +1314,13 @@ def api_credential_pdf(credential_id):
         col1_fields = [
             ("ROLL NUMBER", str(subject.get('studentId') or cred.get('student_id', 'N/A'))),
             ("DEGREE / PROGRAM", full_program),
+            ("DEPARTMENT", dept_raw or "N/A"),
             ("CGPA", f"{subject.get('cgpa') or subject.get('gpa') or cred.get('gpa', '0.00')} / 10.00"),
             ("CONDUCT", str(subject.get('conduct') or 'N/A').upper()),
         ]
         col2_fields = [
             ("GRADUATION YEAR", grad_year),
-            ("CURRENT SEM & YEAR", f"{subject.get('semester') or 'N/A'} / {subject.get('year') or 'N/A'}"),
+            ("CURRENT SEM & CURRENT YEAR", f"{subject.get('semester') or 'N/A'} / {subject.get('year') or 'N/A'}"),
             ("BATCH", str(subject.get('batch') or 'N/A')),
             ("BACKLOG COUNT", str(subject.get('backlogCount') or '0')),
             ("STATUS", "CERTIFIED AUTHENTIC"),
@@ -1188,42 +1358,42 @@ def api_credential_pdf(credential_id):
         y_courses = y_start - 190
         courses = subject.get('courses')
         if courses and isinstance(courses, list):
-            p.setFont("Helvetica-Bold", 8)
+            p.setFont("Helvetica-Bold", 10)
             p.setFillColor(gold)
             p.drawString(90, y_courses, "DETAILED COURSEWORK / SUBJECTS")
             
-            p.setFont("Helvetica", 7)
+            p.setFont("Helvetica-Bold", 9)
             p.setFillColor(navy)
             
             # Simple list of courses
             course_text = ", ".join([str(c) for c in courses])
             # Wrap text manually if too long
             from reportlab.lib.utils import simpleSplit
-            lines = simpleSplit(course_text, "Helvetica", 7, width - 180)
+            lines = simpleSplit(course_text, "Helvetica-Bold", 9, width - 180)
             
-            for i, line in enumerate(lines[:3]): # Show up to 3 lines
-                p.drawString(90, y_courses - 15 - (i * 10), line)
+            for i, line in enumerate(lines[:4]): # Show up to 4 lines
+                p.drawString(90, y_courses - 16 - (i * 12), line)
             
-            y_courses -= 50
+            y_courses -= 64
         
         # 5.6 BACKLOG HISTORY (If present and not zero)
         backlogs = subject.get('backlogs')
         if backlogs and isinstance(backlogs, list) and len(backlogs) > 0:
-            p.setFont("Helvetica-Bold", 8)
+            p.setFont("Helvetica-Bold", 9)
             p.setFillColor(colors.red)
-            p.drawString(90, y_courses - 10, "OUTSTANDING BACKLOG RECORD")
+            p.drawString(90, y_courses - 8, "OUTSTANDING BACKLOG SUBJECTS")
             
-            p.setFont("Helvetica", 7)
+            p.setFont("Helvetica-Bold", 8)
             p.setFillColor(navy)
             backlog_text = ", ".join([str(b) for b in backlogs])
-            lines = simpleSplit(backlog_text, "Helvetica", 7, width - 180)
-            for i, line in enumerate(lines[:2]):
-                p.drawString(90, y_courses - 25 - (i * 10), line)
+            lines = simpleSplit(backlog_text, "Helvetica-Bold", 8, width - 180)
+            for i, line in enumerate(lines[:3]):
+                p.drawString(90, y_courses - 22 - (i * 11), line)
             
-            y_courses -= 40
+            y_courses -= 52
         
         # 6. REFINED BLOCKCHAIN PROOF BOX (Dynamic Position)
-        y_box = min(320, y_courses - 20)
+        y_box = max(230, y_courses - 35)
         p.setFillColor(colors.HexColor("#FAFAFA"))
         p.setStrokeColor(gold)
         p.setLineWidth(1)
@@ -1235,21 +1405,34 @@ def api_credential_pdf(credential_id):
         
         p.setFillColor(text_muted)
         p.setFont("Helvetica-Bold", 7)
-        p.drawString(85, y_box - 30, "CREDENTIAL IDENTIFIER")
+        p.drawString(85, y_box - 30, "CREDENTIAL REFERENCE")
         p.setFillColor(colors.black)
-        p.setFont("Courier-Bold", 9)
-        p.drawString(85, y_box - 40, f"{credential_id}")
+        p.setFont("Courier-Bold", 8)
+        p.drawString(85, y_box - 40, credential_id)
         
         p.setFillColor(text_muted)
         p.setFont("Helvetica-Bold", 7)
         p.drawString(85, y_box - 55, "ON-CHAIN HASH (SHA-256)")
         p.setFillColor(colors.black)
-        p.setFont("Courier-Bold", 9)
-        p.drawString(85, y_box - 65, f"{cred.get('credential_hash', 'N/A')[:64]}...")
+        p.setFont("Courier-Bold", 8)
+        hash_text = str(cred.get('credential_hash', 'N/A'))
+        from reportlab.lib.utils import simpleSplit
+        hash_lines = simpleSplit(hash_text, "Courier-Bold", 8, 250)
+        for i, line in enumerate(hash_lines[:2]):
+            p.drawString(85, y_box - 65 - (i * 9), line)
         
         # QR & Badge Positioned Right
-        verify_url = url_for('public_verify', id=credential_id, _external=True)
-        qr = qrcode.make(verify_url)
+        qr_payload = _build_verify_url(credential_id)
+        verify_url = qr_payload['verify_url']
+        qr_obj = qrcode.QRCode(
+            version=None,
+            error_correction=ERROR_CORRECT_L,
+            box_size=8,
+            border=4,
+        )
+        qr_obj.add_data(verify_url)
+        qr_obj.make(fit=True)
+        qr = qr_obj.make_image(fill_color='black', back_color='white')
         qr_buffer = io.BytesIO()
         qr.save(qr_buffer, format='PNG')
         qr_buffer.seek(0)
@@ -1259,14 +1442,14 @@ def api_credential_pdf(credential_id):
         # Mini Badge (15% Smaller)
         p.setFillColor(gold)
         p.setStrokeColor(colors.white)
-        p.circle(width-195, y_box-35, 20, fill=1, stroke=1)
+        p.circle(width-195, y_box-35, 17, fill=1, stroke=1)
         p.setFillColor(colors.white)
-        p.setFont("Helvetica-Bold", 5)
+        p.setFont("Helvetica-Bold", 4)
         p.drawCentredString(width-195, y_box-33, "BLOCKCHAIN")
         p.drawCentredString(width-195, y_box-38, "VERIFIED")
         
         # 7. SIGNATURES WITH DIGITAL ROLES
-        y_sign = 160
+        y_sign = 118
         p.setLineWidth(1.5)
         p.setStrokeColor(navy)
         p.line(70, y_sign, 190, y_sign)
@@ -1288,21 +1471,21 @@ def api_credential_pdf(credential_id):
         # 8. CONSTRAINED FOOTER NOTE
         p.setFillColor(colors.gray)
         p.setFont("Helvetica-Oblique", 8)
-        disclaimer = "This academic record is digitally issued and cryptographically secured using blockchain technology. Authenticity can be verified through the QR code and blockchain hash. No physical signature is required."
+        disclaimer = "This academic record is digitally issued and cryptographically secured using blockchain technology. Scan at https://udaycodespace.github.io/credify-verify/ or use the Credential ID in our portal at credify.com. No physical signature is required."
         
         from reportlab.lib.styles import getSampleStyleSheet
         from reportlab.platypus import Paragraph
         styles = getSampleStyleSheet()
         style = styles['Normal']
         style.alignment = 1 # Center
-        style.fontSize = 8
+        style.fontSize = 7
         style.textColor = colors.gray
         style.fontName = "Helvetica-Oblique"
-        style.leading = 11
+        style.leading = 9
         
         footer_p = Paragraph(disclaimer, style)
-        footer_p.wrapOn(p, 400, 100)
-        footer_p.drawOn(p, (width-400)/2, 60)
+        footer_p.wrapOn(p, 430, 80)
+        footer_p.drawOn(p, (width-430)/2, 34)
         
         p.showPage()
         p.save()
@@ -1329,8 +1512,22 @@ def api_verify_zkp():
         if not proof:
             return jsonify({'success': False, 'error': 'No proof provided'}), 400
             
-        credential_id = proof.get('credentialId')
+        credential_id = proof.get('credentialId') or proof.get('credential_id')
+        if not credential_id:
+            masked_id = str(proof.get('maskedCredentialId') or '').strip()
+            suffix = masked_id.replace('*', '')
+            if suffix:
+                matches = [
+                    c.get('credential_id')
+                    for c in credential_manager.get_all_credentials()
+                    if str(c.get('credential_id', '')).endswith(suffix)
+                ]
+                if len(matches) == 1:
+                    credential_id = matches[0]
         field = proof.get('field')
+
+        if not credential_id:
+            return jsonify({'success': False, 'error': 'Proof is missing credentialId'}), 400
         
         # 1. Fetch real data from the source of truth
         cred = credential_manager.get_credential(credential_id)
@@ -1346,28 +1543,64 @@ def api_verify_zkp():
         is_verified = False
         
         if proof['type'] == 'RangeProof':
-            # Format: "X <= field <= Y" or "field >= X"
+            # Support explicit numeric thresholds first; fallback to old claim text.
+            min_threshold = proof.get('minThreshold')
+            max_threshold = proof.get('maxThreshold')
             claim = proof.get('claim', '')
             try:
-                # Basic range logic (in a real system this would use Bulletproofs/Sigma protocols)
-                if '' in claim:  # "Min <= field <= Max"
-                    parts = claim.split('')
-                    min_val = float(parts[0].strip())
-                    # Skip the middle 'field' part
-                    max_val = float(parts[2].strip())
-                    is_verified = (min_val <= float(actual_value) <= max_val)
-                elif '' in claim: # "field >= Min"
-                    min_val = float(claim.split('')[1].strip())
-                    is_verified = (float(actual_value) >= min_val)
+                numeric_actual = float(actual_value)
+
+                if min_threshold is not None or max_threshold is not None:
+                    min_val = float(min_threshold) if min_threshold is not None else None
+                    max_val = float(max_threshold) if max_threshold is not None else None
+
+                    is_verified = True
+                    if min_val is not None:
+                        is_verified = is_verified and (numeric_actual >= min_val)
+                    if max_val is not None:
+                        is_verified = is_verified and (numeric_actual <= max_val)
+                elif '>=' in claim:
+                    min_val = float(claim.split('>=')[-1].strip())
+                    is_verified = numeric_actual >= min_val
+                elif '<=' in claim:
+                    max_val = float(claim.split('<=')[-1].strip())
+                    is_verified = numeric_actual <= max_val
+                elif 'between' in claim.lower():
+                    nums = re.findall(r"[-+]?\d*\.?\d+", claim)
+                    if len(nums) >= 2:
+                        min_val = float(nums[0])
+                        max_val = float(nums[1])
+                        is_verified = min_val <= numeric_actual <= max_val
+                    else:
+                        return jsonify({'success': False, 'error': 'Invalid range claim format'}), 400
+                else:
+                    return jsonify({'success': False, 'error': 'Range proof must include min/max thresholds'}), 400
             except Exception as parse_error:
                 logging.error(f"ZKP Claim Parsing error: {parse_error}")
                 return jsonify({'success': False, 'error': 'Invalid claim format in proof'}), 400
         
         elif proof['type'] == 'MembershipProof':
-            claimed_item = proof.get('claim')
-            # Membership check for lists (courses/backlogs)
-            if isinstance(actual_value, list):
-                is_verified = (claimed_item in actual_value)
+            proof_category = str(proof.get('proofCategory') or '').strip().lower()
+            claimed_item = str(proof.get('subject') or '').strip().lower()
+
+            courses = [str(c).strip().lower() for c in (subject.get('courses') or [])]
+            backlogs = [str(b).strip().lower() for b in (subject.get('backlogs') or [])]
+
+            if proof_category == 'completed':
+                is_verified = claimed_item in courses
+            elif proof_category == 'has_backlog':
+                is_verified = claimed_item in backlogs
+            elif proof_category == 'no_backlog':
+                is_verified = claimed_item not in backlogs
+            else:
+                # Backward-compatible generic membership path.
+                field = field or 'courses'
+                actual_value = subject.get(field)
+                if isinstance(actual_value, list):
+                    normalized = [str(v).strip().lower() for v in actual_value]
+                    is_verified = claimed_item in normalized
+                else:
+                    is_verified = False
             
         return jsonify({
             'success': True,
@@ -2067,9 +2300,15 @@ def api_credential_qr(credential_id):
         import io
         import base64
 
-        verify_url = url_for('public_verify', _external=True) + f'?id={credential_id}'
+        qr_payload = _build_verify_url(credential_id)
+        verify_url = qr_payload['verify_url']
 
-        qr = qrcode.QRCode(version=1, box_size=8, border=4)
+        qr = qrcode.QRCode(
+            version=None,
+            error_correction=ERROR_CORRECT_L,
+            box_size=8,
+            border=4,
+        )
         qr.add_data(verify_url)
         qr.make(fit=True)
         img = qr.make_image(fill_color='#06b6d4', back_color='#0f172a')
@@ -2078,7 +2317,13 @@ def api_credential_qr(credential_id):
         img.save(buf, format='PNG')
         qr_b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 
-        return jsonify({'success': True, 'qr_base64': qr_b64, 'verify_url': verify_url})
+        return jsonify({
+            'success': True,
+            'qr_base64': qr_b64,
+            'verify_url': verify_url,
+            'verify_url_length': len(verify_url),
+            'compression': 'gzip+base64url',
+        })
     except ImportError:
         return jsonify({'success': False, 'error': 'qrcode library not installed. Run: pip install qrcode[pil] Pillow'}), 500
     except Exception as e:
@@ -2106,6 +2351,70 @@ def public_verify():
             result = {'valid': False, 'error': str(e)}
 
     return render_template('verify.html', credential_id=credential_id, result=result, credential=credential)
+
+
+@app.route('/api/public/issuer_registry')
+def api_public_issuer_registry():
+    """Expose trusted issuer public keys for offline-capable scanner apps."""
+    try:
+        issuer_id = "did:edu:gprec"
+        return jsonify({
+            'success': True,
+            'version': 1,
+            'issuers': {
+                issuer_id: {
+                    'name': 'GPREC',
+                    'algorithm': 'PS256',
+                    'publicKeyPem': crypto_manager.get_public_key_pem(),
+                }
+            }
+        })
+    except Exception as e:
+        logging.error(f'Issuer registry error: {e}')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/qr/secret_verify', methods=['POST'])
+def api_qr_secret_verify():
+    """Return full credential details only when a signed QR token is valid."""
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        token = data.get('qk')
+        qr_data = (data.get('qd') or '').strip()
+        credential_id = (data.get('credential_id') or '').strip()
+
+        payload = _verify_qr_secret_token(token, expected_cid=credential_id or None, expected_qd=qr_data or None)
+        if not payload:
+            return jsonify({'success': False, 'status': 'fake', 'error': 'Invalid or tampered QR secret token'}), 400
+
+        token_cid = str(payload.get('cid'))
+
+        verification = credential_manager.verify_credential(token_cid)
+        if not verification.get('valid'):
+            return jsonify({'success': False, 'status': verification.get('status', 'invalid'), 'verification': verification}), 200
+
+        credential = verification.get('credential', {})
+        subject = credential.get('credentialSubject', {})
+        registry = verification.get('registry_entry', {})
+
+        return jsonify({
+            'success': True,
+            'status': 'real',
+            'credential_id': token_cid,
+            'issuer': payload.get('iss') or 'did:edu:gprec',
+            'subject': subject,
+            'ipfs_cid': registry.get('ipfs_cid'),
+            'security_checks': {
+                'blockchain_hash_integrity': True,
+                'rsa_signature_valid': True,
+                'not_revoked': registry.get('status') == 'active',
+                'ipfs_reference_intact': bool(registry.get('ipfs_cid')),
+            },
+            'verification_details': verification.get('verification_details', {}),
+        })
+    except Exception as e:
+        logging.error(f'QR secret verify error: {e}')
+        return jsonify({'success': False, 'status': 'error', 'error': str(e)}), 500
 
 
 if __name__ == '__main__':

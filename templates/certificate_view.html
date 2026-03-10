@@ -398,12 +398,14 @@
                     <div class="grid-item">
                         <span class="grid-label">Degree / Program</span>
                         <span class="grid-value" style="font-size: 13px;">{{ subject.degree or credential.degree or
-                            'N/A' }}{% if subject.department or credential.department %} - {{ subject.department or
-                            credential.department }}{% endif %}{% if subject.section or credential.section %} ({{
-                            subject.section or credential.section }}){% endif %}</span>
+                            'N/A' }}</span>
                     </div>
                     <div class="grid-item">
-                        <span class="grid-label">GPA/CGPA</span>
+                        <span class="grid-label">Department</span>
+                        <span class="grid-value">{{ subject.department or credential.department or 'N/A' }}</span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">CGPA</span>
                         <span class="grid-value">{{ subject.cgpa or subject.gpa or credential.gpa or '0.00' }} /
                             10.00</span>
                     </div>
@@ -422,7 +424,7 @@
                             != None %}{{ credential.graduation_year }}{% else %}N/A{% endif %}</span>
                     </div>
                     <div class="grid-item">
-                        <span class="grid-label">Semester / Year</span>
+                        <span class="grid-label">Current Sem &amp; Current Year</span>
                         <span class="grid-value">{{ subject.semester or credential.semester or 'N/A' }} / {{
                             subject.year
                             or credential.year or 'N/A' }}</span>
@@ -441,6 +443,38 @@
 
         <div class="section-divider"></div>
 
+        {% set coursework = subject.courses or credential.courses or [] %}
+        {% if coursework %}
+        <div class="academic-section" style="margin-top: 0;">
+            <h3 class="section-title">Detailed Coursework / Subjects</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px;">
+                {% for course in coursework %}
+                <div style="font-size: 13px; color: var(--cert-dark); border-bottom: 1px solid #f1f5f9; padding: 6px 0;">
+                    {{ loop.index }}. {{ course }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+        {% endif %}
+
+        {% set backlog_subjects = subject.backlogs or credential.backlogs or [] %}
+        {% if backlog_subjects %}
+        <div class="academic-section" style="margin-top: 0;">
+            <h3 class="section-title" style="color: #b91c1c;">Outstanding Backlog Subjects</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px;">
+                {% for course in backlog_subjects %}
+                <div style="font-size: 13px; font-weight: 700; color: #7f1d1d; border-bottom: 1px solid #fee2e2; padding: 6px 0;">
+                    {{ loop.index }}. {{ course }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+        {% endif %}
+
         <div class="proof-box">
             <div class="proof-header">
                 <i class="fas fa-fingerprint me-2"></i>
@@ -449,13 +483,13 @@
             <div class="proof-content">
                 <div class="proof-details">
                     <div class="proof-field">
-                        <div class="field-label">Credential</div>
+                        <div class="field-label">Credential Reference</div>
                         <p class="text-muted small mb-1">Student ID: {{ credential.student_id }} | Section: {{
                             credential.section or 'N/A' }}
                         </p>
                         <p class="text-muted small mb-1">CGPA: {{ credential.cgpa if
                             credential.cgpa else credential.gpa }} | Conduct: {{ credential.conduct or 'N/A' }}</p>
-                        <div class="field-value">{{ credential.id }}</div>
+                        <div class="field-value">{{ credential.id.split(':')[-1] if credential.id else 'N/A' }}</div>
                     </div>
                     <div class="proof-field">
                         <div class="field-label">On-Chain Hash (SHA-256)</div>
@@ -465,6 +499,14 @@
                 </div>
                 <div class="proof-visuals">
                     <div id="qrcode"></div>
+                    <div class="mt-2" style="max-width: 170px;">
+                        <input id="certVerifyUrl" class="form-control form-control-sm" readonly style="font-size: 10px; font-family: monospace;" />
+                        <div class="d-flex gap-1 mt-1 justify-content-center">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyCertVerifyLink()">Copy</button>
+                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="shareCertVerifyLink()">Share</button>
+                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="downloadCertQr()">PNG</button>
+                        </div>
+                    </div>
                     <div class="mini-seal">
                         <i class="fas fa-shield-check fa-lg mb-1"></i>
                         <span style="font-size: 7px; font-weight: 700;">BLOCKCHAIN</span>
@@ -494,7 +536,8 @@
 
         <div class="final-footer-note">
             This academic record is digitally issued and cryptographically secured using blockchain technology.
-            Authenticity can be verified through the QR code and blockchain hash. No physical signature is required.
+            Scan at https://udaycodespace.github.io/credify-verify/ or use the credential ID in our portal at
+            credify.com. No physical signature is required.
         </div>
     </div>
 
@@ -508,15 +551,53 @@
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
+    let certVerifyURL = '';
+
     document.addEventListener('DOMContentLoaded', function () {
-        const verifyURL = window.location.origin + '/verify/{{ credential.id.split(":")[-1] }}';
-        QRCode.toCanvas(document.createElement('canvas'), verifyURL, {
+        certVerifyURL = `{{ verify_url|safe }}`;
+        document.getElementById('certVerifyUrl').value = certVerifyURL;
+
+        QRCode.toCanvas(document.createElement('canvas'), certVerifyURL, {
             width: 140,
             margin: 2
         }, function (error, canvas) {
             if (error) console.error(error);
+            canvas.id = 'certQrCanvas';
             document.getElementById('qrcode').appendChild(canvas);
         });
     });
+
+    function copyCertVerifyLink() {
+        if (!certVerifyURL) return;
+        navigator.clipboard.writeText(certVerifyURL);
+    }
+
+    async function shareCertVerifyLink() {
+        if (!certVerifyURL) return;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Credify Certificate Verification',
+                    text: 'Use this link to verify the credential.',
+                    url: certVerifyURL
+                });
+                return;
+            } catch (e) {
+                if (e && e.name === 'AbortError') return;
+            }
+        }
+        copyCertVerifyLink();
+    }
+
+    function downloadCertQr() {
+        const canvas = document.getElementById('certQrCanvas');
+        if (!canvas) return;
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = 'credify-certificate-qr.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
 </script>
 {% endblock %}

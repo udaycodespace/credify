@@ -408,6 +408,14 @@
                                                     gradInput.setCustomValidity("");
                                                 }
                                             }
+
+                                            const status = document.getElementById('studentStatus').value;
+                                            if (status === 'Currently Studying' && !gradInput.value) {
+                                                const endYear = e.target.value.split('-')[1]?.trim();
+                                                if (endYear) {
+                                                    gradInput.value = endYear;
+                                                }
+                                            }
                                         });
                                     </script>
                                 </form>
@@ -1128,7 +1136,18 @@
             if (f.textContent === 'Valid') f.remove();
         });
 
+        document.getElementById('degree').value = 'B.Tech';
+        document.getElementById('backlogCount').value = 0;
+        document.getElementById('college').value = 'G. Pulla Reddy Engineering College';
         document.getElementById('university').value = 'Jawaharlal Nehru Technological University Anantapur';
+
+        const issueDateInput = document.getElementById('issueDate');
+        if (issueDateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            issueDateInput.value = today;
+            issueDateInput.max = today;
+        }
+
         document.getElementById('college').value = 'G. Pulla Reddy Engineering College';
         toggleStudentStatus();
     }
@@ -1137,16 +1156,26 @@
         const val = document.getElementById('studentStatus').value;
         const gradYearDiv = document.getElementById('graduationYearDiv');
         const studyingFields = document.getElementById('studyingFields');
+        const batchValue = document.getElementById('batch').value;
+        const gradYearInput = document.getElementById('graduationYear');
 
         if (val === 'Passed Out') {
             if (gradYearDiv) gradYearDiv.style.display = 'block';
             if (studyingFields) studyingFields.style.display = 'none';
+            if (gradYearInput) gradYearInput.required = true;
         } else if (val === 'Currently Studying') {
             if (gradYearDiv) gradYearDiv.style.display = 'none';
             if (studyingFields) studyingFields.style.display = 'flex';
+            if (gradYearInput) {
+                gradYearInput.required = false;
+                if (!gradYearInput.value && batchValue.includes('-')) {
+                    gradYearInput.value = batchValue.split('-')[1].trim();
+                }
+            }
         } else {
             if (gradYearDiv) gradYearDiv.style.display = 'none';
             if (studyingFields) studyingFields.style.display = 'none';
+            if (gradYearInput) gradYearInput.required = false;
         }
     }
 
@@ -1191,10 +1220,10 @@
                             <td><code>${u.student_id}</code></td>
                             <td>${u.email || '<span class="text-muted small">No Email</span>'}</td>
                             <td>${statusBadge}</td>
-                            <td class="small">${u.last_login ? new Date(u.last_login).toLocaleString() : 'Never'}</td>
+                            <td class="small text-light">${u.last_login ? new Date(u.last_login).toLocaleString() : 'Never'}</td>
                             <td class="small">
                                 ${u.onboarding_status === 'rejected' ? `<div class="text-danger">⚠️ ${u.rejection_reason || 'Denied'}</div>` : ''}
-                                <div class="text-muted">ID Created: ${new Date(u.created_at).toLocaleDateString()}</div>
+                                <div class="text-light">ID Created: ${new Date(u.created_at).toLocaleDateString()}</div>
                             </td>
                             <td>
                                 <div class="btn-group">
@@ -1245,7 +1274,7 @@
                             <th>ID</th>
                             <th>Student</th>
                             <th>Roll No</th>
-                            <th>Program</th>
+                            <th>Program - Dept. - Section</th>
                             <th>Version</th>
                             <th>Status</th>
                             <th>CGPA</th>
@@ -1260,7 +1289,7 @@
                             c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
                                 '<span class="badge bg-secondary">SUPERSEDED</span>';
 
-                        const programString = `${c.degree || ''}${c.department ? '–' + c.department : ''}${c.section ? '–' + c.section : ''}`;
+                        const programString = `${c.degree || '-'}${c.department ? ' - ' + c.department : ' - N/A'}${c.section ? ' - ' + c.section : ' - N/A'}`;
 
                         html += `
                         <tr>
@@ -1337,22 +1366,18 @@
         const query = document.getElementById('searchStudentId').value.trim();
         const statusFilterInput = document.querySelector('input[name="statusFilter"]:checked');
         const statusFilter = statusFilterInput ? statusFilterInput.value.toLowerCase() : 'all';
-
-        if (!query) {
-            showAlert('Please enter a name, roll number, or credential ID', 'warning');
-            return;
-        }
+        const searchTerm = query || '__all__';
 
         const resultsDiv = document.getElementById('searchResults');
         resultsDiv.innerHTML = '<p class="text-white"><i class="fas fa-spinner fa-spin me-2"></i>Searching decentralized registry...</p>';
 
-        fetch(`/api/credential_history/${encodeURIComponent(query)}`)
+        fetch(`/api/credential_history/${encodeURIComponent(searchTerm)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.credentials.length > 0) {
                     let filteredCreds = data.credentials;
                     if (statusFilter !== 'all') {
-                        filteredCreds = filteredCreds.filter(c => c.status === statusFilter.toLowerCase());
+                        filteredCreds = filteredCreds.filter(c => String(c.status || '').toLowerCase() === statusFilter);
                     }
 
                     if (filteredCreds.length === 0) {
@@ -1370,7 +1395,7 @@
                                     <th>Status</th>
                                     <th>Name</th>
                                     <th>Roll No</th>
-                                    <th>Program</th>
+                                    <th>Program - Dept. - Section</th>
                                     <th>CGPA</th>
                                     <th>Sem/Yr</th>
                                     <th>Issued</th>
@@ -1386,14 +1411,14 @@
                             c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
                                 '<span class="badge bg-secondary">SUPERSEDED</span>';
                         const semYear = c.semester ? `Sem ${c.semester}/${c.year || '-'}` : (c.graduation_year ? `Grad ${c.graduation_year}` : '-');
-                        const programString = `${c.degree || ''}${c.department ? '–' + c.department : ''}${c.section ? '–' + c.section : ''}`;
+                        const programString = `${c.degree || '-'}${c.department ? ' - ' + c.department : ' - N/A'}${c.section ? ' - ' + c.section : ' - N/A'}`;
 
                         html += `
                         <tr>
                             <td><span class="badge bg-primary">v${c.version}</span></td>
                             <td>${statusBadge}</td>
                             <td><span class="small fw-bold">${c.student_name || 'N/A'}</span></td>
-                            <td><code class="small text-dark">${c.student_id || 'N/A'}</code></td>
+                            <td><code class="small text-light">${c.student_id || 'N/A'}</code></td>
                             <td><span class="small">${programString || '-'}</span></td>
                             <td>${c.cgpa ? c.cgpa.toFixed(2) : (c.gpa ? c.gpa.toFixed(2) : '-')}</td>
                             <td>${semYear}</td>

@@ -1,0 +1,197 @@
+Credify Verify - Consolidated Technical Verdict (Rewrite)
+Date: 2026-03-10
+Context: https://github.com/udaycodespace/credify-verify
+Reference: solution.txt + current qr-web-app code
+
+============================================================
+1) Executive Verdict
+============================================================
+
+Short answer: this plan will work.
+
+- Architecture direction: correct
+- Cryptography and trust model: solid
+- Main bottleneck: decode pipeline reliability
+
+Best execution strategy:
+1) Phase-1 quick fixes now
+2) Phase-2 reliability boost if time allows
+3) Phase-3 compact QR migration later
+
+============================================================
+2) System Health Snapshot
+============================================================
+
+Area | Status | Comment
+Cryptography (qk verify) | GOOD | signature + digest checks are correct
+Payload encoding (qd gzip) | GOOD | compacted vs old JSON, backward decode path exists
+Issuer trust registry | GOOD | trusted_issuers.json model is correct
+Backend QR generation | GOOD | canonical helper approach is right
+Frontend verification logic | GOOD | parse -> decode -> verify flow is correct
+QR decode pipeline | WEAK | primary source of failures on laptop/mobile
+
+Core truth:
+- The failures are mostly decode-stage engineering issues.
+- They are not trust-model or crypto-design issues.
+
+============================================================
+3) Root Causes (Real, Practical)
+============================================================
+
+3.1 Payload density
+Current QR includes:
+- id
+- qk (JWS)
+- qd (compressed payload)
+
+Typical combined length still lands in a dense QR range.
+Dense modules + weak autofocus => failures on laptop webcams and some mobile conditions.
+
+3.2 Camera decode fragility
+Current camera path uses ZXing continuous decode but lacks strong runtime handling:
+- insufficient non-NotFound error handling in callback loop
+- no robust scan-state window (retry/timeout/restart behavior)
+
+3.3 Upload decode fragility
+Single-pass upload decode is not enough for real-world screenshots:
+- compressed image artifacts
+- orientation issues
+- low contrast
+
+3.4 Operational issues
+- stale cached JS on GitHub Pages can mimic code bugs
+- camera permissions differ across browsers/devices
+
+============================================================
+4) Phase-1 (Immediate Demo Stability)
+============================================================
+
+These are the minimum fixes to stabilize demo behavior quickly.
+
+4.1 Camera callback hardening
+Use callback with both result and error handling:
+- process result when available
+- ignore NotFoundException noise
+- log/show meaningful non-NotFound errors
+
+4.2 Upload decoder baseline fix
+Use a decode path that is stable in browser runtime for object URLs.
+Your current direction can be improved by prioritizing URL-based decode and explicit failure messages.
+
+4.3 Permission warmup
+On init:
+- request temporary getUserMedia({ video: true })
+- stop tracks immediately
+This reduces first-scan permission race issues.
+
+4.4 Video rendering stability
+Keep:
+- autoplay
+- playsinline
+- muted
+Add:
+- object-fit: cover
+This improves consistent framing behavior on mobile browsers.
+
+4.5 Registry filename sanity
+Code expects: trusted_issuers.json
+Ensure hosted file name is exactly that (not .js typo).
+
+============================================================
+5) Expected Results After Phase-1
+============================================================
+
+Scenario | Expected Outcome
+Laptop webcam scan | major improvement, generally usable
+Mobile rear camera | high success under normal lighting
+Upload original QR PNG | near-perfect
+Upload screenshot | improved but not perfect yet
+
+This is usually enough for project-demo reliability.
+
+============================================================
+6) Phase-2 (Real Reliability Boost)
+============================================================
+
+6.1 Hybrid decode engine
+Use:
+- ZXing primary
+- jsQR fallback
+
+Why:
+- ZXing is strong for live camera and many clean images
+- jsQR can recover in some blurry/compressed screenshot cases
+
+6.2 Multi-pass upload decode
+Try sequentially:
+1) original image
+2) scaled 1.5x
+3) scaled 2x
+4) rotate 90/180
+5) contrast/threshold variant
+6) fallback engine
+
+This is the highest ROI technical improvement for upload reliability.
+
+6.3 Stage messages for debugging/demo
+Add visible stages:
+- Camera Ready
+- QR Detected
+- Payload Parsed
+- Signature Verified
+
+This helps both debugging and evaluator confidence.
+
+============================================================
+7) Phase-3 (Architecture Upgrade, Not Mandatory for Demo)
+============================================================
+
+Current format:
+- verify?id=<cid>&qk=<jws>&qd=<payload>
+
+Future compact format:
+- credify://verify?cid=<id>&sig=<signature>&v=3
+
+Benefits:
+- smaller QR
+- faster autofocus and decode
+- better mobile consistency
+
+Migration model:
+- verifier supports both v2 and v3
+- issuer emits v3 by default after transition
+
+============================================================
+8) Backend QR Generation Improvement
+============================================================
+
+For QR builder settings, prefer automatic versioning.
+
+Use:
+- version=None
+instead of fixed version.
+
+Also choose error correction level intentionally for density/recovery tradeoff.
+
+This gives better practical scan behavior across mixed camera quality.
+
+============================================================
+9) Final Recommendation
+============================================================
+
+Do this in order:
+1) Phase-1 now (fast stability)
+2) Phase-2 if time allows (production-like reliability)
+3) Phase-3 later (compact architecture)
+
+Professional conclusion:
+- Your architecture is good.
+- Your crypto is good.
+- Decode implementation is the bottleneck.
+- Combined plan is correct and will work.
+
+============================================================
+10) Demo-Ready One-Liner
+============================================================
+
+"Our trust model is already sound; we are now hardening the scanner pipeline (camera/upload retries and fallback decoding) to achieve consistent real-world QR capture across laptop and mobile devices."

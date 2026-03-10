@@ -206,11 +206,7 @@ class CredentialSystem {
 
     showFieldSuccess(field) {
         field.classList.add('is-valid');
-        const feedback = document.createElement('div');
-        feedback.className = 'valid-feedback';
-        feedback.style.display = 'block';
-        feedback.innerHTML = `<i class="fas fa-check-circle me-1"></i>Valid`;
-        field.parentNode.appendChild(feedback);
+        // Keep visual valid state only; do not append extra "Valid" text.
     }
 
     isValidEmail(email) {

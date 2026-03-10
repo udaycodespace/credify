@@ -1,0 +1,484 @@
+Credify QR System - Detailed 0 to 100 Explanation
+Date: 2026-03-10
+
+============================================================
+1) HOLDER/STUDENT PORTAL QR - HOW IT WORKS
+============================================================
+
+When a student clicks "Show QR" in holder portal, frontend calls backend API:
+
+- Frontend: templates/holder.html
+- API: /api/credential/<credential_id>/qr in app/app.py
+
+Flow:
+1. Student opens QR modal in holder page.
+2. JS calls fetch(`/api/credential/${credentialId}/qr`).
+3. Backend builds canonical verify URL (id + qk + qd).
+4. Backend generates PNG QR from URL and returns base64 image + verify URL.
+5. Frontend shows QR image and gives copy/share/download options.
+
+------------------------------------------------------------
+A) Holder Portal QR Modal Logic (actual snippet)
+File: templates/holder.html
+------------------------------------------------------------
+
+function showQR(credentialId) {
+    const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+    const body = document.getElementById('qrModalBody');
+    const urlEl = document.getElementById('qrVerifyUrl');
+
+    body.innerHTML = '<p style="color: var(--cyan-400);"><i class="fas fa-spinner fa-spin me-2"></i>Generating...</p>';
+    urlEl.value = '';
+    currentQRUrl = '';
+    currentQRBase64 = '';
+    modal.show();
+
+    fetch(`/api/credential/${credentialId}/qr`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentQRUrl = data.verify_url;
+                currentQRBase64 = data.qr_base64 || '';
+                urlEl.value = data.verify_url;
+                const hint = document.getElementById('qrUrlHint');
+                if (hint) {
+                    const lenText = data.verify_url_length ? `${data.verify_url_length} chars` : `${data.verify_url.length} chars`;
+                    const comp = data.compression || 'encoded';
+                    hint.textContent = `Link length: ${lenText}. QR payload format: ${comp}.`;
+                }
+                body.innerHTML = `
+                <img src="data:image/png;base64,${data.qr_base64}"
+                    id="qrPreviewImage"
+                     alt="Verification QR Code"
+                     style="width: 220px; height: 220px; border: 3px solid var(--cyan-500); padding: 8px; background: #0f172a;"
+                />
+                <p class="mt-2 small" style="color: #94a3b8;">Employer scans this to verify instantly — no login needed.</p>
+            `;
+            } else {
+                body.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            }
+        })
+        .catch(err => {
+            body.innerHTML = `<div class="alert alert-danger">Network error: ${err.message}</div>`;
+        });
+}
+
+------------------------------------------------------------
+B) Backend QR Endpoint (actual snippet)
+File: app/app.py
+------------------------------------------------------------
+
+@app.route('/api/credential/<credential_id>/qr')
+def api_credential_qr(credential_id):
+    """Generate a QR code image (base64 PNG) linking to the public verify page."""
+    try:
+        import qrcode
+        import io
+        import base64
+
+        qr_payload = _build_verify_url(credential_id)
+        verify_url = qr_payload['verify_url']
+
+        qr = qrcode.QRCode(version=1, box_size=8, border=4)
+        qr.add_data(verify_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='#06b6d4', back_color='#0f172a')
+
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        qr_b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+        return jsonify({
+            'success': True,
+            'qr_base64': qr_b64,
+            'verify_url': verify_url,
+            'verify_url_length': len(verify_url),
+            'compression': 'gzip+base64url',
+        })
+
+============================================================
+2) WHAT EXACTLY IS INSIDE YOUR QR URL
+============================================================
+
+Current canonical URL format:
+
+/verify?id=<credential_id>&qk=<signed_token>&qd=<payload>
+
+Where:
+- id: Credential ID
+- qk: JWS-style signature token (issuer-signed, includes cid + timestamp + digest binding)
+- qd: Hidden credential payload (gzip-compressed JSON + base64url)
+
+This is generated through one canonical helper now:
+
+------------------------------------------------------------
+Canonical Builder (actual snippet)
+File: app/app.py
+------------------------------------------------------------
+
+def _build_verify_url(credential_id):
+    """Build the canonical verify URL used by all QR generation paths."""
+    qr_data = _generate_qr_hidden_payload(credential_id)
+    qr_token = _generate_qr_secret_token(credential_id, _hash_qr_hidden_payload(qr_data))
+    verify_url = url_for('public_verify', _external=True) + f'?id={credential_id}&qk={qr_token}'
+    if qr_data:
+        verify_url += f'&qd={qr_data}'
+    return {
+        'verify_url': verify_url,
+        'qr_token': qr_token,
+        'qr_data': qr_data,
+    }
+
+============================================================
+3) HOW qd IS BUILT (COMPRESSED)
+============================================================
+
+qd contains selected credential subject details + metadata.
+Then JSON is gzip-compressed and base64url encoded.
+
+Key function:
+
+------------------------------------------------------------
+qd creation (actual snippet)
+File: app/app.py
+------------------------------------------------------------
+
+def _generate_qr_hidden_payload(credential_id):
+    ...
+    payload = {
+        'v': 1,
+        'cid': credential_id,
+        'name': subject.get('name'),
+        'studentId': subject.get('studentId'),
+        'degree': subject.get('degree'),
+        'department': subject.get('department'),
+        'studentStatus': subject.get('studentStatus'),
+        'college': subject.get('college'),
+        'university': subject.get('university'),
+        'cgpa': subject.get('cgpa') or subject.get('gpa'),
+        'graduationYear': subject.get('graduationYear'),
+        'batch': subject.get('batch'),
+        'conduct': subject.get('conduct'),
+        'backlogCount': subject.get('backlogCount'),
+        'courses': subject.get('courses') or [],
+        'backlogs': subject.get('backlogs') or [],
+        'issueDate': subject.get('issueDate'),
+        'semester': subject.get('semester'),
+        'year': subject.get('year'),
+        'section': subject.get('section'),
+        'ipfsCid': cred.get('ipfs_cid'),
+    }
+
+    payload_json = json.dumps(payload, separators=(',', ':'), sort_keys=True)
+    payload_bytes = gzip.compress(payload_json.encode('utf-8'), compresslevel=9)
+    return base64.urlsafe_b64encode(payload_bytes).decode('utf-8').rstrip('=')
+
+============================================================
+4) HOW qk IS BUILT (SIGNED TOKEN)
+============================================================
+
+qk token binds to credential ID and qd digest.
+Primary mode: JWS-like token via issuer private key.
+Fallback mode: HMAC legacy token for resilience.
+
+------------------------------------------------------------
+qk creation (actual snippet)
+File: app/app.py
+------------------------------------------------------------
+
+def _generate_qr_secret_token(credential_id, payload_hash=None):
+    issued_ts = int(datetime.utcnow().timestamp())
+    payload = {
+        "cid": credential_id,
+        "ts": issued_ts,
+        "v": 2,
+        "iss": "did:edu:gprec",
+    }
+    if payload_hash:
+        payload["pd"] = payload_hash
+
+    signed_jws = crypto_manager.sign_jws(payload)
+    if signed_jws:
+        return signed_jws
+
+    payload_json = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+    payload_b64 = base64.urlsafe_b64encode(payload_json.encode("utf-8")).decode("utf-8").rstrip("=")
+    sig = hmac.new(_qr_signing_key(), payload_json.encode("utf-8"), digestmod="sha256").hexdigest()
+    return f"{payload_b64}.{sig}"
+
+============================================================
+5) SAME QR IN CERTIFICATE (WEB + PDF)
+============================================================
+
+Requirement satisfied: certificate QR is same canonical QR as holder/API.
+
+A) Certificate Web View
+- Route: /certificate/<credential_id>
+- Uses _build_verify_url()
+- Passes verify_url to template
+
+Snippet:
+
+@app.route('/certificate/<credential_id>')
+def view_certificate_portal(credential_id):
+    ...
+    qr_payload = _build_verify_url(credential_id)
+    return render_template('certificate_view.html',
+        credential=full_cred,
+        subject=subject,
+        qr_token=qr_payload['qr_token'],
+        qr_data=qr_payload['qr_data'],
+        verify_url=qr_payload['verify_url'])
+
+Template uses same URL:
+
+certVerifyURL = `{{ verify_url|safe }}`;
+
+B) Certificate PDF
+- Route: /api/credential/<credential_id>/pdf
+- Also calls _build_verify_url()
+- Embeds generated QR PNG from same URL
+
+Snippet:
+
+qr_payload = _build_verify_url(credential_id)
+verify_url = qr_payload['verify_url']
+qr = qrcode.make(verify_url)
+
+============================================================
+6) qr-web-app DETAILED EXPLANATION
+============================================================
+
+Files:
+- qr-web-app/index.html
+- qr-web-app/app.js
+- qr-web-app/style.css
+- qr-web-app/trusted_issuers.json
+
+Current public verifier supports:
+1) Camera scan
+2) Upload QR image
+3) Paste QR link (QR Link Verification)
+
+No dependency on backend for core verification.
+Verification is offline in browser.
+
+------------------------------------------------------------
+A) UI Structure (index.html)
+------------------------------------------------------------
+
+- Scan section (video + start/stop)
+- Upload section (image file)
+- QR Link Verification section (paste + button)
+- Result section (VALID/INVALID + decoded details)
+
+Libraries loaded:
+- ZXing browser library for camera/image decoding
+- pako for gzip fallback decompression
+
+------------------------------------------------------------
+B) Parse + Validate QR Payload
+------------------------------------------------------------
+
+parseQrPayload() expects URL with query params:
+- id
+- qk
+- qd
+
+If missing/invalid => immediate INVALID.
+
+------------------------------------------------------------
+C) Decode qd with backward compatibility
+------------------------------------------------------------
+
+decodeQdPayload(qd):
+1) Try plain JSON decode (old QR format)
+2) If fail, try gzip:
+   - DecompressionStream('gzip') when supported
+   - pako.ungzip fallback
+
+This supports both old and new QR payload encodings.
+
+------------------------------------------------------------
+D) Verify qk signature offline
+------------------------------------------------------------
+
+verifyJwsToken(qk, payloadText, expectedCid):
+1) Split token into header.payload.signature
+2) Decode header/payload
+3) Load issuer public key from trusted_issuers.json
+4) Verify RSA-PSS signature in browser using crypto.subtle.verify
+5) Verify cid matches
+6) Verify payload digest binding (pd == sha256(payloadText))
+
+If all pass -> VALID.
+Else -> INVALID.
+
+------------------------------------------------------------
+E) Camera scan path (ZXing)
+------------------------------------------------------------
+
+startCameraScan():
+- codeReader.decodeFromVideoDevice(null, camera, callback)
+- on successful decode -> stop camera + processPayload(result.text)
+
+stopCameraScan():
+- codeReader.reset()
+- stop active track
+
+------------------------------------------------------------
+F) Upload path (ZXing)
+------------------------------------------------------------
+
+- Create object URL from uploaded image
+- decodeFromImageElement(img)
+- if decoded text exists -> processPayload
+- revoke object URL in finally
+
+------------------------------------------------------------
+G) Link-paste path
+------------------------------------------------------------
+
+verifyLinkBtn click:
+- takes input text
+- calls processPayload(link, 'link-paste')
+
+============================================================
+7) EDGE CASES HANDLED NOW
+============================================================
+
+1) Missing fields in QR (id/qk/qd)
+-> INVALID QR
+
+2) Unsupported protocol
+-> INVALID
+
+3) Old QR (plain JSON qd)
+-> Works
+
+4) New QR (gzip qd)
+-> Works
+
+5) Browser without DecompressionStream
+-> pako fallback
+
+6) Unknown issuer in registry
+-> INVALID (Unknown issuer)
+
+7) Signature mismatch
+-> INVALID
+
+8) Credential ID mismatch between qk and id
+-> INVALID
+
+9) Tampered qd
+-> INVALID due to payload digest mismatch
+
+10) Camera unavailable/error
+-> CAMERA ERROR state
+
+============================================================
+8) TRUSTED ISSUER REGISTRY
+============================================================
+
+File: qr-web-app/trusted_issuers.json
+
+Purpose:
+- maps issuer DID -> public key
+- verifier uses this key to verify qk signature offline
+
+Example key entry:
+
+{
+  "version": 1,
+  "issuers": {
+    "did:edu:gprec": {
+      "name": "GPREC",
+      "algorithm": "PS256",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----..."
+    }
+  }
+}
+
+============================================================
+9) QUICK SUMMARY
+============================================================
+
+- Holder portal generates QR by calling /api/credential/<id>/qr.
+- Backend builds one canonical verify URL via _build_verify_url().
+- Same canonical URL is used in:
+  - holder modal QR
+  - certificate web QR
+  - certificate PDF QR
+- qr-web-app verifies this URL offline using public key registry.
+- qd is compressed for better scan reliability, with backward compatibility.
+
+This is your current working architecture in this codebase.
+
+============================================================
+10) CONCRETE EXAMPLE - YOUR CERTIFICATE URL
+============================================================
+
+Example certificate page you shared:
+
+http://localhost:5000/certificate/493890c4-d242-40cd-885f-4e367b751ba3
+
+How this page places and links QR (step-by-step):
+
+1) Browser opens the certificate route above.
+2) Backend route `view_certificate_portal(credential_id)` receives:
+   - credential_id = `493890c4-d242-40cd-885f-4e367b751ba3`
+3) Backend calls `_build_verify_url(credential_id)`.
+4) `_build_verify_url` builds canonical verifier link like:
+   - `http://localhost:5000/verify?id=493890c4-d242-40cd-885f-4e367b751ba3&qk=...&qd=...`
+5) Backend passes this URL to template as `verify_url`.
+6) In `templates/certificate_view.html`, JS does:
+   - `certVerifyURL = `{{ verify_url|safe }}`;`
+   - `QRCode.toCanvas(..., certVerifyURL, ...)`
+7) QR is rendered inside the certificate Proof box (`<div id="qrcode"></div>`).
+8) Same `certVerifyURL` is shown in input `#certVerifyUrl` and can be copied/shared/downloaded.
+
+So, for this exact certificate URL, QR is not hardcoded. It is generated dynamically from that credential ID and cryptographic payload.
+
+------------------------------------------------------------
+Actual snippets involved
+------------------------------------------------------------
+
+Backend certificate route (app/app.py):
+
+@app.route('/certificate/<credential_id>')
+def view_certificate_portal(credential_id):
+    ...
+    qr_payload = _build_verify_url(credential_id)
+    return render_template('certificate_view.html',
+        credential=full_cred,
+        subject=subject,
+        qr_token=qr_payload['qr_token'],
+        qr_data=qr_payload['qr_data'],
+        verify_url=qr_payload['verify_url'])
+
+Certificate template QR bind (templates/certificate_view.html):
+
+certVerifyURL = `{{ verify_url|safe }}`;
+QRCode.toCanvas(document.createElement('canvas'), certVerifyURL, {
+    width: 140,
+    margin: 2
+}, function (error, canvas) {
+    if (error) console.error(error);
+    canvas.id = 'certQrCanvas';
+    document.getElementById('qrcode').appendChild(canvas);
+});
+
+============================================================
+11) HOW THIS SAME LINK IS USED BY VERIFIER
+============================================================
+
+When this QR is scanned in `qr-web-app`:
+
+1) ZXing decodes QR text into full link.
+2) `processPayload()` parses id/qk/qd.
+3) `decodeQdPayload()` decodes qd (old JSON or new gzip).
+4) `verifyJwsToken()` verifies qk signature using trusted issuer public key.
+5) If signature + digest binding pass => VALID and decoded credential shown.
+
+This means your certificate URL and holder QR are cryptographically linked through the exact same canonical payload format.

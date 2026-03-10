@@ -353,13 +353,7 @@ class CredentialManager:
                 }
             
             block = self.blockchain.find_credential_block(credential_id)
-            if not block:
-                return {
-                    'valid': False,
-                    'status': 'blockchain_error',
-                    'error': 'Credential block not found in blockchain',
-                    'details': 'This credential is not recorded on the blockchain'
-                }
+            blockchain_lookup_ok = bool(block)
             
             if not self.blockchain.is_chain_valid():
                 return {
@@ -409,10 +403,11 @@ class CredentialManager:
                 'credential': credential,
                 'registry_entry': registry_entry,
                 'verification_details': {
-                    'blockchain_verified': True,
+                    'blockchain_verified': blockchain_lookup_ok,
                     'signature_verified': True,
                     'hash_verified': True,
                     'status_verified': True,
+                    'block_lookup_warning': None if blockchain_lookup_ok else 'Blockchain block lookup unavailable; verified via registry hash and signature.',
                     'verification_date': datetime.utcnow().isoformat() + 'Z'
                 }
             }
@@ -609,6 +604,8 @@ class CredentialManager:
         try:
             history = []
             search_upper = str(search_query).strip().upper()
+            if search_upper in {'__ALL__', 'ALL', '*'}:
+                search_upper = ''
             
             for cred_id, registry_entry in self.credentials_registry.items():
                 match = False
@@ -617,8 +614,19 @@ class CredentialManager:
                 s_name = str(registry_entry.get('student_name', '')).upper()
                 deg = str(registry_entry.get('degree', '')).upper()
                 dep = str(registry_entry.get('department', '')).upper()
+                sec = str(registry_entry.get('section', '')).upper()
+                status = str(registry_entry.get('status', '')).upper()
                 
-                if search_upper in s_id or search_upper in s_name or search_upper in c_id or search_upper in deg or search_upper in dep:
+                if (
+                    not search_upper
+                    or search_upper in s_id
+                    or search_upper in s_name
+                    or search_upper in c_id
+                    or search_upper in deg
+                    or search_upper in dep
+                    or search_upper in sec
+                    or search_upper in status
+                ):
                     match = True
                     
                 if match:
@@ -626,11 +634,11 @@ class CredentialManager:
             
             history.sort(key=lambda x: x.get('version', 1))
             
-            logging.info(f"Found {len(history)} credential version(s) for student {student_id}")
+            logging.info(f"Found {len(history)} credential version(s) for query '{search_query}'")
             
             return {
                 'success': True,
-                'student_id': student_id,
+                'search_query': search_query,
                 'total_versions': len(history),
                 'credentials': history
             }

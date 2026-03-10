@@ -144,14 +144,27 @@ class CryptoManager:
             logging.debug(f"Signature verification failed: {str(e)}")
             return False
 
+    @staticmethod
+    def _compact_json(data):
+        """Serialize JSON without extra whitespace for shorter QR payloads."""
+        return json.dumps(data, sort_keys=True, separators=(',', ':'))
+
+    @staticmethod
+    def _jws_hash_algorithm():
+        return hashes.SHA256()
+
+    @classmethod
+    def _jws_standard_salt_length(cls):
+        return cls._jws_hash_algorithm().digest_size
+
     def sign_jws(self, data):
         """Create a JWS-compact style signature (Header.Payload.Signature)"""
         try:
             header = {"alg": "PS256", "typ": "JWS"}
-            header_b64 = base64.urlsafe_b64encode(json.dumps(header, sort_keys=True).encode()).decode().rstrip('=')
+            header_b64 = base64.urlsafe_b64encode(self._compact_json(header).encode()).decode().rstrip('=')
             
             if isinstance(data, dict):
-                payload_string = json.dumps(data, sort_keys=True)
+                payload_string = self._compact_json(data)
             else:
                 payload_string = str(data)
             payload_b64 = base64.urlsafe_b64encode(payload_string.encode()).decode().rstrip('=')
@@ -161,10 +174,10 @@ class CryptoManager:
             signature = self.private_key.sign(
                 signing_input.encode(),
                 padding.PSS(
-                    mgf=padding.MGF1(hashes.SHA256()),
-                    salt_length=padding.PSS.MAX_LENGTH
+                    mgf=padding.MGF1(self._jws_hash_algorithm()),
+                    salt_length=self._jws_standard_salt_length()
                 ),
-                hashes.SHA256()
+                self._jws_hash_algorithm()
             )
             signature_b64 = base64.urlsafe_b64encode(signature).decode().rstrip('=')
             
@@ -189,17 +202,24 @@ class CryptoManager:
             
             signature = base64.urlsafe_b64decode(pad_b64(signature_b64))
             payload_json = json.loads(base64.urlsafe_b64decode(pad_b64(payload_b64)).decode())
-            
-            self.public_key.verify(
-                signature,
-                signing_input.encode(),
-                padding.PSS(
-                    mgf=padding.MGF1(hashes.SHA256()),
-                    salt_length=padding.PSS.MAX_LENGTH
-                ),
-                hashes.SHA256()
-            )
-            return True, payload_json
+
+            last_error = None
+            for salt_length in (self._jws_standard_salt_length(), padding.PSS.MAX_LENGTH):
+                try:
+                    self.public_key.verify(
+                        signature,
+                        signing_input.encode(),
+                        padding.PSS(
+                            mgf=padding.MGF1(self._jws_hash_algorithm()),
+                            salt_length=salt_length
+                        ),
+                        self._jws_hash_algorithm()
+                    )
+                    return True, payload_json
+                except Exception as verify_error:
+                    last_error = verify_error
+
+            raise last_error or ValueError("JWS verification failed")
         except Exception as e:
             logging.debug(f"JWS verification failed: {str(e)}")
             return False, None

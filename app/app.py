@@ -190,7 +190,7 @@ def _build_verify_url(credential_id):
     qr_token = _generate_qr_secret_token(credential_id, _hash_qr_hidden_payload(qr_data))
     verifier_base_url = (
         os.environ.get("QR_VERIFIER_BASE_URL")
-        or "https://udaycodespace.github.io/credify-verify/"
+        or "https://udaycodespace.github.io/credify-verify/result.html"
     ).strip()
 
     if not verifier_base_url:
@@ -217,6 +217,14 @@ def _build_verify_url(credential_id):
         'qr_token': qr_token,
         'qr_data': qr_data,
     }
+
+
+def _apply_no_cache_headers(response):
+    """Prevent stale certificate/PDF responses from being reused by the browser."""
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 # Database config
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///credentials.db")
@@ -1232,12 +1240,23 @@ def view_certificate_portal(credential_id):
         subject = full_cred.get('credentialSubject', {})
         
         qr_payload = _build_verify_url(credential_id)
-        return render_template('certificate_view.html', 
-                     credential=full_cred, 
-                     subject=subject,
-                 qr_token=qr_payload['qr_token'],
-                 qr_data=qr_payload['qr_data'],
-                 verify_url=qr_payload['verify_url'])
+        pdf_version = (
+            cred.get('updated_at')
+            or cred.get('issued_at')
+            or cred.get('issuance_date')
+            or full_cred.get('issuanceDate')
+            or datetime.utcnow().isoformat() + 'Z'
+        )
+        response = make_response(render_template(
+            'certificate_view.html',
+            credential=full_cred,
+            subject=subject,
+            qr_token=qr_payload['qr_token'],
+            qr_data=qr_payload['qr_data'],
+            verify_url=qr_payload['verify_url'],
+            pdf_download_url=url_for('api_credential_pdf', credential_id=credential_id, v=pdf_version)
+        ))
+        return _apply_no_cache_headers(response)
     except Exception as e:
         logging.error(f"Certificate View error: {e}")
         return str(e), 500
@@ -1245,10 +1264,6 @@ def view_certificate_portal(credential_id):
 @app.route('/api/credential/<credential_id>/pdf')
 @role_required('student')
 def api_credential_pdf(credential_id):
-    """
-    Generate the absolute final 10/10 elite academic transcript.
-    Refined with senior UX feedback: document rhythm, typographic hierarchy, and digital authority.
-    """
     try:
         cred = credential_manager.get_credential(credential_id)
         if not cred:
@@ -1256,194 +1271,167 @@ def api_credential_pdf(credential_id):
             
         full_cred = cred.get('full_credential') or {}
         subject = full_cred.get('credentialSubject') or {}
-            
+
+        subject_name = subject.get('name') or cred.get('student_name') or 'Student'
+        roll_number = str(subject.get('studentId') or cred.get('student_id') or 'N/A')
+        degree_name = str(subject.get('degree') or cred.get('degree') or 'N/A')
+        department_name = str(subject.get('department') or cred.get('department') or 'N/A')
+        cgpa_value = str(subject.get('cgpa') or subject.get('gpa') or cred.get('cgpa') or cred.get('gpa') or '0.00')
+        conduct_value = str(subject.get('conduct') or cred.get('conduct') or 'N/A')
+        batch_value = str(subject.get('batch') or cred.get('batch') or 'N/A')
+        semester_value = str(subject.get('semester') or cred.get('semester') or 'N/A')
+        year_value = str(subject.get('year') or cred.get('year') or 'N/A')
+        backlog_count = str(subject.get('backlogCount') or cred.get('backlog_count') or '0')
+        graduation_year = str(subject.get('graduationYear') or cred.get('graduation_year') or 'N/A')
+        courses = subject.get('courses') or cred.get('courses') or []
+        backlogs = subject.get('backlogs') or cred.get('backlogs') or []
+
         buffer = io.BytesIO()
         from reportlab.lib.pagesizes import A4
         from reportlab.lib import colors
+        from reportlab.lib.utils import simpleSplit, ImageReader
         
         p = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
-        gold = colors.HexColor("#C9A227")
-        navy = colors.HexColor("#0f172a")
-        text_muted = colors.HexColor("#777777")
-        
-        # 1. BORDER (6pt : 1.5pt ratio)
+        gold = colors.HexColor("#c9a227")
+        navy = colors.HexColor("#18233a")
+        muted = colors.HexColor("#6b7280")
+        surface = colors.HexColor("#fbfbfa")
+        border = colors.HexColor("#e7e5df")
+        success_bg = colors.HexColor("#e8f6ef")
+        success_text = colors.HexColor("#0f8a5f")
+        danger_text = colors.HexColor("#b91c1c")
+
+        def draw_panel(x, y, w, h, title):
+            p.setFillColor(colors.white)
+            p.setStrokeColor(border)
+            p.setLineWidth(1)
+            p.roundRect(x, y, w, h, 10, fill=1, stroke=1)
+            p.setFont("Helvetica-Bold", 8)
+            p.setFillColor(gold)
+            p.drawString(x + 12, y + h - 18, title.upper())
+
+        def draw_detail_rows(x, y_top, width_value, rows, row_gap=22):
+            y = y_top
+            for label, value, value_color in rows:
+                p.setStrokeColor(border)
+                p.setLineWidth(0.7)
+                p.line(x, y - 10, x + width_value, y - 10)
+                p.setFont("Helvetica-Bold", 7.5)
+                p.setFillColor(muted)
+                p.drawString(x, y, label)
+                p.setFont("Helvetica-Bold", 9)
+                p.setFillColor(value_color)
+                p.drawString(x + 92, y, value)
+                y -= row_gap
+
+        p.setFillColor(surface)
+        p.rect(0, 0, width, height, fill=1, stroke=0)
+
         p.setStrokeColor(gold)
         p.setLineWidth(6)
-        p.rect(20, 20, width-40, height-40)
+        p.rect(18, 18, width - 36, height - 36)
         p.setLineWidth(1.5)
-        p.rect(32, 32, width-64, height-64)
-        
-        # 2. ULTRA-SUBTLE WATERMARK (0.02)
+        p.rect(30, 30, width - 60, height - 60)
+
         p.saveState()
-        p.setFont("Helvetica-Bold", 65)
+        p.setFont("Helvetica-Bold", 72)
         p.setFillColor(gold, alpha=0.02)
         p.translate(width/2, height/2)
-        p.rotate(35)
-        p.drawCentredString(0, 0, "BLOCKCHAIN VERIFIED RECORD")
+        p.rotate(32)
+        p.drawCentredString(0, 0, "CREDIFY VERIFIED")
         p.restoreState()
-        
-        # 3. HEADER RHYTHM
+
         logo_path = os.path.join(os.getcwd(), 'static', 'images', 'collegelogo.png')
         if os.path.exists(logo_path):
-            p.drawImage(logo_path, width/2 - 25, height - 90, width=50, height=50, mask='auto')
+            p.drawImage(logo_path, width/2 - 20, height - 92, width=40, height=40, mask='auto')
 
+        p.setFillColor(navy)
         p.setFont("Helvetica-Bold", 15)
-        p.setFillColor(navy)
-        p.drawCentredString(width/2, height - 112, "G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)")
-        
-        # Elegant Underlined Title
-        p.setFont("Helvetica-Bold", 19)
-        title_text = "OFFICIAL DIGITAL ACADEMIC RECORD"
-        p.drawCentredString(width/2, height - 144, title_text)
-        p.setLineWidth(1.5)
+        p.drawCentredString(width/2, height - 126, "G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)")
+        p.setFont("Helvetica-Bold", 22)
+        p.drawCentredString(width/2, height - 160, "OFFICIAL DIGITAL ACADEMIC RECORD")
         p.setStrokeColor(gold)
-        p.line(width/2 - 125, height - 149, width/2 + 125, height - 149)
-        
+        p.setLineWidth(1.3)
+        p.line(width/2 - 120, height - 166, width/2 + 120, height - 166)
         p.setFont("Helvetica-Oblique", 9)
-        p.setFillColor(text_muted)
-        p.drawCentredString(width/2, height - 165, "SECURED BY CREDIFY BLOCKCHAIN TECHNOLOGY")
-        
-        # 4. HERO SECTION (Student Name)
+        p.setFillColor(muted)
+        p.drawCentredString(width/2, height - 178, "Issued via Credify Blockchain Credential Verification System")
         p.setFont("Helvetica-Oblique", 14)
+        p.drawCentredString(width/2, height - 220, "This is to certify that")
+        p.setFont("Helvetica-Bold", 30)
         p.setFillColor(colors.black)
-        p.drawCentredString(width/2, height - 210, "This is to certify that")
-        
-        p.setFont("Helvetica-Bold", 28)
-        student_name = (subject.get('name') or cred.get('student_name', 'NAME NOT FOUND')).upper()
-        # Simulated kerning
-        p.drawCentredString(width/2, height - 245, student_name)
-        
-        # Section Divider
-        p.setLineWidth(0.5)
-        p.setStrokeColor(colors.lightgrey)
-        p.line(60, height - 265, width - 60, height - 265)
-        
-        # 5. HIGH-CONTRAST ACADEMIC GRID
-        p.setFont("Helvetica-Bold", 10)
-        p.setFillColor(gold)
-        p.drawCentredString(width/2, height - 280, "RECORD OF ACADEMIC ACHIEVEMENT")
-        
-        # Degree/program should remain exactly as issued; department is shown separately.
-        degree_raw = str(subject.get('degree') or cred.get('degree', 'N/A')).upper()
-        dept_raw = str(subject.get('department') or '').upper()
-        full_program = degree_raw
-        
-        # Graduation year - fix 'None' display
-        grad_year_raw = subject.get('graduationYear') or cred.get('graduation_year')
-        grad_year = str(grad_year_raw) if grad_year_raw and str(grad_year_raw) != 'None' else 'N/A'
-        
-        col1_fields = [
-            ("ROLL NUMBER", str(subject.get('studentId') or cred.get('student_id', 'N/A'))),
-            ("DEGREE / PROGRAM", full_program),
-            ("DEPARTMENT", dept_raw or "N/A"),
-            ("CGPA", f"{subject.get('cgpa') or subject.get('gpa') or cred.get('gpa', '0.00')} / 10.00"),
-            ("CONDUCT", str(subject.get('conduct') or 'N/A').upper()),
-        ]
-        col2_fields = [
-            ("GRADUATION YEAR", grad_year),
-            ("CURRENT SEM & CURRENT YEAR", f"{subject.get('semester') or 'N/A'} / {subject.get('year') or 'N/A'}"),
-            ("BATCH", str(subject.get('batch') or 'N/A')),
-            ("BACKLOG COUNT", str(subject.get('backlogCount') or '0')),
-            ("STATUS", "CERTIFIED AUTHENTIC"),
-        ]
-        
-        y_start = height - 310
-        for i in range(5):
-            y = y_start - (i * 35)
-            # Column 1
-            if i < len(col1_fields):
-                lbl, val = col1_fields[i]
-                p.setFont("Helvetica-Bold", 7)
-                p.setFillColor(text_muted)
-                p.drawString(90, y, lbl)
-                p.setFont("Helvetica-Bold", 10)
-                p.setFillColor(navy)
-                p.drawString(90, y - 12, val)
-            
-            # Column 2
-            if i < len(col2_fields):
-                lbl, val = col2_fields[i]
-                p.setFont("Helvetica-Bold", 7)
-                p.setFillColor(text_muted)
-                p.drawString(width/2 + 20, y, lbl)
-                p.setFont("Helvetica-Bold", 10)
-                p.setFillColor(navy if val != "CERTIFIED AUTHENTIC" else colors.HexColor("#059669"))
-                p.drawString(width/2 + 20, y - 12, val)
+        p.drawCentredString(width/2, height - 257, subject_name.upper())
 
-        # Section Divider
-        p.setLineWidth(0.5)
-        p.setStrokeColor(colors.lightgrey)
-        p.line(60, y_start - 170, width - 60, y_start - 170)
-        
-        # 5.5 DETAILED COURSEWORK (If present)
-        y_courses = y_start - 190
-        courses = subject.get('courses')
-        if courses and isinstance(courses, list):
-            p.setFont("Helvetica-Bold", 10)
-            p.setFillColor(gold)
-            p.drawString(90, y_courses, "DETAILED COURSEWORK / SUBJECTS")
-            
-            p.setFont("Helvetica-Bold", 9)
-            p.setFillColor(navy)
-            
-            # Simple list of courses
-            course_text = ", ".join([str(c) for c in courses])
-            # Wrap text manually if too long
-            from reportlab.lib.utils import simpleSplit
-            lines = simpleSplit(course_text, "Helvetica-Bold", 9, width - 180)
-            
-            for i, line in enumerate(lines[:4]): # Show up to 4 lines
-                p.drawString(90, y_courses - 16 - (i * 12), line)
-            
-            y_courses -= 64
-        
-        # 5.6 BACKLOG HISTORY (If present and not zero)
-        backlogs = subject.get('backlogs')
-        if backlogs and isinstance(backlogs, list) and len(backlogs) > 0:
-            p.setFont("Helvetica-Bold", 9)
-            p.setFillColor(colors.red)
-            p.drawString(90, y_courses - 8, "OUTSTANDING BACKLOG SUBJECTS")
-            
-            p.setFont("Helvetica-Bold", 8)
-            p.setFillColor(navy)
-            backlog_text = ", ".join([str(b) for b in backlogs])
-            lines = simpleSplit(backlog_text, "Helvetica-Bold", 8, width - 180)
-            for i, line in enumerate(lines[:3]):
-                p.drawString(90, y_courses - 22 - (i * 11), line)
-            
-            y_courses -= 52
-        
-        # 6. REFINED BLOCKCHAIN PROOF BOX (Dynamic Position)
-        y_box = max(230, y_courses - 35)
-        p.setFillColor(colors.HexColor("#FAFAFA"))
-        p.setStrokeColor(gold)
-        p.setLineWidth(1)
-        p.rect(70, y_box - 90, width - 140, 100, fill=1, stroke=1)
-        
+        pill_w = 100
+        pill_h = 20
+        pill_x = (width - pill_w) / 2
+        pill_y = height - 286
+        p.setFillColor(success_bg)
+        p.setStrokeColor(colors.HexColor("#d5eee0"))
+        p.roundRect(pill_x, pill_y, pill_w, pill_h, 6, fill=1, stroke=1)
+        p.setFillColor(success_text)
+        p.setFont("Helvetica-Bold", 8)
+        p.drawCentredString(width/2, pill_y + 6.5, "CERTIFIED AUTHENTIC")
+
+        panel_y = height - 455
+        panel_h = 140
+        panel_gap = 12
+        panel_w = (width - 96 - panel_gap) / 2
+
+        draw_panel(48, panel_y, panel_w, panel_h, "Student Details")
+        draw_panel(48 + panel_w + panel_gap, panel_y, panel_w, panel_h, "Academic Record")
+
+        draw_detail_rows(60, panel_y + panel_h - 38, panel_w - 24, [
+            ("Name", subject_name, navy),
+            ("Roll Number", roll_number, navy),
+            ("Degree / Program", degree_name, navy),
+            ("Department", department_name, navy)
+        ], row_gap=24)
+
+        draw_detail_rows(60 + panel_w + panel_gap, panel_y + panel_h - 38, panel_w - 24, [
+            ("CGPA", f"{cgpa_value} / 10.00", navy),
+            ("Conduct", conduct_value, navy),
+            ("Batch", batch_value, navy),
+            ("Current Semester / Year", f"{semester_value} / {year_value}", navy),
+            ("Backlog Count", backlog_count, navy),
+            ("Graduation Year", graduation_year, navy)
+        ], row_gap=19)
+
+        small_panel_y = panel_y - 72
+        small_panel_h = 54
+        draw_panel(48, small_panel_y, panel_w, small_panel_h, "Coursework")
+        draw_panel(48 + panel_w + panel_gap, small_panel_y, panel_w, small_panel_h, "Outstanding Subjects")
+
+        p.setFont("Helvetica-Bold", 8)
+        p.setFillColor(muted)
+        p.drawString(60, small_panel_y + 16, "Subjects")
         p.setFillColor(navy)
-        p.setFont("Helvetica-Bold", 9)
-        p.drawCentredString(width/2, y_box - 12, "BLOCKCHAIN INTEGRITY PROOF")
-        
-        p.setFillColor(text_muted)
+        p.drawString(132, small_panel_y + 16, ", ".join(str(course) for course in courses) if courses else "N/A")
+
+        p.setFillColor(muted)
+        p.drawString(60 + panel_w + panel_gap, small_panel_y + 16, "Backlogs")
+        p.setFillColor(danger_text if backlogs else navy)
+        p.drawString(132 + panel_w + panel_gap, small_panel_y + 16, ", ".join(str(backlog) for backlog in backlogs) if backlogs else "None")
+
+        proof_box_bottom = 190
+        proof_box_height = 120
+        draw_panel(48, proof_box_bottom, width - 96, proof_box_height, "Blockchain Verification")
+        p.setFont("Helvetica", 8.5)
+        p.setFillColor(muted)
+        p.drawString(60, proof_box_bottom + proof_box_height - 36, "This credential is packaged with an offline verifiable QR payload and a signed issuer proof.")
         p.setFont("Helvetica-Bold", 7)
-        p.drawString(85, y_box - 30, "CREDENTIAL REFERENCE")
-        p.setFillColor(colors.black)
-        p.setFont("Courier-Bold", 8)
-        p.drawString(85, y_box - 40, credential_id)
-        
-        p.setFillColor(text_muted)
-        p.setFont("Helvetica-Bold", 7)
-        p.drawString(85, y_box - 55, "ON-CHAIN HASH (SHA-256)")
-        p.setFillColor(colors.black)
-        p.setFont("Courier-Bold", 8)
-        hash_text = str(cred.get('credential_hash', 'N/A'))
-        from reportlab.lib.utils import simpleSplit
-        hash_lines = simpleSplit(hash_text, "Courier-Bold", 8, 250)
-        for i, line in enumerate(hash_lines[:2]):
-            p.drawString(85, y_box - 65 - (i * 9), line)
-        
-        # QR & Badge Positioned Right
+        p.drawString(60, proof_box_bottom + proof_box_height - 56, "CREDENTIAL ID")
+        p.drawString(60, proof_box_bottom + proof_box_height - 86, "ON-CHAIN HASH (SHA-256)")
+        p.drawString(60, proof_box_bottom + proof_box_height - 116, "VERIFICATION")
+        p.setFillColor(navy)
+        p.setFont("Courier-Bold", 7.5)
+        p.drawString(60, proof_box_bottom + proof_box_height - 68, credential_id)
+        hash_preview = str(cred.get('credential_hash', 'N/A'))
+        hash_preview = hash_preview if len(hash_preview) <= 58 else f"{hash_preview[:58]}..."
+        p.drawString(60, proof_box_bottom + proof_box_height - 98, hash_preview)
+        p.drawString(60, proof_box_bottom + proof_box_height - 128, "Blockchain Verified Record")
+
         qr_payload = _build_verify_url(credential_id)
         verify_url = qr_payload['verify_url']
         qr_obj = qrcode.QRCode(
@@ -1458,63 +1446,70 @@ def api_credential_pdf(credential_id):
         qr_buffer = io.BytesIO()
         qr.save(qr_buffer, format='PNG')
         qr_buffer.seek(0)
-        from reportlab.lib.utils import ImageReader
-        p.drawImage(ImageReader(qr_buffer), width-176, y_box-86, width=96, height=96)
-        
-        # Mini Badge (15% Smaller)
+        qr_size = 88
+        qr_x = width - 156
+        qr_y = proof_box_bottom + 28
+        p.drawImage(ImageReader(qr_buffer), qr_x, qr_y, width=qr_size, height=qr_size)
+
         p.setFillColor(gold)
         p.setStrokeColor(colors.white)
-        p.circle(width-195, y_box-35, 17, fill=1, stroke=1)
+        badge_x = qr_x - 38
+        badge_y = proof_box_bottom + 44
+        p.circle(badge_x, badge_y, 13, fill=1, stroke=1)
         p.setFillColor(colors.white)
-        p.setFont("Helvetica-Bold", 4)
-        p.drawCentredString(width-195, y_box-33, "BLOCKCHAIN")
-        p.drawCentredString(width-195, y_box-38, "VERIFIED")
-        
-        # 7. SIGNATURES WITH DIGITAL ROLES
-        y_sign = 118
-        p.setLineWidth(1.5)
-        p.setStrokeColor(navy)
-        p.line(70, y_sign, 190, y_sign)
-        p.line(width/2 - 60, y_sign, width/2 + 60, y_sign)
-        p.line(width - 190, y_sign, width - 70, y_sign)
-        
-        p.setFont("Helvetica-Bold", 9)
+        p.setFont("Helvetica-Bold", 3.5)
+        p.drawCentredString(badge_x, badge_y + 1.5, "BLOCKCHAIN")
+        p.drawCentredString(badge_x, badge_y - 3.5, "VERIFIED")
+
+        authority_y = 128
+        draw_panel(48, authority_y, width - 96, 46, "Authorities")
         p.setFillColor(navy)
-        p.drawCentredString(130, y_sign - 15, "Academic Records Authority")
-        p.drawCentredString(width/2, y_sign - 15, "Controller of Examinations")
-        p.drawCentredString(width - 130, y_sign - 15, "Blockchain Network Validator")
-        
-        p.setFont("Helvetica-Oblique", 7)
-        p.setFillColor(colors.gray)
-        p.drawCentredString(130, y_sign - 25, "(Digital Issuer)")
-        p.drawCentredString(width/2, y_sign - 25, "(Authorizing Authority)")
-        p.drawCentredString(width - 130, y_sign - 25, "(Network Verification)")
-        
-        # 8. CONSTRAINED FOOTER NOTE
-        p.setFillColor(colors.gray)
-        p.setFont("Helvetica-Oblique", 8)
-        disclaimer = "This academic record is digitally issued and cryptographically secured using blockchain technology. Scan at https://udaycodespace.github.io/credify-verify/ or use the Credential ID in our portal at credify.com. No physical signature is required."
-        
+        p.setFont("Helvetica-Bold", 8.5)
+        p.drawString(60, authority_y + 18, "Academic Records Authority")
+        p.drawCentredString(width/2, authority_y + 18, "Controller of Examinations")
+        p.drawRightString(width - 60, authority_y + 18, "Credify Network Validator")
+        p.setFillColor(muted)
+        p.setFont("Helvetica", 7.5)
+        p.drawString(60, authority_y + 8, "Digital Issuer")
+        p.drawCentredString(width/2, authority_y + 8, "Authorizing Authority")
+        p.drawRightString(width - 60, authority_y + 8, "Verification Node")
+
+        portal_y = 78
+        draw_panel(48, portal_y, width - 96, 40, "Verification Portal")
+        p.setFillColor(navy)
+        p.setFont("Courier-Bold", 7)
+        p.drawString(60, portal_y + 14, "https://udaycodespace.github.io/credify-verify/")
+        p.setFont("Helvetica", 7.5)
+        p.setFillColor(muted)
+        p.drawString(60, portal_y + 5, "Scan the QR or enter the Credential ID to verify authenticity.")
+
+        p.setFillColor(muted)
+        p.setFont("Helvetica-Oblique", 6.8)
+        disclaimer = (
+            "Scan QR or enter Credential ID to verify authenticity. "
+            "No physical signature is required because this document is digitally issued "
+            "through the Credify blockchain credential verification system."
+        )
         from reportlab.lib.styles import getSampleStyleSheet
         from reportlab.platypus import Paragraph
         styles = getSampleStyleSheet()
         style = styles['Normal']
-        style.alignment = 1 # Center
-        style.fontSize = 7
-        style.textColor = colors.gray
+        style.alignment = 1
+        style.fontSize = 6.8
+        style.textColor = muted
         style.fontName = "Helvetica-Oblique"
-        style.leading = 9
-        
+        style.leading = 8.5
         footer_p = Paragraph(disclaimer, style)
-        footer_p.wrapOn(p, 430, 80)
-        footer_p.drawOn(p, (width-430)/2, 34)
-        
+        footer_p.wrapOn(p, 470, 22)
+        footer_p.drawOn(p, (width - 470) / 2, 42)
+
         p.showPage()
         p.save()
         buffer.seek(0)
-        return send_file(buffer, as_attachment=True, 
-                         download_name=f"Verified_Transcript_{credential_id}.pdf", 
-                         mimetype='application/pdf')
+        response = send_file(buffer, as_attachment=True,
+                             download_name=f"Verified_Transcript_{credential_id}.pdf",
+                             mimetype='application/pdf')
+        return _apply_no_cache_headers(response)
     except Exception as e:
         logging.error(f"Elite PDF Generation error: {e}")
         return jsonify({'error': str(e)}), 500
@@ -2333,7 +2328,8 @@ def api_credential_qr(credential_id):
         )
         qr.add_data(verify_url)
         qr.make(fit=True)
-        img = qr.make_image(fill_color='#06b6d4', back_color='#0f172a')
+        # Use black on white so uploaded/exported QR images remain scanner-friendly.
+        img = qr.make_image(fill_color='black', back_color='white')
 
         buf = io.BytesIO()
         img.save(buf, format='PNG')

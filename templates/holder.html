@@ -1120,7 +1120,7 @@
                 <div class="w-100" style="text-align: left;">
                     <small class="text-muted d-block mb-1">Verification Link</small>
                     <input id="qrVerifyUrl" class="form-control form-control-sm" readonly style="font-family: 'JetBrains Mono', monospace;" />
-                    <small class="text-muted d-block mt-1" id="qrUrlHint">Long links are expected because QR includes signed + offline data.</small>
+                    <small class="text-muted d-block mt-1" id="qrUrlHint">Long links are expected because the QR includes signed proof plus offline credential data.</small>
                 </div>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                     style="border-radius: 0;">Close</button>
@@ -1993,16 +1993,21 @@
                     if (hint) {
                         const lenText = data.verify_url_length ? `${data.verify_url_length} chars` : `${data.verify_url.length} chars`;
                         const comp = data.compression || 'encoded';
-                        hint.textContent = `Link length: ${lenText}. QR payload format: ${comp}.`;
+                        hint.textContent = `Link length: ${lenText}. QR payload format: ${comp}. Exported QR uses black on white for better upload and phone scan reliability.`;
                     }
                     body.innerHTML = `
                     <img src="data:image/png;base64,${data.qr_base64}"
                         id="qrPreviewImage"
                          alt="Verification QR Code"
-                         style="width: 220px; height: 220px; border: 3px solid var(--cyan-500); padding: 8px; background: #0f172a;"
+                         style="width: 220px; height: 220px; border: 1px solid #cbd5e1; padding: 10px; background: #ffffff; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);"
                     />
                     <p class="mt-2 small" style="color: #94a3b8;">Employer scans this to verify instantly — no login needed.</p>
                 `;
+                    const qrCaption = body.querySelector('p');
+                    if (qrCaption) {
+                        qrCaption.className = 'mt-3 small';
+                        qrCaption.textContent = 'Scan this at https://udaycodespace.github.io/credify-verify/ or verify the CID later at www.credify.com.';
+                    }
                 } else {
                     body.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                 }

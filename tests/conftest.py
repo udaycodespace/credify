@@ -196,18 +196,20 @@ def sample_credential_data():
     return {
         'student_name': 'John Doe',
         'student_id': 'TEST123',
-        'degree': 'B.Tech Computer Science',
-        'university': 'G. Pulla Reddy Engineering College',
+        'degree': 'B.Tech',
+        'department': 'Computer Science Engineering',
+        'student_status': 'graduated',
+        'college': 'G. Pulla Reddy Engineering College',
+        'university': 'JNTUA',
+        'cgpa': 8.5,
         'gpa': 8.5,
         'graduation_year': 2024,
+        'batch': '2020-2024',
         'courses': ['Data Structures', 'Algorithms', 'DBMS'],
         'issue_date': datetime.now().isoformat(),  # ✅ ADDED THIS
+        'issued_by': 'G. Pulla Reddy Engineering College',
         'issuer': 'G. Pulla Reddy Engineering College',
         'semester': 8,
         'year': 4,
-        'class_name': 'B.Tech',
         'section': 'A',
-        'backlog_count': 0,
-        'backlogs': [],
-        'conduct': 'good'
     }

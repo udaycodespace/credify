@@ -396,13 +396,19 @@
                         <span class="grid-value">{{ subject.studentId or credential.student_id or 'N/A' }}</span>
                     </div>
                     <div class="grid-item">
-                        <span class="grid-label">Degree Program</span>
+                        <span class="grid-label">Degree</span>
                         <span class="grid-value" style="font-size: 13px;">{{ subject.degree or credential.degree or
                             'N/A' }}</span>
                     </div>
                     <div class="grid-item">
+                        <span class="grid-label">Department</span>
+                        <span class="grid-value" style="font-size: 13px;">{{ subject.department or credential.department
+                            or 'N/A' }}</span>
+                    </div>
+                    <div class="grid-item">
                         <span class="grid-label">GPA/CGPA</span>
-                        <span class="grid-value">{{ subject.gpa or credential.gpa or '0.00' }} / 10.00</span>
+                        <span class="grid-value">{{ subject.cgpa or subject.gpa or credential.gpa or '0.00' }} /
+                            10.00</span>
                     </div>
                 </div>
                 <!-- Column 2 -->
@@ -414,8 +420,13 @@
                     </div>
                     <div class="grid-item">
                         <span class="grid-label">Semester / Year</span>
-                        <span class="grid-value">{{ subject.semester or credential.semester or '8' }} / {{ subject.year
-                            or credential.year or '4' }}</span>
+                        <span class="grid-value">{{ subject.semester or credential.semester or 'N/A' }} / {{
+                            subject.year
+                            or credential.year or 'N/A' }}</span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">Batch</span>
+                        <span class="grid-value">{{ subject.batch or credential.batch or 'N/A' }}</span>
                     </div>
                     <div class="grid-item">
                         <span class="grid-label">Status</span>

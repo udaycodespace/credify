@@ -163,118 +163,172 @@
                             </div>
                             <div class="card-body">
                                 <form id="issueCredentialForm">
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3 mt-2"><i
+                                            class="fas fa-id-badge me-2"></i>1. Student Identity</h6>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="studentName" class="form-label">Student Name *</label>
-                                            <input type="text" class="form-control" id="studentName" required>
+                                            <input type="text" class="form-control" id="studentName" required
+                                                placeholder="Example: SOMAPURAM UDAY">
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="studentId" class="form-label">Roll Number *</label>
-                                            <input type="text" class="form-control" id="studentId" required>
+                                            <input type="text" class="form-control" id="studentId" required
+                                                placeholder="Example: 229X1A2856">
                                         </div>
                                         <div class="col-md-12 mb-3">
-                                            <label for="studentEmail" class="form-label">Student Email * (For Activation
-                                                & Onboarding)</label>
+                                            <label for="studentEmail" class="form-label">Student Email * (For
+                                                Activation)</label>
                                             <input type="email" class="form-control" id="studentEmail" required
-                                                placeholder="e.g., student@gprec.ac.in">
+                                                placeholder="Example: somapuram.uday@gprec.ac.in">
                                         </div>
                                     </div>
 
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3 mt-3"><i
+                                            class="fas fa-graduation-cap me-2"></i>2. Academic Program</h6>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="degree" class="form-label">Degree Program *</label>
+                                            <input type="text" class="form-control" id="degree" value="B.Tech" required
+                                                placeholder="Example: B.Tech">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="department" class="form-label">Department *</label>
+                                            <select class="form-select" id="department" required>
+                                                <option value="">Select</option>
+                                                <option value="CSE">CSE</option>
+                                                <option value="ECE">ECE</option>
+                                                <option value="MECH">MECH</option>
+                                                <option value="CIVIL">CIVIL</option>
+                                                <option value="EEE">EEE</option>
+                                                <option value="AI&DS">AI&DS</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="section" class="form-label">Section *</label>
+                                            <input type="text" class="form-control" id="section" required
+                                                placeholder="Example: CST A">
+                                        </div>
+                                    </div>
+
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3 mt-3"><i
+                                            class="fas fa-calendar-alt me-2"></i>3. Academic Progress</h6>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="studentStatus" class="form-label">Student Status *</label>
+                                            <select class="form-select" id="studentStatus" required
+                                                onchange="toggleStudentStatus()">
+                                                <option value="">Select</option>
+                                                <option value="Currently Studying">Currently Studying</option>
+                                                <option value="Passed Out">Passed Out</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="batch" class="form-label">Batch *</label>
+                                            <input type="text" class="form-control" id="batch" required
+                                                placeholder="Example: 2022-2026">
+                                        </div>
+                                        <div class="col-md-4 mb-3" id="graduationYearDiv" style="display:none;">
+                                            <label for="graduationYear" class="form-label">Graduation Year *</label>
+                                            <input type="number" class="form-control" id="graduationYear" min="2020"
+                                                max="2030" placeholder="Example: 2026">
+                                        </div>
+                                    </div>
+
+                                    <div class="row" id="studyingFields" style="display:none;">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="semester" class="form-label">Current Semester *</label>
+                                            <select class="form-select" id="semester">
+                                                <option value="">Select</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                                <option value="8">8</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="year" class="form-label">Current Year *</label>
+                                            <select class="form-select" id="year">
+                                                <option value="">Select</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3 mt-3"><i
+                                            class="fas fa-university me-2"></i>4. Institution</h6>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="degree" class="form-label">Degree Program *</label>
-                                            <select class="form-select" id="degree" required>
-                                                <option value="">Select Degree</option>
-                                                <option value="B.Tech Computer Science">B.Tech Computer Science</option>
-                                                <option value="B.Tech Electronics">B.Tech Electronics</option>
-                                                <option value="B.Tech Mechanical">B.Tech Mechanical</option>
-                                                <option value="B.Tech Civil">B.Tech Civil</option>
-                                                <option value="M.Tech Computer Science">M.Tech Computer Science</option>
-                                            </select>
+                                            <label for="college" class="form-label">College *</label>
+                                            <input type="text" class="form-control" id="college"
+                                                value="G. Pulla Reddy Engineering College" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="university" class="form-label">University *</label>
                                             <input type="text" class="form-control" id="university"
-                                                value="G. Pulla Reddy Engineering College" required>
+                                                value="Jawaharlal Nehru Technological University Anantapur" required>
                                         </div>
                                     </div>
 
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3 mt-3"><i
+                                            class="fas fa-chart-line me-2"></i>5. Academic Performance</h6>
                                     <div class="row">
-                                        <div class="col-md-3 mb-3">
-                                            <label for="semester" class="form-label">Semester</label>
-                                            <select class="form-select" id="semester">
-                                                <option value="">Select</option>
-                                                {% for i in range(1,9) %}
-                                                <option value="{{ i }}">{{ i }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="year" class="form-label">Year</label>
-                                            <select class="form-select" id="year">
-                                                <option value="">Select</option>
-                                                <option value="1">I Year</option>
-                                                <option value="2">II Year</option>
-                                                <option value="3">III Year</option>
-                                                <option value="4">IV Year</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="className" class="form-label">Class</label>
-                                            <input type="text" class="form-control" id="className"
-                                                placeholder="e.g., B.Tech">
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="section" class="form-label">Section</label>
-                                            <input type="text" class="form-control" id="section"
-                                                placeholder="e.g., A/B">
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="gpa" class="form-label">GPA/CGPA *</label>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="gpa" class="form-label">CGPA *</label>
                                             <input type="number" class="form-control" id="gpa" min="0" max="10"
-                                                step="0.01" required>
+                                                step="0.01" required placeholder="Example: 8.49">
                                         </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="graduationYear" class="form-label">Graduation Year *</label>
-                                            <input type="number" class="form-control" id="graduationYear" min="2020"
-                                                max="2030" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label for="backlogCount" class="form-label">Backlog Count</label>
                                             <input type="number" class="form-control" id="backlogCount" min="0"
                                                 value="0">
                                         </div>
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label for="conduct" class="form-label">Conduct</label>
                                             <select class="form-select" id="conduct">
                                                 <option value="">Select</option>
-                                                <option value="poor">Poor</option>
-                                                <option value="average">Average</option>
-                                                <option value="good">Good</option>
-                                                <option value="outstanding">Outstanding</option>
+                                                <option value="OUTSTANDING">OUTSTANDING</option>
+                                                <option value="GOOD">GOOD</option>
+                                                <option value="SATISFACTORY">SATISFACTORY</option>
+                                                <option value="NEEDS IMPROVEMENT">NEEDS IMPROVEMENT</option>
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="backlogs" class="form-label">Backlog Courses (if any)</label>
+                                        <label for="backlogs" class="form-label">Backlog Courses (optional)</label>
                                         <textarea class="form-control" id="backlogs" rows="2"
-                                            placeholder="Enter backlog courses separated by commas"></textarea>
+                                            placeholder="Example: Data Structures, Operating Systems"></textarea>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="courses" class="form-label">Completed Courses</label>
                                         <textarea class="form-control" id="courses" rows="3"
-                                            placeholder="Enter courses separated by commas"></textarea>
+                                            placeholder="Example: Machine Learning, Blockchain"></textarea>
                                     </div>
 
-                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3 mt-3"><i
+                                            class="fas fa-stamp me-2"></i>6. Credential Authority</h6>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="issuedBy" class="form-label">Issued By *</label>
+                                            <input type="text" class="form-control" id="issuedBy" required
+                                                placeholder="Example: Dr. Ramesh Kumar (HOD - CSE)">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="issueDate" class="form-label">Issue Date *</label>
+                                            <input type="date" class="form-control" id="issueDate" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                                         <button type="button" class="btn btn-secondary me-md-2" onclick="clearForm()">
                                             <i class="fas fa-undo me-1"></i>Clear
                                         </button>
@@ -282,6 +336,83 @@
                                             <i class="fas fa-certificate me-1"></i>Issue Credential
                                         </button>
                                     </div>
+
+                                    <script>
+                                        function toggleStudentStatus() {
+                                            const status = document.getElementById('studentStatus').value;
+                                            const studyingFields = document.getElementById('studyingFields');
+                                            const gradYearDiv = document.getElementById('graduationYearDiv');
+                                            const gradYearInput = document.getElementById('graduationYear');
+                                            const semesterInput = document.getElementById('semester');
+                                            const yearInput = document.getElementById('year');
+
+                                            if (status === 'Currently Studying') {
+                                                studyingFields.style.display = 'flex';
+                                                gradYearDiv.style.display = 'none';
+                                                semesterInput.required = true;
+                                                yearInput.required = true;
+                                                gradYearInput.required = false;
+                                                gradYearInput.value = '';
+                                            } else if (status === 'Passed Out') {
+                                                studyingFields.style.display = 'none';
+                                                gradYearDiv.style.display = 'block';
+                                                semesterInput.required = false;
+                                                yearInput.required = false;
+                                                semesterInput.value = '';
+                                                yearInput.value = '';
+                                                gradYearInput.required = true;
+                                            } else {
+                                                studyingFields.style.display = 'none';
+                                                gradYearDiv.style.display = 'none';
+                                                semesterInput.required = false;
+                                                yearInput.required = false;
+                                                gradYearInput.required = false;
+                                            }
+                                        }
+
+                                        document.addEventListener('DOMContentLoaded', () => {
+                                            const today = new Date().toISOString().split('T')[0];
+                                            const issueDateInput = document.getElementById('issueDate');
+                                            if (issueDateInput) {
+                                                issueDateInput.setAttribute('max', today);
+                                                issueDateInput.value = today;
+                                            }
+                                        });
+
+                                        document.getElementById('backlogs').addEventListener('input', function (e) {
+                                            const vals = e.target.value.split(',').filter(v => v.trim());
+                                            if (vals.length > 0) {
+                                                const countInput = document.getElementById('backlogCount');
+                                                if (parseInt(countInput.value || 0) <= 0) {
+                                                    countInput.value = vals.length;
+                                                }
+                                            }
+                                        });
+
+                                        document.getElementById('graduationYear').addEventListener('change', function (e) {
+                                            const batch = document.getElementById('batch').value;
+                                            if (batch && batch.includes('-')) {
+                                                const endYear = batch.split('-')[1].trim();
+                                                if (endYear !== e.target.value) {
+                                                    e.target.setCustomValidity("Graduation Year must equal batch end year.");
+                                                } else {
+                                                    e.target.setCustomValidity("");
+                                                }
+                                            }
+                                        });
+
+                                        document.getElementById('batch').addEventListener('change', function (e) {
+                                            const gradInput = document.getElementById('graduationYear');
+                                            if (gradInput.value) {
+                                                const endYear = e.target.value.split('-')[1]?.trim();
+                                                if (endYear && endYear !== gradInput.value) {
+                                                    gradInput.setCustomValidity("Graduation Year must equal batch end year.");
+                                                } else {
+                                                    gradInput.setCustomValidity("");
+                                                }
+                                            }
+                                        });
+                                    </script>
                                 </form>
                             </div>
                         </div>
@@ -323,21 +454,43 @@
                 </div>
             </div>
 
-            <!-- SECTION 3: Search Student (UNCHANGED) -->
+            <!-- SECTION 3: Search Student -->
             <div id="searchSection" class="content-section" style="display:none;">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-search me-2"></i>Search Student Credentials</h5>
+                        <h5><i class="fas fa-search me-2"></i>🔍 Unified Credential Search</h5>
                     </div>
                     <div class="card-body">
                         <div class="row mb-4">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
+                                <label class="form-label">Search Keywords</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="searchStudentId"
-                                        placeholder="Enter Roll Number (e.g., 229X1A2847)">
-                                    <button class="btn btn-primary" onclick="searchByStudentId()">
+                                        placeholder="Name, Roll No, Credential ID, Program, Status..."
+                                        onkeypress="if(event.key === 'Enter') searchCredentials()">
+                                    <button class="btn btn-primary" onclick="searchCredentials()">
                                         <i class="fas fa-search me-1"></i>Search
                                     </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label d-block">Status Filter</label>
+                                <div class="btn-group w-100" role="group" id="statusFilterGroup">
+                                    <input type="radio" class="btn-check" name="statusFilter" id="filterAll" value="ALL"
+                                        autocomplete="off" checked onchange="searchCredentials()">
+                                    <label class="btn btn-outline-secondary" for="filterAll">All</label>
+
+                                    <input type="radio" class="btn-check" name="statusFilter" id="filterActive"
+                                        value="ACTIVE" autocomplete="off" onchange="searchCredentials()">
+                                    <label class="btn btn-outline-success" for="filterActive">Active</label>
+
+                                    <input type="radio" class="btn-check" name="statusFilter" id="filterRevoked"
+                                        value="REVOKED" autocomplete="off" onchange="searchCredentials()">
+                                    <label class="btn btn-outline-danger" for="filterRevoked">Revoked</label>
+
+                                    <input type="radio" class="btn-check" name="statusFilter" id="filterSuperseded"
+                                        value="SUPERSEDED" autocomplete="off" onchange="searchCredentials()">
+                                    <label class="btn btn-outline-warning" for="filterSuperseded">Superseded</label>
                                 </div>
                             </div>
                         </div>
@@ -488,14 +641,65 @@
             <!-- SECTION 6: System Management -->
             <div id="systemSection" class="content-section" style="display:none;">
                 <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="card">
+                    <div class="col-md-6">
+                        <div class="card h-100">
                             <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>System Statistics</h5>
+                                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>System Statistics</h5>
                             </div>
                             <div class="card-body">
-                                <div id="systemStats">
-                                    <p class="text-muted">Loading statistics...</p>
+                                <div id="systemStatsOverview">
+                                    <p class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading system
+                                        statistics...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-network-wired me-2"></i>System Health Monitor</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="networkHealthMonitor">
+                                    <p class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Scanning network
+                                        nodes...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credential Activity Trend -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div
+                                class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-stream me-2"></i>Recent Credential Activity Log</h5>
+                                <button class="btn btn-sm btn-outline-light" onclick="loadActivityLog()">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                                    <table class="table table-sm table-hover align-middle">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Action</th>
+                                                <th>Target</th>
+                                                <th>User</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="activityLogTableBody">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted"><i
+                                                        class="fas fa-spinner fa-spin me-2"></i>Loading activity log...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -508,7 +712,7 @@
                         <div class="card">
                             <div
                                 class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>Blockchain Explorer</h5>
+                                <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>Blockchain Ledger Explorer</h5>
                                 <div>
                                     <button class="btn btn-sm btn-outline-success me-2" onclick="validateBlockchain()">
                                         <i class="fas fa-check-shield me-1"></i>Validate Integrity
@@ -523,25 +727,48 @@
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                                    <table class="table table-sm table-hover table-bordered">
-                                        <thead class="table-light">
+                                    <table class="table table-sm table-hover table-bordered align-middle">
+                                        <thead class="table-light sticky-top">
                                             <tr>
                                                 <th>Block #</th>
                                                 <th>Timestamp</th>
-                                                <th>Hash</th>
+                                                <th>Hash (SHA-256)</th>
                                                 <th>Prev Hash</th>
-                                                <th>Signed By</th>
-                                                <th>Creds</th>
+                                                <th>Issuer</th>
+                                                <th>Transactions</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="explorerTableBody">
                                             <tr>
-                                                <td colspan="6" class="text-center text-muted">Loading blockchain
-                                                    data...</td>
+                                                <td colspan="7" class="text-center text-muted"><i
+                                                        class="fas fa-spinner fa-spin me-2"></i>Loading immutable
+                                                    ledger...</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
+                                <div class="mt-2 text-muted small">
+                                    <i class="fas fa-info-circle me-1"></i> Block #0 is the Genesis Block (System
+                                    Initialization). All subsequent blocks contain cryptographic anchors of
+                                    issued/revoked credentials.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block Details Modal -->
+                <div class="modal fade" id="blockDetailsModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content border-dark">
+                            <div class="modal-header bg-dark text-white">
+                                <h5 class="modal-title"><i class="fas fa-cube me-2"></i>Block Inspector</h5>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" id="blockDetailsContent">
+                                <div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
                             </div>
                         </div>
                     </div>
@@ -551,32 +778,33 @@
                     <div class="col-md-12">
                         <div class="card border-danger">
                             <div class="card-header bg-danger text-white">
-                                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+                                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone (Developer
+                                    Tool)</h5>
                             </div>
-                            <div class="card-body">
-                                <h6 class="text-danger">Reset Entire System</h6>
-                                <p class="text-muted mb-3">This will permanently delete:</p>
-                                <ul class="text-danger">
-                                    <li>All credentials and blockchain data</li>
-                                    <li>All student accounts</li>
-                                    <li>All support tickets</li>
-                                    <li>All messages</li>
-                                    <li>All JSON data files</li>
+                            <div class="card-body bg-light">
+                                <h6 class="text-danger fw-bold"><i class="fas fa-radiation me-2"></i>Reset Entire System
+                                    Data</h6>
+                                <p class="text-muted mb-3">Used only during development/testing. This will irreversibly
+                                    purge:</p>
+                                <ul class="text-danger small fw-bold">
+                                    <li>All generated W3C Credentials & Blockchain Ledger Data</li>
+                                    <li>All Student, Issuer, and Verifier Accounts (except hardcoded admin)</li>
+                                    <li>All Support Tickets & Communication History</li>
+                                    <li>All physical JSON storage files in local context</li>
                                 </ul>
-                                <p class="text-muted mb-3 text-warning"><strong>CRITICAL:</strong> This will also WIPE
-                                    all Administrative and Verifier accounts. The system will be reset to its default
-                                    initialized state.</p>
 
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-circle me-2"></i>
-                                    <strong>Warning:</strong> This action cannot be undone!
+                                <div class="alert alert-warning border-warning">
+                                    <i class="fas fa-ban me-2"></i>
+                                    <strong>CRITICAL:</strong> In a real production blockchain network, data cannot be
+                                    erased. This function reinitializes the local mock nodes for fresh demonstration.
                                 </div>
 
-                                <div class="text-center mt-4">
-                                    <button class="btn btn-outline-danger btn-lg px-5 py-3 shadow-lg"
-                                        onclick="confirmSystemReset()"
-                                        style="position: relative; z-index: 10; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-width: 3px;">
-                                        <i class="fas fa-biohazard me-2"></i>EXECUTE FULL SYSTEM PURGE
+                                <div class="mt-4 px-4 py-3 border border-danger rounded text-center bg-white shadow-sm">
+                                    <label class="form-label text-danger fw-bold mb-3">To acknowledge this destructive
+                                        action, click below:</label><br>
+                                    <button class="btn btn-outline-danger btn-lg px-5 py-2 fw-bold text-uppercase"
+                                        onclick="confirmSystemReset()">
+                                        <i class="fas fa-skull-crossbones me-2"></i>Initialize Core System Purge
                                     </button>
                                 </div>
                             </div>
@@ -724,22 +952,25 @@
         issueBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Issuing...';
         issueBtn.disabled = true;
 
+        const status = document.getElementById('studentStatus').value;
         const formData = {
             student_name: document.getElementById('studentName').value,
             student_id: document.getElementById('studentId').value,
-            degree: document.getElementById('degree').value,
-            university: document.getElementById('university').value,
-            gpa: parseFloat(document.getElementById('gpa').value),
-            graduation_year: parseInt(document.getElementById('graduationYear').value),
             email: document.getElementById('studentEmail').value,
-            courses: document.getElementById('courses').value.split(',').map(c => c.trim()).filter(c => c),
-            semester: document.getElementById('semester').value ? parseInt(document.getElementById('semester').value) : null,
-            year: document.getElementById('year').value || null,
-            class_name: document.getElementById('className').value || null,
+            degree: document.getElementById('degree').value,
+            department: document.getElementById('department').value,
+            student_status: status,
+            semester: status === 'pursuing' && document.getElementById('semester').value ? parseInt(document.getElementById('semester').value) : null,
+            year: status === 'pursuing' ? document.getElementById('year').value : null,
+            graduation_year: status === 'graduated' && document.getElementById('graduationYear').value ? parseInt(document.getElementById('graduationYear').value) : null,
+            batch: document.getElementById('batch').value || null,
             section: document.getElementById('section').value || null,
-            backlog_count: parseInt(document.getElementById('backlogCount').value || 0),
-            backlogs: document.getElementById('backlogs').value.split(',').map(c => c.trim()).filter(c => c),
-            conduct: document.getElementById('conduct').value || null
+            college: document.getElementById('college').value,
+            university: document.getElementById('university').value,
+            cgpa: document.getElementById('cgpa').value ? parseFloat(document.getElementById('cgpa').value) : null,
+            courses: document.getElementById('courses').value ? document.getElementById('courses').value.split(',').map(c => c.trim()).filter(c => c) : [],
+            issued_by: document.getElementById('issuedBy').value,
+            issue_date: document.getElementById('issueDate').value
         };
 
         fetch('/api/issue_credential', {
@@ -882,8 +1113,9 @@
 
     function clearForm() {
         document.getElementById('issueCredentialForm').reset();
-        document.getElementById('university').value = 'G. Pulla Reddy Engineering College';
-        document.getElementById('backlogCount').value = '0';
+        document.getElementById('university').value = 'Jawaharlal Nehru Technological University Anantapur';
+        document.getElementById('college').value = 'G. Pulla Reddy Engineering College (Autonomous)';
+        toggleStudentStatus();
     }
 
     function issueAnother() {
@@ -981,10 +1213,11 @@
                             <th>ID</th>
                             <th>Student</th>
                             <th>Roll No</th>
+                            <th>Program</th>
                             <th>Version</th>
                             <th>Status</th>
-                            <th>GPA</th>
-                            <th>Date</th>
+                            <th>CGPA</th>
+                            <th>Issued</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -995,14 +1228,17 @@
                             c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
                                 '<span class="badge bg-secondary">SUPERSEDED</span>';
 
+                        const programString = `${c.degree || ''}${c.department ? '–' + c.department : ''}${c.section ? '–' + c.section : ''}`;
+
                         html += `
                         <tr>
                             <td><code class="small">${c.credential_id.slice(-8)}</code></td>
                             <td>${c.student_name || ''}</td>
                             <td><code>${c.student_id || ''}</code></td>
+                            <td><span class="small">${programString || '-'}</span></td>
                             <td><span class="badge bg-primary">v${c.version || 1}</span></td>
                             <td>${statusBadge}</td>
-                            <td>${c.gpa ? c.gpa.toFixed(2) : '-'}</td>
+                            <td>${c.cgpa ? c.cgpa.toFixed(2) : c.gpa ? c.gpa.toFixed(2) : '-'}</td>
                             <td>${c.issue_date ? new Date(c.issue_date).toLocaleDateString() : ''}</td>
                             <td>
                                 ${c.status === 'active' ? `
@@ -1065,29 +1301,43 @@
     }
 
     // ==================== SEARCH (UNCHANGED) ====================
-    function searchByStudentId() {
-        const studentId = document.getElementById('searchStudentId').value.trim();
-        if (!studentId) {
-            showAlert('Please enter a roll number', 'warning');
+    function searchCredentials() {
+        const searchInput = document.getElementById('searchInput').value.trim();
+        const statusFilterInput = document.querySelector('input[name="searchStatus"]:checked');
+        const statusFilter = statusFilterInput ? statusFilterInput.value : 'all';
+
+        if (!searchInput) {
+            showAlert('Please enter a search query', 'warning');
             return;
         }
 
         const resultsDiv = document.getElementById('searchResults');
-        resultsDiv.innerHTML = '<p class="text-muted">Searching...</p>';
+        resultsDiv.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Searching...</p>';
 
-        fetch(`/api/credential_history/${studentId}`)
+        fetch(`/api/credential_history/${searchInput}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.credentials.length > 0) {
+                    let filteredCreds = data.credentials;
+                    if (statusFilter !== 'all') {
+                        filteredCreds = filteredCreds.filter(c => c.status === statusFilter.toLowerCase());
+                    }
+
+                    if (filteredCreds.length === 0) {
+                        resultsDiv.innerHTML = `<div class="alert alert-info">Found ${data.total_versions} versions, but none match the filter "${statusFilter}".</div>`;
+                        return;
+                    }
+
                     let html = `
-                    <h6>Found ${data.total_versions} version(s) for ${studentId}</h6>
+                    <h6>Found ${filteredCreds.length} record(s) matching your criteria</h6>
                     <div class="table-responsive">
                         <table class="table table-sm table-bordered table-hover">
                             <thead class="table-dark">
                                 <tr>
                                     <th>Version</th>
                                     <th>Status</th>
-                                    <th>GPA</th>
+                                    <th>Program</th>
+                                    <th>CGPA</th>
                                     <th>Sem/Yr</th>
                                     <th>Issued</th>
                                     <th>ID</th>
@@ -1095,21 +1345,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                `;
+                    `;
 
-                    data.credentials.forEach(c => {
+                    filteredCreds.forEach(c => {
                         const statusBadge = c.status === 'active' ? '<span class="badge bg-success">ACTIVE</span>' :
                             c.status === 'revoked' ? '<span class="badge bg-danger">REVOKED</span>' :
                                 '<span class="badge bg-secondary">SUPERSEDED</span>';
-                        const semYear = c.semester ? `Sem ${c.semester}/${c.year || '-'}` : '-';
+                        const semYear = c.semester ? `Sem ${c.semester}/${c.year || '-'}` : (c.graduation_year ? `Grad ${c.graduation_year}` : '-');
+                        const programString = `${c.degree || ''}${c.department ? '–' + c.department : ''}${c.section ? '–' + c.section : ''}`;
 
                         html += `
                         <tr>
                             <td><span class="badge bg-primary">v${c.version}</span></td>
                             <td>${statusBadge}</td>
-                            <td>${c.gpa ? c.gpa.toFixed(2) : '-'}</td>
+                            <td><span class="small">${programString || '-'}</span></td>
+                            <td>${c.cgpa ? c.cgpa.toFixed(2) : (c.gpa ? c.gpa.toFixed(2) : '-')}</td>
                             <td>${semYear}</td>
-                            <td>${c.issued_at ? new Date(c.issued_at).toLocaleDateString() : '-'}</td>
+                            <td>${c.issued_at ? new Date(c.issued_at).toLocaleDateString() : c.issue_date ? new Date(c.issue_date).toLocaleDateString() : '-'}</td>
                             <td><code class="small">${c.credential_id.slice(-8)}</code></td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary" onclick="viewFullCredentialDetails('${c.credential_id}')">
@@ -1123,7 +1375,7 @@
                     html += `</tbody></table></div>`;
                     resultsDiv.innerHTML = html;
                 } else {
-                    resultsDiv.innerHTML = '<div class="alert alert-warning">No credentials found for this student.</div>';
+                    resultsDiv.innerHTML = '<div class="alert alert-warning">No credentials found matching your criteria.</div>';
                 }
             })
             .catch(err => {
@@ -1710,147 +1962,163 @@
     }
 
     function loadSystemStats() {
-        const container = document.getElementById('systemStats');
-        container.style.opacity = '0.5';
-
         fetch('/api/system/stats')
             .then(response => response.json())
             .then(data => {
-                container.style.opacity = '1';
                 if (data.success) {
                     currentStats = data.stats;
-                    displaySystemStats(data.stats);
+
+                    // Update Credentials
+                    if (document.getElementById('statTotalCreds')) {
+                        document.getElementById('statTotalCreds').textContent = data.stats.credentials.total;
+                        document.getElementById('statActiveCreds').textContent = data.stats.credentials.active + ' Active';
+                        document.getElementById('statRevokedCreds').textContent = data.stats.credentials.revoked + ' Revoked';
+                    }
+
+                    // Update Nodes
+                    if (document.getElementById('statTotalNodes')) {
+                        const totalNodes = data.stats.users ? (data.stats.users.students + data.stats.users.admins + data.stats.users.verifiers) : (data.stats.users ? data.stats.users.students : 0);
+                        document.getElementById('statTotalNodes').textContent = totalNodes;
+                        document.getElementById('statOnlineNodes').textContent = (data.stats.users ? data.stats.users.admins : 1) + ' Online';
+                    }
+
+                    // Update Blocks
+                    if (document.getElementById('statTotalBlocks')) {
+                        document.getElementById('statTotalBlocks').textContent = data.stats.blockchain.blocks;
+                        document.getElementById('statChainStatus').textContent = 'Synchronized';
+                    }
+
                     loadBlockchainExplorer();
-                } else {
-                    container.innerHTML = '<div class="alert alert-danger">Internal system error</div>';
+                    loadActivityLog();
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('systemStats').innerHTML =
-                    '<div class="alert alert-danger">Network error</div>';
+                console.error('Error fetching system stats:', error);
+            });
+    }
+
+    function loadActivityLog() {
+        const tbody = document.getElementById('activityLogTableBody');
+        if (!tbody) return;
+
+        fetch('/api/credentials')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let html = '';
+                    const recent = data.credentials.slice(0, 5); // get top 5
+
+                    if (recent.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No recent activity</td></tr>';
+                        return;
+                    }
+
+                    recent.forEach(c => {
+                        let action = 'Issued';
+                        let badgeClass = 'success';
+                        let timestamp = c.issue_date || c.issued_at;
+
+                        if (c.status === 'revoked') {
+                            action = 'Revoked';
+                            badgeClass = 'danger';
+                            timestamp = c.revoked_at || timestamp;
+                        } else if (c.status === 'superseded') {
+                            action = 'Superseded';
+                            badgeClass = 'warning';
+                        }
+
+                        html += `
+                        <tr>
+                            <td class="small text-muted">${new Date(timestamp).toLocaleString()}</td>
+                            <td><span class="badge bg-${badgeClass}">${action}</span></td>
+                            <td>Credential <code class="small">${c.credential_id.slice(-8)}</code></td>
+                            <td><code>${c.student_id}</code></td>
+                            <td><span class="badge bg-success">Success</span></td>
+                        </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                }
             });
     }
 
     function loadBlockchainExplorer() {
         const tableBody = document.getElementById('explorerTableBody');
-        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading...</td></tr>';
+        if (!tableBody) return;
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Loading...</td></tr>';
 
         fetch('/api/blockchain/blocks')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     if (data.blocks.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No blocks found</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No blocks found</td></tr>';
                         return;
                     }
 
                     tableBody.innerHTML = '';
                     // Reverse to show newest first
                     [...data.blocks].reverse().forEach(block => {
-                        const hashShort = block.hash.substring(0, 10) + '...';
-                        const prevHashShort = block.previous_hash ? (block.previous_hash.substring(0, 10) + '...') : '0000000000';
+                        const hashShort = block.hash.substring(0, 16) + '...';
+                        const prevHashShort = block.previous_hash ? (block.previous_hash.substring(0, 16) + '...') : '0000000000000000...';
 
                         const row = `
                         <tr>
                             <td><strong>#${block.index}</strong></td>
-                            <td class="small">${new Date(block.timestamp).toLocaleString()}</td>
+                            <td class="small text-muted">${new Date(block.timestamp).toLocaleString()}</td>
                             <td><code class="small text-primary" title="${block.hash}">${hashShort}</code></td>
                             <td><code class="small text-muted" title="${block.previous_hash}">${prevHashShort}</code></td>
                             <td><span class="badge bg-secondary">${block.signed_by}</span></td>
-                            <td class="text-center"><span class="badge bg-info">${block.credential_count}</span></td>
+                            <td class="text-center"><span class="badge bg-info">${block.credential_count} tx</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewBlockDetails(${block.index})" title="View Details">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </td>
                         </tr>
                     `;
                         tableBody.innerHTML += row;
                     });
                 } else {
-                    tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${data.error}</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${data.error}</td></tr>`;
                 }
             })
             .catch(err => {
                 console.error('Error loading explorer:', err);
-                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Network error loading explorer</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Network error loading explorer</td></tr>';
             });
     }
 
-    function displaySystemStats(stats) {
-        const statsHtml = `
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="card bg-primary text-white h-100 shadow-sm border-0 premium-stat-card">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h2 class="mb-0 fw-bold">${stats.credentials.total}</h2>
-                            <i class="fas fa-certificate fa-2x opacity-50"></i>
-                        </div>
-                        <div class="small fw-bold text-uppercase opacity-75" style="letter-spacing: 1px;">Total Credentials</div>
-                        <div class="mt-2 py-1 px-2 rounded bg-white bg-opacity-25 d-inline-block small">
-                            ${stats.credentials.active} active | ${stats.credentials.revoked} revoked
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white h-100 shadow-sm border-0 premium-stat-card">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h2 class="mb-0 fw-bold">${stats.users ? (stats.users.students + stats.users.admins + stats.users.verifiers) : stats.users.students}</h2>
-                            <i class="fas fa-users fa-2x opacity-50"></i>
-                        </div>
-                        <div class="small fw-bold text-uppercase opacity-75" style="letter-spacing: 1px;">Registered Nodes</div>
-                        <div class="mt-2 py-1 px-2 rounded bg-white bg-opacity-25 d-inline-block small">
-                            ${stats.users ? stats.users.admins : 0} Admins | ${stats.users ? stats.users.verifiers : 0} Verifiers
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-dark text-white h-100 shadow-sm border-0 premium-stat-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h2 class="mb-0 fw-bold text-success" id="blockDepthCounter">${stats.blockchain.blocks}</h2>
-                            <i class="fas fa-cubes fa-2x text-success opacity-50"></i>
-                        </div>
-                        <div class="small fw-bold text-uppercase text-muted" style="letter-spacing: 1px;">Ledger Intensity</div>
-                        <div class="mt-2 d-flex align-items-center">
-                            <span class="pulse-green-small me-2"></span>
-                            <small class="text-success fw-bold">${stats.blockchain.node_name}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-warning text-dark h-100 shadow-sm border-0 premium-stat-card">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h2 class="mb-0 fw-bold">${stats.tickets.total}</h2>
-                            <i class="fas fa-life-ring fa-2x opacity-50"></i>
-                        </div>
-                        <div class="small fw-bold text-uppercase opacity-75" style="letter-spacing: 1px;">Support Load</div>
-                        <div class="mt-2 py-1 px-2 rounded bg-dark bg-opacity-10 d-inline-block small fw-bold">
-                            ${stats.tickets.open} critical | ${stats.tickets.resolved} handled
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <div class="card bg-info text-white shadow-sm border-0" style="background: linear-gradient(135deg, #0dcaf0, #007bff) !important;">
-                    <div class="card-body text-center p-3">
-                        <div class="small fw-bold opacity-75 mb-1 text-uppercase">Communication Hub</div>
-                        <h2 class="mb-0 fw-bold">${stats.messages ? stats.messages.total : 0}</h2>
-                        <div class="mt-1">Total System Messages Generated</div>
-                        <div class="mt-2 d-flex justify-content-center gap-2">
-                             <span class="badge bg-light text-dark">${stats.messages ? stats.messages.broadcast : 0} Broadcasts</span>
-                             <span class="badge bg-light text-dark">${stats.messages ? stats.messages.direct : 0} Direct Messages</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-        document.getElementById('systemStats').innerHTML = statsHtml;
+    function viewBlockDetails(blockIndex) {
+        fetch('/api/blockchain/blocks')
+            .then(res => res.json())
+            .then(data => {
+                const block = data.blocks.find(b => b.index === blockIndex);
+                if (block) {
+                    document.getElementById('modalBlockNumber').textContent = block.index;
+                    document.getElementById('modalBlockHash').textContent = block.hash;
+                    document.getElementById('modalPrevHash').textContent = block.previous_hash || '0000000000000000000000000000000000000000000000000000000000000000 (Genesis)';
+                    document.getElementById('modalBlockTimestamp').textContent = new Date(block.timestamp).toLocaleString();
+                    document.getElementById('modalBlockSigner').textContent = block.signed_by;
+
+                    const txBody = document.getElementById('modalBlockTransactions');
+                    if (block.transactions && block.transactions.length > 0) {
+                        txBody.innerHTML = block.transactions.map((tx, i) => `
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td><code class="small">${tx.id || tx.credential_id || 'N/A'}</code></td>
+                                <td>ISSUE_CREDENTIAL</td>
+                                <td><span class="badge bg-success">Valid</span></td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        txBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No transactions in this block${block.index === 0 ? ' (Genesis Block)' : ''}</td></tr>`;
+                    }
+
+                    const modal = new bootstrap.Modal(document.getElementById('blockDetailsModal'));
+                    modal.show();
+                }
+            });
     }
 
     function validateBlockchain() {

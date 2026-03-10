@@ -831,11 +831,29 @@
                     </tr>
                     <tr>
                         <th>GPA/CGPA:</th>
-                        <td><span class="badge bg-info">${subject.gpa}</span></td>
+                        <td><span class="badge bg-info">${subject.cgpa || subject.gpa}</span></td>
                     </tr>
+                    ${subject.department ? `
+                    <tr>
+                        <th>Department:</th>
+                        <td>${subject.department}</td>
+                    </tr>
+                    ` : ''}
+                    ${subject.college ? `
+                    <tr>
+                        <th>College:</th>
+                        <td>${subject.college}</td>
+                    </tr>
+                    ` : ''}
+                    ${subject.batch ? `
+                    <tr>
+                        <th>Batch:</th>
+                        <td>${subject.batch}</td>
+                    </tr>
+                    ` : ''}
                     <tr>
                         <th>Graduation Year:</th>
-                        <td>${subject.graduationYear}</td>
+                        <td>${subject.graduationYear || 'N/A'}</td>
                     </tr>
                     ${subject.semester ? `
                     <tr>
@@ -847,6 +865,12 @@
                     <tr>
                         <th>Year:</th>
                         <td>Year ${subject.year}</td>
+                    </tr>
+                    ` : ''}
+                    ${subject.section ? `
+                    <tr>
+                        <th>Section:</th>
+                        <td>Section ${subject.section}</td>
                     </tr>
                     ` : ''}
                     ${subject.backlogCount !== undefined ? `
@@ -1182,13 +1206,17 @@
             'name': 'Student Name',
             'studentId': 'Student ID / Roll Number',
             'degree': 'Degree Program',
+            'department': 'Department',
+            'college': 'College',
+            'batch': 'Batch',
+            'studentStatus': 'Student Status',
+            'cgpa': 'CGPA',
             'university': 'University',
             'gpa': 'GPA/CGPA',
             'graduationYear': 'Graduation Year',
             'semester': 'Semester',
             'year': 'Year',
-            'backlogCount': 'Backlog Count',
-            'conduct': 'Conduct'
+            'section': 'Section'
         };
         return fieldMap[field] || field.charAt(0).toUpperCase() + field.slice(1);
     }

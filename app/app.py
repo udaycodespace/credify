@@ -858,51 +858,45 @@ def api_issue_credential():
         data = request.get_json()
         
         # Core required fields
-        required_fields = ['student_name', 'student_id', 'degree', 'university', 'gpa', 'graduation_year']
+        required_fields = ['student_name', 'student_id', 'degree', 'department', 'student_status', 'college', 'university', 'issue_date']
         for field in required_fields:
-            if field not in data:
+            if field not in data or data[field] is None or data[field] == '':
                 return jsonify({'error': f'Missing required field: {field}'}), 400
-        
-        # Extended academic fields with validation
-        semester = data.get('semester')
-        year = data.get('year')
-        class_name = data.get('class_name')
-        section = data.get('section')
-        backlog_count = data.get('backlog_count', 0)
-        backlogs = data.get('backlogs', [])
-        conduct = data.get('conduct')
-        
-        # Validate new fields
-        if semester is not None and (not isinstance(semester, int) or semester < 1 or semester > 8):
-            return jsonify({'error': 'Semester must be between 1 and 8'}), 400
-        
-        if backlog_count is not None and (not isinstance(backlog_count, int) or backlog_count < 0):
-            return jsonify({'error': 'Backlog count must be 0 or greater'}), 400
-        
-        if conduct and conduct not in ['poor', 'average', 'good', 'outstanding']:
-            return jsonify({'error': 'Conduct must be one of: poor, average, good, outstanding'}), 400
+                
+        # Additional validations
+        if data.get('student_status') == 'graduated' and not data.get('graduation_year'):
+            return jsonify({'error': 'Graduation year is required for graduated students'}), 400
+            
+        cgpa = data.get('cgpa')
+        if cgpa is not None:
+            try:
+                cgpa = float(cgpa)
+            except ValueError:
+                return jsonify({'error': 'CGPA must be a valid number'}), 400
         
         # Build extended transcript data
         transcript_data = {
             'student_name': data['student_name'],
             'student_id': data['student_id'],
             'degree': data['degree'],
-            'university': data['university'],
-            'gpa': float(data['gpa']),
-            'graduation_year': int(data['graduation_year']),
+            'department': data['department'],
+            'student_status': data['student_status'],
+            'semester': data.get('semester'),
+            'year': data.get('year'),
+            'graduation_year': data.get('graduation_year'),
+            'batch': data.get('batch'),
+            'section': data.get('section'),
+            'college': data.get('college'),
+            'university': data.get('university'),
+            'cgpa': cgpa,
+            'gpa': cgpa,  # Backward compatibility
             'courses': data.get('courses', []),
-            'issue_date': datetime.now().isoformat(),
-            'issuer': 'G. Pulla Reddy Engineering College',
-            'semester': semester,
-            'year': year,
-            'class_name': class_name,
-            'section': section,
-            'backlog_count': backlog_count,
-            'backlogs': backlogs,
-            'conduct': conduct
+            'issued_by': data.get('issued_by', 'G. Pulla Reddy Engineering College'),
+            'issue_date': data['issue_date'],
+            'issuer': data.get('issued_by', 'G. Pulla Reddy Engineering College') # Backward compatibility
         }
         
-        logging.info(f"Issuing credential with extended data: semester={semester}, backlogs={len(backlogs)}, conduct={conduct}")
+        logging.info(f"Issuing credential with data: status={data['student_status']}, department={data['department']}")
         
         result = credential_manager.issue_credential(transcript_data)
         
@@ -945,8 +939,8 @@ def api_issue_credential():
                         student_name, 
                         activation_token,
                         transcript_data['degree'],
-                        transcript_data['gpa'],
-                        transcript_data['graduation_year']
+                        transcript_data.get('cgpa'),
+                        transcript_data.get('graduation_year', 'N/A')
                     )
                     logging.info(f" Detailed onboarding mail sent to {student_email}")
                 
@@ -1114,17 +1108,19 @@ def api_credential_pdf(credential_id):
         
         col1_fields = [
             ("ROLL NUMBER", str(subject.get('studentId') or cred.get('student_id', 'N/A'))),
-            ("DEGREE PROGRAM", str(subject.get('degree') or cred.get('degree', 'N/A')).upper()),
-            ("GPA/CGPA", f"{subject.get('gpa') or cred.get('gpa', '0.00')} / 10.00"),
+            ("DEGREE", str(subject.get('degree') or cred.get('degree', 'N/A')).upper()),
+            ("DEPARTMENT", str(subject.get('department') or 'N/A').upper()),
+            ("GPA/CGPA", f"{subject.get('cgpa') or subject.get('gpa') or cred.get('gpa', '0.00')} / 10.00"),
         ]
         col2_fields = [
             ("GRADUATION YEAR", str(subject.get('graduationYear') or cred.get('graduation_year', 'N/A'))),
-            ("SEMESTER / YEAR", f"{subject.get('semester') or '8'} / {subject.get('year') or '4'}"),
+            ("SEMESTER / YEAR", f"{subject.get('semester') or 'N/A'} / {subject.get('year') or 'N/A'}"),
+            ("BATCH", str(subject.get('batch') or 'N/A')),
             ("STATUS", "CERTIFIED AUTHENTIC"),
         ]
         
         y_start = height - 310
-        for i in range(3):
+        for i in range(4):
             y = y_start - (i * 35)
             # Column 1
             if i < len(col1_fields):
@@ -1149,10 +1145,10 @@ def api_credential_pdf(credential_id):
         # Section Divider
         p.setLineWidth(0.5)
         p.setStrokeColor(colors.lightgrey)
-        p.line(60, y_start - 100, width - 60, y_start - 100)
+        p.line(60, y_start - 135, width - 60, y_start - 135)
         
         # 5.5 DETAILED COURSEWORK (If present)
-        y_courses = y_start - 120
+        y_courses = y_start - 155
         courses = subject.get('courses')
         if courses and isinstance(courses, list):
             p.setFont("Helvetica-Bold", 8)

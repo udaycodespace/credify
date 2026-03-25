@@ -15,6 +15,30 @@
 # ║  Unauthorized use carries legal consequences.           ║
 # ╚══════════════════════════════════════════════════════════╝
 
-"""
-Test suite for Credify - Academic Credential Management System
-"""
+# Smoke tests - verifies app factory starts and core pages load
+import pytest
+from app.app import create_app
+
+
+@pytest.fixture
+def client():
+    app = create_app()
+    app.config['TESTING'] = True
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.test_client() as client:
+        yield client
+
+
+def test_homepage_loads(client):
+    response = client.get('/')
+    assert response.status_code == 200
+
+
+def test_login_page_loads(client):
+    response = client.get('/login')
+    assert response.status_code == 200
+
+
+def test_verify_page_loads(client):
+    response = client.get('/verify')
+    assert response.status_code in [200, 400]

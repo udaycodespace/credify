@@ -1,6 +1,6 @@
-# 🎓 Blockchain-Based Verifiable Credential System for Academic Transcripts
+﻿# 🎓 Blockchain-Based Verifiable Credential System for Academic Transcripts
 
-**Version 2.1.0** | An elite decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using Private Blockchain technology and advanced cryptography.
+**Version 2.2.0** | A custom private-blockchain credential system for issuing, storing, and verifying academic records with IPFS-integrated storage and cryptographic validation.
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
 [![Docker Image Size](https://img.shields.io/docker/image-size/udaycodespace/credify?style=flat-square&logo=docker)](https://hub.docker.com/r/udaycodespace/credify)
@@ -26,30 +26,30 @@
 
 ## 📌 Overview
 
-Academic credential verification faces significant challenges in traditional systems: centralized control, slow processing times, susceptibility to forgery, and minimal privacy protection for students. This project addresses these critical issues by introducing a **trustless, tamper-proof, and privacy-first credential verification ecosystem**.
+Academic credential verification faces significant challenges in traditional systems: centralized control, slow processing times, susceptibility to forgery, and minimal privacy protection for students. This project addresses these issues with a **practical, tamper-evident, privacy-aware credential verification workflow**.
 
-Our system leverages **Blockchain Technology, IPFS Distributed Storage, Advanced Cryptography, and W3C Verifiable Credential Standards** to create a robust platform where:
+Our system leverages **a custom private blockchain layer, IPFS-integrated storage, RSA signatures, and W3C-inspired credential modeling** to create a robust platform where:
 
 - 🏛️ **Universities** issue cryptographically signed, tamper-proof digital credentials
 - 👨‍🎓 **Students** maintain complete ownership and control over their academic data
-- 💼 **Employers** verify credentials instantly with cryptographic proof, without third-party involvement
+- 💼 **Employers** verify credentials quickly with cryptographic integrity checks and signed metadata
 - 🔒 **Privacy** is preserved through selective disclosure mechanisms
 - 🎓 **Elite Presentation** Professional institutional-grade certificate viewer and 10/10 PDF generator
 
-**Current Status:** Production-ready with comprehensive test coverage, premium UI/UX, and Multi-Node P2P Sync (Updated March 2026)
+**Current Status:** Refactored architecture with blueprints/services, end-to-end credential workflows, and active security hardening (Updated March 2026)
 
 ***
 
 ## 🚀 Quick Start
 
-### 🐳 Docker Deployment: 3-Node Cluster (Recommended)
+### 🐳 Docker Deployment: 3-Node Simulation (Recommended)
 
 ```bash
 # Clone the repository
 git clone https://github.com/udaycodespace/credify.git
 cd credify
 
-# Launch the decentralized 3-node P2P cluster
+# Launch the custom 3-node private blockchain cluster
 docker-compose up -d
 
 # Access the isolated nodes
@@ -124,7 +124,7 @@ python main.py
 
 ### 🗄️ Distributed Storage
 
-- IPFS integration for decentralized credential storage
+- IPFS integration with resilient local fallback storage
 - Content-addressed storage (CID-based retrieval)
 - Automatic fallback to local encrypted storage
 - Redundant data availability
@@ -174,10 +174,10 @@ python main.py
 
 ### Backend Architecture
 
-- **Framework:** Python 3.10+ with Flask 3.0
-- **Database:** SQLite (Development) / PostgreSQL (Production-ready)
+- **Framework:** Python 3.10+ with Flask 2.x
+- **Data Layer:** Hybrid persistence for credential, registry, and blockchain state
 - **ORM:** SQLAlchemy with Flask-SQLAlchemy
-- **Authentication:** Flask-Login with secure session management
+- **Authentication:** Session-based auth with role guards and MFA setup flow
 - **Security:** Werkzeug password hashing, CSRF protection
 - **PDF Engine:** ReportLab for high-fidelity academic document generation
 
@@ -202,7 +202,7 @@ python main.py
 - **CI/CD:** GitHub Actions automated workflows
 - **Registry:** Docker Hub for image distribution
 - **Hosting:** Render cloud platform
-- **Testing:** pytest with 60% coverage
+- **Testing:** pytest (58 tests across 14 test files)
 - **Code Quality:** Black, Flake8, isort
 - **Monitoring:** Health checks and logging
 
@@ -532,12 +532,12 @@ pytest tests/test_blockchain.py -v
 
 ### Current Statistics (v2.0)
 
-- **Credentials Issued:** Production-ready
+- **Credentials Issued:** Active demo dataset
 - **Verification Time:** < 2 seconds average
 - **Blockchain Blocks:** Dynamic growth
 - **Storage Efficiency:** 95% (IPFS CID deduplication)
 - **Uptime:** 99.9% target
-- **Test Success Rate:** 98.3% (57/58 tests)
+- **Test Coverage Status:** 58 tests across 14 files
 
 ### Performance Benchmarks
 
@@ -625,15 +625,15 @@ pytest tests/test_blockchain.py -v
 
 ### Core Development Team
 
-#### Backend & Blockchain Architecture
+#### Lead Architect, Backend & Blockchain Engineering
 **[@udaycodespace](https://github.com/udaycodespace)** - [Somapuram Uday](https://www.linkedin.com/in/somapuram-uday/)
-- Design and implementation of blockchain consensus mechanism
+- End-to-end system architecture ownership and technical direction
+- Design and implementation of blockchain simulation and consensus flow
 - Cryptographic protocol development and security architecture
-- Smart contract logic and credential lifecycle management
-- Database architecture and ORM implementation
-- RESTful API development and integration
-- DevOps pipeline setup and production deployment
-- System optimization and performance tuning
+- Credential lifecycle and verification workflow orchestration
+- Backend modularization (blueprints + service layer refactor)
+- DevOps pipeline setup, container strategy, and deployment integration
+- Performance tuning and platform stabilization
 
 #### Frontend & User Experience
 **[@shashikiran47](https://github.com/shashikiran47)** - [Shashi Kiran](https://www.linkedin.com/in/sashi-kiran-02bb8a255/)
@@ -659,7 +659,7 @@ pytest tests/test_blockchain.py -v
 
 | Developer | Primary Focus | Key Contributions |
 |:----------|:-------------|:------------------|
-| **[@udaycodespace](https://github.com/udaycodespace)** | Backend & Infrastructure | Blockchain, Cryptography, CI/CD, DevOps |
+| **[@udaycodespace](https://github.com/udaycodespace)** | Lead Architect & Core Platform Owner | Architecture, Blockchain, Cryptography, Backend, CI/CD, DevOps |
 | **[@shashikiran47](https://github.com/shashikiran47)** | Frontend & Design | Senior UI/UX, IPFS Integration, User Experience |
 | **[@tejavarshith](https://github.com/tejavarshith)** | Testing & Documentation | Test Suite, QA, Technical Documentation |
 
@@ -668,14 +668,14 @@ pytest tests/test_blockchain.py -v
 🎯 **Team Milestones:**
 
 - ✅ 100% test coverage on critical security paths
-- ✅ Production-ready deployment achieved
+- ✅ Deployment-ready architecture achieved
 - ✅ Comprehensive documentation suite completed
 - ✅ Zero critical security vulnerabilities
 - ✅ Docker containerization implemented
 - ✅ CI/CD pipeline with automated testing and deployment
 - ✅ Docker Hub integration for image distribution
 
-**All team members contributed equally to the successful completion of this project.**
+**Core platform architecture and implementation were led by Uday, with frontend and QA/documentation collaboration support from the team.**
 
 ***
 
@@ -823,7 +823,7 @@ Our solution provides:
 
 - ✅ Instant verification (< 2 seconds)
 - ✅ Cost-effective (automated cryptographic process)
-- ✅ Decentralized (distributed blockchain and IPFS storage)
+- ✅ Tamper-evident (custom private blockchain + signed records + IPFS-integrated storage)
 - ✅ Privacy-preserving (selective disclosure with zero-knowledge proofs)
 
 **Impact:** Transforming academic credential verification for the digital age, empowering students with data ownership while providing institutions and employers with trustworthy, instant verification.
@@ -887,4 +887,6 @@ See `docs/DEPLOYMENT.md` for detailed deployment instructions for various platfo
 > **Architecture Version:** 2.1.0 (Elite Private Blockchain & UI/UX Overhaul)
 > 
 > **Current Edited Date:** `2026-03-08 19:50:00 IST`
+
+
 

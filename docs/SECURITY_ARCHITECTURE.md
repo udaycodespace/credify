@@ -1,4 +1,4 @@
-# 🛡️ Credify Security Architecture
+﻿#  Credify Security Architecture
 
 Credify implements a multi-layer security model to ensure the integrity, confidentiality, and availability of academic credentials.
 
@@ -27,3 +27,4 @@ Credify implements a multi-layer security model to ensure the integrity, confide
 **G. Pulla Reddy Engineering College (Autonomous)**
 **Guidance:** Dr. B. Thimma Reddy Sir, Dr. G. Rajeswarappa Sir and Shri Shri K Bala Chowdappa Sir
 **Dated:** 2026-03-08
+

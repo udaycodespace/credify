@@ -1,6 +1,6 @@
-🎉 PERFECT! Your Docker Hub Image is LIVE!
+﻿ PERFECT! Your Docker Hub Image is LIVE!
 
-✅ Confirmed: Everything is Working!
+ Confirmed: Everything is Working!
 
 Your Docker Hub page shows:
 
@@ -8,11 +8,11 @@ Your Docker Hub page shows:
 
 
 
-🎓 A decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using blockchain technology.
+ A decentralized, privacy-preserving platform for issuing, storing, and verifying academic credentials using blockchain technology.
 
 
 
-\## 🚀 Quick Start
+\##  Quick Start
 
 
 
@@ -38,25 +38,25 @@ text
 
 
 
-\## ✨ Features
+\##  Features
 
 
 
-\- 🔐 Blockchain-based credential verification
+\-  Blockchain-based credential verification
 
-\- 📦 IPFS distributed storage
+\-  IPFS distributed storage
 
-\- 🔒 RSA-2048 digital signatures
+\-  RSA-2048 digital signatures
 
-\- 👥 Role-based access (Issuer, Holder, Verifier)
+\-  Role-based access (Issuer, Holder, Verifier)
 
-\- 🎯 Zero-knowledge proofs for privacy
-\- 🎓 Elite 10/10 PDF Generation (New)
-\- 🏆 Professional Senior UI/UX (March 2026)
+\-  Zero-knowledge proofs for privacy
+\-  Elite 10/10 PDF Generation (New)
+\-  Professional Senior UI/UX (March 2026)
 
 
 
-\## 📊 Tech Stack
+\##  Tech Stack
 
 
 
@@ -72,7 +72,7 @@ text
 
 
 
-\## 🔧 Environment Variables
+\##  Environment Variables
 
 
 
@@ -86,7 +86,7 @@ ADMIN\_PASSWORD=xyz
 
 
 
-\## 📖 Documentation
+\##  Documentation
 
 
 
@@ -96,7 +96,7 @@ ADMIN\_PASSWORD=xyz
 
 
 
-\## 🎓 Educational Project
+\##  Educational Project
 
 
 
@@ -104,7 +104,7 @@ This is a final year B.Tech project demonstrating blockchain technology in acade
 
 
 
-\## 📜 License
+\##  License
 
 
 
@@ -116,15 +116,16 @@ MIT License - Educational/Portfolio use
 
 
 
-\*\*Built with ❤️ by the Credify Team\*\*
+\*\*Built with  by the Credify Team\*\*
 
 ***
 
 > [!NOTE]
-> **🐳 DOCKER HUB README: UPDATED**
-> 
+> ** DOCKER HUB README: UPDATED**
+>
 > **Architecture Version:** 2.1.0
-> 
+>
 > **Current Edited Date:** `2026-03-08`
+
 
 

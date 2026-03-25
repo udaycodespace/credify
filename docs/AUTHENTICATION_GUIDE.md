@@ -1,145 +1,145 @@
-# 🔐 Authentication System Guide
+﻿#  Authentication System Guide
 
 **Version 2.2** | Hardened Multi-Portal Authentication for Private (PVT) Blockchain Infrastructure
 
 ***
 
-## 📌 Overview
+##  Overview
 
 The Credify system has transitioned to a **Hardened Private Blockchain** architecture. Authentication is now isolated into dedicated role-specific portals to ensure maximum security and a premium user experience:
 
-- **🏛️ Issuer Portal (`/issuer`)** — Academic Institutions & Network Controllers (MFA Enforced)
-- **👨‍🎓 Student Portal (`/holder`)** — Credential Holders & Asset Managers
-- **💼 Verifier Portal (`/verifier`)** — Public verification gateway (No login required)
+- ** Issuer Portal (`/issuer`)**  Academic Institutions & Network Controllers (MFA Enforced)
+- ** Student Portal (`/holder`)**  Credential Holders & Asset Managers
+- ** Verifier Portal (`/verifier`)**  Public verification gateway (No login required)
 
 Each role is strictly isolated via a **Multi-Portal Gatekeeper** to prevent unauthorized cross-portal access.
 
 ***
 
-## 🔐 Authentication Architecture
+##  Authentication Architecture
 
 ### Identity Trust Tiers (ITT)
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                 PRIVATE NETWORK ENTRANCE                    │
-├─────────────────────────────────────────────────────────────┤
-│  Request → Portal Detection → Role Context → Entry Process  │
-└─────────────────────────────────────────────────────────────┘
-                             ▼
-         ┌───────────────────┴───────────────────┐
-         │                                       │
-    ┌────▼─────┐                           ┌─────▼─────┐
-    │ ISSUER   │                           │ STUDENT   │
-    │(/issuer) │                           │(/holder)  │
-    └────┬─────┘                           └─────┬─────┘
-         │                                       │
-   ┌─────▼─────┐                           ┌─────▼─────┐
-   │ MFA CHECK │                           │ JWT/SID   │
-   │ (TOTP)    │                           │ VALIDATION│
-   └─────┬─────┘                           └─────┬─────┘
-         │                                       │
-    HIGH-SECURITY                           ACADEMIC HUB
-    DASHBOARD                               ACCESS
+
+ PRIVATE NETWORK ENTRANCE 
+
+ Request  Portal Detection  Role Context  Entry Process 
+
+ 
+ 
+  
+  
+  ISSUER   STUDENT 
+ (/issuer)  (/holder) 
+  
+  
+  
+  MFA CHECK   JWT/SID 
+  (TOTP)   VALIDATION
+  
+  
+ HIGH-SECURITY ACADEMIC HUB
+ DASHBOARD ACCESS
 ```
 
 ***
 
-## 👥 Administrative Accounts
+##  Administrative Accounts
 
-### 🏛️ Issuer Account (Production Grade)
+###  Issuer Account (Production Grade)
 
 > [!IMPORTANT]
 > **Issuer accounts now require Multi-Factor Authentication (MFA).** Legacy default passwords like `admin123` are automatically randomized by the system during startup if MFA is active to "break the chain" of insecure access.
 
 ```
-Access:   Credential Minting, Ledger Management, System Governance
+Access: Credential Minting, Ledger Management, System Governance
 Security: Username + Password + 6-Digit TOTP Token
 ```
 
-### 👨‍🎓 Student Account (Verified Access)
+###  Student Account (Verified Access)
 
 ```
-Access:   On-Chain Asset Viewing, Selective Disclosure, Identity Sharing
+Access: On-Chain Asset Viewing, Selective Disclosure, Identity Sharing
 Security: Student ID (Roll Number) + Password
 ```
 
 ***
 
-## 🔄 Hardened Authentication Workflow
+##  Hardened Authentication Workflow
 
 ### Step 1: Administrator Entry (Issuer Role)
 
 1. **Navigate to Issuer Portal**
-   ```
-   http://localhost:5000/issuer
-   ```
+ ```
+ http://localhost:5000/issuer
+ ```
 2. **Standard Credentials**
-   - Enter your authorized username and password.
+ - Enter your authorized username and password.
 3. **MFA Verification**
-   - Provide the 6-digit rolling code from your Google Authenticator or Authy app.
-   - **Emergency Bypass**: In case of lost phone, use the administrative secret: `adminadmin123` (Emergency use only).
+ - Provide the 6-digit rolling code from your Google Authenticator or Authy app.
+ - **Emergency Bypass**: In case of lost phone, use the administrative secret: `adminadmin123` (Emergency use only).
 4. **Administrative Dashboard**
-   - Access the one-page responsive hub for credential management.
+ - Access the one-page responsive hub for credential management.
 
 ### Step 2: Student Entry (Holder Role)
 
 1. **Navigate to Student Portal**
-   ```
-   http://localhost:5000/holder
-   ```
+ ```
+ http://localhost:5000/holder
+ ```
 2. **Roll Number Access**
-   - Enter your Student Roll Number as the username.
-   - Enter your secure password.
+ - Enter your Student Roll Number as the username.
+ - Enter your secure password.
 3. **Asset Dashboard**
-   - Access your private academic record vault.
+ - Access your private academic record vault.
 
 4. **Privacy Protection**
-    - Only sees own credentials
-    - Cannot access other students' data
-    - Complete data ownership
+ - Only sees own credentials
+ - Cannot access other students' data
+ - Complete data ownership
 
 ***
 
 ### Step 3: Create Selective Disclosure (Student)
 
 1. **Select Credential**
-    - Navigate to credential in dashboard
-    - Click "Share" button
+ - Navigate to credential in dashboard
+ - Click "Share" button
 2. **Choose Fields to Disclose**
 
 ```
 Selective Disclosure Options:
-├── ✅ Student Name
-├── ✅ Degree
-├── ✅ GPA (only)
-├── ✅ University
-├── ❌ Student ID (hidden)
-├── ❌ Date of Birth (hidden)
-└── ❌ Full Transcript (hidden)
+  Student Name
+  Degree
+  GPA (only)
+  University
+  Student ID (hidden)
+  Date of Birth (hidden)
+  Full Transcript (hidden)
 ```
 
 3. **Generate Zero-Knowledge Proof**
-    - Click "Generate Proof"
-    - System creates cryptographic proof
-    - Only selected fields included
+ - Click "Generate Proof"
+ - System creates cryptographic proof
+ - Only selected fields included
 4. **Share Proof**
 
 ```json
 {
-  "credential_id": "CRED_xxxxx",
-  "disclosed_fields": {
-    "student_name": "John Doe",
-    "degree": "B.Tech Computer Science",
-    "gpa": 8.5
-  },
-  "proof": "cryptographic_proof_data",
-  "timestamp": "2024-12-26T14:51:00Z"
+ "credential_id": "CRED_xxxxx",
+ "disclosed_fields": {
+ "student_name": "John Doe",
+ "degree": "B.Tech Computer Science",
+ "gpa": 8.5
+ },
+ "proof": "cryptographic_proof_data",
+ "timestamp": "2024-12-26T14:51:00Z"
 }
 ```
 
-    - Copy JSON proof
-    - Share with verifier via secure channel
+ - Copy JSON proof
+ - Share with verifier via secure channel
 
 ***
 
@@ -156,38 +156,38 @@ No authentication required (public access)
 
 ```
 Input Options:
-├── Credential ID (full verification)
-├── Selective Disclosure Proof (partial)
-└── QR Code (future feature)
+ Credential ID (full verification)
+ Selective Disclosure Proof (partial)
+ QR Code (future feature)
 ```
 
 3. **Verification Process**
 
 ```
 System Checks:
-├── ✓ Blockchain hash validation
-├── ✓ IPFS data retrieval
-├── ✓ Cryptographic signature verification
-├── ✓ Revocation status check
-├── ✓ Issuer authenticity
-└── ✓ Timestamp validation
+  Blockchain hash validation
+  IPFS data retrieval
+  Cryptographic signature verification
+  Revocation status check
+  Issuer authenticity
+  Timestamp validation
 ```
 
 4. **View Results**
 
 ```
 Verification Response:
-├── Status: Valid / Invalid / Revoked
-├── Issuer: University name
-├── Issue Date: Timestamp
-├── Disclosed Data: Only shared fields
-└── Verification Proof: Blockchain reference
+ Status: Valid / Invalid / Revoked
+ Issuer: University name
+ Issue Date: Timestamp
+ Disclosed Data: Only shared fields
+ Verification Proof: Blockchain reference
 ```
 
 
 ***
 
-## 🛡️ Security Features
+##  Security Features
 
 ### 1. Password Security
 
@@ -205,12 +205,12 @@ Verification Response:
 ```python
 Session Data Structure:
 {
-    'user_id': int,
-    'username': str,
-    'role': str,  # 'issuer', 'student', 'verifier'
-    'student_id': str,  # For students only
-    'created_at': timestamp,
-    'expires_at': timestamp
+ 'user_id': int,
+ 'username': str,
+ 'role': str, # 'issuer', 'student', 'verifier'
+ 'student_id': str, # For students only
+ 'created_at': timestamp,
+ 'expires_at': timestamp
 }
 ```
 
@@ -219,15 +219,15 @@ Session Data Structure:
 
 ```
 Access Matrix:
-┌──────────────┬─────────┬─────────┬──────────┐
-│ Resource     │ Issuer  │ Student │ Verifier │
-├──────────────┼─────────┼─────────┼──────────┤
-│ Issue Cred   │   ✅    │   ❌    │    ❌   │
-│ View Own     │   N/A    │   ✅    │    N/A  │
-│ Revoke       │   ✅    │   ❌    │    ❌   │
-│ Verify       │   ✅    │   ✅    │    ✅   │
-│ Selective    │   ❌    │   ✅    │    ❌   │
-└──────────────┴─────────┴─────────┴──────────┘
+
+ Resource  Issuer  Student  Verifier 
+
+ Issue Cred       
+ View Own  N/A    N/A 
+ Revoke       
+ Verify       
+ Selective       
+
 ```
 
 
@@ -240,47 +240,47 @@ Access Matrix:
 
 ***
 
-## 📁 System Architecture
+##  System Architecture
 
 ### Modified/New Files
 
 ```
 app/
-├── models.py              ✅ User model & database schema
-├── auth.py                ✅ Authentication decorators & middleware
-└── config.py              ✅ Security configurations
+ models.py  User model & database schema
+ auth.py  Authentication decorators & middleware
+ config.py  Security configurations
 
 templates/
-├── login.html             ✅ Login interface
-├── base.html              ✅ Updated with auth buttons
-├── issuer.html            ✅ Protected issuer dashboard
-├── holder.html            ✅ Protected student dashboard
-└── verifier.html          ✅ Public verifier interface
+ login.html  Login interface
+ base.html  Updated with auth buttons
+ issuer.html  Protected issuer dashboard
+ holder.html  Protected student dashboard
+ verifier.html  Public verifier interface
 
 docs/
-└── AUTHENTICATION_GUIDE.md ✅ This document
+ AUTHENTICATION_GUIDE.md  This document
 ```
 
 
 ***
 
-## 🗄️ Database Schema
+##  Database Schema
 
 ### Users Table
 
 ```sql
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username VARCHAR(80) UNIQUE NOT NULL,
-    password_hash VARCHAR(256) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK(role IN ('issuer', 'student', 'verifier')),
-    student_id VARCHAR(50) UNIQUE,
-    full_name VARCHAR(120),
-    email VARCHAR(120) UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE,
-    metadata JSON
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ username VARCHAR(80) UNIQUE NOT NULL,
+ password_hash VARCHAR(256) NOT NULL,
+ role VARCHAR(20) NOT NULL CHECK(role IN ('issuer', 'student', 'verifier')),
+ student_id VARCHAR(50) UNIQUE,
+ full_name VARCHAR(120),
+ email VARCHAR(120) UNIQUE,
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ last_login TIMESTAMP,
+ is_active BOOLEAN DEFAULT TRUE,
+ metadata JSON
 );
 
 CREATE INDEX idx_username ON users(username);
@@ -291,7 +291,7 @@ CREATE INDEX idx_role ON users(role);
 
 ***
 
-## 👤 User Management
+##  User Management
 
 ### Creating New Users
 
@@ -303,19 +303,19 @@ from app.app import app
 from app.models import db, User
 
 with app.app_context():
-    # Create new student
-    student = User(
-        username='CST002',
-        role='student',
-        student_id='CST002',
-        full_name='Jane Smith',
-        email='jane@example.edu'
-    )
-    student.set_password('secure_password_here')
-    
-    db.session.add(student)
-    db.session.commit()
-    print(f"✅ User {student.username} created successfully")
+ # Create new student
+ student = User(
+ username='CST002',
+ role='student',
+ student_id='CST002',
+ full_name='Jane Smith',
+ email='jane@example.edu'
+ )
+ student.set_password('secure_password_here')
+
+ db.session.add(student)
+ db.session.commit()
+ print(f" User {student.username} created successfully")
 ```
 
 
@@ -329,7 +329,7 @@ Follow the prompts to create users interactively.
 
 ***
 
-## 🔌 API Endpoints
+##  API Endpoints
 
 ### Public Endpoints (No Authentication)
 
@@ -357,7 +357,7 @@ Follow the prompts to create users interactively.
 
 ***
 
-## ⚙️ Environment Configuration
+##  Environment Configuration
 
 ### Required Environment Variables
 
@@ -367,12 +367,12 @@ SECRET_KEY=your-secret-key-change-in-production
 SESSION_SECRET=your-session-secret-change-in-production
 
 # Database
-DATABASE_URL=sqlite:///credentials.db  # Development
-# DATABASE_URL=postgresql://user:pass@host:port/db  # Production
+DATABASE_URL=sqlite:///credentials.db # Development
+# DATABASE_URL=postgresql://user:pass@host:port/db # Production
 
 # Flask Configuration
-FLASK_ENV=development  # Change to 'production' for deployment
-DEBUG=False  # Set to False in production
+FLASK_ENV=development # Change to 'production' for deployment
+DEBUG=False # Set to False in production
 
 # Server
 HOST=0.0.0.0
@@ -386,7 +386,7 @@ ENABLE_EMAIL_VERIFICATION=False
 
 ### Security Best Practices
 
-⚠️ **CRITICAL: Never expose these in version control:**
+ **CRITICAL: Never expose these in version control:**
 
 - `.env` file should be in `.gitignore`
 - Use environment-specific configurations
@@ -401,7 +401,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ***
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues \& Solutions
 
@@ -446,38 +446,38 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ***
 
-## ✅ Testing Checklist
+##  Testing Checklist
 
 Use this checklist to verify complete system functionality:
 
 - [ ] **Issuer Workflow**
-    - [ ] Login as issuer
-    - [ ] Access issuer dashboard
-    - [ ] Issue credential for test student
-    - [ ] View issued credentials list
-    - [ ] Logout successfully
+ - [ ] Login as issuer
+ - [ ] Access issuer dashboard
+ - [ ] Issue credential for test student
+ - [ ] View issued credentials list
+ - [ ] Logout successfully
 - [ ] **Student Workflow**
-    - [ ] Login as student
-    - [ ] View only own credentials (data isolation)
-    - [ ] Open credential details
-    - [ ] Create selective disclosure (GPA only)
-    - [ ] Copy generated proof
-    - [ ] Logout successfully
+ - [ ] Login as student
+ - [ ] View only own credentials (data isolation)
+ - [ ] Open credential details
+ - [ ] Create selective disclosure (GPA only)
+ - [ ] Copy generated proof
+ - [ ] Logout successfully
 - [ ] **Verifier Workflow**
-    - [ ] Access verifier page (no login)
-    - [ ] Paste credential ID
-    - [ ] Verify full credential
-    - [ ] Paste selective disclosure proof
-    - [ ] Verify partial credential (only disclosed fields visible)
+ - [ ] Access verifier page (no login)
+ - [ ] Paste credential ID
+ - [ ] Verify full credential
+ - [ ] Paste selective disclosure proof
+ - [ ] Verify partial credential (only disclosed fields visible)
 - [ ] **Security Testing**
-    - [ ] Attempt to access issuer page as student (should fail)
-    - [ ] Attempt to access student credentials as different student (should fail)
-    - [ ] Verify session expires after timeout
-    - [ ] Test logout clears session data
+ - [ ] Attempt to access issuer page as student (should fail)
+ - [ ] Attempt to access student credentials as different student (should fail)
+ - [ ] Verify session expires after timeout
+ - [ ] Test logout clears session data
 
 ***
 
-## 🚀 Production Deployment Checklist
+##  Production Deployment Checklist
 
 Before deploying to production:
 
@@ -499,31 +499,31 @@ Before deploying to production:
 
 ***
 
-## 📞 Support \& Contributions
+##  Support \& Contributions
 
 ### Getting Help
 
 If you encounter issues not covered in this guide:
 
 1. **Check Documentation:**
-    - Review `/docs` folder for additional guides
-    - See `TROUBLESHOOTING.md` for common issues
+ - Review `/docs` folder for additional guides
+ - See `TROUBLESHOOTING.md` for common issues
 2. **Review Logs:**
-    - Check server logs in `/logs` directory
-    - Enable debug mode temporarily for detailed errors
-    - Review browser console for client-side errors
+ - Check server logs in `/logs` directory
+ - Enable debug mode temporarily for detailed errors
+ - Review browser console for client-side errors
 3. **Contact Development Team:**
-    - **Backend \& Authentication:** [@udaycodespace](https://github.com/udaycodespace)
-    - **Frontend \& UI:** [@shashikiran47](https://github.com/shashikiran47)
-    - **Testing \& Documentation:** [@tejavarshith](https://github.com/tejavarshith)
+ - **Backend \& Authentication:** [@udaycodespace](https://github.com/udaycodespace)
+ - **Frontend \& UI:** [@shashikiran47](https://github.com/shashikiran47)
+ - **Testing \& Documentation:** [@tejavarshith](https://github.com/tejavarshith)
 4. **Community Support:**
-    - Open an issue on GitHub repository
-    - Include error messages and logs
-    - Provide steps to reproduce the issue
+ - Open an issue on GitHub repository
+ - Include error messages and logs
+ - Provide steps to reproduce the issue
 
 ***
 
-## 📚 Additional Resources
+##  Additional Resources
 
 - **W3C Verifiable Credentials:** [https://www.w3.org/TR/vc-data-model/](https://www.w3.org/TR/vc-data-model/)
 - **Flask Security Best Practices:** [https://flask.palletsprojects.com/en/latest/security/](https://flask.palletsprojects.com/en/latest/security/)
@@ -531,7 +531,7 @@ If you encounter issues not covered in this guide:
 
 ***
 
-## 📄 Version History
+##  Version History
 
 **v2.0** (Current)
 
@@ -557,9 +557,10 @@ If you encounter issues not covered in this guide:
 ***
 
 > [!NOTE]
-> **🔐 AUTHENTICATION GUIDE: UPDATED**
-> 
+> ** AUTHENTICATION GUIDE: UPDATED**
+>
 > **Architecture Version:** 2.1.0
-> 
+>
 > **Current Edited Date:** `2026-03-08`
+
 

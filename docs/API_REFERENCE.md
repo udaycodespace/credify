@@ -1,14 +1,14 @@
-# 📟 Credify API Reference
+﻿#  Credify API Reference
 
 This document provides detailed information about the endpoints available in the Credify system.
 
-## 🔑 Base URL
+##  Base URL
 `http://localhost:5000` (Local)
 `https://credify-2026.onrender.com` (Production)
 
 ---
 
-## 🏛️ Ledger Endpoints
+##  Ledger Endpoints
 
 ### 1. View Blockchain
 - **URL:** `/api/blockchain`
@@ -25,11 +25,11 @@ This document provides detailed information about the endpoints available in the
 - **Body:**
 ```json
 {
-  "student_name": "UDAY",
-  "roll_number": "229X1A0XXX",
-  "program": "B.Tech CSE",
-  "semester": "8th",
-  "gpa": "9.8"
+ "student_name": "UDAY",
+ "roll_number": "229X1A0XXX",
+ "program": "B.Tech CSE",
+ "semester": "8th",
+ "gpa": "9.8"
 }
 ```
 - **Security:** Requires Admin session.
@@ -43,7 +43,7 @@ This document provides detailed information about the endpoints available in the
 
 ---
 
-## 🔒 Authentication
+##  Authentication
 
 ### Login
 - **URL:** `/auth/login`
@@ -52,7 +52,7 @@ This document provides detailed information about the endpoints available in the
 
 ---
 
-## 📦 Storage (IPFS)
+##  Storage (IPFS)
 
 ### Upload to IPFS
 - **URL:** `/api/ipfs_upload`
@@ -65,6 +65,7 @@ This document provides detailed information about the endpoints available in the
 > Use the **Tutorial** page for visual walkthroughs of these endpoints.
 
 ***
-**Developed by:** SHASHI • UDAY • VARSHITH
+**Developed by:** SHASHI  UDAY  VARSHITH
 **Guidance:** Dr. B. Thimma Reddy Sir, Dr. G. Rajeswarappa Sir and Shri Shri K Bala Chowdappa Sir
 **Dated:** 2026-03-08
+

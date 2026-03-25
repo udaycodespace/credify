@@ -83,3 +83,103 @@ public_keys/
 tmp/
 temp/
 *.tmp
+
+# Credify private docs
+antigravity/
+
+# Private working notes
+todo.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+htmlcov/
+.coverage
+dist/
+build/
+*.egg-info/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Environment secrets
+.env
+*.env
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime data (local only)
+data/blockchain_data.json
+data/credentials_registry.json
+data/ipfs_storage.json
+data/tickets.json
+data/messages.json
+
+# Temp files
+*.tmp
+*.log
+
+# Private antigravity docs
+antigravity/
+
+# Private working files
+todo.txt
+ToDO
+url_map.txt
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE and editor
+.vscode/
+.idea/
+pyrightconfig.json
+.pyrightconfig.json
+.pre-commit-config.yaml
+
+# Temp and logs
+tmp/
+logs/
+*.log
+*.tmp
+
+# Runtime data (local only — not for repo)
+data/blockchain_data.json
+data/credentials_registry.json
+data/ipfs_storage.json
+data/tickets.json
+data/messages.json
+
+# Environment secrets — NEVER commit
+.env
+
+# Render config (not needed in repo)
+render.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+htmlcov/
+.coverage
+dist/
+build/
+*.egg-info/

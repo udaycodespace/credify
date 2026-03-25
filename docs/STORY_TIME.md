@@ -39,21 +39,21 @@ Thus, **CREDIFY** was born.
 
 ***
 
-##  The Evolution to "Elite" (The Mock vs. The Private Cloud)
+##  The Evolution to "Elite" (From Proof-of-Concept to Production)
 
-### Phase 1: The "Mock" Blockchain (Late 2025)
-We initially developed a "mock" blockchain entirely in Python 3. It worked conceptually: it hashed blocks and signed documents securely. However, it was localized entirely in memory. It was an excellent proof-of-concept, but it lacked the true decentralized networking required of a genuine blockchain.
+### Phase 1: Initial Blockchain Foundation (Late 2025)
+We initially developed a blockchain prototype in Python 3 as a proof-of-concept. It successfully hashed blocks and signed documents. However, it was localized in a single node without multi-node consensus or network propagation.
 
-### Phase 2: The Transition to a True Private Blockchain (March 8, 2026)
-We refused to settle for a "mock" implementation. On March 8, 2026, guided by Uday's deep dive into DevOps and system architecture, we radically transitioned the platform.
+### Phase 2: The Transition to a Permissioned Private Blockchain (March 8, 2026)
+On March 8, 2026, guided by Uday's deep dive into DevOps and system architecture, we radically upgraded the platform.
 
-We tore down the mock ledger and orchestrated a beautifully engineered **3-Node Private Permissioned Blockchain**. We containerized our Flask/Werkzeug cores into isolated Docker containers (`node1`, `node2`, `node3`), bridged them across an internal P2P network, and wrote dynamic consensus algorithms. Now, when a node spins up, it actively seeks its peers and synchronizes the global ledger asynchronously.
+We architected a beautifully engineered **3-Node Private Permissioned Blockchain** with deterministic validator-based consensus. We containerized our Flask/Werkzeug cores into isolated Docker containers (`node1`, `node2`, `node3`), bridged them across an internal network, and implemented round-robin leader selection. Now, when a node spins up, it actively synchronizes with its peers and participates in validator-based block creation.
 
 We layered it with **IPFS Distributed Storage**, bolted on **Zero-Knowledge Proofs (ZKPs)** for student privacy, and wrapped the entire engine in Shashi's breathtaking "Senior UI/UX" overhaul.
 
 ***
 
-This is the story of how three engineering students went from an outdated steganography idea to building a production-ready, enterprise-grade Dockerized Blockchain network.
+This is the story of how three engineering students went from an outdated steganography idea to building an academic-grade, permissioned private blockchain network with deterministic consensus and cryptographic finality.
 
 **Whole and sole, we 3 are owning it.**
 

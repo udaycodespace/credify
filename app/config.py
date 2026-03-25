@@ -57,6 +57,17 @@ class Config:
     # Blockchain settings - FIXED paths
     BLOCKCHAIN_DIFFICULTY = 0
     VALIDATOR_USERNAMES = ["admin", "issuer1"]
+    VALIDATOR_NODES = [
+        node.strip().rstrip("/")
+        for node in os.environ.get(
+            "VALIDATORS",
+            os.environ.get(
+                "VALIDATOR_NODES",
+                "node1:5000,node2:5000,node3:5000,node4:5000,node5:5000,standalone",
+            ),
+        ).split(",")
+        if node.strip()
+    ]
     BLOCKCHAIN_FILE = DATA_DIR / "blockchain_data.json"
 
     # Crypto settings - FIXED path

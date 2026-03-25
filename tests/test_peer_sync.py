@@ -90,6 +90,7 @@ def test_receive_block_valid_workflow(client, crypto_manager):
     assert response.status_code == 200
     assert json.loads(response.data)['success'] is True
     assert len(app_blockchain.chain) == index + 1
+    assert app_blockchain.chain[-1].to_dict().get('status') == 'FINALIZED'
 
 
 def test_receive_block_duplicate_ignored(client, crypto_manager):

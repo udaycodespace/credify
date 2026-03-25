@@ -1,6 +1,6 @@
 ﻿#  Authentication System Guide
 
-**Version 2.2** | Hardened Multi-Portal Authentication for Private (PVT) Blockchain Infrastructure
+**Version v2** | Hardened Multi-Portal Authentication for Private (PVT) Blockchain Infrastructure
 
 ***
 
@@ -538,7 +538,7 @@ If you encounter issues not covered in this guide:
 - Enhanced security features
 - Improved session management
 - Comprehensive documentation
-- Production-ready configurations
+- Academic-grade security configurations
 
 **v1.0**
 
@@ -559,7 +559,7 @@ If you encounter issues not covered in this guide:
 > [!NOTE]
 > ** AUTHENTICATION GUIDE: UPDATED**
 >
-> **Architecture Version:** 2.1.0
+> **Architecture Version:** v2
 >
 > **Current Edited Date:** `2026-03-08`
 

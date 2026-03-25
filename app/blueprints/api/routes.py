@@ -86,6 +86,10 @@ def receive_peer_block():
 
         source_node = blockchain.normalize_node_ref(request.headers.get("X-Node-Address") or request.headers.get("X-Source-Node"))
         origin_node = (request.headers.get("X-Origin-Node") or request.headers.get("X-Source-Node") or "unknown").strip()
+        sender_node = source_node or blockchain.normalize_node_ref(block_data.get("proposed_by"))
+
+        if not blockchain.is_validator_node(sender_node):
+            return jsonify({"success": False, "message": f"Unauthorized validator node: {sender_node or 'unknown'}"}), 403
 
         # Idempotency gate: if already present, ignore safely.
         if blockchain.has_block(block_data["index"], block_data["hash"]):
@@ -101,6 +105,7 @@ def receive_peer_block():
             signed_by=block_data.get("signed_by"),
             signature=block_data.get("signature"),
             proposed_by=block_data.get("proposed_by"),
+            status=block_data.get("status"),
         )
         v_block.timestamp = block_data["timestamp"]
         v_block.nonce = block_data["nonce"]
@@ -121,6 +126,10 @@ def receive_peer_block():
                 return jsonify({"success": False, "message": "Missing digital signature"}), 400
             if not blockchain.crypto_manager.verify_signature(v_block.hash, v_block.signature):
                 return jsonify({"success": False, "message": "Invalid digital signature"}), 400
+
+        # Finality gate: old blocks may omit status; accepted blocks become FINALIZED.
+        if v_block.status not in (None, "FINALIZED"):
+            return jsonify({"success": False, "message": "Block status must be FINALIZED"}), 400
 
         # 2. Validate against local chain linkage
         last_block = blockchain.get_latest_block()
@@ -145,6 +154,7 @@ def receive_peer_block():
 
         db.session.add(new_block)
         db.session.commit()
+        v_block.status = "FINALIZED"
         blockchain.chain.append(v_block)
 
         # Controlled gossip propagation: relay accepted blocks, never back to sender.
@@ -152,7 +162,7 @@ def receive_peer_block():
 
         logging.info(
             f"Accepted peer block {block_data['index']} from signer={block_data.get('signed_by')} "
-            f"source={source_node or 'unknown'} origin={origin_node}"
+            f"source={source_node or 'unknown'} origin={origin_node} sender={sender_node or 'unknown'}"
         )
         return jsonify({"success": True, "message": "Block accepted and added to chain"})
 

@@ -83,6 +83,12 @@ def init_extensions(app):
             if blockchain.nodes:
                 threading.Thread(target=_initial_sync, args=(app,), daemon=True).start()
 
+        configured_node_validators = app.config.get("VALIDATOR_NODES", [])
+        if configured_node_validators:
+            blockchain.set_node_validators(configured_node_validators)
+        else:
+            blockchain.set_node_validators([blockchain._get_current_node_ref(), *blockchain.nodes])
+
 
 def _initial_sync(app):
     """Background peer synchronization task"""

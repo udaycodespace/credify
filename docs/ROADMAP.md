@@ -74,7 +74,7 @@ The following steps are identified as the next evolutionary stage for the projec
 - Impossible to forge blocks even with server access (requires private key).
 
 ###  Step 3: Formal Proof of Authority (PoA)
-**Goal:** Replace simulated Proof-of-Work with institutional consensus.
+**Goal:** Upgrade from round-robin PoA to Byzantine Fault Tolerant consensus for malicious validator resilience.
 - Optimized block creation (instantaneous).
 - Authorized Validator list for adding new academic records.
 
@@ -114,7 +114,7 @@ The following steps are identified as the next evolutionary stage for the projec
 > [!NOTE]
 > ** ROADMAP STATUS: UPDATED**
 >
-> **Project Version:** 2.2.0 (PVT Master Edition)
+> **Project Version:** v2 (PVT Master Edition)
 > **Institution:** G. Pulla Reddy Engineering College
 > **Guidance:** Dr. B. Thimma Reddy Sir, Dr. G. Rajeswarappa Sir and Shri Shri K Bala Chowdappa Sir
 >

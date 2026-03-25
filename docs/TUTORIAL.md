@@ -1,6 +1,6 @@
 ﻿# Complete Tutorial: Blockchain-Based Verifiable Credentials System
 
-**Version 2.1** | A comprehensive guide to building, understanding, and using a blockchain-based academic credential verification platform (Elite UI/UX Edition)
+**Version v2** | A comprehensive guide to building, understanding, and using a blockchain-based academic credential verification platform (Elite UI/UX Edition)
 
 ***
 
@@ -25,7 +25,7 @@
 
 ### What is This System?
 
-This tutorial provides a complete, step-by-step guide to building and deploying a **production-ready blockchain-based verifiable credential system** for academic transcripts. The system demonstrates real-world applications of cutting-edge technologies:
+This tutorial provides a complete, step-by-step guide to building and deploying an **academic-grade permissioned private blockchain-based verifiable credential system** for academic transcripts. The system demonstrates real-world applications of cutting-edge technologies:
 
 - **Blockchain Technology**  Immutable, tamper-proof record keeping
 - **IPFS (InterPlanetary File System)**  Decentralized credential storage
@@ -215,7 +215,17 @@ New Block {
 }
 ```
 
-**3. Proof-of-Work Mining:**
+#### 3. Block Finality (Proof-of-Authority Model)
+
+**Our Approach (Permissioned Private Blockchain):**
+
+Our system uses **Deterministic Proof-of-Authority (PoA)** with round-robin leader selection, not Proof-of-Work:
+
+**Why PoA instead of PoW?**
+- ✅ Academic context: Validators are known institutions, not anonymous miners
+- ✅ Deterministic: Predictable block creation prevents consensus uncertainty
+- ✅ Energy-efficient: No computational puzzle solving required
+- ✅ Instant finality: Blocks are final upon acceptance (no confirmation delays)
 
 ```python
 # Find nonce where hash starts with '0000...'
@@ -1961,7 +1971,7 @@ contract CredentialRegistry {
 
 **G. Pulla Reddy Engineering College (Autonomous)**
 
-**Version 2.1 | March 2026**
+**Version v2 | March 2026**
 
 ***
 
@@ -1974,7 +1984,7 @@ contract CredentialRegistry {
 > [!NOTE]
 > ** TUTORIAL STATUS: UPDATED**
 >
-> **Architecture Version:** 2.1.0 (Elite Milestone)
+> **Architecture Version:** v2 (Elite Milestone)
 >
 > **Current Edited Date:** `2026-03-08`
 

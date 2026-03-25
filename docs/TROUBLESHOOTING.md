@@ -780,7 +780,7 @@ Include:
 
  **Solutions:**
 
- 1. **Clear Cache:** The new CSS (v2.1) requires a hard refresh (Ctrl+F5).
+ 1. **Clear Cache:** The new CSS (v2) requires a hard refresh (Ctrl+F5).
  2. **Scale Factor:** Ensure browser zoom is at 100% for the most accurate certificate representation.
  3. **Responsive Check:** If elements overlap, ensure you are using a modern browser (Chrome/Edge recommended).
 
@@ -801,7 +801,7 @@ Include:
  > [!NOTE]
  > ** TROUBLESHOOTING STATUS: UPDATED**
  >
- > **Architecture Version:** 2.1.0
+ > **Architecture Version:** v2
  >
  > **Current Edited Date:** `2026-03-08`
 

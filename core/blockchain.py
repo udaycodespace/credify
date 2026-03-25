@@ -31,7 +31,7 @@ logging.basicConfig(level=logging.INFO)
 class Block:
     """Represents a single block in the blockchain"""
 
-    def __init__(self, index, data, previous_hash, signed_by=None, signature=None, proposed_by=None):
+    def __init__(self, index, data, previous_hash, signed_by=None, signature=None, proposed_by=None, status=None):
         self.index = index
         self.timestamp = datetime.now().isoformat()
         self.data = data
@@ -39,6 +39,8 @@ class Block:
         self.nonce = 0
         self.signed_by = signed_by
         self.proposed_by = proposed_by or os.environ.get("NODE_ID") or "standalone"
+        # Backward compatible: legacy blocks may not carry status.
+        self.status = status
         self.signature = signature
         self.merkle_root = self.calculate_merkle_root()
         self.hash = self.calculate_hash()
@@ -107,6 +109,7 @@ class Block:
             "hash": self.hash,
             "signed_by": self.signed_by,
             "proposed_by": self.proposed_by,
+            "status": self.status,
             "signature": self.signature,
         }
 
@@ -116,6 +119,7 @@ class SimpleBlockchain:
 
     # Authorized entities allowed to sign blocks
     VALIDATORS = ["admin", "issuer1", "System"]
+    NODE_VALIDATORS = {"node1:5000", "node2:5000", "node3:5000", "node4:5000", "node5:5000", "standalone"}
 
     def __init__(self, crypto_manager=None, db=None, block_model=None):
         self.chain = []
@@ -124,6 +128,7 @@ class SimpleBlockchain:
         self.block_model = block_model
         self.node_id = os.environ.get("NODE_ID", "standalone")
         self.node_address = (os.environ.get("NODE_ADDRESS") or "").strip().rstrip("/")
+        self.node_validators = set(self.NODE_VALIDATORS)
 
         # Inject crypto manager for block signing/verification
         self.crypto_manager = crypto_manager
@@ -165,6 +170,21 @@ class SimpleBlockchain:
                 logging.debug(f"DB duplicate check failed: {e}")
 
         return False
+
+    def set_node_validators(self, validators):
+        """Set permissioned validator nodes for participation checks."""
+        normalized = set()
+        for node in validators or []:
+            ref = self.normalize_node_ref(node)
+            if ref:
+                normalized.add(ref)
+        if normalized:
+            self.node_validators = normalized
+
+    def is_validator_node(self, node_ref):
+        """Check whether a node is part of permissioned validator set."""
+        normalized = self.normalize_node_ref(node_ref)
+        return bool(normalized) and normalized in self.node_validators
 
     def _get_current_node_ref(self):
         """Stable local node reference used in deterministic leader selection."""
@@ -229,6 +249,7 @@ class SimpleBlockchain:
             "0",
             signed_by="System",
             proposed_by=self.node_id,
+            status="FINALIZED",
         )
         genesis_block.mine_block(self.difficulty)
         self.chain.append(genesis_block)
@@ -285,6 +306,7 @@ class SimpleBlockchain:
                                 signed_by=block_data.get("signed_by"),
                                 signature=block_data.get("signature"),
                                 proposed_by=block_data.get("proposed_by"),
+                                status=block_data.get("status"),
                             )
                             block.timestamp = block_data["timestamp"]
                             block.nonce = block_data["nonce"]
@@ -367,6 +389,13 @@ class SimpleBlockchain:
             logging.error(f"Unauthorized block creation attempt by {signed_by}")
             raise PermissionError(f"User {signed_by} is not an authorized validator")
 
+        current_node = self._get_current_node_ref()
+        if not self.is_validator_node(current_node):
+            raise PermissionError(
+                "Permissioned validator gate rejected block creation. "
+                f"Node '{current_node}' is not in validator set {sorted(self.node_validators)}."
+            )
+
         self._enforce_leader_for_block_creation()
 
         previous_block = self.get_latest_block()
@@ -384,6 +413,9 @@ class SimpleBlockchain:
         # Sign the block hash if crypto_manager is provided
         if self.crypto_manager:
             new_block.signature = self.crypto_manager.sign_data(new_block.hash)
+
+        # Finality marker: accepted local blocks are finalized.
+        new_block.status = "FINALIZED"
 
         self.chain.append(new_block)
 
@@ -434,6 +466,11 @@ class SimpleBlockchain:
                     logging.error(f"Missing or unauthorized signature at block {i}")
                     return False
 
+            # 5. Finality check (legacy blocks may omit status)
+            if getattr(current_block, "status", None) not in (None, "FINALIZED"):
+                logging.error(f"Non-finalized block at index {i}")
+                return False
+
         return True
 
     def is_chain_valid_parallel(self):
@@ -458,6 +495,9 @@ class SimpleBlockchain:
                     return False
                 if not self.crypto_manager.verify_signature(current_block.hash, current_block.signature):
                     return False
+
+            if getattr(current_block, "status", None) not in (None, "FINALIZED"):
+                return False
             return True
 
         with ThreadPoolExecutor() as executor:
@@ -518,6 +558,7 @@ class SimpleBlockchain:
                             signed_by=rec.signed_by,
                             signature=rec.signature,
                             proposed_by=rec.signed_by,
+                            status="FINALIZED",
                         )
                         block.timestamp = rec.timestamp
                         block.nonce = rec.nonce
@@ -545,6 +586,7 @@ class SimpleBlockchain:
                         signed_by=block_data.get("signed_by"),
                         signature=block_data.get("signature"),
                         proposed_by=block_data.get("proposed_by"),
+                        status=block_data.get("status"),
                     )
                     block.timestamp = block_data["timestamp"]
                     block.nonce = block_data["nonce"]

@@ -35,7 +35,7 @@ jobs:
         push: true
         tags: |
           udaycodespace/credify:latest
-          udaycodespace/credify:v2.1.0
+          udaycodespace/credify:v2
           udaycodespace/credify:sha-${{ github.sha }}
         cache-from: type=registry,ref=udaycodespace/credify:buildcache
         cache-to: type=registry,ref=udaycodespace/credify:buildcache,mode=max

@@ -119,11 +119,23 @@ def test_block_contains_proposed_by(blockchain):
     blockchain.node_id = "node-alpha"
     blockchain.node_address = ""
     blockchain.nodes = set()
+    blockchain.set_node_validators({"node-alpha", "standalone"})
 
     block = blockchain.add_block({'check': 'proposer-field'}, signed_by="admin")
     as_dict = block.to_dict()
 
     assert as_dict.get('proposed_by') == 'node-alpha'
+
+
+def test_new_block_is_finalized(blockchain):
+    """Accepted local blocks must carry FINALIZED status."""
+    blockchain.node_id = "standalone"
+    blockchain.node_address = ""
+    blockchain.nodes = set()
+    blockchain.set_node_validators({"standalone"})
+
+    block = blockchain.add_block({'finality': 'local'}, signed_by="admin")
+    assert block.to_dict().get('status') == 'FINALIZED'
 
 
 def test_hash_input_determinism_for_dict_key_order(blockchain):

@@ -90,3 +90,63 @@ def test_receive_block_valid_workflow(client, crypto_manager):
     assert response.status_code == 200
     assert json.loads(response.data)['success'] is True
     assert len(app_blockchain.chain) == index + 1
+
+
+def test_receive_block_duplicate_ignored(client, crypto_manager):
+    """Duplicate peer blocks should be ignored idempotently."""
+    from app.app import blockchain as app_blockchain
+    from core.blockchain import Block
+
+    index = len(app_blockchain.chain)
+    prev_hash = app_blockchain.get_latest_block().hash
+    duplicate_candidate = Block(index, {"idempotent": True}, prev_hash, signed_by="admin")
+    duplicate_candidate.mine_block(0)
+    duplicate_candidate.signature = crypto_manager.sign_data(duplicate_candidate.hash)
+
+    first = client.post(
+        '/api/node/receive_block',
+        data=json.dumps(duplicate_candidate.to_dict()),
+        content_type='application/json'
+    )
+    assert first.status_code == 200
+    assert len(app_blockchain.chain) == index + 1
+
+    second = client.post(
+        '/api/node/receive_block',
+        data=json.dumps(duplicate_candidate.to_dict()),
+        content_type='application/json'
+    )
+    assert second.status_code == 200
+    assert json.loads(second.data)['message'] in ['Duplicate block ignored', 'Outdated block ignored']
+    assert len(app_blockchain.chain) == index + 1
+
+
+def test_broadcast_block_skips_sender_and_self(blockchain, monkeypatch):
+    """Gossip relay should not post back to sender or self node address."""
+    sent_urls = []
+
+    class DummyResponse:
+        status_code = 200
+
+    def fake_post(url, json=None, headers=None, timeout=0):
+        sent_urls.append(url)
+        return DummyResponse()
+
+    import requests
+
+    monkeypatch.setattr(requests, "post", fake_post)
+
+    blockchain.nodes = set()
+    blockchain.node_address = "http://node1:5000"
+    blockchain.node_id = "node1"
+
+    block = blockchain.add_block({"relay": "check"}, signed_by="admin")
+    sent_urls.clear()
+
+    blockchain.nodes = {"node1:5000", "node2:5000", "node3:5000"}
+
+    blockchain.broadcast_block(block, source_node="http://node2:5000", origin_node="nodeX")
+
+    assert "http://node2:5000/api/node/receive_block" not in sent_urls
+    assert "http://node1:5000/api/node/receive_block" not in sent_urls
+    assert "http://node3:5000/api/node/receive_block" in sent_urls

@@ -37,6 +37,16 @@ class Config:
     SECRET_KEY = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
     DEBUG = True
     PORT = int(os.environ.get("PORT", 5000))
+    HOST = os.environ.get("HOST", "0.0.0.0")
+
+    # Multi-node settings (backward compatible aliases)
+    NODE_ID = os.environ.get("NODE_ID") or os.environ.get("NODE_NAME") or "standalone"
+    NODE_ADDRESS = (os.environ.get("NODE_ADDRESS") or "").strip()
+    PEER_NODES = [
+        peer.strip().rstrip("/")
+        for peer in os.environ.get("PEER_NODES", "").split(",")
+        if peer.strip()
+    ]
 
     # IPFS settings
     IPFS_ENDPOINTS = [

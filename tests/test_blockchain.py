@@ -86,3 +86,65 @@ def test_tamper_detection(blockchain):
     blockchain.chain[1].data = {'data': 'TAMPERED_DATA'}
     
     assert blockchain.is_chain_valid() is False
+
+
+def test_deterministic_leader_formula(blockchain):
+    """Leader selection uses height % total_nodes over deterministic ring."""
+    blockchain.node_address = "http://node1:5000"
+    blockchain.node_id = "node1"
+    blockchain.nodes = {"node2:5000", "node3:5000"}
+
+    # Height = current chain length. After genesis, length is 1.
+    leader_meta = blockchain.get_deterministic_leader(len(blockchain.chain))
+    ring = leader_meta["ring"]
+    expected_index = len(blockchain.chain) % len(ring)
+
+    assert leader_meta["leader_index"] == expected_index
+    assert leader_meta["leader"] == ring[expected_index]
+
+
+def test_non_leader_block_creation_rejected(blockchain):
+    """Only deterministic leader can create local blocks."""
+    blockchain.node_address = "http://node1:5000"
+    blockchain.node_id = "node1"
+    blockchain.nodes = {"node2:5000", "node3:5000"}
+
+    # With ring [node1,node2,node3] and height=1, leader is node2.
+    with pytest.raises(PermissionError, match="Deterministic leader gate rejected"):
+        blockchain.add_block({'credential_id': 'LEADER-GATE-TEST'}, signed_by="admin")
+
+
+def test_block_contains_proposed_by(blockchain):
+    """New blocks should carry proposed_by from current node id."""
+    blockchain.node_id = "node-alpha"
+    blockchain.node_address = ""
+    blockchain.nodes = set()
+
+    block = blockchain.add_block({'check': 'proposer-field'}, signed_by="admin")
+    as_dict = block.to_dict()
+
+    assert as_dict.get('proposed_by') == 'node-alpha'
+
+
+def test_hash_input_determinism_for_dict_key_order(blockchain):
+    """Canonicalization should normalize dict key order before hashing."""
+    from core.blockchain import Block
+
+    payload_a = {'b': 2, 'a': 1, 'nested': {'z': 9, 'm': 5}}
+    payload_b = {'nested': {'m': 5, 'z': 9}, 'a': 1, 'b': 2}
+
+    canonical_a = blockchain._canonicalize_data(payload_a)
+    canonical_b = blockchain._canonicalize_data(payload_b)
+
+    block_a = Block(7, canonical_a, 'prev_hash_value', signed_by='admin', proposed_by='node1')
+    block_b = Block(7, canonical_b, 'prev_hash_value', signed_by='admin', proposed_by='node1')
+
+    # Align non-deterministic runtime fields for a true same-input comparison.
+    block_a.timestamp = '2026-03-25T10:00:00'
+    block_b.timestamp = '2026-03-25T10:00:00'
+    block_a.nonce = 0
+    block_b.nonce = 0
+    block_a.merkle_root = block_a.calculate_merkle_root()
+    block_b.merkle_root = block_b.calculate_merkle_root()
+
+    assert block_a.calculate_hash() == block_b.calculate_hash()

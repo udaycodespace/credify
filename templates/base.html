@@ -337,7 +337,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}" id="navbarLogo" onclick="clickLogo()"
+            <a class="navbar-brand" href="{{ url_for('api.index') }}" id="navbarLogo" onclick="clickLogo()"
                 title="Easter Egg: Click me 5 times!">
                 <i class="fas fa-cube me-2"></i>
                 CREDIFY 2026
@@ -351,7 +351,7 @@
                 <ul class="navbar-nav me-auto">
                     {% if session.get('role') == 'issuer' %}
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('issuer') }}">
+                        <a class="nav-link active" href="{{ url_for('issuer.issuer') }}">
                             <i class="fas fa-university me-1"></i>Issuer
                         </a>
                     </li>
@@ -378,7 +378,7 @@
                     </li>
                     {% elif session.get('role') == 'student' %}
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('holder') }}">
+                        <a class="nav-link active" href="{{ url_for('holder.holder') }}">
                             <i class="fas fa-user-graduate me-1"></i>Student
                         </a>
                     </li>
@@ -405,7 +405,7 @@
                     </li>
                     {% elif session.get('role') == 'verifier' %}
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('verifier') }}">
+                        <a class="nav-link active" href="{{ url_for('verifier.verifier') }}">
                             <i class="fas fa-shield-alt me-1"></i>Verifier
                         </a>
                     </li>
@@ -432,31 +432,31 @@
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('api.index') }}">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'issuer' }}"
-                            href="{{ url_for('issuer') }}">
+                            href="{{ url_for('issuer.issuer') }}">
                             <i class="fas fa-university me-1"></i>Issuer
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'holder' }}"
-                            href="{{ url_for('holder') }}">
+                            href="{{ url_for('holder.holder') }}">
                             <i class="fas fa-user-graduate me-1"></i>Student
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'verifier' }}"
-                            href="{{ url_for('verifier') }}">
+                            href="{{ url_for('verifier.verifier') }}">
                             <i class="fas fa-shield-alt me-1"></i>Verifier
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ 'active' if request.endpoint == 'tutorial' }}"
-                            href="{{ url_for('tutorial') }}">
+                            href="{{ url_for('api.tutorial') }}">
                             <i class="fas fa-book me-1"></i>Tutorial
                         </a>
                     </li>
@@ -481,7 +481,7 @@
                                     style="font-size: 0.65rem; font-weight: 600; color: {{ 'var(--red-500)' if session.get('role') == 'issuer' else 'var(--green-500)' if session.get('role') == 'student' else 'var(--amber-400)' }}; text-transform: uppercase; letter-spacing: 0.5px;">
                                     {{ session.get('role') }} Access</div>
                             </div>
-                            <a class="btn btn-sm px-3 py-1" href="{{ url_for('logout') }}"
+                            <a class="btn btn-sm px-3 py-1" href="{{ url_for('auth.logout') }}"
                                 style="background: rgba(239, 68, 68, 0.15); border: 1.5px solid var(--red-500); color: var(--red-500); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; transition: all 0.3s ease;"
                                 onmouseover="this.style.background='var(--red-500)'; this.style.color='white';"
                                 onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'; this.style.color='var(--red-500)';">

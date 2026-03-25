@@ -703,10 +703,6 @@
                                                         onclick="openZKPModal('{{ credential.credential_id }}')">
                                                         <i class="fas fa-shield-alt me-1"></i>ZKP
                                                     </button>
-                                                    <button class="btn btn-outline-primary"
-                                                        onclick="showQR('{{ credential.credential_id }}')">
-                                                        <i class="fas fa-qrcode me-1"></i>QR Code
-                                                    </button>
                                                     <button class="btn btn-outline-danger"
                                                         onclick="window.open('/certificate/{{ credential.credential_id }}', '_blank')">
                                                         <i class="fas fa-file-pdf me-1"></i>Official Certificate
@@ -1098,45 +1094,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                     style="border-radius: 0;">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- QR Code Modal -->
-<div class="modal fade" id="qrModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header" style="background: var(--slate-700); border-bottom: 2px solid var(--cyan-500);">
-                <h5 class="modal-title" style="color: var(--cyan-400); font-family: 'JetBrains Mono', monospace;">
-                    <i class="fas fa-qrcode me-2"></i>Verify QR Code
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center" id="qrModalBody">
-                <p style="color: var(--cyan-400);"><i class="fas fa-spinner fa-spin me-2"></i>Generating...</p>
-            </div>
-            <div class="modal-footer" style="background: var(--slate-800); border-top: 1px solid var(--slate-700);">
-                <div class="w-100" style="text-align: left;">
-                    <small class="text-muted d-block mb-1">Verification Link</small>
-                    <input id="qrVerifyUrl" class="form-control form-control-sm" readonly style="font-family: 'JetBrains Mono', monospace;" />
-                    <small class="text-muted d-block mt-1" id="qrUrlHint">Long links are expected because the QR includes signed proof plus offline credential data.</small>
-                </div>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    style="border-radius: 0;">Close</button>
-                <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyQRLink()"
-                    style="border-radius: 0;">
-                    <i class="fas fa-copy me-1"></i>Copy Link
-                </button>
-                <button type="button" class="btn btn-outline-info btn-sm" onclick="shareQRLink()" style="border-radius: 0;">
-                    <i class="fas fa-share-alt me-1"></i>Share Link
-                </button>
-                <button type="button" class="btn btn-outline-success btn-sm" onclick="downloadQRImage()" style="border-radius: 0;">
-                    <i class="fas fa-download me-1"></i>Download QR
-                </button>
-                <button type="button" class="btn btn-outline-warning btn-sm" onclick="copyQRImage()" style="border-radius: 0;">
-                    <i class="fas fa-image me-1"></i>Copy QR Image
-                </button>
             </div>
         </div>
     </div>
@@ -1964,129 +1921,6 @@
             .catch(error => {
                 console.error('Error:', error);
             });
-    }
-
-    // ==================== QR CODE FUNCTIONS ====================
-
-    let currentQRUrl = '';
-    let currentQRBase64 = '';
-
-    function showQR(credentialId) {
-        const modal = new bootstrap.Modal(document.getElementById('qrModal'));
-        const body = document.getElementById('qrModalBody');
-        const urlEl = document.getElementById('qrVerifyUrl');
-
-        body.innerHTML = '<p style="color: var(--cyan-400);"><i class="fas fa-spinner fa-spin me-2"></i>Generating...</p>';
-        urlEl.value = '';
-        currentQRUrl = '';
-        currentQRBase64 = '';
-        modal.show();
-
-        fetch(`/api/credential/${credentialId}/qr`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    currentQRUrl = data.verify_url;
-                    currentQRBase64 = data.qr_base64 || '';
-                    urlEl.value = data.verify_url;
-                    const hint = document.getElementById('qrUrlHint');
-                    if (hint) {
-                        const lenText = data.verify_url_length ? `${data.verify_url_length} chars` : `${data.verify_url.length} chars`;
-                        const comp = data.compression || 'encoded';
-                        hint.textContent = `Link length: ${lenText}. QR payload format: ${comp}. Exported QR uses black on white for better upload and phone scan reliability.`;
-                    }
-                    body.innerHTML = `
-                    <img src="data:image/png;base64,${data.qr_base64}"
-                        id="qrPreviewImage"
-                         alt="Verification QR Code"
-                         style="width: 220px; height: 220px; border: 1px solid #cbd5e1; padding: 10px; background: #ffffff; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);"
-                    />
-                    <p class="mt-2 small" style="color: #94a3b8;">Employer scans this to verify instantly — no login needed.</p>
-                `;
-                    const qrCaption = body.querySelector('p');
-                    if (qrCaption) {
-                        qrCaption.className = 'mt-3 small';
-                        qrCaption.textContent = 'Scan this at https://udaycodespace.github.io/credify-verify/ or verify the CID later at www.credify.com.';
-                    }
-                } else {
-                    body.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
-                }
-            })
-            .catch(err => {
-                body.innerHTML = `<div class="alert alert-danger">Network error: ${err.message}</div>`;
-            });
-    }
-
-    function copyQRLink() {
-        if (!currentQRUrl) return;
-        navigator.clipboard.writeText(currentQRUrl)
-            .then(() => showAlert('Verify link copied to clipboard!', 'success'))
-            .catch(() => {
-                // Fallback for older browsers
-                const el = document.createElement('input');
-                el.value = currentQRUrl;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                showAlert('Verify link copied!', 'success');
-            });
-    }
-
-    async function shareQRLink() {
-        if (!currentQRUrl) return;
-        try {
-            if (navigator.share) {
-                await navigator.share({
-                    title: 'Credify Verification Link',
-                    text: 'Scan or open this link to verify credential authenticity.',
-                    url: currentQRUrl
-                });
-                showAlert('Link shared successfully!', 'success');
-                return;
-            }
-            copyQRLink();
-            showAlert('Native share unavailable. Link copied instead.', 'info');
-        } catch (err) {
-            if (err && err.name !== 'AbortError') {
-                showAlert('Unable to share link on this device.', 'warning');
-            }
-        }
-    }
-
-    function downloadQRImage() {
-        if (!currentQRBase64) {
-            showAlert('QR image not available yet.', 'warning');
-            return;
-        }
-        const a = document.createElement('a');
-        a.href = `data:image/png;base64,${currentQRBase64}`;
-        a.download = `credify-qr-${Date.now()}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showAlert('QR image downloaded.', 'success');
-    }
-
-    async function copyQRImage() {
-        if (!currentQRBase64) {
-            showAlert('QR image not available yet.', 'warning');
-            return;
-        }
-
-        try {
-            if (!navigator.clipboard || !window.ClipboardItem) {
-                showAlert('Clipboard image copy not supported on this browser.', 'warning');
-                return;
-            }
-
-            const response = await fetch(`data:image/png;base64,${currentQRBase64}`);
-            const blob = await response.blob();
-            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-            showAlert('QR image copied to clipboard.', 'success');
-        } catch (err) {
-            showAlert('Could not copy image. Use Download QR instead.', 'warning');
-        }
     }
 
     // ==================== UTILITY FUNCTIONS ====================

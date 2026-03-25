@@ -1803,8 +1803,8 @@
         const modal = new bootstrap.Modal(document.getElementById('fullCredentialModal'));
         modal.show();
 
-        // Fetch full credential data
-        fetch(`/api/get_credential/${credentialId}`)
+        // Fetch full credential data (blueprint-split compatible path)
+        fetch(`/api/credential/${credentialId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.credential) {
@@ -2219,10 +2219,20 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Step 2: Request OTP from server
-                showAlert('Sending authorization code to your registered email...', 'info');
+                Swal.fire({
+                    title: 'Sending authorization code...',
+                    text: 'Please wait while we dispatch the email to your registered account.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 fetch('/api/system/reset/request', { method: 'POST' })
                     .then(res => res.json())
                     .then(data => {
+                        Swal.close();
                         if (data.success) {
                             showResetOTPModal();
                         } else {
@@ -2230,6 +2240,7 @@
                         }
                     })
                     .catch(err => {
+                        Swal.close();
                         showAlert('Network error sending code.', 'danger');
                     });
             }
@@ -2292,9 +2303,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    const reportLine = data.report_sent
+                        ? '<p class="small text-muted">A password-protected PDF report has been emailed. The PDF password is the authorization code you entered.</p>'
+                        : '<p class="small text-warning">System reset completed, but the report email could not be delivered. Check SMTP settings/admin mailbox.</p>';
                     Swal.fire({
                         title: '💥 System Nuked',
-                        html: '<p>All data has been destroyed.</p><p class="small text-muted">A password-protected PDF report has been emailed. The PDF password is the authorization code you entered.</p><p class="text-warning fw-bold mt-2">You will now be logged out.</p>',
+                        html: `<p>All data has been destroyed.</p>${reportLine}<p class="text-warning fw-bold mt-2">You will now be logged out.</p>`,
                         icon: 'success',
                         confirmButtonText: 'OK',
                         allowOutsideClick: false,

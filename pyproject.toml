@@ -13,6 +13,7 @@ werkzeug = "^3.0.0"
 cryptography = "^41.0.0"
 ipfshttpclient = "^0.8.0"
 pypdf2 = "^3.0.1"
+pyotp = "^2.9.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.0"

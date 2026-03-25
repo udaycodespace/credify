@@ -37,6 +37,16 @@ class Config:
     SECRET_KEY = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
     DEBUG = True
     PORT = int(os.environ.get("PORT", 5000))
+    HOST = os.environ.get("HOST", "0.0.0.0")
+
+    # Multi-node settings (backward compatible aliases)
+    NODE_ID = os.environ.get("NODE_ID") or os.environ.get("NODE_NAME") or "standalone"
+    NODE_ADDRESS = (os.environ.get("NODE_ADDRESS") or "").strip()
+    PEER_NODES = [
+        peer.strip().rstrip("/")
+        for peer in os.environ.get("PEER_NODES", "").split(",")
+        if peer.strip()
+    ]
 
     # IPFS settings
     IPFS_ENDPOINTS = [
@@ -47,6 +57,17 @@ class Config:
     # Blockchain settings - FIXED paths
     BLOCKCHAIN_DIFFICULTY = 0
     VALIDATOR_USERNAMES = ["admin", "issuer1"]
+    VALIDATOR_NODES = [
+        node.strip().rstrip("/")
+        for node in os.environ.get(
+            "VALIDATORS",
+            os.environ.get(
+                "VALIDATOR_NODES",
+                "node1:5000,node2:5000,node3:5000,node4:5000,node5:5000,standalone",
+            ),
+        ).split(",")
+        if node.strip()
+    ]
     BLOCKCHAIN_FILE = DATA_DIR / "blockchain_data.json"
 
     # Crypto settings - FIXED path

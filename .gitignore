@@ -183,3 +183,4 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+credify-verify/

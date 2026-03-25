@@ -67,16 +67,27 @@ def init_extensions(app):
             blockchain.create_genesis_block()
 
         # P2P multi-node init
-        peer_nodes_env = os.environ.get("PEER_NODES", "")
-        if peer_nodes_env:
-            for peer in peer_nodes_env.split(","):
-                if peer.strip():
-                    try:
-                        blockchain.register_node(peer.strip())
-                    except Exception as e:
-                        logging.warning(f"Invalid peer URI: {peer.strip()}")
+        blockchain.node_id = app.config.get("NODE_ID", "standalone")
+        blockchain.node_address = (app.config.get("NODE_ADDRESS", "") or "").strip().rstrip("/")
+        local_node_address = (app.config.get("NODE_ADDRESS", "") or "").strip().rstrip("/")
+        peer_nodes = app.config.get("PEER_NODES", [])
+
+        if peer_nodes:
+            for peer in peer_nodes:
+                if local_node_address and peer == local_node_address:
+                    continue
+                try:
+                    blockchain.register_node(peer)
+                except Exception:
+                    logging.warning(f"Invalid peer URI: {peer}")
             if blockchain.nodes:
                 threading.Thread(target=_initial_sync, args=(app,), daemon=True).start()
+
+        configured_node_validators = app.config.get("VALIDATOR_NODES", [])
+        if configured_node_validators:
+            blockchain.set_node_validators(configured_node_validators)
+        else:
+            blockchain.set_node_validators([blockchain._get_current_node_ref(), *blockchain.nodes])
 
 
 def _initial_sync(app):
@@ -84,7 +95,8 @@ def _initial_sync(app):
     time.sleep(5)
     with app.app_context():
         try:
-            logging.info(f"Syncing with peers: {blockchain.nodes}...")
+            node_id = app.config.get("NODE_ID", "standalone")
+            logging.info(f"Node {node_id} syncing with peers: {blockchain.nodes}...")
             if blockchain.resolve_conflicts():
                 logging.info(f"Synchronized chain. New length: {len(blockchain.chain)}")
         except Exception as e:

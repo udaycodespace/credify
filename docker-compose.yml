@@ -7,7 +7,9 @@ services:
     ports:
       - "5001:5000"
     environment:
+      - NODE_ID=node1
       - NODE_NAME=node1
+      - NODE_ADDRESS=http://node1:5000
       - PORT=5000
       - HOST=0.0.0.0
       - BASE_URL=http://localhost:5000
@@ -31,7 +33,9 @@ services:
     ports:
       - "5002:5000"
     environment:
+      - NODE_ID=node2
       - NODE_NAME=node2
+      - NODE_ADDRESS=http://node2:5000
       - PORT=5000
       - HOST=0.0.0.0
       - BASE_URL=http://localhost:5000
@@ -55,7 +59,9 @@ services:
     ports:
       - "5003:5000"
     environment:
+      - NODE_ID=node3
       - NODE_NAME=node3
+      - NODE_ADDRESS=http://node3:5000
       - PORT=5000
       - HOST=0.0.0.0
       - BASE_URL=http://localhost:5000

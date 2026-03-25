@@ -31,13 +31,16 @@ logging.basicConfig(level=logging.INFO)
 class Block:
     """Represents a single block in the blockchain"""
 
-    def __init__(self, index, data, previous_hash, signed_by=None, signature=None):
+    def __init__(self, index, data, previous_hash, signed_by=None, signature=None, proposed_by=None, status=None):
         self.index = index
         self.timestamp = datetime.now().isoformat()
         self.data = data
         self.previous_hash = previous_hash
         self.nonce = 0
         self.signed_by = signed_by
+        self.proposed_by = proposed_by or os.environ.get("NODE_ID") or "standalone"
+        # Backward compatible: legacy blocks may not carry status.
+        self.status = status
         self.signature = signature
         self.merkle_root = self.calculate_merkle_root()
         self.hash = self.calculate_hash()
@@ -105,6 +108,8 @@ class Block:
             "nonce": self.nonce,
             "hash": self.hash,
             "signed_by": self.signed_by,
+            "proposed_by": self.proposed_by,
+            "status": self.status,
             "signature": self.signature,
         }
 
@@ -114,12 +119,16 @@ class SimpleBlockchain:
 
     # Authorized entities allowed to sign blocks
     VALIDATORS = ["admin", "issuer1", "System"]
+    NODE_VALIDATORS = {"node1:5000", "node2:5000", "node3:5000", "node4:5000", "node5:5000", "standalone"}
 
     def __init__(self, crypto_manager=None, db=None, block_model=None):
         self.chain = []
         self.difficulty = 0  # Default to PoA (no difficulty)
         self.db = db
         self.block_model = block_model
+        self.node_id = os.environ.get("NODE_ID", "standalone")
+        self.node_address = (os.environ.get("NODE_ADDRESS") or "").strip().rstrip("/")
+        self.node_validators = set(self.NODE_VALIDATORS)
 
         # Inject crypto manager for block signing/verification
         self.crypto_manager = crypto_manager
@@ -129,9 +138,119 @@ class SimpleBlockchain:
         # NOTE: load_blockchain() and genesis creation must be called
         # within app_context if using DB storage.
 
+    def normalize_node_ref(self, node_ref):
+        """Normalize node identity/address values to netloc format for comparisons."""
+        if not node_ref:
+            return ""
+
+        from urllib.parse import urlparse
+
+        candidate = str(node_ref).strip()
+        parsed = urlparse(candidate)
+        if parsed.netloc:
+            return parsed.netloc
+        if parsed.path and ":" in parsed.path:
+            return parsed.path
+        return candidate
+
+    def has_block(self, index, block_hash):
+        """Idempotency guard: check whether a block already exists in memory/DB."""
+        index_int = int(index)
+        for block in self.chain:
+            if block.index == index_int or block.hash == block_hash:
+                return True
+
+        if self.block_model:
+            try:
+                existing = self.block_model.query.filter(
+                    (self.block_model.index == index_int) | (self.block_model.hash == block_hash)
+                ).first()
+                return existing is not None
+            except Exception as e:
+                logging.debug(f"DB duplicate check failed: {e}")
+
+        return False
+
+    def set_node_validators(self, validators):
+        """Set permissioned validator nodes for participation checks."""
+        normalized = set()
+        for node in validators or []:
+            ref = self.normalize_node_ref(node)
+            if ref:
+                normalized.add(ref)
+        if normalized:
+            self.node_validators = normalized
+
+    def is_validator_node(self, node_ref):
+        """Check whether a node is part of permissioned validator set."""
+        normalized = self.normalize_node_ref(node_ref)
+        return bool(normalized) and normalized in self.node_validators
+
+    def _get_current_node_ref(self):
+        """Stable local node reference used in deterministic leader selection."""
+        return self.normalize_node_ref(self.node_address) or str(self.node_id)
+
+    def _canonicalize_data(self, value):
+        """Recursively canonicalize dict keys for deterministic block content serialization."""
+        if isinstance(value, dict):
+            return {k: self._canonicalize_data(value[k]) for k in sorted(value.keys())}
+        if isinstance(value, list):
+            return [self._canonicalize_data(item) for item in value]
+        return value
+
+    def get_consensus_ring(self):
+        """Return deterministic node ordering for round-robin leader selection."""
+        ring = {self._get_current_node_ref()}
+        for node in self.nodes:
+            ref = self.normalize_node_ref(node)
+            if ref:
+                ring.add(ref)
+        return sorted(ring)
+
+    def get_deterministic_leader(self, block_height):
+        """Leader = block_height % total_nodes over a deterministic node ring."""
+        ring = self.get_consensus_ring()
+        total_nodes = len(ring)
+        leader_index = int(block_height) % total_nodes
+        return {
+            "leader": ring[leader_index],
+            "leader_index": leader_index,
+            "total_nodes": total_nodes,
+            "ring": ring,
+        }
+
+    def _enforce_leader_for_block_creation(self):
+        """Gate local block creation to deterministic leader only."""
+        block_height = len(self.chain)
+        leader_meta = self.get_deterministic_leader(block_height)
+        current_node = self._get_current_node_ref()
+        leader = leader_meta["leader"]
+
+        logging.info(
+            "Leader check: height=%s total_nodes=%s leader_index=%s leader=%s current=%s",
+            block_height,
+            leader_meta["total_nodes"],
+            leader_meta["leader_index"],
+            leader,
+            current_node,
+        )
+
+        if current_node != leader:
+            raise PermissionError(
+                "Deterministic leader gate rejected block creation. "
+                f"Current node '{current_node}' is not leader '{leader}' at height {block_height}."
+            )
+
     def create_genesis_block(self):
         """Create the first block in the blockchain"""
-        genesis_block = Block(0, "Genesis Block - Academic Transcript Blockchain", "0", signed_by="System")
+        genesis_block = Block(
+            0,
+            "Genesis Block - Academic Transcript Blockchain",
+            "0",
+            signed_by="System",
+            proposed_by=self.node_id,
+            status="FINALIZED",
+        )
         genesis_block.mine_block(self.difficulty)
         self.chain.append(genesis_block)
         self.save_blockchain()
@@ -186,6 +305,8 @@ class SimpleBlockchain:
                                 block_data["previous_hash"],
                                 signed_by=block_data.get("signed_by"),
                                 signature=block_data.get("signature"),
+                                proposed_by=block_data.get("proposed_by"),
+                                status=block_data.get("status"),
                             )
                             block.timestamp = block_data["timestamp"]
                             block.nonce = block_data["nonce"]
@@ -230,14 +351,34 @@ class SimpleBlockchain:
                     return False
         return True
 
-    def broadcast_block(self, block):
-        """Broadcast a new block to all peer nodes"""
+    def broadcast_block(self, block, source_node=None, origin_node=None):
+        """Broadcast a block to peers with sender/origin tracking and loop controls."""
         import requests
 
+        source_ref = self.normalize_node_ref(source_node)
+        local_ref = self.normalize_node_ref(self.node_address)
+        origin = origin_node or self.node_id
+
+        headers = {
+            "X-Source-Node": self.node_id,
+            "X-Origin-Node": str(origin),
+            "X-Node-Address": self.node_address or self.node_id,
+        }
+
         for node in self.nodes:
+            node_ref = self.normalize_node_ref(node)
+            if source_ref and node_ref == source_ref:
+                continue
+            if local_ref and node_ref == local_ref:
+                continue
             try:
                 # Post the block to the peer's receive_block endpoint
-                requests.post(f"http://{node}/api/node/receive_block", json=block.to_dict(), timeout=2)
+                requests.post(
+                    f"http://{node}/api/node/receive_block",
+                    json=block.to_dict(),
+                    headers=headers,
+                    timeout=2,
+                )
             except Exception as e:
                 logging.debug(f"Failed to broadcast to {node}: {str(e)}")
 
@@ -248,14 +389,33 @@ class SimpleBlockchain:
             logging.error(f"Unauthorized block creation attempt by {signed_by}")
             raise PermissionError(f"User {signed_by} is not an authorized validator")
 
+        current_node = self._get_current_node_ref()
+        if not self.is_validator_node(current_node):
+            raise PermissionError(
+                "Permissioned validator gate rejected block creation. "
+                f"Node '{current_node}' is not in validator set {sorted(self.node_validators)}."
+            )
+
+        self._enforce_leader_for_block_creation()
+
         previous_block = self.get_latest_block()
         new_index = len(self.chain)
-        new_block = Block(new_index, data, previous_block.hash if previous_block else "0", signed_by=signed_by)
+        canonical_data = self._canonicalize_data(data)
+        new_block = Block(
+            new_index,
+            canonical_data,
+            previous_block.hash if previous_block else "0",
+            signed_by=signed_by,
+            proposed_by=self.node_id,
+        )
         new_block.mine_block(self.difficulty)
 
         # Sign the block hash if crypto_manager is provided
         if self.crypto_manager:
             new_block.signature = self.crypto_manager.sign_data(new_block.hash)
+
+        # Finality marker: accepted local blocks are finalized.
+        new_block.status = "FINALIZED"
 
         self.chain.append(new_block)
 
@@ -264,7 +424,7 @@ class SimpleBlockchain:
         logging.info(f"New block added with hash: {new_block.hash} by {signed_by}")
 
         # PROPAGATION: Broadcast to peers
-        self.broadcast_block(new_block)
+        self.broadcast_block(new_block, origin_node=self.node_id)
 
         return new_block
 
@@ -306,6 +466,11 @@ class SimpleBlockchain:
                     logging.error(f"Missing or unauthorized signature at block {i}")
                     return False
 
+            # 5. Finality check (legacy blocks may omit status)
+            if getattr(current_block, "status", None) not in (None, "FINALIZED"):
+                logging.error(f"Non-finalized block at index {i}")
+                return False
+
         return True
 
     def is_chain_valid_parallel(self):
@@ -330,6 +495,9 @@ class SimpleBlockchain:
                     return False
                 if not self.crypto_manager.verify_signature(current_block.hash, current_block.signature):
                     return False
+
+            if getattr(current_block, "status", None) not in (None, "FINALIZED"):
+                return False
             return True
 
         with ThreadPoolExecutor() as executor:
@@ -389,6 +557,8 @@ class SimpleBlockchain:
                             rec.previous_hash,
                             signed_by=rec.signed_by,
                             signature=rec.signature,
+                            proposed_by=rec.signed_by,
+                            status="FINALIZED",
                         )
                         block.timestamp = rec.timestamp
                         block.nonce = rec.nonce
@@ -415,6 +585,8 @@ class SimpleBlockchain:
                         block_data["previous_hash"],
                         signed_by=block_data.get("signed_by"),
                         signature=block_data.get("signature"),
+                        proposed_by=block_data.get("proposed_by"),
+                        status=block_data.get("status"),
                     )
                     block.timestamp = block_data["timestamp"]
                     block.nonce = block_data["nonce"]

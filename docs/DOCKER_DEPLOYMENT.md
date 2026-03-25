@@ -123,7 +123,7 @@ MIT License - Educational/Portfolio use
 > [!NOTE]
 > ** DOCKER HUB README: UPDATED**
 >
-> **Architecture Version:** 2.1.0
+> **Architecture Version:** v2
 >
 > **Current Edited Date:** `2026-03-08`
 

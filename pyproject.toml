@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "credify"
-version = "2.1.0"
+version = "2.0.0"
 description = "Elite Private Blockchain Verifiable Credential System with ZKP & IPFS"
 authors = ["Somapuram Uday", "Shashi Kiran", "Teja Varshith"]
 readme = "README.md"

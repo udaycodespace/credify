@@ -425,7 +425,7 @@ def api_system_stats():
         stats["blockchain"] = {
             "blocks": len(blockchain.chain),
             "peers": len(blockchain.nodes),
-            "node_name": os.environ.get("NODE_NAME", "standalone"),
+            "node_name": current_app.config.get("NODE_ID") or os.environ.get("NODE_NAME", "standalone"),
             "validators": blockchain.VALIDATORS,
         }
 

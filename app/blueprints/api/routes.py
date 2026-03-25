@@ -79,7 +79,67 @@ def receive_peer_block():
         if not block_data:
             return jsonify({"success": False, "message": "No block data provided"}), 400
 
-        # 1. Reconstruct block object
+        required_fields = {"index", "timestamp", "data", "previous_hash", "nonce", "hash"}
+        missing = [field for field in required_fields if field not in block_data]
+        if missing:
+            return jsonify({"success": False, "message": f"Missing required fields: {', '.join(missing)}"}), 400
+
+        source_node = blockchain.normalize_node_ref(request.headers.get("X-Node-Address") or request.headers.get("X-Source-Node"))
+        origin_node = (request.headers.get("X-Origin-Node") or request.headers.get("X-Source-Node") or "unknown").strip()
+        sender_node = source_node or blockchain.normalize_node_ref(block_data.get("proposed_by"))
+
+        if not blockchain.is_validator_node(sender_node):
+            return jsonify({"success": False, "message": f"Unauthorized validator node: {sender_node or 'unknown'}"}), 403
+
+        # Idempotency gate: if already present, ignore safely.
+        if blockchain.has_block(block_data["index"], block_data["hash"]):
+            return jsonify({"success": True, "message": "Duplicate block ignored"}), 200
+
+        # 1. Validate block object before any persistence
+        from core.blockchain import Block
+
+        v_block = Block(
+            block_data["index"],
+            block_data["data"],
+            block_data["previous_hash"],
+            signed_by=block_data.get("signed_by"),
+            signature=block_data.get("signature"),
+            proposed_by=block_data.get("proposed_by"),
+            status=block_data.get("status"),
+        )
+        v_block.timestamp = block_data["timestamp"]
+        v_block.nonce = block_data["nonce"]
+        v_block.merkle_root = block_data.get("merkle_root")
+        v_block.hash = block_data["hash"]
+
+        if v_block.hash != v_block.calculate_hash():
+            return jsonify({"success": False, "message": "Invalid block hash"}), 400
+
+        if v_block.merkle_root and v_block.merkle_root != v_block.calculate_merkle_root():
+            return jsonify({"success": False, "message": "Invalid Merkle root"}), 400
+
+        if v_block.index > 0 and v_block.signed_by not in blockchain.VALIDATORS:
+            return jsonify({"success": False, "message": "Unauthorized block signer"}), 403
+
+        if blockchain.crypto_manager:
+            if not v_block.signature:
+                return jsonify({"success": False, "message": "Missing digital signature"}), 400
+            if not blockchain.crypto_manager.verify_signature(v_block.hash, v_block.signature):
+                return jsonify({"success": False, "message": "Invalid digital signature"}), 400
+
+        # Finality gate: old blocks may omit status; accepted blocks become FINALIZED.
+        if v_block.status not in (None, "FINALIZED"):
+            return jsonify({"success": False, "message": "Block status must be FINALIZED"}), 400
+
+        # 2. Validate against local chain linkage
+        last_block = blockchain.get_latest_block()
+        if last_block and block_data["index"] <= last_block.index:
+            return jsonify({"success": True, "message": "Outdated block ignored"}), 200
+
+        if last_block and block_data["previous_hash"] != last_block.hash:
+            return jsonify({"success": False, "message": "Previous hash mismatch. Sync required."}), 400
+
+        # 3. Persist only after full validation
         new_block = blockchain.block_model(
             index=block_data["index"],
             timestamp=block_data["timestamp"],
@@ -92,43 +152,18 @@ def receive_peer_block():
             signature=block_data.get("signature"),
         )
 
-        # 2. Simple validation against local chain
-        last_block = blockchain.get_latest_block()
-        if last_block and block_data["index"] <= last_block.index:
-            return jsonify({"success": False, "message": "Block already exists or is outdated"}), 409
-
-        if last_block and block_data["previous_hash"] != last_block.hash:
-            return jsonify({"success": False, "message": "Previous hash mismatch. Sync required."}), 400
-
-        # 3. Cryptographic validation (simplified for the model bridge)
-        # Create a Block object for validation methods
-        from core.blockchain import Block
-
-        v_block = Block(
-            block_data["index"],
-            block_data["data"],
-            block_data["previous_hash"],
-            signed_by=block_data.get("signed_by"),
-            signature=block_data.get("signature"),
-        )
-        v_block.timestamp = block_data["timestamp"]
-        v_block.nonce = block_data["nonce"]
-        v_block.merkle_root = block_data.get("merkle_root")
-        v_block.hash = block_data["hash"]
-
-        if v_block.hash != v_block.calculate_hash():
-            return jsonify({"success": False, "message": "Invalid block hash"}), 400
-
-        if blockchain.crypto_manager and v_block.signature:
-            if not blockchain.crypto_manager.verify_signature(v_block.hash, v_block.signature):
-                return jsonify({"success": False, "message": "Invalid digital signature"}), 400
-
-        # All checks passed, add to local DB and chain
         db.session.add(new_block)
         db.session.commit()
+        v_block.status = "FINALIZED"
         blockchain.chain.append(v_block)
 
-        logging.info(f"Accepted peer block {block_data['index']} from {block_data.get('signed_by')}")
+        # Controlled gossip propagation: relay accepted blocks, never back to sender.
+        blockchain.broadcast_block(v_block, source_node=source_node, origin_node=origin_node)
+
+        logging.info(
+            f"Accepted peer block {block_data['index']} from signer={block_data.get('signed_by')} "
+            f"source={source_node or 'unknown'} origin={origin_node} sender={sender_node or 'unknown'}"
+        )
         return jsonify({"success": True, "message": "Block accepted and added to chain"})
 
     except Exception as e:

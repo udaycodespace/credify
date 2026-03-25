@@ -1,23 +1,23 @@
-import hashlib
-import json
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key
-import base64
 import os
+import json
+import base64
+import hashlib
 import logging
 from pathlib import Path
-from datetime import datetime  # ADD THIS LINE
+from datetime import datetime
+
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key
 
 # FIXED: Import DATA_DIR from core package [web:42]
-from . import DATA_DIR, PROJECT_ROOT  # [web:42]
+from . import DATA_DIR, PROJECT_ROOT
 
 logging.basicConfig(level=logging.INFO)
 
 
 class CryptoManager:
     """Handles cryptographic operations for verifiable credentials"""
-    
     def __init__(self):
         # FIXED: Use DATA_DIR instead of relative path [web:72]
         self.key_file = DATA_DIR / "issuer_keys.pem"

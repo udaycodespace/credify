@@ -34,11 +34,11 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/credify:latest
-          ${{ secrets.DOCKER_USERNAME }}/credify:v2.1.0
-          ${{ secrets.DOCKER_USERNAME }}/credify:sha-${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/credify:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/credify:buildcache,mode=max
+          udaycodespace/credify:latest
+          udaycodespace/credify:v2.1.0
+          udaycodespace/credify:sha-${{ github.sha }}
+        cache-from: type=registry,ref=udaycodespace/credify:buildcache
+        cache-to: type=registry,ref=udaycodespace/credify:buildcache,mode=max
 
     - name: Build only (pull_request validation — no push)
       # On PR: just validate the image builds cleanly — no login, no push

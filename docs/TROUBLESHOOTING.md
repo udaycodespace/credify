@@ -1,10 +1,10 @@
-# Troubleshooting Guide
+﻿# Troubleshooting Guide
 
 **Version 2.0** | Common issues and solutions for the Blockchain-Based Verifiable Credentials System
 
 ***
 
-## 🔍 Quick Diagnosis
+##  Quick Diagnosis
 
 Before diving into specific issues, run this quick checklist:
 
@@ -17,7 +17,7 @@ Before diving into specific issues, run this quick checklist:
 
 ***
 
-## 🚨 Common Issues \& Solutions
+##  Common Issues \& Solutions
 
 ### Issue 1: Network Error When Verifying Credentials
 
@@ -34,13 +34,13 @@ Before diving into specific issues, run this quick checklist:
 Check your terminal for:
 
 ```
-╔══════════════════════════════════════════════════════════════════
-║  🎓 Blockchain Credential Verification System
-║  🚀 Starting server...
-║  📡 Host: 0.0.0.0
-║  🔌 Port: 5000
-║  🌍 Environment: Development
-╚══════════════════════════════════════════════════════════════════
+
+  Blockchain Credential Verification System
+  Starting server...
+  Host: 0.0.0.0
+  Port: 5000
+  Environment: Development
+
 
  * Running on http://127.0.0.1:5000
  * Running on http://0.0.0.0:5000
@@ -163,13 +163,13 @@ Ensure all required fields are filled:
 
 ```
 Required Fields:
-├── Student Name (non-empty)
-├── Student ID (unique)
-├── Degree (non-empty)
-├── University (non-empty)
-├── GPA (0.0 - 10.0)
-├── Graduation Year (valid year)
-└── Issue Date (auto-generated)
+ Student Name (non-empty)
+ Student ID (unique)
+ Degree (non-empty)
+ University (non-empty)
+ GPA (0.0 - 10.0)
+ Graduation Year (valid year)
+ Issue Date (auto-generated)
 ```
 
 
@@ -388,13 +388,13 @@ Only select fields that exist in the credential:
 
 ```
 Valid Fields:
-├── student_name
-├── student_id
-├── degree
-├── university
-├── gpa
-├── graduation_year
-└── courses (array)
+ student_name
+ student_id
+ degree
+ university
+ gpa
+ graduation_year
+ courses (array)
 ```
 
 
@@ -473,10 +473,10 @@ Verify files exist:
 
 ```
 static/
-├── css/
-│   └── style.css
-└── js/
-    └── app.js
+ css/
+  style.css
+ js/
+  app.js
 ```
 
 
@@ -529,7 +529,7 @@ chmod -R 777 logs/
 
 ***
 
-## 🧪 System Health Check
+##  System Health Check
 
 Run this diagnostic script to check system status:
 
@@ -540,55 +540,55 @@ import os
 import sys
 from pathlib import Path
 
-print("🔍 System Health Check\n")
+print(" System Health Check\n")
 
 # Check Python version
-print(f"✓ Python Version: {sys.version.split()[^0]}")
+print(f" Python Version: {sys.version.split()[^0]}")
 
 # Check required files
 required_files = [
-    'main.py', 'requirements.txt', '.env',
-    'app/app.py', 'app/models.py', 'app/auth.py',
-    'core/blockchain.py', 'core/crypto_utils.py'
+ 'main.py', 'requirements.txt', '.env',
+ 'app/app.py', 'app/models.py', 'app/auth.py',
+ 'core/blockchain.py', 'core/crypto_utils.py'
 ]
 
 missing = []
 for file in required_files:
-    if Path(file).exists():
-        print(f"✓ {file}")
-    else:
-        print(f"✗ {file} - MISSING")
-        missing.append(file)
+ if Path(file).exists():
+ print(f" {file}")
+ else:
+ print(f" {file} - MISSING")
+ missing.append(file)
 
 # Check data directories
 data_dirs = ['data', 'logs', 'static', 'templates', 'instance']
 for dir in data_dirs:
-    if Path(dir).exists():
-        print(f"✓ {dir}/ directory")
-    else:
-        print(f"⚠ {dir}/ directory missing - will be created")
+ if Path(dir).exists():
+ print(f" {dir}/ directory")
+ else:
+ print(f" {dir}/ directory missing - will be created")
 
 # Check environment variables
 env_vars = ['SECRET_KEY', 'SESSION_SECRET']
 for var in env_vars:
-    if os.getenv(var):
-        print(f"✓ {var} is set")
-    else:
-        print(f"⚠ {var} not set - using default")
+ if os.getenv(var):
+ print(f" {var} is set")
+ else:
+ print(f" {var} not set - using default")
 
 if missing:
-    print(f"\n❌ Missing {len(missing)} critical files")
-    sys.exit(1)
+ print(f"\n Missing {len(missing)} critical files")
+ sys.exit(1)
 else:
-    print("\n✅ All critical files present")
-    sys.exit(0)
+ print("\n All critical files present")
+ sys.exit(0)
 EOF
 ```
 
 
 ***
 
-## 📋 Testing Workflow
+##  Testing Workflow
 
 Follow this step-by-step process to verify system functionality:
 
@@ -609,11 +609,11 @@ python main.py
 **Expected Output:**
 
 ```
-✅ Application initialized successfully!
+ Application initialized successfully!
 
-╔══════════════════════════════════════════════════════════════════
-║  🎓 Blockchain Credential Verification System
-║  🚀 Starting server...
+
+  Blockchain Credential Verification System
+  Starting server...
 ...
  * Running on http://127.0.0.1:5000
 ```
@@ -650,7 +650,7 @@ Graduation Year: 2025
 1. **Navigate to:** `http://localhost:5000/verifier`
 2. **Paste:** Credential ID
 3. **Click:** "Verify Credential"
-4. **Expected:** ✅ Green success message with student details
+4. **Expected:**  Green success message with student details
 
 ### Step 5: Test Selective Disclosure
 
@@ -666,7 +666,7 @@ Graduation Year: 2025
 
 ***
 
-## 🆘 Emergency Reset
+##  Emergency Reset
 
 If nothing else works, perform a complete system reset:
 
@@ -701,7 +701,7 @@ python main.py
 
 ***
 
-## 📞 Getting Help
+##  Getting Help
 
 If issues persist after following this guide:
 
@@ -745,62 +745,63 @@ Include:
 
 ***
 
-## 📚 Additional Resources
- 
+##  Additional Resources
+
  - **README.md** - System overview and setup
  - **AUTHENTICATION_GUIDE.md** - Login and user management
  - **Description.md** - Technical architecture
  - **API.md** - API endpoint documentation
-  
+
  ***
- 
+
  ### Issue 11: PDF Generation Errors
- 
+
  **Symptoms:**
- 
+
  - "Elite PDF Generation error" in logs
  - 500 Internal Server Error when clicking "Download PDF"
  - ReportLab import failures
- 
+
  **Solutions:**
- 
+
  1. **Import Errors:** Ensure `reportlab` is installed (`pip install reportlab`).
  2. **Logo Missing:** Ensure `static/images/collegelogo.png` exists.
  3. **Font Errors:** The system uses standard Helvetica/Courier. Ensure no corrupt font files are in the system path.
- 
+
  ***
- 
+
  ### Issue 12: UI/UX Spacing & Scaling
- 
+
  **Symptoms:**
- 
+
  - Certificate header looks cramped
  - QR code overflows border
  - Text overlaps on small screens
- 
+
  **Solutions:**
- 
+
  1. **Clear Cache:** The new CSS (v2.1) requires a hard refresh (Ctrl+F5).
  2. **Scale Factor:** Ensure browser zoom is at 100% for the most accurate certificate representation.
  3. **Responsive Check:** If elements overlap, ensure you are using a modern browser (Chrome/Edge recommended).
- 
+
  ***
- 
+
  <div align="center">
- 
+
  **Still stuck? Don't worry!**
- 
+
  **Open an issue on GitHub with detailed error logs**
- 
+
  ***
- 
+
  *Troubleshooting guide last updated: March 08, 2026*
- 
+
  ***
- 
+
  > [!NOTE]
- > **🚨 TROUBLESHOOTING STATUS: UPDATED**
- > 
+ > ** TROUBLESHOOTING STATUS: UPDATED**
+ >
  > **Architecture Version:** 2.1.0
- > 
+ >
  > **Current Edited Date:** `2026-03-08`
+

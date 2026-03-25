@@ -325,6 +325,11 @@
                 font-size: 0.85rem;
             }
         }
+
+        .hover-red:hover {
+            color: var(--red-500) !important;
+            filter: drop-shadow(0 0 5px var(--red-500));
+        }
     </style>
 </head>
 
@@ -332,7 +337,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}" id="navbarLogo" onclick="clickLogo()"
+            <a class="navbar-brand" href="{{ url_for('api.index') }}" id="navbarLogo" onclick="clickLogo()"
                 title="Easter Egg: Click me 5 times!">
                 <i class="fas fa-cube me-2"></i>
                 CREDIFY 2026
@@ -344,61 +349,145 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    {% if session.get('role') == 'issuer' %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="fas fa-home me-1"></i>Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('issuer') }}">
+                        <a class="nav-link active" href="{{ url_for('issuer.issuer') }}">
                             <i class="fas fa-university me-1"></i>Issuer
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('holder') }}">
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Admin portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Admin portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
                             <i class="fas fa-user-graduate me-1"></i>Student
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('verifier') }}">
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Admin portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-shield-alt me-1"></i>Verifier
+                        </a>
+                    </li>
+                    {% elif session.get('role') == 'student' %}
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('holder.holder') }}">
+                            <i class="fas fa-user-graduate me-1"></i>Student
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Student portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Student portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-university me-1"></i>Issuer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Student portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-shield-alt me-1"></i>Verifier
+                        </a>
+                    </li>
+                    {% elif session.get('role') == 'verifier' %}
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('verifier.verifier') }}">
                             <i class="fas fa-shield-alt me-1"></i>Verifier
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('tutorial') }}">
-                            <i class="fas fa-book me-1"></i>Tutorial
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Verifier portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
-                </ul>
-
-                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <span class="navbar-text me-3" id="blockchain-status">
-                            <i class="fas fa-cube me-1"></i>
-                            <span id="block-count">Loading...</span>
-                        </span>
-                    </li>
-                    {% if session.get('user_id') %}
-                    <li class="nav-item">
-                        <span class="navbar-text me-2">
-                            <i class="fas fa-user-circle me-1"></i>
-                            {{ session.get('full_name') or session.get('username') }}
-                            <span
-                                class="badge bg-{{ 'danger' if session.get('role') == 'issuer' else 'success' if session.get('role') == 'student' else 'warning' }} ms-1">
-                                {{ session.get('role')|title }}
-                            </span>
-                        </span>
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Verifier portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-university me-1"></i>Issuer
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
-                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        <a class="nav-link disabled text-muted" href="#"
+                            onclick="event.preventDefault(); alert('⛔ Access restricted. You are in the Verifier portal.');"
+                            style="opacity:0.4; cursor:not-allowed;">
+                            <i class="fas fa-user-graduate me-1"></i>Student
                         </a>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="btn btn-primary btn-sm" href="{{ url_for('login') }}">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('api.index') }}">
+                            <i class="fas fa-home me-1"></i>Home
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'issuer' }}"
+                            href="{{ url_for('issuer.issuer') }}">
+                            <i class="fas fa-university me-1"></i>Issuer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'holder' }}"
+                            href="{{ url_for('holder.holder') }}">
+                            <i class="fas fa-user-graduate me-1"></i>Student
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'verifier' }}"
+                            href="{{ url_for('verifier.verifier') }}">
+                            <i class="fas fa-shield-alt me-1"></i>Verifier
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'tutorial' }}"
+                            href="{{ url_for('api.tutorial') }}">
+                            <i class="fas fa-book me-1"></i>Tutorial
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item me-3">
+                        <span class="navbar-text" id="blockchain-status"
+                            style="background: rgba(6, 182, 212, 0.1); border: 1px solid var(--cyan-500); padding: 5px 12px; border-radius: 4px;">
+                            <i class="fas fa-cube me-1"></i>
+                            <span id="block-count" style="font-size: 0.75rem;">Loading...</span>
+                        </span>
+                    </li>
+                    {% if session.get('user_id') %}
+                    <li class="nav-item">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="text-end d-none d-lg-block">
+                                <div style="font-size: 0.8rem; font-weight: 700; color: #e2e8f0; line-height: 1;">{{
+                                    session.get('full_name') or session.get('username') }}</div>
+                                <div
+                                    style="font-size: 0.65rem; font-weight: 600; color: {{ 'var(--red-500)' if session.get('role') == 'issuer' else 'var(--green-500)' if session.get('role') == 'student' else 'var(--amber-400)' }}; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    {{ session.get('role') }} Access</div>
+                            </div>
+                            <a class="btn btn-sm px-3 py-1" href="{{ url_for('auth.logout') }}"
+                                style="background: rgba(239, 68, 68, 0.15); border: 1.5px solid var(--red-500); color: var(--red-500); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; transition: all 0.3s ease;"
+                                onmouseover="this.style.background='var(--red-500)'; this.style.color='white';"
+                                onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'; this.style.color='var(--red-500)';">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        </div>
                     </li>
                     {% endif %}
                 </ul>
@@ -489,6 +578,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- SweetAlert2 for premium popups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Custom JavaScript -->
     <script src="{{ url_for('static', filename='app.js') }}"></script>

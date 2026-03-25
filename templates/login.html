@@ -467,11 +467,7 @@
                             <i class="fas fa-user-circle me-1"></i>USERNAME
                         </label>
                         <input type="text" class="form-control" id="username" name="username" required autofocus
-                            placeholder="e.g., STUDENT_NAME" value="{{ mfa_username if show_mfa else '' }}">
-                        <!-- Easter Egg #2: Secret hint removed for security -->
-                        <div class="secret-hint" id="secretHint">
-                            🛡️ Security Active: Use your authorized credentials to enter.
-                        </div>
+                            placeholder="e.g., admin" value="{{ failed_username or username or '' }}">
                     </div>
 
                     <div class="mb-4">
@@ -479,20 +475,7 @@
                             <i class="fas fa-fingerprint me-1"></i>PASSWORD
                         </label>
                         <input type="password" class="form-control" id="password" name="password" required
-                            placeholder="e.g., 229X1AXXXX" value="{{ mfa_password if show_mfa else '' }}">
-                    </div>
-
-                    <!-- 2FA Multi-Factor Authentication (Admin only) -->
-                    <div id="mfaContainer" class="mb-4"
-                        style="border: 1px dashed var(--cyan-500); padding: 15px; background: rgba(6, 182, 212, 0.05); display: none;">
-                        <label for="mfa_token" class="form-label text-info">
-                            <i class="fas fa-shield-alt me-1"></i>6-DIGIT SECURITY TOKEN
-                        </label>
-                        <input type="text" class="form-control" id="mfa_token" name="mfa_token" placeholder="000000"
-                            maxlength="20" pattern="[0-9]{6}|adminadmin123" autocomplete="off">
-                        <div class="small text-muted mt-2">
-                            Enter the code from your Google Authenticator or Authy app.
-                        </div>
+                            placeholder="Enter your security phrase">
                     </div>
 
                     <div class="d-grid gap-2">
@@ -514,7 +497,7 @@
 
             <div class="card-footer text-center"
                 style="background: var(--slate-700); border-top: 2px solid var(--slate-700);">
-                <a href="{{ url_for('index') }}" class="btn btn-back btn-sm">
+                <a href="{{ url_for('api.index') }}" class="btn btn-back btn-sm">
                     <i class="fas fa-home me-1"></i>Back to Home
                 </a>
             </div>
@@ -522,6 +505,79 @@
 
     </div>
 </div>
+
+{% if show_mfa %}
+<!-- MFA Popup Modal -->
+<div class="modal fade" id="mfaModal" tabindex="-1" aria-labelledby="mfaModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"
+            style="background: var(--slate-900); border: 1px solid var(--cyan-500); border-radius: 8px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-cyan-400 w-100 text-center fw-bold" id="mfaModalLabel"
+                    style="font-family: 'Orbitron', sans-serif; font-size: 1.25rem;">
+                    <i class="fas fa-shield-alt me-2"></i>IDENTITY VERIFICATION
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-3"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="small text-muted mb-4">Protecting your administrative access with multi-factor security.</p>
+
+                <div id="mfa-instruction" class="mb-4">
+                    <i class="fas fa-envelope-open-text text-cyan-400 mb-2" style="font-size: 2rem;"></i>
+                    <p class="mb-1">Enter the 6-digit security code sent to:</p>
+                    <div class="badge bg-secondary text-light fs-6 py-2 px-3 fw-normal"
+                        style="letter-spacing: 1px; border: 1px solid #475569;">
+                        {{ masked_email }}
+                    </div>
+                </div>
+
+                <form method="POST" action="">
+                    <input type="hidden" name="username" value="{{ mfa_username }}">
+                    <input type="hidden" name="password" value="{{ mfa_password }}">
+                    <input type="hidden" name="mfa_method" value="email">
+
+                    <div class="mb-4">
+                        <input type="text" class="form-control text-center mx-auto" id="mfa_token" name="mfa_token"
+                            placeholder="· · · · · ·" maxlength="6" required autofocus
+                            style="font-size: 2.25rem; letter-spacing: 12px; font-weight: 800; height: 75px; max-width: 320px; background: rgba(15, 23, 42, 0.8); color: var(--cyan-400); border-color: var(--cyan-700);">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg shadow-sm"
+                        style="background: var(--cyan-500); color: var(--slate-900); font-weight: bold; border: none; letter-spacing: 1px;">
+                        VERIFY & ACCESS
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pt-0 pb-4">
+                <a href="#" class="text-info text-decoration-none small opacity-75 custom-hover"
+                    onclick="location.reload()">
+                    <i class="fas fa-sync-alt me-1"></i> Didn't receive code? Resend
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var mfaModal = new bootstrap.Modal(document.getElementById('mfaModal'));
+        mfaModal.show();
+
+        // Auto-focus input when modal opens
+        document.getElementById('mfaModal').addEventListener('shown.bs.modal', function () {
+            document.getElementById('mfa_token').focus();
+        });
+    });
+</script>
+<style>
+    .custom-hover:hover {
+        opacity: 1 !important;
+        text-decoration: underline !important;
+    }
+</style>
+{% endif %}
 
 <!-- Global Forgot Password Functions — must be in global scope for onclick to work -->
 <script>
@@ -827,12 +883,31 @@
         }
     });
 
-    function showForgotModal() {
-        // handled globally above
-    }
+    function switchMFAMethod(method) {
+        const tabEmail = document.getElementById('tab-email');
+        const tabApp = document.getElementById('tab-app');
+        const instruction = document.getElementById('mfa-instruction');
+        const methodInput = document.getElementById('mfa_method');
+        const tokenInput = document.getElementById('mfa_token');
 
-    function requestForgotLink() {
-        // handled globally above
+        if (methodInput) methodInput.value = method;
+        if (tokenInput) tokenInput.value = '';
+
+        if (method === 'email') {
+            if (tabEmail) { tabEmail.style.background = 'var(--cyan-500)'; tabEmail.style.color = 'var(--slate-900)'; }
+            if (tabApp) { tabApp.style.background = 'var(--slate-800)'; tabApp.style.color = '#94a3b8'; }
+            if (instruction) instruction.innerHTML = `
+                <i class="fas fa-paper-plane text-cyan-400 mb-2" style="font-size: 1.5rem;"></i>
+                <p class="small mb-0">Enter the 6-digit code sent to registered email <br><strong>uday*********@gmail.com</strong></p>
+            `;
+        } else {
+            if (tabApp) { tabApp.style.background = 'var(--cyan-500)'; tabApp.style.color = 'var(--slate-900)'; }
+            if (tabEmail) { tabEmail.style.background = 'var(--slate-800)'; tabEmail.style.color = '#94a3b8'; }
+            if (instruction) instruction.innerHTML = `
+                <i class="fas fa-shield-alt text-cyan-400 mb-2" style="font-size: 1.5rem;"></i>
+                <p class="small mb-0">Enter the 6-digit code from your <br><strong>Microsoft Authenticator App</strong></p>
+            `;
+        }
     }
 </script>
 {% endblock %}

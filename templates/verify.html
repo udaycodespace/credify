@@ -261,40 +261,28 @@
         </div>
         <div class="card-body">
             <table class="table table-bordered table-sm mb-0">
-                {% if credential.get('name') %}
+                {% for key, value in credential.items() %}
+                    {% if key not in ['id', 'type', 'gpa'] %}
+                    <tr>
+                        <th>{% if key == 'cgpa' %}CGPA{% else %}{{ key | replace('_', ' ') | replace('Id', ' ID') | title }}{% endif %}</th>
+                        {% if value is sequence and value is not string %}
+                        <td>{{ value | join(', ') if value else 'N/A' }}</td>
+                        {% elif value is none or value == 'null' %}
+                        <td>N/A</td>
+                        {% else %}
+                        <td>{{ value }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                {% if result.get('registry_entry') %}
                 <tr>
-                    <th>Student Name</th>
-                    <td><strong>{{ credential.name }}</strong></td>
+                    <th>Credential ID</th>
+                    <td><code style="color: var(--cyan-400);">{{ result.registry_entry.get('credential_id', 'N/A') }}</code></td>
                 </tr>
-                {% endif %}
-                {% if credential.get('studentId') %}
                 <tr>
-                    <th>Roll Number</th>
-                    <td><code style="color: var(--cyan-400);">{{ credential.studentId }}</code></td>
-                </tr>
-                {% endif %}
-                {% if credential.get('degree') %}
-                <tr>
-                    <th>Degree</th>
-                    <td>{{ credential.degree }}</td>
-                </tr>
-                {% endif %}
-                {% if credential.get('university') %}
-                <tr>
-                    <th>University</th>
-                    <td>{{ credential.university }}</td>
-                </tr>
-                {% endif %}
-                {% if credential.get('gpa') %}
-                <tr>
-                    <th>GPA / CGPA</th>
-                    <td><strong style="color: var(--green-500);">{{ credential.gpa }}</strong></td>
-                </tr>
-                {% endif %}
-                {% if credential.get('graduationYear') %}
-                <tr>
-                    <th>Graduation Year</th>
-                    <td>{{ credential.graduationYear }}</td>
+                    <th>IPFS CID</th>
+                    <td><code style="color: var(--cyan-400);">{{ result.registry_entry.get('ipfs_cid', 'N/A') }}</code></td>
                 </tr>
                 {% endif %}
             </table>

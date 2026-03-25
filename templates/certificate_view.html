@@ -3,368 +3,476 @@
 {% block title %}Official Digital Certificate - {{ credential.id }}{% endblock %}
 
 {% block content %}
+{% set subject_name = subject.name or credential.student_name or 'Student' %}
+{% set roll_number = subject.studentId or credential.student_id or 'N/A' %}
+{% set degree_name = subject.degree or credential.degree or 'N/A' %}
+{% set department_name = subject.department or credential.department or 'N/A' %}
+{% set cgpa_value = subject.cgpa or subject.gpa or credential.cgpa or credential.gpa or '0.00' %}
+{% set conduct_value = subject.conduct or credential.conduct or 'N/A' %}
+{% set batch_value = subject.batch or credential.batch or 'N/A' %}
+{% set semester_value = subject.semester or credential.semester or 'N/A' %}
+{% set year_value = subject.year or credential.year or 'N/A' %}
+{% set backlog_count = subject.backlogCount or credential.backlog_count or '0' %}
+{% set graduation_year = subject.graduationYear or credential.graduation_year or 'N/A' %}
+{% set coursework = subject.courses or credential.courses or [] %}
+{% set backlog_subjects = subject.backlogs or credential.backlogs or [] %}
+{% set credential_ref = credential.id.split(':')[-1] if credential.id else 'N/A' %}
+{% set chain_hash = (credential.proof.signatureValue if credential.proof else 'N/A') %}
+
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Manrope:wght@500;700;800&display=swap');
 
     :root {
-        --cert-gold: #C9A227;
-        --cert-dark: #0f172a;
-        --cert-light: #fafaf9;
-        --cert-text-muted: #777;
+        --cert-gold: #c8a038;
+        --cert-gold-soft: rgba(200, 160, 56, 0.12);
+        --cert-ink: #172033;
+        --cert-muted: #5f6777;
+        --cert-border: #e7e3d9;
+        --cert-paper: #fffdf8;
+        --cert-surface: #fff;
+        --cert-success: #0f8a5f;
+        --cert-danger: #b91c1c;
     }
 
     body {
-        background: #f1f5f9;
-        font-family: 'Crimson Pro', serif;
         margin: 0;
-        padding: 0;
+        background: radial-gradient(circle at 10% 10%, #f7fbff 0%, #e8edf3 58%, #d9e0e9 100%);
+        font-family: 'Crimson Pro', serif;
     }
 
     .cert-container {
-        max-width: 1050px;
-        margin: 40px auto;
-        padding: 20px;
+        max-width: 1120px;
+        margin: 28px auto 48px;
+        padding: 0 16px;
     }
 
     .certificate {
-        background: white;
-        padding: 80px;
         position: relative;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.1);
-        min-height: 1100px;
-        display: flex;
-        flex-direction: column;
+        overflow: hidden;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 252, 245, 0.98)),
+            var(--cert-paper);
+        border: 1px solid #d7dce3;
+        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.12);
+        padding: 46px 50px 38px;
     }
 
-    /* Fixed Border Ratio */
-    .certificate::before {
-        content: '';
-        position: absolute;
-        top: 25px;
-        left: 25px;
-        right: 25px;
-        bottom: 25px;
-        border: 6px solid var(--cert-gold);
-        pointer-events: none;
-    }
-
+    .certificate::before,
     .certificate::after {
         content: '';
         position: absolute;
-        top: 38px;
-        left: 38px;
-        right: 38px;
-        bottom: 38px;
-        border: 2px solid var(--cert-gold);
         pointer-events: none;
     }
 
-    /* 1. Institutional Header Spacing */
+    .certificate::before {
+        inset: 14px;
+        border: 3px solid var(--cert-gold);
+    }
+
+    .certificate::after {
+        inset: 24px;
+        border: 1px solid rgba(200, 160, 56, 0.45);
+    }
+
+    .certificate-shell {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 18px;
+    }
+
+    .watermark {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Manrope', sans-serif;
+        font-size: clamp(84px, 11vw, 146px);
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: rgba(200, 160, 56, 0.035);
+        transform: rotate(-24deg);
+        user-select: none;
+        pointer-events: none;
+        z-index: 0;
+    }
+
     .cert-header {
         text-align: center;
-        margin-bottom: 40px;
-        z-index: 2;
+        padding: 0 34px;
     }
 
     .cert-logo {
-        height: 70px;
-        margin-bottom: 24px;
+        height: 76px;
+        width: auto;
+        margin-bottom: 12px;
+    }
+
+    .cert-header h1,
+    .cert-header h2,
+    .section-heading,
+    .proof-title,
+    .authority-title,
+    .status-pill,
+    .portal-title {
+        font-family: 'Manrope', sans-serif;
     }
 
     .cert-header h1 {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 20px;
-        font-weight: 700;
-        margin: 0 auto 14px;
-        letter-spacing: 1.5px;
-        color: #1e293b;
+        margin: 0;
+        font-size: 14px;
+        letter-spacing: 0.14em;
+        color: var(--cert-ink);
     }
 
-    /* 2. Elegant Title Underline */
     .cert-header h2 {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 26px;
-        font-weight: 700;
-        color: var(--cert-dark);
-        letter-spacing: 2px;
-        margin-bottom: 6px;
-        display: inline-block;
-        padding-bottom: 15px;
-        position: relative;
+        margin: 10px 0 8px;
+        font-size: clamp(26px, 3.4vw, 35px);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+        color: var(--cert-ink);
     }
 
-    .cert-header h2::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 15%;
-        width: 70%;
-        height: 2px;
-        background: var(--cert-gold);
-    }
-
-    .cert-subtitle {
-        font-size: 13px;
-        letter-spacing: 4px;
-        color: var(--cert-text-muted);
-        text-transform: uppercase;
-        margin-top: 10px;
-    }
-
-    /* 3. Hero Student Name Kerning */
-    .hero-student-section {
-        text-align: center;
-        margin: 40px 0;
-        z-index: 2;
-    }
-
-    .presented-to {
+    .issued-line {
+        margin: 0;
+        color: var(--cert-muted);
+        font-size: 14px;
         font-style: italic;
+    }
+
+    .identity-band {
+        display: grid;
+        justify-items: center;
+        gap: 8px;
+        padding: 10px 0 4px;
+    }
+
+    .identity-band .intro {
+        margin: 0;
         font-size: 18px;
-        color: #64748b;
-        margin-bottom: 12px;
+        color: #475569;
+        font-style: italic;
     }
 
     .student-name {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 34px;
-        font-weight: 700;
-        color: var(--cert-dark);
-        letter-spacing: 1.5px;
+        margin: 0;
+        font-family: 'Manrope', sans-serif;
+        font-size: clamp(30px, 4.4vw, 46px);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        color: #020617;
         text-transform: uppercase;
+        text-align: center;
     }
 
-    /* 4. Section Dividers */
-    .section-divider {
-        width: 100%;
-        height: 1px;
-        background: linear-gradient(to right, transparent, #e2e8f0, transparent);
-        margin: 20px 0;
-    }
-
-    /* Academic Layout Contrast */
-    .academic-section {
-        z-index: 2;
-        margin-top: 10px;
-    }
-
-    .section-title {
-        font-family: 'Montserrat', sans-serif;
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: rgba(15, 138, 95, 0.1);
+        border: 1px solid rgba(15, 138, 95, 0.16);
+        color: var(--cert-success);
         font-size: 13px;
-        color: var(--cert-gold);
-        font-weight: 700;
+        font-weight: 800;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        letter-spacing: 3px;
-        margin-bottom: 30px;
-        text-align: center;
     }
 
-    .details-grid {
+    .section-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 80px;
-        row-gap: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 22px;
     }
 
-    .grid-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #f8fafc;
-        padding-bottom: 8px;
+    .info-panel,
+    .proof-panel,
+    .authority-panel,
+    .portal-panel {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid var(--cert-border);
+        border-radius: 16px;
+        padding: 16px 18px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
     }
 
-    .grid-label {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 600;
-        font-size: 11px;
-        color: var(--cert-text-muted);
+    .section-heading {
+        margin: 0 0 12px;
+        font-size: 12px;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: #8a6c1d;
     }
 
-    .grid-value {
+    .details-list {
+        display: grid;
+        gap: 8px;
+    }
+
+    .detail-row {
+        display: grid;
+        grid-template-columns: minmax(118px, 150px) 1fr;
+        gap: 10px;
+        align-items: baseline;
+        font-size: 14px;
+        line-height: 1.35;
+        padding-bottom: 7px;
+        border-bottom: 1px solid rgba(231, 227, 217, 0.72);
+    }
+
+    .detail-row:last-child {
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: var(--cert-muted);
         font-weight: 600;
-        font-size: 15px;
-        color: var(--cert-dark);
     }
 
-    /* Refined Proof Box */
-    .proof-box {
-        margin-top: 60px;
-        padding: 30px 40px;
-        background: #fafaf9;
-        border: 1px solid #e2e8f0;
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Mini gold line above proof section */
-    .proof-box::before {
-        content: '';
-        position: absolute;
-        top: -1px;
-        left: 10%;
-        width: 80%;
-        height: 2px;
-        background: var(--cert-gold);
-    }
-
-    .proof-header {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 11px;
+    .detail-value {
+        color: var(--cert-ink);
         font-weight: 700;
-        color: var(--cert-dark);
+        word-break: break-word;
+    }
+
+    .detail-value.inline-list {
+        font-weight: 600;
+    }
+
+    .detail-value.danger {
+        color: var(--cert-danger);
+    }
+
+    .proof-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) 190px;
+        gap: 18px;
+        align-items: start;
+    }
+
+    .proof-title {
+        margin: 0 0 12px;
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--cert-ink);
+        letter-spacing: 0.12em;
         text-transform: uppercase;
-        letter-spacing: 3px;
-        margin-bottom: 25px;
-        text-align: center;
-        width: 100%;
     }
 
-    .proof-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .proof-details {
-        width: 65%;
+    .proof-copy {
+        margin: 0 0 14px;
+        font-size: 14px;
+        color: var(--cert-muted);
+        line-height: 1.45;
     }
 
     .proof-field {
-        margin-bottom: 20px;
-    }
-
-    .field-label {
-        font-size: 10px;
-        font-weight: 700;
-        color: #94a3b8;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-        letter-spacing: 1px;
-    }
-
-    .field-value {
-        font-family: "Courier New", monospace;
-        font-size: 13px;
-        word-break: break-all;
-        color: #334155;
-        background: white;
-        padding: 10px;
-        border: 1px solid #f1f5f9;
-        line-height: 1.4;
-    }
-
-    .proof-visuals {
-        display: flex;
-        align-items: center;
-        gap: 25px;
-    }
-
-    #qrcode-canvas {
-        background: white;
-        padding: 5px;
-        border: 1px solid #e2e8f0;
-        margin-right: 15px;
-    }
-
-    /* 6. Smaller Badge Integrated */
-    .mini-seal {
-        width: 70px;
-        height: 70px;
-        background: linear-gradient(135deg, #ffd700, #fff, #ffd700);
-        background-size: 400% 400%;
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 10px rgba(201, 162, 39, 0.15);
-        font-family: 'Montserrat', sans-serif;
-        color: #b45309;
-        animation: hologramShift 8s linear infinite;
-        border: 1px solid rgba(201, 162, 39, 0.3);
-    }
-
-    @keyframes hologramShift {
-        0% {
-            background-position: 0% 50%;
-        }
-
-        50% {
-            background-position: 100% 50%;
-        }
-
-        100% {
-            background-position: 0% 50%;
-        }
-    }
-
-    /* Institutional Roles & 10. Subtitles */
-    .cert-footer-signatures {
-        margin-top: 100px;
-        display: flex;
-        justify-content: space-between;
-        padding: 0 20px;
-        z-index: 2;
-    }
-
-    .signature-item {
-        width: 260px;
-        text-align: center;
-    }
-
-    .signature-line {
-        border-top: 2px solid var(--cert-dark);
+        display: grid;
+        gap: 6px;
         margin-bottom: 12px;
     }
 
-    .signature-title {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 700;
+    .proof-field:last-child {
+        margin-bottom: 0;
+    }
+
+    .proof-label {
+        font-family: 'Manrope', sans-serif;
         font-size: 11px;
-        color: #334155;
+        font-weight: 700;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
-        margin-bottom: 4px;
+        color: #7c8898;
     }
 
-    .signature-subtitle {
-        font-size: 10px;
-        color: #94a3b8;
+    .proof-value {
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #334155;
+        background: #fff;
+        border: 1px solid #e8edf3;
+        border-radius: 14px;
+        padding: 10px 12px;
+        word-break: break-all;
+    }
+
+    .proof-visuals {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+    }
+
+    #qrcode {
+        background: #fff;
+        padding: 8px;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    #certQrCanvas {
+        display: block;
+    }
+
+    .proof-badge {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        background: radial-gradient(circle at 30% 30%, #fff6d3, #d1a62b 70%);
+        color: #7c5800;
+        font-family: 'Manrope', sans-serif;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 24px rgba(200, 160, 56, 0.22);
+    }
+
+    .authority-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .authority-title {
+        margin: 0 0 6px;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--cert-ink);
+    }
+
+    .authority-role {
+        margin: 0;
+        color: var(--cert-muted);
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .portal-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: center;
+    }
+
+    .portal-title {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--cert-ink);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .portal-url {
+        display: inline-flex;
+        max-width: 100%;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(23, 32, 51, 0.96);
+        color: #f8fafc;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        word-break: break-all;
+    }
+
+    .portal-url.muted {
+        opacity: 0.85;
+        font-size: 11px;
+    }
+
+    .portal-copy {
+        margin: 8px 0 0;
+        color: var(--cert-muted);
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .portal-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .portal-actions .btn {
+        border-radius: 10px;
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    .final-note {
+        text-align: center;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.5;
         font-style: italic;
-        text-transform: none;
+        padding: 0 22px;
     }
 
-    /* 9. Ultra-Subtle Watermark */
-    .watermark {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-30deg);
-        font-size: 150px;
-        font-weight: 900;
-        color: var(--cert-gold);
-        opacity: 0.02;
-        pointer-events: none;
-        white-space: nowrap;
-        font-family: 'Montserrat', sans-serif;
+    .btn-group-container {
+        position: relative;
         z-index: 1;
     }
 
-    /* 8. Footer Note Constraints */
-    .final-footer-note {
-        margin-top: auto;
-        padding-top: 40px;
-        text-align: center;
-        color: #64748b;
-        font-size: 11px;
-        font-style: italic;
-        max-width: 650px;
-        margin-left: auto;
-        margin-right: auto;
-        line-height: 1.6;
+    .btn-group-container .btn {
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 700;
+    }
+
+    @media (max-width: 1100px) {
+        .certificate {
+            padding: 48px 42px 38px;
+        }
+    }
+
+    @media (max-width: 860px) {
+        .section-grid,
+        .proof-panel,
+        .portal-panel,
+        .authority-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cert-header {
+            padding: 0;
+        }
+
+        .portal-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .cert-container {
+            margin-top: 18px;
+            padding: 0 10px;
+        }
+
+        .certificate {
+            padding: 38px 24px 30px;
+        }
+
+        .certificate::before {
+            inset: 10px;
+        }
+
+        .certificate::after {
+            inset: 20px;
+        }
+
+        .detail-row {
+            grid-template-columns: 1fr;
+            gap: 4px;
+        }
     }
 </style>
 
@@ -372,116 +480,178 @@
     <div class="certificate" id="certificatePDF">
         <div class="watermark">VERIFIED</div>
 
-        <div class="cert-header">
-            <img src="/static/images/collegelogo.png" class="cert-logo" alt="GPREC Logo">
-            <h1>G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)</h1>
-            <h2>OFFICIAL DIGITAL ACADEMIC RECORD</h2>
-            <div class="cert-subtitle">SECURED BY CREDIFY BLOCKCHAIN TECHNOLOGY</div>
-        </div>
+        <div class="certificate-shell">
+            <header class="cert-header">
+                <img src="/static/images/collegelogo.png" class="cert-logo" alt="GPREC Logo">
+                <h1>G. PULLA REDDY ENGINEERING COLLEGE (AUTONOMOUS)</h1>
+                <h2>OFFICIAL DIGITAL ACADEMIC RECORD</h2>
+                <p class="issued-line">Issued via Credify Blockchain Credential Verification System</p>
+            </header>
 
-        <div class="hero-student-section">
-            <div class="presented-to">This is to certify that</div>
-            <div class="student-name">{{ subject.name or credential.student_name }}</div>
-        </div>
+            <section class="identity-band">
+                <p class="intro">This is to certify that</p>
+                <h3 class="student-name">{{ subject_name }}</h3>
+                <div class="status-pill">✔ Certified Authentic</div>
+            </section>
 
-        <div class="section-divider"></div>
+            <section class="section-grid">
+                <article class="info-panel">
+                    <h4 class="section-heading">Student Details</h4>
+                    <div class="details-list">
+                        <div class="detail-row">
+                            <div class="detail-label">Name</div>
+                            <div class="detail-value">{{ subject_name }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Roll Number</div>
+                            <div class="detail-value">{{ roll_number }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Degree / Program</div>
+                            <div class="detail-value">{{ degree_name }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Department</div>
+                            <div class="detail-value">{{ department_name }}</div>
+                        </div>
+                    </div>
+                </article>
 
-        <div class="academic-section">
-            <h3 class="section-title">Record of Academic Achievement</h3>
-            <div class="details-grid">
-                <!-- Column 1 -->
-                <div class="grid-col">
-                    <div class="grid-item">
-                        <span class="grid-label">Roll Number</span>
-                        <span class="grid-value">{{ subject.studentId or credential.student_id or 'N/A' }}</span>
+                <article class="info-panel">
+                    <h4 class="section-heading">Academic Record</h4>
+                    <div class="details-list">
+                        <div class="detail-row">
+                            <div class="detail-label">CGPA</div>
+                            <div class="detail-value">{{ cgpa_value }} / 10.00</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Conduct</div>
+                            <div class="detail-value">{{ conduct_value }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Batch</div>
+                            <div class="detail-value">{{ batch_value }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Current Semester / Year</div>
+                            <div class="detail-value">{{ semester_value }} / {{ year_value }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Backlog Count</div>
+                            <div class="detail-value">{{ backlog_count }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Graduation Year</div>
+                            <div class="detail-value">{{ graduation_year }}</div>
+                        </div>
                     </div>
-                    <div class="grid-item">
-                        <span class="grid-label">Degree Program</span>
-                        <span class="grid-value" style="font-size: 13px;">{{ subject.degree or credential.degree or
-                            'N/A' }}</span>
-                    </div>
-                    <div class="grid-item">
-                        <span class="grid-label">GPA/CGPA</span>
-                        <span class="grid-value">{{ subject.gpa or credential.gpa or '0.00' }} / 10.00</span>
-                    </div>
-                </div>
-                <!-- Column 2 -->
-                <div class="grid-col">
-                    <div class="grid-item">
-                        <span class="grid-label">Graduation Year</span>
-                        <span class="grid-value">{{ subject.graduationYear or credential.graduation_year or 'N/A'
-                            }}</span>
-                    </div>
-                    <div class="grid-item">
-                        <span class="grid-label">Semester / Year</span>
-                        <span class="grid-value">{{ subject.semester or credential.semester or '8' }} / {{ subject.year
-                            or credential.year or '4' }}</span>
-                    </div>
-                    <div class="grid-item">
-                        <span class="grid-label">Status</span>
-                        <span class="grid-value" style="color: #059669; font-size: 11px;">CERTIFIED AUTHENTIC</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                </article>
+            </section>
 
-        <div class="section-divider"></div>
+            <section class="section-grid">
+                <article class="info-panel">
+                    <h4 class="section-heading">Coursework</h4>
+                    <div class="details-list">
+                        <div class="detail-row">
+                            <div class="detail-label">Subjects</div>
+                            <div class="detail-value inline-list">
+                                {% if coursework %}
+                                {{ coursework | join(', ') }}
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </article>
 
-        <div class="proof-box">
-            <div class="proof-header">
-                <i class="fas fa-fingerprint me-2"></i>
-                Blockchain Integrity Proof
-            </div>
-            <div class="proof-content">
-                <div class="proof-details">
+                <article class="info-panel">
+                    <h4 class="section-heading">Outstanding Subjects</h4>
+                    <div class="details-list">
+                        <div class="detail-row">
+                            <div class="detail-label">Backlogs</div>
+                            <div class="detail-value inline-list danger">
+                                {% if backlog_subjects %}
+                                {{ backlog_subjects | join(', ') }}
+                                {% else %}
+                                None
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="proof-panel">
+                <div>
+                    <h4 class="proof-title">Blockchain Verification</h4>
+                    <p class="proof-copy">
+                        This credential is packaged with an offline verifiable QR payload and a signed issuer proof.
+                    </p>
                     <div class="proof-field">
-                        <div class="field-label">Credential ID</div>
-                        <div class="field-value">{{ credential.id }}</div>
+                        <div class="proof-label">Credential ID</div>
+                        <div class="proof-value">{{ credential_ref }}</div>
                     </div>
                     <div class="proof-field">
-                        <div class="field-label">On-Chain Hash (SHA-256)</div>
-                        <div class="field-value">{{ (credential.proof.signatureValue if credential.proof else
-                            'N/A')[:64] }}...</div>
+                        <div class="proof-label">On-Chain Hash (SHA-256)</div>
+                        <div class="proof-value">{{ chain_hash[:64] }}{% if chain_hash|length > 64 %}...{% endif %}</div>
+                    </div>
+                    <div class="proof-field">
+                        <div class="proof-label">Verification</div>
+                        <div class="proof-value">Blockchain Verified Record</div>
                     </div>
                 </div>
                 <div class="proof-visuals">
                     <div id="qrcode"></div>
-                    <div class="mini-seal">
-                        <i class="fas fa-shield-check fa-lg mb-1"></i>
-                        <span style="font-size: 7px; font-weight: 700;">BLOCKCHAIN</span>
-                        <span style="font-size: 5px;">VERIFIED</span>
+                    <div class="proof-badge">Blockchain<br>Verified</div>
+                </div>
+            </section>
+
+            <section class="authority-panel">
+                <h4 class="section-heading">Authorities</h4>
+                <div class="authority-grid">
+                    <div>
+                        <h5 class="authority-title">Academic Records Authority</h5>
+                        <p class="authority-role">Digital Issuer</p>
+                    </div>
+                    <div>
+                        <h5 class="authority-title">Controller of Examinations</h5>
+                        <p class="authority-role">Authorizing Authority</p>
+                    </div>
+                    <div>
+                        <h5 class="authority-title">Credify Network Validator</h5>
+                        <p class="authority-role">Verification Node</p>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <div class="cert-footer-signatures">
-            <div class="signature-item">
-                <div class="signature-line"></div>
-                <div class="signature-title">Academic Records Authority</div>
-                <div class="signature-subtitle">(Digital Issuer)</div>
-            </div>
-            <div class="signature-item">
-                <div class="signature-line"></div>
-                <div class="signature-title">Controller of Examinations</div>
-                <div class="signature-subtitle">(Authorizing Authority)</div>
-            </div>
-            <div class="signature-item">
-                <div class="signature-line"></div>
-                <div class="signature-title">Blockchain Network Validator</div>
-                <div class="signature-subtitle">(Network Verification)</div>
-            </div>
-        </div>
+            <section class="portal-panel">
+                <div>
+                    <h4 class="portal-title">Verification Portal</h4>
+                    <div id="portalUrlDisplay" class="portal-url muted">Generating secure verification link...</div>
+                    <p class="portal-copy">
+                        Scan the QR or enter the Credential ID to verify authenticity.
+                    </p>
+                </div>
+                <div class="portal-actions">
+                    <input id="certVerifyUrl" class="form-control form-control-sm" readonly
+                        style="position:absolute; opacity:0; pointer-events:none; width:1px; height:1px;" />
+                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyCertVerifyLink()">Copy Link</button>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="shareCertVerifyLink()">Share</button>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="downloadCertQr()">Download QR</button>
+                </div>
+            </section>
 
-        <div class="final-footer-note">
-            This academic record is digitally issued and cryptographically secured using blockchain technology.
-            Authenticity can be verified through the QR code and blockchain hash. No physical signature is required.
+            <div class="final-note">
+                Scan QR or enter Credential ID to verify authenticity. No physical signature is required because this
+                document is digitally issued through the Credify blockchain credential verification system.
+            </div>
         </div>
     </div>
 
-    <div class="btn-group-container mt-5 text-center">
-        <a href="/api/credential/{{ credential.id.split(':')[-1] }}/pdf"
-            class="btn btn-primary btn-lg px-5 shadow rounded-pill">
+    <div class="btn-group-container mt-4 text-center">
+        <a href="{{ pdf_download_url }}"
+            class="btn btn-primary btn-lg px-5 shadow">
             <i class="fas fa-file-download me-2"></i>Download Official Certificate (PDF)
         </a>
     </div>
@@ -489,15 +659,62 @@
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
+    let certVerifyURL = '';
+
     document.addEventListener('DOMContentLoaded', function () {
-        const verifyURL = window.location.origin + '/verify/{{ credential.id.split(":")[-1] }}';
-        QRCode.toCanvas(document.createElement('canvas'), verifyURL, {
-            width: 140,
-            margin: 2
+        certVerifyURL = `{{ verify_url|safe }}`;
+        document.getElementById('certVerifyUrl').value = certVerifyURL;
+        const portalUrlDisplay = document.getElementById('portalUrlDisplay');
+        if (portalUrlDisplay) {
+            portalUrlDisplay.textContent = certVerifyURL;
+            portalUrlDisplay.classList.remove('muted');
+        }
+
+        QRCode.toCanvas(document.createElement('canvas'), certVerifyURL, {
+            width: 180,
+            margin: 2,
+            color: {
+                dark: '#111111',
+                light: '#ffffff'
+            }
         }, function (error, canvas) {
             if (error) console.error(error);
+            canvas.id = 'certQrCanvas';
             document.getElementById('qrcode').appendChild(canvas);
         });
     });
+
+    function copyCertVerifyLink() {
+        if (!certVerifyURL) return;
+        navigator.clipboard.writeText(certVerifyURL);
+    }
+
+    async function shareCertVerifyLink() {
+        if (!certVerifyURL) return;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Credify Certificate Verification',
+                    text: 'Use this link to verify the credential.',
+                    url: certVerifyURL
+                });
+                return;
+            } catch (e) {
+                if (e && e.name === 'AbortError') return;
+            }
+        }
+        copyCertVerifyLink();
+    }
+
+    function downloadCertQr() {
+        const canvas = document.getElementById('certQrCanvas');
+        if (!canvas) return;
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = 'credify-certificate-qr.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
 </script>
 {% endblock %}

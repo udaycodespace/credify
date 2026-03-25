@@ -27,4 +27,4 @@ DATA_DIR = PROJECT_ROOT / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
 # Export for use in other core modules
-__all__ = ['PROJECT_ROOT', 'DATA_DIR']
+__all__ = ["PROJECT_ROOT", "DATA_DIR"]

@@ -43,32 +43,33 @@ ticket_manager = TicketManager()
 zkp_manager = ZKPManager(crypto_manager)
 mailer = None  # Initialized inside create_app
 
+
 def init_extensions(app):
     """Initialize third-party extensions and global state"""
     setup_logging()
     load_dotenv()
-    
+
     app.config.from_object(Config)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///credentials.db")
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_recycle": 300, "pool_pre_ping": True}
-    
+
     init_database(app)
-    
+
     global mailer
     mailer = CredifyMailer(app)
-    
+
     blockchain.difficulty = app.config.get("BLOCKCHAIN_DIFFICULTY", 0)
     blockchain.VALIDATORS = app.config.get("VALIDATOR_USERNAMES", ["admin", "issuer1"])
-    
+
     with app.app_context():
         blockchain.load_blockchain()
         if not blockchain.chain:
             blockchain.create_genesis_block()
-        
+
         # P2P multi-node init
-        peer_nodes_env = os.environ.get('PEER_NODES', '')
+        peer_nodes_env = os.environ.get("PEER_NODES", "")
         if peer_nodes_env:
-            for peer in peer_nodes_env.split(','):
+            for peer in peer_nodes_env.split(","):
                 if peer.strip():
                     try:
                         blockchain.register_node(peer.strip())
@@ -76,6 +77,7 @@ def init_extensions(app):
                         logging.warning(f"Invalid peer URI: {peer.strip()}")
             if blockchain.nodes:
                 threading.Thread(target=_initial_sync, args=(app,), daemon=True).start()
+
 
 def _initial_sync(app):
     """Background peer synchronization task"""
@@ -88,6 +90,7 @@ def _initial_sync(app):
         except Exception as e:
             logging.error(f"Sync error: {e}")
 
+
 def register_blueprints(app):
     """Register all modular routing blueprints"""
     from app.blueprints.auth.routes import auth_bp
@@ -96,7 +99,7 @@ def register_blueprints(app):
     from app.blueprints.verifier.routes import verifier_bp
     from app.blueprints.admin.routes import admin_bp
     from app.blueprints.api.routes import api_bp
-    
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(issuer_bp)
     app.register_blueprint(holder_bp)
@@ -104,17 +107,19 @@ def register_blueprints(app):
     app.register_blueprint(admin_bp)
     app.register_blueprint(api_bp)
 
+
 def create_app():
     """Application Factory Pattern"""
-    app = Flask(__name__, template_folder='../templates', static_folder='../static')
+    app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
     cors_origins = os.environ.get("CORS_ORIGINS", "*")
     CORS(app, resources={r"/api/*": {"origins": cors_origins}}, supports_credentials=False)
-    
+
     init_extensions(app)
     register_blueprints(app)
     return app
 
+
 if __name__ == "__main__":
     app_instance = create_app()
-    app_instance.run(host='0.0.0.0', port=5000, debug=True)
+    app_instance.run(host="0.0.0.0", port=5000, debug=True)

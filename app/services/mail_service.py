@@ -20,22 +20,24 @@ from app.app import mailer
 import secrets
 import string
 
+
 def generate_otp():
     """Generate a secure 6-digit OTP"""
-    return ''.join(secrets.choice(string.digits) for _ in range(6))
+    return "".join(secrets.choice(string.digits) for _ in range(6))
+
 
 def get_masked_email(email):
     """Mask email for display"""
-    if not email or '@' not in email:
-        return '***'
-    parts = email.split('@')
+    if not email or "@" not in email:
+        return "***"
+    parts = email.split("@")
     name_part = parts[0]
     domain_part = parts[1]
-    
-    masked_name = name_part[:3] + '***' if len(name_part) > 3 else name_part[:2] + '***'
+
+    masked_name = name_part[:3] + "***" if len(name_part) > 3 else name_part[:2] + "***"
     masked_domain = "..." + domain_part
-    
+
     if len(name_part) > 2 and domain_part:
         return name_part[:2] + "***@" + domain_part[:5] + "***.com"
-        
+
     return f"{masked_name}@{parts[1]}"

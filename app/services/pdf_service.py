@@ -36,12 +36,12 @@ from app.services.qr_service import _build_verify_url
 PAGE_WIDTH, PAGE_HEIGHT = A4
 
 # COLOR PALETTE
-COLOR_NAVY = colors.HexColor('#1a1a2e')
-COLOR_GOLD = colors.HexColor('#b8860b')
-COLOR_GRAY = colors.HexColor('#555555')
-COLOR_LIGHTGRAY = colors.HexColor('#888888')
+COLOR_NAVY = colors.HexColor("#1a1a2e")
+COLOR_GOLD = colors.HexColor("#b8860b")
+COLOR_GRAY = colors.HexColor("#555555")
+COLOR_LIGHTGRAY = colors.HexColor("#888888")
 COLOR_WHITE = colors.white
-COLOR_OFFWHITE = colors.HexColor('#fafafa')
+COLOR_OFFWHITE = colors.HexColor("#fafafa")
 
 # MARGINS
 MARGIN_LEFT = 18 * mm
@@ -51,36 +51,31 @@ MARGIN_BOTTOM = 12 * mm
 CONTENT_WIDTH = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT
 
 # FONTS
-FONT_HEADING = 'Helvetica-Bold'
-FONT_SEMIBOLD = 'Helvetica-Bold'
-FONT_REGULAR = 'Helvetica'
-FONT_ITALIC = 'Helvetica-Oblique'
+FONT_HEADING = "Helvetica-Bold"
+FONT_SEMIBOLD = "Helvetica-Bold"
+FONT_REGULAR = "Helvetica"
+FONT_ITALIC = "Helvetica-Oblique"
 
 
 def get_base_url():
-    return os.environ.get('BASE_URL', 'https://github.com/udaycodespace/credify-verify')
+    return os.environ.get("BASE_URL", "https://github.com/udaycodespace/credify-verify")
 
 
 def _normalize_verify_url(verify_url):
     """Rewrite localhost URLs to BASE_URL while preserving query params."""
-    parsed = urlsplit(str(verify_url or ''))
-    if parsed.hostname not in {'localhost', '127.0.0.1'}:
+    parsed = urlsplit(str(verify_url or ""))
+    if parsed.hostname not in {"localhost", "127.0.0.1"}:
         return verify_url
 
     base = urlsplit(get_base_url())
     query = dict(parse_qsl(parsed.query, keep_blank_values=True))
-    return urlunsplit((
-        base.scheme or 'https',
-        base.netloc,
-        '/verify',
-        urlencode(query),
-        ''
-    ))
+    return urlunsplit((base.scheme or "https", base.netloc, "/verify", urlencode(query), ""))
 
 
 def _truncate(value, max_len):
-    text = str(value or '')
+    text = str(value or "")
     return text if len(text) <= max_len else f"{text[:max_len]}..."
+
 
 def generate_nuke_report_pdf(stats, otp, file_content_buffer):
     """
@@ -89,50 +84,53 @@ def generate_nuke_report_pdf(stats, otp, file_content_buffer):
     Takes a pre-populated io.BytesIO and returns protected_buffer.
     """
     report_buffer = file_content_buffer
-    
+
     # 4. Password Protect PDF
     report_buffer.seek(0)
     reader = PdfReader(report_buffer)
     writer = PdfWriter()
     for page in reader.pages:
         writer.add_page(page)
-    
-    writer.encrypt(otp) # Use the same OTP as password
-    
+
+    writer.encrypt(otp)  # Use the same OTP as password
+
     protected_buffer = io.BytesIO()
     writer.write(protected_buffer)
     protected_buffer.seek(0)
     return protected_buffer
+
 
 def generate_certificate_pdf(cred, credential_id):
     """
     Generate canonical verified physical PDF transcript.
     (Extracted from app.py:api_credential_pdf).
     """
-    full_cred = cred.get('full_credential') or {}
-    subject = full_cred.get('credentialSubject') or {}
+    full_cred = cred.get("full_credential") or {}
+    subject = full_cred.get("credentialSubject") or {}
 
-    student_name = str(subject.get('name') or cred.get('student_name') or cred.get('name') or 'Student')
-    roll_number = str(subject.get('studentId') or cred.get('student_id') or 'N/A')
-    degree_name = str(subject.get('degree') or cred.get('degree') or 'N/A')
-    department_name = str(subject.get('department') or cred.get('department') or 'N/A')
-    cgpa_raw = subject.get('cgpa') or subject.get('gpa') or cred.get('cgpa') or cred.get('gpa')
+    student_name = str(subject.get("name") or cred.get("student_name") or cred.get("name") or "Student")
+    roll_number = str(subject.get("studentId") or cred.get("student_id") or "N/A")
+    degree_name = str(subject.get("degree") or cred.get("degree") or "N/A")
+    department_name = str(subject.get("department") or cred.get("department") or "N/A")
+    cgpa_raw = subject.get("cgpa") or subject.get("gpa") or cred.get("cgpa") or cred.get("gpa")
     try:
         cgpa_value = f"{float(cgpa_raw):.2f} / 10.00"
     except Exception:
-        cgpa_value = f"{cgpa_raw or 'N/A'} / 10.00" if cgpa_raw else 'N/A'
-    conduct_value = str(subject.get('conduct') or cred.get('conduct') or 'N/A').upper()
-    batch_value = str(subject.get('batch') or cred.get('batch') or 'N/A')
-    semester_value = str(subject.get('semester') or cred.get('semester') or 'N/A')
-    year_value = str(subject.get('year') or cred.get('year') or 'N/A')
-    backlog_count = str(subject.get('backlogCount') if subject.get('backlogCount') is not None else cred.get('backlog_count', '0'))
-    graduation_year = str(subject.get('graduationYear') or cred.get('graduation_year') or 'N/A')
-    courses = subject.get('courses') or cred.get('courses') or []
-    backlogs = subject.get('backlogs') or cred.get('backlogs') or []
-    issue_date = str(subject.get('issueDate') or cred.get('issue_date') or cred.get('issued_at') or 'N/A')
+        cgpa_value = f"{cgpa_raw or 'N/A'} / 10.00" if cgpa_raw else "N/A"
+    conduct_value = str(subject.get("conduct") or cred.get("conduct") or "N/A").upper()
+    batch_value = str(subject.get("batch") or cred.get("batch") or "N/A")
+    semester_value = str(subject.get("semester") or cred.get("semester") or "N/A")
+    year_value = str(subject.get("year") or cred.get("year") or "N/A")
+    backlog_count = str(
+        subject.get("backlogCount") if subject.get("backlogCount") is not None else cred.get("backlog_count", "0")
+    )
+    graduation_year = str(subject.get("graduationYear") or cred.get("graduation_year") or "N/A")
+    courses = subject.get("courses") or cred.get("courses") or []
+    backlogs = subject.get("backlogs") or cred.get("backlogs") or []
+    issue_date = str(subject.get("issueDate") or cred.get("issue_date") or cred.get("issued_at") or "N/A")
 
     qr_payload = _build_verify_url(credential_id)
-    verify_url = _normalize_verify_url(qr_payload.get('verify_url'))
+    verify_url = _normalize_verify_url(qr_payload.get("verify_url"))
     verify_url_display = _truncate(verify_url, 72)
 
     buffer = io.BytesIO()
@@ -155,9 +153,9 @@ def generate_certificate_pdf(cred, credential_id):
     logo_w = 20 * mm
     logo_x = (PAGE_WIDTH / 2) - (logo_w / 2)
     logo_y = PAGE_HEIGHT - (16 * mm) - logo_h
-    logo_path = os.path.join(os.getcwd(), 'static', 'images', 'collegelogo.png')
+    logo_path = os.path.join(os.getcwd(), "static", "images", "collegelogo.png")
     if os.path.exists(logo_path):
-        p.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
+        p.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask="auto")
 
     p.setFillColor(COLOR_NAVY)
     p.setFont(FONT_HEADING, 14)
@@ -190,11 +188,7 @@ def generate_certificate_pdf(cred, credential_id):
     gap_badge_to_separator_mm = 6
     gap_separator_to_data_mm = 6
     total_clearance_pt = (
-        name_height_mm
-        + gap_name_to_badge_mm
-        + badge_height_mm
-        + gap_badge_to_separator_mm
-        + gap_separator_to_data_mm
+        name_height_mm + gap_name_to_badge_mm + badge_height_mm + gap_badge_to_separator_mm + gap_separator_to_data_mm
     ) * mm
     data_section_y_start = name_baseline_y - total_clearance_pt
 
@@ -325,7 +319,7 @@ def generate_certificate_pdf(cred, credential_id):
     p.drawString(block_left_x, detail_start_y - (8 * mm), "ON-CHAIN HASH (SHA-256)")
     p.setFont(FONT_REGULAR, 7)
     p.setFillColor(COLOR_GRAY)
-    p.drawString(block_left_x, detail_start_y - (11.7 * mm), _truncate(cred.get('credential_hash', 'N/A'), 55))
+    p.drawString(block_left_x, detail_start_y - (11.7 * mm), _truncate(cred.get("credential_hash", "N/A"), 55))
 
     p.setFont(FONT_SEMIBOLD, 7)
     p.setFillColor(COLOR_NAVY)
@@ -354,9 +348,9 @@ def generate_certificate_pdf(cred, credential_id):
     )
     qr_obj.add_data(verify_url)
     qr_obj.make(fit=True)
-    qr = qr_obj.make_image(fill_color='black', back_color='white')
+    qr = qr_obj.make_image(fill_color="black", back_color="white")
     qr_buffer = io.BytesIO()
-    qr.save(qr_buffer, format='PNG')
+    qr.save(qr_buffer, format="PNG")
     qr_buffer.seek(0)
     p.drawImage(
         ImageReader(qr_buffer),
@@ -365,7 +359,7 @@ def generate_certificate_pdf(cred, credential_id):
         width=qr_size,
         height=qr_size,
         preserveAspectRatio=True,
-        mask='auto'
+        mask="auto",
     )
 
     # Stamp below QR with >= 8pt gap (never overlapping QR)
@@ -417,15 +411,13 @@ def generate_certificate_pdf(cred, credential_id):
     footer_cursor_y = sep5_y - (6 * mm)
 
     # Disclaimer — draw from current cursor downward
-    disclaimer = (
-        "Digitally issued via Credify. Scan QR to verify."
-    )
+    disclaimer = "Digitally issued via Credify. Scan QR to verify."
     disclaimer_style = ParagraphStyle(
-        name='footer_disclaimer',
-        fontName='Helvetica-Oblique',
+        name="footer_disclaimer",
+        fontName="Helvetica-Oblique",
         fontSize=6.5,
         leading=9,
-        textColor=colors.HexColor('#888888'),
+        textColor=colors.HexColor("#888888"),
         alignment=TA_CENTER,
     )
     p_para = Paragraph(disclaimer, disclaimer_style)
@@ -442,13 +434,25 @@ def generate_certificate_pdf(cred, credential_id):
     disclaimer_zone = 10 * mm
     zone_gap = 4 * mm
     total_height_used = (
-        MARGIN_TOP + header_zone + zone_gap + data_zone + zone_gap + coursework_zone +
-        zone_gap + blockchain_zone + zone_gap + authorities_zone + zone_gap + portal_zone +
-        zone_gap + disclaimer_zone + MARGIN_BOTTOM
+        MARGIN_TOP
+        + header_zone
+        + zone_gap
+        + data_zone
+        + zone_gap
+        + coursework_zone
+        + zone_gap
+        + blockchain_zone
+        + zone_gap
+        + authorities_zone
+        + zone_gap
+        + portal_zone
+        + zone_gap
+        + disclaimer_zone
+        + MARGIN_BOTTOM
     )
-    assert total_height_used <= PAGE_HEIGHT, (
-        f"PDF content overflows page: {total_height_used:.1f}pt > {PAGE_HEIGHT:.1f}pt"
-    )
+    assert (
+        total_height_used <= PAGE_HEIGHT
+    ), f"PDF content overflows page: {total_height_used:.1f}pt > {PAGE_HEIGHT:.1f}pt"
 
     p.showPage()
     p.save()

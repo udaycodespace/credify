@@ -26,6 +26,7 @@ from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 from flask import current_app as app, url_for
 from app.app import crypto_manager, credential_manager
 
+
 def _qr_signing_key():
     """Derive a stable signing key for QR secret payloads."""
     return (os.environ.get("QR_SECRET_KEY") or app.secret_key or "credify-qr-secret").encode("utf-8")
@@ -99,37 +100,37 @@ def _generate_qr_hidden_payload(credential_id):
     if not cred:
         return None
 
-    full_cred = cred.get('full_credential') or {}
-    subject = full_cred.get('credentialSubject') or {}
+    full_cred = cred.get("full_credential") or {}
+    subject = full_cred.get("credentialSubject") or {}
 
     payload = {
-        'v': 1,
-        'cid': credential_id,
-        'name': subject.get('name'),
-        'studentId': subject.get('studentId'),
-        'degree': subject.get('degree'),
-        'department': subject.get('department'),
-        'studentStatus': subject.get('studentStatus'),
-        'college': subject.get('college'),
-        'university': subject.get('university'),
-        'cgpa': subject.get('cgpa') or subject.get('gpa'),
-        'graduationYear': subject.get('graduationYear'),
-        'batch': subject.get('batch'),
-        'conduct': subject.get('conduct'),
-        'backlogCount': subject.get('backlogCount'),
-        'courses': subject.get('courses') or [],
-        'backlogs': subject.get('backlogs') or [],
-        'issueDate': subject.get('issueDate'),
-        'semester': subject.get('semester'),
-        'year': subject.get('year'),
-        'section': subject.get('section'),
-        'ipfsCid': cred.get('ipfs_cid'),
+        "v": 1,
+        "cid": credential_id,
+        "name": subject.get("name"),
+        "studentId": subject.get("studentId"),
+        "degree": subject.get("degree"),
+        "department": subject.get("department"),
+        "studentStatus": subject.get("studentStatus"),
+        "college": subject.get("college"),
+        "university": subject.get("university"),
+        "cgpa": subject.get("cgpa") or subject.get("gpa"),
+        "graduationYear": subject.get("graduationYear"),
+        "batch": subject.get("batch"),
+        "conduct": subject.get("conduct"),
+        "backlogCount": subject.get("backlogCount"),
+        "courses": subject.get("courses") or [],
+        "backlogs": subject.get("backlogs") or [],
+        "issueDate": subject.get("issueDate"),
+        "semester": subject.get("semester"),
+        "year": subject.get("year"),
+        "section": subject.get("section"),
+        "ipfsCid": cred.get("ipfs_cid"),
     }
 
-    payload_json = json.dumps(payload, separators=(',', ':'), sort_keys=True)
+    payload_json = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     # Compress payload to reduce QR density and improve phone scan reliability.
-    payload_bytes = gzip.compress(payload_json.encode('utf-8'), compresslevel=9)
-    return base64.urlsafe_b64encode(payload_bytes).decode('utf-8').rstrip('=')
+    payload_bytes = gzip.compress(payload_json.encode("utf-8"), compresslevel=9)
+    return base64.urlsafe_b64encode(payload_bytes).decode("utf-8").rstrip("=")
 
 
 def _hash_qr_hidden_payload(qr_data):
@@ -160,33 +161,36 @@ def _build_verify_url(credential_id):
     # Alternate compact mode: local verify page by default for shorter and more scanner-friendly URLs.
     verifier_base_url = (os.environ.get("QR_VERIFIER_BASE_URL") or "").strip()
     if not verifier_base_url:
-        verifier_base_url = url_for('verifier.public_verify', _external=True)
+        verifier_base_url = url_for("verifier.public_verify", _external=True)
 
     parsed = urlsplit(verifier_base_url)
     existing_query = dict(parse_qsl(parsed.query, keep_blank_values=True))
-    
+
     # Add timestamp (Unix seconds) for 48-hour expiry validation
     generated_at = int(datetime.utcnow().timestamp())
-    
-    existing_query.update({
-        "id": credential_id,
-        "qk": qr_token,
-        "gt": str(generated_at),  # generated_at timestamp for 48-hour validity check
-    })
+
+    existing_query.update(
+        {
+            "id": credential_id,
+            "qk": qr_token,
+            "gt": str(generated_at),  # generated_at timestamp for 48-hour validity check
+        }
+    )
     if qr_data:
         existing_query["qd"] = qr_data
 
-    verify_url = urlunsplit((
-        parsed.scheme,
-        parsed.netloc,
-        parsed.path or "/",
-        urlencode(existing_query),
-        parsed.fragment,
-    ))
+    verify_url = urlunsplit(
+        (
+            parsed.scheme,
+            parsed.netloc,
+            parsed.path or "/",
+            urlencode(existing_query),
+            parsed.fragment,
+        )
+    )
     return {
-        'verify_url': verify_url,
-        'qr_token': qr_token,
-        'qr_data': qr_data,
-        'generated_at': generated_at,
+        "verify_url": verify_url,
+        "qr_token": qr_token,
+        "qr_data": qr_data,
+        "generated_at": generated_at,
     }
-

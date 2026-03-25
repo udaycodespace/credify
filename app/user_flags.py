@@ -38,9 +38,9 @@ def _load_flags():
     try:
         # FIXED: Ensure data directory exists
         DATA_DIR.mkdir(parents=True, exist_ok=True)
-        
+
         if FLAGS_FILE.exists():
-            with open(FLAGS_FILE, 'r') as f:
+            with open(FLAGS_FILE, "r") as f:
                 flags = json.load(f)
                 logging.debug(f"User flags loaded from {FLAGS_FILE}: {len(flags)} users")
                 return flags
@@ -54,8 +54,8 @@ def _save_flags(flags):
     try:
         # FIXED: Ensure data directory exists
         DATA_DIR.mkdir(parents=True, exist_ok=True)
-        
-        with open(FLAGS_FILE, 'w') as f:
+
+        with open(FLAGS_FILE, "w") as f:
             json.dump(flags, f, indent=2)
         logging.debug(f"User flags saved to {FLAGS_FILE}: {len(flags)} users")
     except Exception as e:
@@ -65,7 +65,7 @@ def _save_flags(flags):
 def set_must_reset(user_id, value=True):
     """Set must_reset flag for user"""
     flags = _load_flags()
-    flags[str(user_id)] = {'must_reset': bool(value)}
+    flags[str(user_id)] = {"must_reset": bool(value)}
     _save_flags(flags)
     logging.info(f"Set must_reset={value} for user {user_id}")
 
@@ -74,7 +74,7 @@ def clear_must_reset(user_id):
     """Clear must_reset flag for user"""
     flags = _load_flags()
     if str(user_id) in flags:
-        flags[str(user_id)]['must_reset'] = False
+        flags[str(user_id)]["must_reset"] = False
         _save_flags(flags)
         logging.info(f"Cleared must_reset for user {user_id}")
 
@@ -82,6 +82,6 @@ def clear_must_reset(user_id):
 def must_reset(user_id):
     """Check if user must reset password"""
     flags = _load_flags()
-    result = flags.get(str(user_id), {}).get('must_reset', False)
+    result = flags.get(str(user_id), {}).get("must_reset", False)
     logging.debug(f"must_reset check for user {user_id}: {result}")
     return result

@@ -484,16 +484,16 @@ class CredifyMailer:
             subject=subject,
             recipients=[to_email],
             body=body,
-            sender=("Credify Security", os.environ.get('MAIL_USERNAME')),
+            sender=("Credify Security", os.environ.get("MAIL_USERNAME")),
         )
         if html_body:
             msg.html = html_body
 
         if attachment:
             msg.attach(
-                attachment.get('name', 'file.pdf'),
-                attachment.get('content_type', 'application/pdf'),
-                attachment.get('data')
+                attachment.get("name", "file.pdf"),
+                attachment.get("content_type", "application/pdf"),
+                attachment.get("data"),
             )
 
         try:
@@ -511,9 +511,9 @@ class CredifyMailer:
             logger.error("Mail system not initialized")
             return False
 
-        base_url = os.environ.get('APP_URL', 'http://localhost:5000')
+        base_url = os.environ.get("APP_URL", "http://localhost:5000")
         yes_link = f"{base_url}/activate/verify?token={token}&action=confirm"
-        no_link  = f"{base_url}/activate/verify?token={token}&action=reject"
+        no_link = f"{base_url}/activate/verify?token={token}&action=reject"
 
         html = render_template_string(
             ONBOARDING_TEMPLATE,
@@ -530,7 +530,7 @@ class CredifyMailer:
             subject="Action Required — Verify Your Academic Credential",
             recipients=[to_email],
             html=html,
-            sender=("GPREC Academic Records", os.environ.get('MAIL_USERNAME')),
+            sender=("GPREC Academic Records", os.environ.get("MAIL_USERNAME")),
         )
         try:
             self.mail.send(msg)
@@ -547,7 +547,7 @@ class CredifyMailer:
             logger.error("Mail system not initialized")
             return False
 
-        base_url = os.environ.get('APP_URL', 'http://localhost:5000')
+        base_url = os.environ.get("APP_URL", "http://localhost:5000")
         setup_link = f"{base_url}/activate/setup?token={token}"
 
         html = render_template_string(
@@ -565,7 +565,7 @@ class CredifyMailer:
             subject="Activate Your Credify Account",
             recipients=[to_email],
             html=html,
-            sender=("GPREC Academic Records", os.environ.get('MAIL_USERNAME')),
+            sender=("GPREC Academic Records", os.environ.get("MAIL_USERNAME")),
         )
         try:
             self.mail.send(msg)
@@ -581,7 +581,7 @@ class CredifyMailer:
         if not self.mail:
             return False
 
-        base_url = os.environ.get('APP_URL', 'http://localhost:5000')
+        base_url = os.environ.get("APP_URL", "http://localhost:5000")
         reset_link = f"{base_url}/reset-password/{token}"
 
         html = render_template_string(
@@ -597,7 +597,7 @@ class CredifyMailer:
             subject="Reset Your Credify Account Password",
             recipients=[to_email],
             html=html,
-            sender=("GPREC Academic Records", os.environ.get('MAIL_USERNAME')),
+            sender=("GPREC Academic Records", os.environ.get("MAIL_USERNAME")),
         )
         try:
             self.mail.send(msg)
@@ -617,7 +617,7 @@ class CredifyMailer:
             subject="NOTICE: Your Academic Credential Has Been Revoked",
             recipients=[to_email],
             html=html,
-            sender=("GPREC Academic Records", os.environ.get('MAIL_USERNAME')),
+            sender=("GPREC Academic Records", os.environ.get("MAIL_USERNAME")),
         )
         try:
             self.mail.send(msg)
@@ -630,13 +630,13 @@ class CredifyMailer:
         """Send 6-digit MFA/Security OTP with premium HTML template"""
         if not self.mail:
             return False
-            
+
         html = render_template_string(SECURITY_OTP_TEMPLATE, full_name=full_name, otp=otp)
         msg = Message(
             subject="🛡️ Security Code: Administrative Login",
             recipients=[to_email],
             html=html,
-            sender=("Credify Security", os.environ.get('MAIL_USERNAME')),
+            sender=("Credify Security", os.environ.get("MAIL_USERNAME")),
         )
         try:
             self.mail.send(msg)
@@ -649,16 +649,16 @@ class CredifyMailer:
         """Final report after System Nuke with attached PDF"""
         if not self.mail:
             return False
-            
+
         html = render_template_string(NUKE_REPORT_TEMPLATE, stats=stats)
         msg = Message(
             subject="🚨 CRITICAL: System Reset Confirmation & Audit Report",
             recipients=[to_email],
             html=html,
-            sender=("Credify System", os.environ.get('MAIL_USERNAME')),
+            sender=("Credify System", os.environ.get("MAIL_USERNAME")),
         )
         msg.attach("Credify_Wipeout_Audit.pdf", "application/pdf", pdf_data)
-        
+
         try:
             self.mail.send(msg)
             return True

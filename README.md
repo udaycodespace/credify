@@ -1,6 +1,33 @@
-﻿# Credify v2: Permissioned Private Blockchain for Academic Credential Verification
+﻿
+# Credify v2: Permissioned Private Blockchain for Academic Credential Verification
+
+[![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=flat-square)](https://hub.docker.com/r/udaycodespace/credify)
+[![GitHub stars](https://img.shields.io/github/stars/udaycodespace/credify?style=flat-square)](https://github.com/udaycodespace/credify)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white&style=flat-square" alt="Python">
+  <img src="https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=black&style=flat-square" alt="Flask">
+  <img src="https://img.shields.io/badge/IPFS-Storage-blueviolet?logo=ipfs&logoColor=white&style=flat-square" alt="IPFS">
+  <img src="https://img.shields.io/badge/Docker-Containerization-blue?logo=docker&logoColor=white&style=flat-square" alt="Docker">
+</p>
 
 A permissioned private blockchain implementing deterministic consensus, validator-based participation, and finalized tamper-evident blocks for credential verification.
+
+---
+
+## 🚀 Quick Start (Docker)
+
+Run the latest release instantly using Docker:
+
+```bash
+docker pull udaycodespace/credify:latest
+docker run -d -p 5000:5000 udaycodespace/credify:latest
+```
+
+Then open [http://localhost:5000](http://localhost:5000) in your browser.
+
+See the image and more details on [Docker Hub](https://hub.docker.com/r/udaycodespace/credify).
 
 ---
 
@@ -187,28 +214,14 @@ Application endpoint:
 
 ---
 
-## Tech Stack
 
-Backend and Core:
-- Python 3.10+
-- Flask
-- SQLAlchemy
-- Cryptography (RSA, SHA-256)
+## 🛠️ Tech Stack
 
-Blockchain and Storage:
-- permissioned private blockchain engine
-- deterministic validator consensus
-- IPFS integration with local fallback
-
-Frontend and UX:
-- HTML/CSS/JavaScript
-- Jinja2 templates
-- responsive role-based dashboards
-
-Quality and Delivery:
-- pytest
-- Docker and docker-compose
-- GitHub Actions CI/CD
+- **Backend:** Python 3.10+, Flask, SQLAlchemy, Cryptography (RSA, SHA-256)
+- **Blockchain:** Custom permissioned private blockchain engine, deterministic validator consensus
+- **Storage:** IPFS integration with local fallback, SQLite/PostgreSQL
+- **Frontend:** HTML/CSS/JavaScript, Jinja2 templates, responsive dashboards
+- **DevOps:** Docker, docker-compose, GitHub Actions CI/CD
 
 ---
 
@@ -286,17 +299,19 @@ Coverage focus:
 
 ---
 
-## DevOps
 
-CI/CD and containerization:
+---
+
+## 📦 Docker & DevOps
+
 - GitHub Actions for test/build/publish automation
 - Docker multi-stage builds
-- Docker image publishing to Docker Hub
-- validator-cluster orchestration via docker-compose
+- Docker image published to [Docker Hub](https://hub.docker.com/r/udaycodespace/credify)
+- Validator-cluster orchestration via docker-compose
 
 Deployment posture:
-- deployment-ready for academic demos and controlled environments
-- configurable environment variables for node identity and peers
+- Ready for academic demos and controlled environments
+- Configurable environment variables for node identity and peers
 
 ---
 

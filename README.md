@@ -1,275 +1,550 @@
-﻿
-# Credify v2: Permissioned Private Blockchain for Academic Credential Verification
+<div align="center">
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=flat-square)](https://hub.docker.com/r/udaycodespace/credify)
-[![GitHub stars](https://img.shields.io/github/stars/udaycodespace/credify?style=flat-square)](https://github.com/udaycodespace/credify)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+<br/>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white&style=flat-square" alt="Python">
-  <img src="https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask&logoColor=black&style=flat-square" alt="Flask">
-  <img src="https://img.shields.io/badge/IPFS-Storage-blueviolet?logo=ipfs&logoColor=white&style=flat-square" alt="IPFS">
-  <img src="https://img.shields.io/badge/Docker-Containerization-blue?logo=docker&logoColor=white&style=flat-square" alt="Docker">
-</p>
+```txt
+ ██████╗██████╗ ███████╗██████╗ ██╗███████╗██╗   ██╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗██║██╔════╝╚██╗ ██╔╝
+██║     ██████╔╝█████╗  ██║  ██║██║█████╗   ╚████╔╝
+██║     ██╔══██╗██╔══╝  ██║  ██║██║██╔══╝    ╚██╔╝
+╚██████╗██║  ██║███████╗██████╔╝██║██║        ██║
+ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝        ╚═╝
+```
 
-A permissioned private blockchain implementing deterministic consensus, validator-based participation, and finalized tamper-evident blocks for credential verification.
+### Permissioned Private Blockchain for Academic Credential Verification
+
+<br/>
+
+[![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=for-the-badge)](https://hub.docker.com/r/udaycodespace/credify)
+[![GitHub Stars](https://img.shields.io/github/stars/udaycodespace/credify?style=for-the-badge)](https://github.com/udaycodespace/credify)
+[![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](LICENSE)
+
+<br/>
+
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-Backend-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![IPFS](https://img.shields.io/badge/IPFS-Decentralized_Storage-65C2CB?style=for-the-badge&logo=ipfs&logoColor=white)](https://ipfs.tech/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
+
+<br/>
+
+> **Controlled Trust · Deterministic Verification · Institutional Auditability**
+
+> A permissioned blockchain infrastructure for secure academic credential issuance, verification, and tamper-evident record validation.
+
+<br/>
+
+[Overview](#-overview) •
+[Architecture](#-system-architecture) •
+[Workflow](#-workflow) •
+[Security](#-security) •
+[Quick Start](#-quick-start) •
+[Roadmap](#-roadmap)
 
 ---
 
-## 🚀 Quick Start (Docker)
+</div>
 
-Run the latest release instantly using Docker:
+# 📘 Overview
+
+> [!NOTE]
+> Credify v2 is a permissioned blockchain platform designed to solve credential forgery, verification delays, and uncontrolled academic record exposure in traditional verification systems.
+
+Traditional verification systems still rely heavily on:
+- manual verification workflows
+- institution-dependent approvals
+- paper-based trust
+- delayed verification cycles
+- centralized record handling
+
+Credify replaces that flow with:
+- deterministic blockchain anchoring
+- validator-controlled trust
+- finalized tamper-evident blocks
+- cryptographic proof validation
+- selective credential disclosure
+
+---
+
+# 🎯 Stakeholder Outcomes
+
+<table>
+<tr>
+
+<td width="33%" valign="top">
+
+## 🏫 Institutions
+
+- Issue signed credentials
+- Maintain controlled trust boundaries
+- Reduce manual verification overhead
+- Preserve institutional auditability
+- Track credential lifecycle events
+
+</td>
+
+<td width="33%" valign="top">
+
+## 🎓 Students
+
+- Own credential proofs
+- Share records selectively
+- Verify instantly using QR flows
+- Avoid repetitive paperwork
+- Access portable verification links
+
+</td>
+
+<td width="33%" valign="top">
+
+## ✅ Verifiers
+
+- Validate authenticity quickly
+- Detect tampering immediately
+- Verify without institution dependency
+- Check revocation status
+- Validate cryptographic signatures
+
+</td>
+
+</tr>
+</table>
+
+---
+
+# ✨ Core Capabilities
+
+<table>
+<tr>
+
+<td width="33%" valign="top">
+
+## 🔗 Blockchain Layer
+
+- Permissioned validator network
+- Deterministic consensus sequencing
+- Finalized tamper-evident blocks
+- Multi-node propagation
+- Hash-linked integrity model
+- Validator participation controls
+
+</td>
+
+<td width="33%" valign="top">
+
+## 🔐 Security Layer
+
+- RSA-2048 digital signatures
+- SHA-256 hashing
+- OTP-based privileged access
+- Revocation-aware verification
+- Controlled access boundaries
+- Validation pipelines
+
+</td>
+
+<td width="33%" valign="top">
+
+## 📦 Credential Layer
+
+- QR-based verification
+- PDF credential generation
+- Selective proof disclosure
+- Student proof sharing
+- Independent verification flows
+- Blockchain anchor validation
+
+</td>
+
+</tr>
+</table>
+
+---
+
+# 🏗️ System Architecture
+
+> [!IMPORTANT]
+> Credify prioritizes deterministic distributed behavior, institutional trust, explainability, and auditability over public-chain decentralization complexity.
+
+---
+
+## 🔄 High-Level Credential Lifecycle
+
+```mermaid
+flowchart LR
+
+A[Issuer] --> B[Credential Generation]
+B --> C[Digital Signature]
+
+C --> D[IPFS Storage]
+D --> E[Blockchain Anchor]
+
+E --> F[Finalized Block]
+
+F --> G[Student Holder]
+G --> H[Verifier]
+
+H --> I[Signature Validation]
+H --> J[Anchor Integrity Validation]
+H --> K[Revocation Validation]
+```
+
+---
+
+## 🌐 Validator Network
+
+```mermaid
+graph TD
+
+V1[Validator Node 1]
+V2[Validator Node 2]
+V3[Validator Node 3]
+
+V1 --> V2
+V2 --> V3
+V3 --> V1
+
+B[Finalized Block]
+
+V1 --> B
+V2 --> B
+V3 --> B
+```
+
+---
+
+## 🔐 Trust Boundary Model
+
+```mermaid
+flowchart TD
+
+Admin -->|Creates| Student
+Admin -->|Issues| Credential
+
+Student -->|Shares| Proof
+
+Verifier -->|Checks| Blockchain
+Verifier -->|Validates| Signature
+Verifier -->|Checks| Revocation
+```
+
+---
+
+# 🧠 Architecture Principles
+
+<table>
+<tr>
+<th>Principle</th>
+<th>Why It Exists</th>
+</tr>
+
+<tr>
+<td><strong>Deterministic Consensus</strong></td>
+<td>Removes probabilistic confirmation delays and creates predictable validator sequencing.</td>
+</tr>
+
+<tr>
+<td><strong>Permissioned Validators</strong></td>
+<td>Maintains institutional trust boundaries and prevents uncontrolled participation.</td>
+</tr>
+
+<tr>
+<td><strong>Finalized Blocks</strong></td>
+<td>Strengthens tamper evidence and reduces ambiguity in verification flows.</td>
+</tr>
+
+<tr>
+<td><strong>Independent Verification</strong></td>
+<td>Reduces operational coupling between issuance and verification systems.</td>
+</tr>
+
+<tr>
+<td><strong>Selective Disclosure</strong></td>
+<td>Allows proof validation without exposing unnecessary academic information.</td>
+</tr>
+
+</table>
+
+---
+
+# 🔄 System Evolution
+
+## 🚧 Phase 1 — BlockCred Prototype
+
+> [!NOTE]
+> Initial prototype created to validate feasibility and core verification flows quickly.
+
+### Foundations Introduced
+
+- IPFS-based credential storage
+- SHA-256 / Keccak hashing
+- React dashboard workflows
+- Dockerized deployment
+- Initial credential anchoring
+
+---
+
+### Prototype Limitations
+
+> [!WARNING]
+> The prototype exposed architectural limitations in:
+>
+> - deterministic state progression
+> - validator trust control
+> - institutional audit guarantees
+> - finalized verification guarantees
+> - synchronization consistency
+
+These limitations directly shaped the redesign into Credify v2.
+
+---
+
+## ⚡ Phase 2 — Credify v2
+
+### Architectural Improvements
+
+- Permissioned validator architecture
+- Deterministic consensus sequencing
+- Finalized tamper-evident blocks
+- Validator orchestration model
+- Multi-node synchronization support
+- Stronger verification guarantees
+
+---
+
+## 🔎 Phase 3 — Verification Client
+
+> [!TIP]
+> Verification was intentionally separated into an independent trust boundary.
+
+### Verification Client Characteristics
+
+- Independent verification frontend
+- QR-based proof validation
+- No backend dependency during verification
+- Reduced operational coupling
+- Public verification accessibility
+
+---
+
+# 🔐 Authentication & Access Model
+
+> [!NOTE]
+> Credify follows institution-controlled onboarding rather than public self-registration.
+
+---
+
+<table>
+<tr>
+
+<td width="33%" valign="top">
+
+## 👨‍💼 Admin / Issuer
+
+### Responsibilities
+
+- Create student identities
+- Issue credentials
+- Manage blockchain records
+- Control onboarding lifecycle
+
+### Access Model
+
+- OTP-based authentication
+- Privileged environment access
+- Administrative issuance control
+
+</td>
+
+<td width="33%" valign="top">
+
+## 🎓 Student
+
+### Permissions
+
+- View credentials
+- Share proof references
+- Access issued documents
+
+### Restrictions
+
+- No self-registration
+- Cannot modify records
+- Cannot issue credentials
+
+</td>
+
+<td width="33%" valign="top">
+
+## ✅ Verifier
+
+### Verification Methods
+
+- QR verification
+- Credential ID validation
+- Proof verification
+
+### Access Characteristics
+
+- Public access
+- No login required
+- Read-only verification flows
+
+</td>
+
+</tr>
+</table>
+
+---
+
+# ⚙️ Workflow
+
+## 📌 Operational Lifecycle
+
+```mermaid
+sequenceDiagram
+
+participant Admin
+participant Storage
+participant Blockchain
+participant Student
+participant Verifier
+
+Admin->>Storage: Store credential payload
+Admin->>Blockchain: Anchor metadata hash
+
+Blockchain-->>Student: Credential finalized
+
+Student->>Verifier: Share proof / QR
+
+Verifier->>Blockchain: Validate anchor
+Verifier->>Storage: Validate payload
+
+Verifier-->>Student: Verification result
+```
+
+---
+
+# 🚀 Quick Start
+
+## 🐳 Docker Deployment
+
+> [!TIP]
+> Recommended setup for validator synchronization demos and distributed-system evaluation.
 
 ```bash
 docker pull udaycodespace/credify:latest
 docker run -d -p 5000:5000 udaycodespace/credify:latest
 ```
 
-Then open [http://localhost:5000](http://localhost:5000) in your browser.
+### Application Endpoint
 
-See the image and more details on [Docker Hub](https://hub.docker.com/r/udaycodespace/credify).
-
----
-
-## Security Notice
-
-This is an academic engineering project built for educational evaluation and portfolio demonstration.
-
-- All sample data in documentation is illustrative.
-- Secrets must be provided through environment variables.
-- Do not deploy with default local-development settings.
-- Use HTTPS/TLS and secure secret management for internet-facing deployments.
+```txt
+http://localhost:5000
+```
 
 ---
 
-## Overview
-
-Credify v2 addresses credential forgery, verification delay, and privacy exposure in traditional academic verification systems.
-
-The platform combines:
-- permissioned private blockchain state anchoring
-- deterministic validator consensus
-- finalized tamper-evident blocks
-- IPFS-integrated storage with local fallback
-- RSA-based signature verification
-- ZKP-inspired selective disclosure
-
-Stakeholder outcomes:
-- Universities issue signed, verifiable credentials.
-- Students retain controlled data sharing.
-- Verifiers validate authenticity quickly without manual paperwork.
-
-Extended documentation was consolidated into the main README and core engineering documents to improve clarity and reduce redundancy.
-
----
-
-## Key Features
-
-- Permissioned private blockchain ledger for institutional trust boundaries
-- Deterministic round-robin validator selection
-- Immediate block finality with tamper-evident hash-linking
-- Validator-based network participation model
-- Credential integrity verification via cryptographic signatures
-- IPFS-backed storage with resilient local persistence fallback
-- ZKP-inspired selective disclosure for privacy-aware proof sharing
-- Multi-node propagation and synchronization support
-
----
-
-## System Architecture
-
-Credential lifecycle (high level):
-1. Issuer creates and signs credential data.
-2. Credential payload is stored in IPFS (or fallback storage).
-3. Credential hash and metadata are anchored in a finalized block.
-4. Holder shares proof or credential reference with verifier.
-5. Verifier checks blockchain anchor, signature, and revocation state.
-
-Architecture characteristics:
-- permissioned validator set controls block proposal
-- deterministic consensus avoids probabilistic confirmation delay
-- finalized blocks create strong tamper-evidence guarantees
-- propagation logic keeps validator nodes aligned
-
----
-
-## System Evolution
-
-### Phase 1: Prototype - BlockCred
-
-Repository: https://github.com/uday-works/blockcred-system  
-Live: https://blockcred-frontend.onrender.com/
-
-This phase validated the core problem quickly.
-It tested whether credentials could be anchored off-chain, hashed reliably, and shown through role-specific dashboards.
-It confirmed feasibility, but exposed limits in trust control, deterministic state progression, and institutional-grade verification guarantees.
-Those constraints made a redesign necessary.
-
-Key foundations introduced:
-- IPFS off-chain credential storage
-- cryptographic hashing (SHA-256 / Keccak)
-- React-based dashboards
-- Dockerized deployment on Render
-
-### Phase 2: Current System - Credify v2
-
-Evolution delivered:
-- permissioned private blockchain architecture
-- deterministic consensus for predictable block production
-- validator-based participation controls
-- finalized tamper-evident block model
-- multi-node propagation and synchronization
-
-This redesign moved the project from proof-of-concept behavior to an auditable ledger model for academic institutions.
-Deterministic consensus, validator controls, and block finality made verification defensible in real review settings.
-
-### Phase 3: Verification Client
-
-Repository: https://github.com/udaycodespace/credify-verify  
-Live: https://udaycodespace.github.io/credify-verify/
-
-Verification client characteristics:
-- independent verification client
-- QR and credential proof verification
-- no backend dependency for verification flows
-- explicit trust-boundary separation from issuance platform
-
-This separation keeps verification independently testable and reduces coupling between issuance operations and public trust checks.
-
-This progression reflects a deliberate engineering approach.
-It starts with concept validation, evolves into a controlled blockchain system, and ends with verification in an independent trust boundary.
-
----
-
-## Authentication & Access Model
-
-The system uses a secure OTP-based access mechanism.
-The model follows institutional onboarding patterns.
-Identity provisioning is controlled by authorized academic administrators, not open signup flows.
-
-### Admin / Issuer
-
-- authenticated via OTP or environment-controlled access
-- responsible for:
-  - creating students
-  - issuing credentials
-  - interacting with blockchain records
-
-Admin control centralizes onboarding accountability and preserves credential issuance integrity.
-
-### Student
-
-- created only by admin
-- no self-registration
-- can:
-  - view credentials
-  - share proofs
-
-This prevents unauthorized identity creation and aligns with registrar-driven enrollment workflows.
-
-### Verifier
-
-- no login required
-- verifies via:
-  - QR scan
-  - credential ID
-  - proof validation
-
-Public verifier access lowers friction while preserving trust through cryptographic and blockchain validation.
-
----
-
-## Quick Start
-
-### Docker Deployment (3-Node Validator Cluster)
+## 🧪 Local Development
 
 ```bash
 git clone https://github.com/udaycodespace/credify.git
+
 cd credify
+
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# Linux/macOS
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+cp .env.example .env
+
+python main.py
+```
+
+---
+
+## 🌐 Validator Cluster Deployment
+
+```bash
 docker-compose up -d
 ```
 
-Validator endpoints:
+### Validator Endpoints
+
 - http://localhost:5001
 - http://localhost:5002
 - http://localhost:5003
 
 ---
 
-## Local Development
+# 🛠️ Tech Stack
 
-```bash
-git clone https://github.com/udaycodespace/credify.git
-cd credify
-python -m venv venv
-# Windows: venv\Scripts\activate
-# Linux/Mac: source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python main.py
-```
+<div align="center">
 
-Application endpoint:
-- http://localhost:5000
+## Backend
+
+| Technology | Purpose |
+|---|---|
+| Python 3.10+ | Runtime |
+| Flask | REST backend |
+| SQLAlchemy | ORM & persistence |
+| RSA Cryptography | Digital signatures |
+| SHA-256 | Integrity hashing |
 
 ---
 
+## Blockchain
 
-## 🛠️ Tech Stack
-
-- **Backend:** Python 3.10+, Flask, SQLAlchemy, Cryptography (RSA, SHA-256)
-- **Blockchain:** Custom permissioned private blockchain engine, deterministic validator consensus
-- **Storage:** IPFS integration with local fallback, SQLite/PostgreSQL
-- **Frontend:** HTML/CSS/JavaScript, Jinja2 templates, responsive dashboards
-- **DevOps:** Docker, docker-compose, GitHub Actions CI/CD
-
----
-
-## Core Features
-
-Security and Integrity:
-- RSA-2048 digital signatures
-- SHA-256 hashing and hash-linking
-- finalized tamper-evident blocks
-- revocation-aware verification
-
-Blockchain Capability:
-- validator-based network participation
-- deterministic consensus sequencing
-- propagation safety controls
-- audit-oriented credential anchoring
-
-Credential Experience:
-- issuance and lifecycle management
-- PDF credential generation
-- QR verification flow
-- ZKP-inspired selective disclosure
+| Technology | Purpose |
+|---|---|
+| Permissioned Ledger | Controlled validator trust |
+| Deterministic Consensus | Predictable sequencing |
+| Finalized Blocks | Tamper evidence |
+| Validator Orchestration | Distributed synchronization |
 
 ---
 
-## Workflow
+## Storage
 
-Operational workflow:
-1. Issuer authenticates via OTP-based access.
-2. Issuer creates credential payload.
-3. Payload is stored and anchored to blockchain.
-4. Holder receives credential and shares proof as needed.
-5. Verifier validates via QR, credential ID, or proof.
-6. Verification checks signature, anchor integrity, and revocation status.
+| Technology | Purpose |
+|---|---|
+| IPFS | Decentralized storage |
+| SQLite/PostgreSQL | Persistence layer |
+| Local Fallback | Reliability support |
 
 ---
 
-## Project Structure
+## DevOps
+
+| Technology | Purpose |
+|---|---|
+| Docker | Containerization |
+| Docker Compose | Validator orchestration |
+| GitHub Actions | CI/CD automation |
+
+</div>
+
+---
+
+# 📂 Project Structure
 
 ```text
 credify/
-├── app/                 # Flask app, routes, services
-├── core/                # Blockchain, crypto, credential logic
-├── data/                # Runtime data files and storage artifacts
-├── docs/                # Technical documentation
+│
+├── app/                 # Flask routes and services
+├── core/                # Blockchain and cryptographic logic
+├── data/                # Runtime storage artifacts
+├── docs/                # Engineering documentation
 ├── static/              # Frontend assets
 ├── templates/           # HTML templates
 ├── tests/               # Automated tests
+│
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pyproject.toml
@@ -278,131 +553,246 @@ credify/
 
 ---
 
-## Testing
+# 🧪 Testing
 
-Run tests:
+## Run Test Suite
 
 ```bash
 pytest -v
 ```
 
-Optional coverage:
+---
+
+## Coverage
 
 ```bash
 pytest --cov=app --cov=core --cov-report=html
 ```
 
-Coverage focus:
-- authentication and access flows
-- blockchain integrity and consensus behavior
-- cryptographic utilities and verification paths
+---
+
+## Validation Areas
+
+- authentication flows
+- blockchain integrity
+- validator synchronization
+- consensus sequencing
+- propagation consistency
+- signature validation
+- revocation verification
 
 ---
 
+# 📦 Deployment Posture
+
+> [!TIP]
+> Suitable for:
+>
+> - academic demonstrations
+> - institutional pilot environments
+> - distributed systems showcases
+> - blockchain engineering portfolios
+> - verification workflow evaluation
 
 ---
 
-## 📦 Docker & DevOps
+## Environment Configuration
 
-- GitHub Actions for test/build/publish automation
-- Docker multi-stage builds
-- Docker image published to [Docker Hub](https://hub.docker.com/r/udaycodespace/credify)
-- Validator-cluster orchestration via docker-compose
-
-Deployment posture:
-- Ready for academic demos and controlled environments
-- Configurable environment variables for node identity and peers
-
----
-
-## Development Methodology (SDLC)
-
-### Team
-
-- Uday - Project Lead and Architect
-- Shashi - Contributor
-- Varshith - Contributor
-
-### Approach
-
-- Agile-style iterative development
-- phase-based execution:
-  1. Foundation (MVP)
-  2. Distributed Architecture
-  3. Feature Completeness
-  4. Deployment and Polish
-- continuous testing with pytest
-- refactoring for stability and maintainability
-
-This project followed an iterative SDLC approach.
-Each phase informed architectural decisions in the next, leading to a stable and defensible final system.
-Lessons from the prototype directly shaped redesign choices, and the final phase prioritized stabilization, validation, and explainability.
-
-Engineering principle:
-- The system prioritizes correctness, explainability, and controlled distributed behavior over full protocol complexity.
-- The system is designed not to maximize decentralization, but to balance control, verifiability, and explainability in a permissioned environment.
+```env
+SECRET_KEY=
+OTP_SECRET=
+DATABASE_URL=
+IPFS_GATEWAY=
+VALIDATOR_NODE_ID=
+PEER_NODES=
+```
 
 ---
 
-## Security
+# 🔒 Security
 
-Implemented controls:
-- OTP-based privileged access model
-- role-based access boundaries
-- cryptographic signing and integrity checks
-- tamper-evident finalized block model
-- input validation and ORM-based query safety
+## Implemented Controls
 
-Operational recommendations:
-- keep secrets in environment variables only
-- enforce HTTPS/TLS in deployed environments
-- rotate secrets regularly
-- monitor logs and verification failures
+<table>
+<tr>
+<th>Control</th>
+<th>Purpose</th>
+</tr>
 
----
+<tr>
+<td>OTP-based Privileged Access</td>
+<td>Restricts administrative onboarding and issuance.</td>
+</tr>
 
-## Roadmap
+<tr>
+<td>RSA Digital Signatures</td>
+<td>Validates credential authenticity and integrity.</td>
+</tr>
 
-Future enhancements:
-- PBFT-style consensus upgrade for stronger Byzantine tolerance
-- validator slashing and governance controls
-- IPFS cluster adoption
-- stronger ZKP-inspired selective disclosure evolution toward full zero-knowledge proof protocols
-- DID interoperability for portable credential identity
+<tr>
+<td>SHA-256 Hashing</td>
+<td>Provides tamper-evident hashing guarantees.</td>
+</tr>
 
----
+<tr>
+<td>Role-based Boundaries</td>
+<td>Prevents unauthorized credential operations.</td>
+</tr>
 
-## Team
+<tr>
+<td>Finalized Block Model</td>
+<td>Strengthens verification defensibility.</td>
+</tr>
 
-Core contributors:
-- Uday: architecture, backend, blockchain, integration
-- Shashi: implementation support, UI contribution, validation
-- Varshith: debugging support, testing support, documentation support
-
----
-
-## Acknowledgements
-
-Academic guidance and institutional support from:
-- Dr. B. Thimma Reddy Sir
-- Dr. G. Rajeswarappa Sir
-- Shri K. Bala Chowdappa Sir
-- G. Pulla Reddy Engineering College (Autonomous), Kurnool
-
-Technical ecosystem acknowledgements:
-- Python and Flask communities
-- IPFS ecosystem contributors
-- open-source contributors used by this project
+</table>
 
 ---
 
-## License
+## Operational Recommendations
 
-Project classification: B.Tech Final Year Project.
+> [!WARNING]
+> Production deployments should:
+>
+> - enforce HTTPS/TLS
+> - rotate secrets regularly
+> - isolate validator infrastructure
+> - monitor verification failures
+> - avoid default development secrets
+> - separate staging and production validators
 
-This repository is maintained for academic evaluation and portfolio demonstration by the core team.
+---
 
-For usage permissions, contact the maintainers:
-- https://github.com/udaycodespace
-- https://github.com/shashikiran47
-- https://github.com/tejavarshith
+# 🛣️ Roadmap
+
+## Planned Enhancements
+
+- PBFT-style consensus evolution
+- Validator governance controls
+- Validator slashing mechanisms
+- IPFS cluster integration
+- DID interoperability
+- Advanced zero-knowledge proof systems
+- Distributed audit dashboards
+
+---
+
+# 👥 Team
+
+## Core Contributors
+
+<div align="center">
+
+<table>
+<tr>
+
+<td align="center" width="33%">
+
+<a href="https://github.com/udaycodespace">
+<img src="https://github.com/udaycodespace.png" width="100px;" alt="udaycodespace"/>
+
+### Uday
+</a>
+
+`Architecture`
+`Blockchain`
+`Backend`
+`Integration`
+
+💻 ⚡ 🔐
+
+</td>
+
+<td align="center" width="33%">
+
+<a href="https://github.com/shashikiran47">
+<img src="https://github.com/shashikiran47.png" width="100px;" alt="shashikiran47"/>
+
+### Shashi
+</a>
+
+`Validation`
+`Implementation`
+`Testing`
+
+🧪 💻 📖
+
+</td>
+
+<td align="center" width="33%">
+
+<a href="https://github.com/tejavarshith">
+<img src="https://github.com/tejavarshith.png" width="100px;" alt="tejavarshith"/>
+
+### Varshith
+</a>
+
+`Debugging`
+`Testing`
+`Documentation`
+
+🐛 🧪 📚
+
+</td>
+
+</tr>
+</table>
+
+</div>
+
+---
+
+# 🙌 Academic Guidance
+
+> [!NOTE]
+> This project was developed with academic mentorship and institutional guidance from faculty members at G. Pulla Reddy Engineering College (Autonomous), Kurnool.
+
+<br/>
+
+<div align="center">
+
+| Faculty | Contribution |
+|---|---|
+| **Dr. B. Thimma Reddy Sir** | Distributed systems and engineering guidance |
+| **Dr. G. Rajeswarappa Sir** | Academic evaluation and technical mentorship |
+| **Shri K. Bala Chowdappa Sir** | Institutional support and project guidance |
+
+</div>
+
+---
+
+# 🌍 Technical Ecosystem
+
+- Python ecosystem
+- Flask community
+- IPFS contributors
+- Open-source maintainers
+- Cryptography libraries ecosystem
+
+---
+
+# 📜 License
+
+> [!NOTE]
+> Project classification: B.Tech Final Year Engineering Project.
+
+Maintained for:
+- academic evaluation
+- blockchain engineering demonstration
+- distributed systems showcase
+- portfolio presentation
+
+---
+
+<div align="center">
+
+<br/>
+
+**Built as a flagship blockchain engineering project**
+
+*If this project helped you, consider giving it a ⭐*
+
+<br/>
+
+[![Python](https://skillicons.dev/icons?i=python,flask,docker,github)](https://skillicons.dev)
+
+</div>

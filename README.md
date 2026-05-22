@@ -2,18 +2,20 @@
 
 <br/>
 
-```txt
+<pre align="center">
  ██████╗██████╗ ███████╗██████╗ ██╗███████╗██╗   ██╗
 ██╔════╝██╔══██╗██╔════╝██╔══██╗██║██╔════╝╚██╗ ██╔╝
 ██║     ██████╔╝█████╗  ██║  ██║██║█████╗   ╚████╔╝
 ██║     ██╔══██╗██╔══╝  ██║  ██║██║██╔══╝    ╚██╔╝
 ╚██████╗██║  ██║███████╗██████╔╝██║██║        ██║
  ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝        ╚═╝
-```
+</pre>
 
 ### Permissioned Private Blockchain for Academic Credential Verification
 
 <br/>
+
+</div>
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/udaycodespace/credify?style=for-the-badge)](https://hub.docker.com/r/udaycodespace/credify)
 [![GitHub Stars](https://img.shields.io/github/stars/udaycodespace/credify?style=for-the-badge)](https://github.com/udaycodespace/credify)

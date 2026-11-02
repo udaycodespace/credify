@@ -1,7 +1,7 @@
  <div align="center">
 
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/udaycodespace/credify/main/assets/credify-logo-white.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://udaycodespace/credify/assets/credify-logo-white.svg">
     <img src="assets/credify-logo.svg" alt="Credify logo" width="104" height="104">
   </picture>
 

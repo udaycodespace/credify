@@ -1,208 +1,313 @@
-<div align="center">
+ <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/credify-logo-white.svg">
-  <img src="assets/credify-logo.svg" alt="Credify logo: a graduation cap with a chain link and a check threaded through it" width="96" height="96">
-</picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/udaycodespace/credify/main/assets/credify-logo-white.svg">
+    <img src="assets/credify-logo.svg" alt="Credify logo" width="104" height="104">
+  </picture>
 
-# Credify
+  **Is that degree real? Stop emailing the registrar. Check the proof..**
 
-Is that degree real? Stop emailing the registrar. Check the proof.
+  A permissioned blockchain system for issuing, sharing, and independently verifying academic credentials.
 
-![Solo project](https://img.shields.io/badge/Solo_project-Yes-111827?style=for-the-badge&logo=github&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Active_build-0f766e?style=for-the-badge)
-![Blockchain](https://img.shields.io/badge/Blockchain-Permissioned-7c3aed?style=for-the-badge&logo=hyperledger&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
-![IPFS](https://img.shields.io/badge/IPFS-65C2CB?style=for-the-badge&logo=ipfs&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-[![GitHub](https://img.shields.io/badge/udaycodespace-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/udaycodespace)
-
+  ![Solo Project](https://img.shields.io/badge/Solo_Project-Yes-111827?style=for-the-badge&logo=github&logoColor=white)
+  ![Status](https://img.shields.io/badge/Status-Active_Build-0f766e?style=for-the-badge)
+  ![Blockchain](https://img.shields.io/badge/Blockchain-Permissioned-7c3aed?style=for-the-badge&logo=hyperledger&logoColor=white)
+  ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+  ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+  ![IPFS](https://img.shields.io/badge/IPFS-65C2CB?style=for-the-badge&logo=ipfs&logoColor=white)
+  ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+  
 </div>
 
-## About
+---
 
-Credify is a permissioned blockchain for academic credential verification. It is built for institutions that issue credentials, students who hold them, and verifiers who need to trust them.
+## The result
 
-An institution signs a credential and anchors its hash on the chain. The student shares a QR code or a link. The verifier checks the proof directly, so tampering is obvious and nobody has to wait for an email reply.
+**A credential can be verified without emailing the institution that issued it.**
 
-I built it solo to make credentials easier to issue, harder to fake, and faster to verify.
+Credify makes that possible through cryptographic signatures, blockchain-backed hash records, and IPFS storage.
 
-## The problem
+An institution issues a credential. A student shares its QR code or verification link. A verifier checks its authenticity, blockchain record, and revocation status.
 
-Academic certificates travel as PDFs, and a PDF can be copied or edited. Checking one usually means an email thread, a manual check, and a wait. The records themselves sit in different systems.
+No unnecessary email chains. No relying on a PDF alone. Just verifiable proof.
 
-Credify keeps the whole flow in one place and gives the verifier something concrete to check.
+## The problem isn't the certificate. It's proving it's real.
+
+Academic certificates are commonly shared as PDFs. But a PDF can be copied, edited, or presented without a reliable way to establish its origin.
+
+Verification often involves:
+
+- Emailing the issuing institution.
+- Waiting for manual confirmation.
+- Checking records across disconnected systems.
+- Trying to establish whether a document has been altered.
+
+**Credify is not another document storage system. It is a verification layer built around the credential itself.**
+
+### From manual verification to verifiable proof
 
 ```mermaid
 flowchart LR
-    A[Email threads]:::bad --> X
-    B[Manual checks]:::bad --> X
-    C[Scattered records]:::bad --> X
-    X{{Credify}}:::hub --> Y[Student shares a QR or link]:::good --> Z[Verifier checks the proof]:::done
+    A["Email threads"] --> X
+    B["Manual checks"] --> X
+    C["Scattered records"] --> X
 
-    classDef bad fill:#fecaca,stroke:#111827,color:#111827,stroke-width:2px
-    classDef hub fill:#7c3aed,stroke:#111827,color:#ffffff,stroke-width:3px
-    classDef good fill:#ddd6fe,stroke:#111827,color:#111827,stroke-width:2px
-    classDef done fill:#bbf7d0,stroke:#111827,color:#111827,stroke-width:2px
+    X{{"Credify"}} --> Y["Student shares QR or link"]
+    Y --> Z["Verifier checks proof"]
+
+    classDef problem fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+    classDef hub fill:#7c3aed,stroke:#5b21b6,color:#ffffff
+    classDef share fill:#ede9fe,stroke:#7c3aed,color:#312e81
+    classDef verify fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+    class A,B,C problem
+    class X hub
+    class Y share
+    class Z verify
 ```
 
-| Problem | What usually happens | What Credify does |
-|:-:|:-|:-|
-| Fake certificates | PDFs get copied or edited. | Signs records and anchors them on the chain. |
-| Slow verification | Staff have to respond manually. | Lets verifiers check the proof directly. |
-| Scattered records | Data lives across different systems. | Keeps the record flow structured. |
-| Trust gaps | There is no clear way to confirm where a record came from. | Uses permissions, hashes and signatures. |
+<div align="center">
 
-## How it works
+<table align="center">
+  <thead>
+    <tr>
+      <th>Challenge</th>
+      <th>Traditional approach</th>
+      <th>Credify approach</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Fake certificates</td>
+      <td>Manual document inspection</td>
+      <td>Digital signatures and blockchain hashes</td>
+    </tr>
+    <tr>
+      <td>Slow verification</td>
+      <td>Institutional email follow-ups</td>
+      <td>Independent proof verification</td>
+    </tr>
+    <tr>
+      <td>Scattered records</td>
+      <td>Disconnected systems</td>
+      <td>Structured credential flow</td>
+    </tr>
+    <tr>
+      <td>Trust gaps</td>
+      <td>Unclear document origin</td>
+      <td>Cryptographic proof and permissions</td>
+    </tr>
+  </tbody>
+</table>
 
-An admin creates and signs a credential. The payload goes to IPFS and its hash is anchored on the blockchain. Once the block is finalized, the student receives the proof. A verifier scans the QR code or opens the link and runs three checks.
+</div>
+
+## How Credify works
+
+**Issue. Sign. Store. Anchor. Verify.**
+
+The process starts with an authorized institution administrator and ends with an independent verification result.
+
+### 1. The credential lifecycle
 
 ```mermaid
 flowchart TD
-    A[Admin creates credential]:::step --> B[Sign record]:::step
-    B --> C[Store payload in IPFS]:::step
-    C --> D{{Anchor hash on blockchain}}:::hub
-    D --> E[Finalize block]:::step
-    E --> F[Student receives proof]:::good
-    F --> G[Verifier scans QR or link]:::good
-    G --> H[Check signature]:::done
-    G --> I[Check blockchain anchor]:::done
-    G --> J[Check revocation]:::done
+    A["Admin creates credential"] --> B["Sign credential"]
+    B --> C["Store payload in IPFS"]
+    C --> D{{"Anchor hash on blockchain"}}
+    D --> E["Finalize block"]
+    E --> F["Student receives proof"]
+    F --> G["Verifier scans QR or opens link"]
+    G --> H["Verify digital signature"]
+    G --> I["Verify blockchain anchor"]
+    G --> J["Check revocation status"]
 
-    classDef step fill:#f3f4f6,stroke:#111827,color:#111827,stroke-width:2px
-    classDef hub fill:#7c3aed,stroke:#111827,color:#ffffff,stroke-width:3px
-    classDef good fill:#ddd6fe,stroke:#111827,color:#111827,stroke-width:2px
-    classDef done fill:#bbf7d0,stroke:#111827,color:#111827,stroke-width:2px
+    classDef step fill:#f3f4f6,stroke:#64748b,color:#111827
+    classDef anchor fill:#7c3aed,stroke:#5b21b6,color:#ffffff
+    classDef holder fill:#ede9fe,stroke:#7c3aed,color:#312e81
+    classDef check fill:#dcfce7,stroke:#16a34a,color:#14532d
+
+    class A,B,C,E step
+    class D anchor
+    class F,G holder
+    class H,I,J check
 ```
+
+### 2. How the components communicate
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant Admin
     participant IPFS
-    participant Chain
+    participant Chain as Blockchain
     participant Student
     participant Verifier
 
     Admin->>IPFS: Upload credential payload
     Admin->>Chain: Store hash and metadata
-    Chain-->>Student: Credential is finalized
+    Chain-->>Student: Credential finalized
     Student->>Verifier: Share QR or proof link
-    Verifier->>Chain: Validate anchor
-    Verifier->>IPFS: Validate payload
-    Verifier-->>Student: Return result
+    Verifier->>Chain: Validate blockchain anchor
+    Verifier->>IPFS: Retrieve and validate payload
+    Verifier-->>Student: Return verification result
 ```
+
+### 3. What gets verified?
+
+| Verification check | Purpose |
+|---|---|
+| Digital signature | Confirms the credential's signature is valid. |
+| Blockchain anchor | Checks that the credential hash matches the anchored record. |
+| Revocation status | Determines whether the credential has been revoked. |
 
 ## What's inside
 
-| Part | What it handles |
-|:-:|:-|
-| ![Issuance](https://img.shields.io/badge/Issuance-7c3aed?style=flat-square) | Creates and signs credentials. |
-| ![Storage](https://img.shields.io/badge/Storage-65C2CB?style=flat-square) | Stores payloads through IPFS. |
-| ![Blockchain](https://img.shields.io/badge/Blockchain-1d4ed8?style=flat-square) | Anchors hashes and keeps the ledger consistent. |
-| ![Verification](https://img.shields.io/badge/Verification-0f766e?style=flat-square) | Checks the signature, the anchor and the revocation status. |
-| ![Access control](https://img.shields.io/badge/Access_control-111827?style=flat-square) | Uses OTP-based privileged access for issuer actions. |
+| Component | Responsibility |
+|---|---|
+| Issuance | Creates and signs academic credentials. |
+| Storage | Stores credential payloads using IPFS. |
+| Blockchain | Anchors hashes and maintains the ledger. |
+| Verification | Checks signatures, anchors, and revocation status. |
+| Access control | Protects privileged issuer actions through OTP-based access. |
 
 ## Features
 
-| Feature | How it works |
-|:-:|:-|
-| Permissioned network | Validation stays controlled, and only approved nodes take part. |
-| Finalized blocks | Once a block is finalized, tampering with it is obvious. |
-| Independent verification | A verifier checks the proof without asking the institution, so there is less manual follow-up. |
-| Selective disclosure | The holder shares only what is needed. |
-| Cryptographic proof | RSA signatures and SHA-256 hashes give the verifier something concrete to check. |
-| QR or link sharing | The student shares one QR code or proof link, and the verifier opens it. |
-| Revocation check | Verification includes the credential's revocation status. |
-| OTP for issuer actions | Privileged actions need a one-time code. |
-| Role boundaries | Admin, student and verifier each get their own access. |
+Not another PDF upload portal. Not another manual verification workflow.
 
-## Who it helps
+**A structured credential verification system.**
 
-| If you are... | Credify gives you... |
-|:-:|:-|
-| A student | A portable credential proof you can share quickly. |
-| An institution | A cleaner issuance and verification flow. |
-| A verifier | A direct way to confirm authenticity. |
-| A recruiter | A faster check than email-based validation. |
+| Feature | What it provides |
+|---|---|
+| Permissioned network | Controlled participation by approved validator nodes. |
+| Finalized blocks | A consistent ledger with tamper-evident records. |
+| Independent verification | Proof checking without relying on manual institutional responses. |
+| Selective disclosure | Allows holders to share only the information needed. |
+| Cryptographic proof | RSA signatures and SHA-256 hashes. |
+| QR and link sharing | Convenient access to credential verification. |
+| Revocation checks | Verification of credential revocation status. |
+| OTP-based access | Additional protection for privileged issuer actions. |
+| Role-based access | Separate permissions for admins, students, and verifiers. |
 
-## Tech stack
+## Who is it for?
 
-| Layer | Choice | What it does here |
-|:-|:-:|:-|
-| Backend | ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat-square&logo=flask&logoColor=white) | The application server. SQLAlchemy handles the database layer. |
-| Security | ![RSA](https://img.shields.io/badge/-RSA-7c3aed?style=flat-square) ![SHA-256](https://img.shields.io/badge/-SHA--256-111827?style=flat-square) | RSA signs records. SHA-256 hashes them so any change shows up. |
-| Storage | ![IPFS](https://img.shields.io/badge/-IPFS-65C2CB?style=flat-square&logo=ipfs&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) ![SQLite](https://img.shields.io/badge/-SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white) | IPFS holds credential payloads. SQLite and PostgreSQL are used for database storage. |
-| Deployment | ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white) | One image to run the app, and Docker Compose for the validator nodes. |
-| Automation | ![GitHub Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) | Workflows that run on the repo. |
+| User | Value |
+|---|---|
+| Students | A portable credential proof that can be shared easily. |
+| Academic institutions | A structured issuance and verification workflow. |
+| Verifiers | A direct way to check credential authenticity. |
+| Recruiters | A faster alternative to email-based credential confirmation. |
 
-## Quick start
+## Technology stack
 
-### Docker
+| Layer | Technologies | Purpose |
+|---|---|---|
+| Backend | Python, Flask | Application server and business logic. |
+| Security | RSA, SHA-256 | Digital signatures and credential hashing. |
+| Storage | IPFS | Distributed credential payload storage. |
+| Database | SQLite, PostgreSQL | Application data persistence. |
+| Blockchain | Permissioned network | Credential hash anchoring and validation. |
+| Deployment | Docker, Docker Compose | Application and validator deployment. |
+| Automation | GitHub Actions | Repository workflow automation. |
+
+## Run Credify locally
+
+Want to explore the implementation? Start with Docker or run the application locally.
+
+### Option 1: Docker
 
 ```bash
 docker pull udaycodespace/credify:latest
+
 docker run -d -p 5000:5000 udaycodespace/credify:latest
 ```
 
-### Local setup
+### Option 2: Local setup
 
 ```bash
 git clone https://github.com/udaycodespace/credify.git
+
 cd credify
+
 python -m venv venv
+```
 
-# Windows
+**Windows**
+
+```bash
 venv\Scripts\activate
+```
 
-# Linux or macOS
+**Linux / macOS**
+
+```bash
 source venv/bin/activate
+```
 
+Install dependencies and start the application:
+
+```bash
 pip install -r requirements.txt
+
 cp .env.example .env
+
 python main.py
 ```
 
-### Validator nodes
+### Option 3: Start validator nodes
 
 ```bash
 docker-compose up -d
 ```
 
-| Node | Endpoint |
-|:-:|:-|
-| Validator 1 | http://localhost:5001 |
-| Validator 2 | http://localhost:5002 |
-| Validator 3 | http://localhost:5003 |
+| Validator | Local endpoint |
+|---|---|
+| Validator 1 | [http://localhost:5001](http://localhost:5001) |
+| Validator 2 | [http://localhost:5002](http://localhost:5002) |
+| Validator 3 | [http://localhost:5003](http://localhost:5003) |
 
-## Security
+## Security model
 
-| Control | Purpose |
-|:-:|:-|
-| OTP access | Protects issuer actions. |
-| RSA signatures | Proves a record is authentic. |
-| SHA-256 hashing | Detects tampering. |
-| Role boundaries | Separates admin, student and verifier. |
-| Finalized ledger | Makes verification easier to trust. |
+Credify uses multiple controls to protect credential issuance and verification.
 
-## Roadmap
+| Security control | Purpose |
+|---|---|
+| OTP access | Protects privileged issuer actions. |
+| RSA signatures | Provides cryptographic authenticity checks. |
+| SHA-256 hashing | Detects changes to credential payloads. |
+| Role boundaries | Separates admin, student, and verifier permissions. |
+| Finalized ledger | Provides a tamper-evident verification record. |
 
-| Next step | What it adds |
-|:-:|:-|
-| PBFT-style consensus | A stronger validation model. |
-| DID support | Better identity interoperability. |
-| ZK proofs | More privacy for sensitive data. |
-| Governance controls | Cleaner validator management. |
-| Audit dashboards | Easier monitoring and traceability. |
+## What's next?
 
-## License
+The current implementation provides the foundation. Future development can extend it through:
 
-Copyright (c) 2026 Uday. All rights reserved.
+| Planned enhancement | Potential benefit |
+|---|---|
+| PBFT-style consensus | A stronger validator consensus model. |
+| DID support | Improved decentralized identity interoperability. |
+| Zero-knowledge proofs | More privacy-preserving credential verification. |
+| Governance controls | Better validator administration. |
+| Audit dashboards | Improved monitoring and traceability. |
+
+## Why Credify?
+
+Want credentials to be easier to issue, harder to fake, and faster to verify?
+
+**Build the proof into the credential workflow itself.**
+
+That's the idea behind Credify.
+
+---
 
 <div align="center">
 
-Built solo. Kept practical. Focused on trust, not hype.
+  **Kept practical. Focused on trust.**
 
-Made by [udaycodespace](https://github.com/udaycodespace)
+  Made by [udaycodespace](https://github.com/udaycodespace)
 
 </div>
+
+---
+
+Copyright (c) 2026 Uday. All rights reserved.

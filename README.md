@@ -1,11 +1,19 @@
- <div align="center">
-
+<div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://udaycodespace/credify/assets/credify-logo-white.svg">
-    <img src="assets/credify-logo.svg" alt="Credify logo" width="104" height="104">
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://raw.githubusercontent.com/udaycodespace/credify/main/assets/credify-logo-white.svg"
+    />
+    <img
+      src="https://raw.githubusercontent.com/udaycodespace/credify/main/assets/credify-logo.svg"
+      alt="Credify logo"
+      width="104"
+      height="104"
+    />
   </picture>
 
-  **Is that degree real? Stop emailing the registrar. Check the proof..**
+  <h3>Is that degree real? Stop emailing the registrar. Check the proof.</h3>
+</div>
 
   A permissioned blockchain system for issuing, sharing, and independently verifying academic credentials.
 
